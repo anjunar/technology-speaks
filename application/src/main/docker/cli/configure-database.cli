@@ -1,0 +1,3 @@
+/subsystem=datasources/jdbc-driver=postgres:add(driver-name=postgres,driver-module-name=org.postgresql)
+	
+data-source add --name=postgres --jndi-name=java:jboss/datasources/technology-speaks --driver-name=postgres --connection-url=jdbc:postgresql://localhost:5432/technology_speaks --user-name=postgres --password=postgres

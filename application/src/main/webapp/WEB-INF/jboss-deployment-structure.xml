@@ -1,0 +1,24 @@
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.1">
+
+    <deployment>
+        <module-alias name="deployment.com.anjunar.technologyspeaks"/>
+        <dependencies>
+            <module name="com.google.guava"/>
+            <module name="net.bytebuddy"/>
+            <module name="org.apache.commons.io"/>
+            <module name="org.apache.commons.lang3"/>
+            <module name="sun.jdk" export="true" >
+                <imports>
+                    <include path="sun/misc/Unsafe" />
+                </imports>
+            </module>
+        </dependencies>
+        <exclusions>
+            <module name="com.fasterxml.jackson.core.jackson-databind"/>
+            <module name="com.fasterxml.jackson.core.jackson-annotations"/>
+            <module name="com.fasterxml.jackson.core.jackson-core"/>
+            <module name="com.fasterxml.jackson.datatype.jackson-datatype-jsr310"/>
+        </exclusions>
+    </deployment>
+
+</jboss-deployment-structure>

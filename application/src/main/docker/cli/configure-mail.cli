@@ -1,0 +1,7 @@
+/subsystem=mail/mail-session=default:remove
+
+/subsystem=mail/mail-session=default:add(jndi-name="java:/mail/Mail", from="anjunar@gmx.de", debug=true)
+
+/subsystem=mail/mail-session=default/server=smtp:add(outbound-socket-binding-ref="smtp-binding", ssl=true, username="anjunar@gmx.de", password="s3cr3t")
+
+/socket-binding-group=standard-sockets/remote-destination-outbound-socket-binding=smtp-binding:add(host="smtp.gmx.net", port=465)

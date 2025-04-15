@@ -1,0 +1,5 @@
+    <deployments>
+        <deployment name="webapp.war" runtime-name="webapp.war">
+            <fs-exploded path="C:\Users\Patrick\IdeaProjects\technology-speaks\application\webapp.war"/>
+        </deployment>
+    </deployments>
