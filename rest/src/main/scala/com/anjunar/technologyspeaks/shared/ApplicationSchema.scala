@@ -1,7 +1,7 @@
 package com.anjunar.technologyspeaks.shared
 
-import com.anjunar.technologyspeaks.Application
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, LinkContext, SchemaBuilder}
+import com.anjunar.technologyspeaks.Application
 
 object ApplicationSchema {
 

@@ -9,7 +9,7 @@ class EntitySchemaBuilder[C](val aClass : Class[C]) {
   
   val mapping = new mutable.LinkedHashMap[String, PropertyBuilder[C]]
   
-  var links : (instance : C, link: LinkContext) => Unit = uninitialized
+  var links : (instance : AnyRef, link: LinkContext) => Unit = uninitialized
   
   def property(name : String, builder: PropertyBuilder[C] => PropertyBuilder[C]) : EntitySchemaBuilder[C] = {
     val propertyBuilder = new PropertyBuilder[C](name, aClass)
@@ -25,7 +25,7 @@ class EntitySchemaBuilder[C](val aClass : Class[C]) {
   }
   
   def withLinks(link : (C, LinkContext) => Unit): EntitySchemaBuilder[C] = {
-    links = link
+    links = link.asInstanceOf[(AnyRef, LinkContext) => Unit]
     this
   }
   

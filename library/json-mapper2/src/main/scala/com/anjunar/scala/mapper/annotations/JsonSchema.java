@@ -11,23 +11,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.PARAMETER})
 public @interface JsonSchema {
 
-    enum State {
-        ENTRYPOINT,
-
-        CREATE,
-        READ,
-        UPDATE,
-        DELETE,
-
-        EXECUTE,
-        
-        LIST,
-
-        VALIDATE
-    }
-
     Class<? extends EntityJSONSchema<?>> value();
     
-    State state(); 
-
 }

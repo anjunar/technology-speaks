@@ -1,14 +1,13 @@
 package com.anjunar.technologyspeaks.security
 
 import com.anjunar.scala.mapper.annotations.JsonSchema
-import com.anjunar.scala.mapper.annotations.JsonSchema.State
 import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.scala.universe.introspector
 import com.anjunar.technologyspeaks.control.{Credential, User}
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
-import com.anjunar.technologyspeaks.jaxrs.search.{PredicateProvider, RestPredicate, RestSort}
 import com.anjunar.technologyspeaks.jaxrs.search.jpa.JPASearch
-import com.anjunar.technologyspeaks.jaxrs.search.provider.{GenericDurationDateProvider, GenericIdProvider, GenericManyToManyProvider, GenericNameProvider, GenericSortProvider}
+import com.anjunar.technologyspeaks.jaxrs.search.provider.*
+import com.anjunar.technologyspeaks.jaxrs.search.{PredicateProvider, RestPredicate, RestSort}
 import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, Table}
 import com.anjunar.technologyspeaks.security.CredentialTableResource.Search
 import jakarta.annotation.security.RolesAllowed
@@ -16,7 +15,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 import jakarta.persistence.criteria.{CriteriaBuilder, CriteriaQuery, Predicate, Root}
-import jakarta.ws.rs.{BeanParam, GET, Path, Produces, QueryParam}
+import jakarta.ws.rs.*
 
 import java.util
 import java.util.UUID
@@ -33,7 +32,7 @@ class CredentialTableResource {
 
   @GET
   @Produces(Array("application/json"))
-  @JsonSchema(value = classOf[CredentialTableSchema], state = State.LIST)
+  @JsonSchema(classOf[CredentialTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Credentials", linkType = LinkType.TABLE)
   def list(@BeanParam search: Search): Table[Credential] = {

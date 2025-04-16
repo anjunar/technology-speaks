@@ -1,9 +1,10 @@
 package com.anjunar.technologyspeaks.security
 
 import com.anjunar.scala.mapper.annotations.JsonSchema
-import com.anjunar.scala.mapper.annotations.JsonSchema.State
+import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
 import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
+import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.yubico.webauthn.*
 import com.yubico.webauthn.data.*
 import jakarta.enterprise.context.SessionScoped
@@ -18,7 +19,7 @@ import scala.compiletime.uninitialized
 @Produces(Array(MediaType.APPLICATION_JSON))
 @Consumes(Array(MediaType.APPLICATION_JSON))
 @SessionScoped
-class WebAuthnLoginResource extends Serializable {
+class WebAuthnLoginResource extends Serializable with SchemaBuilderContext {
 
   @Inject
   var webAuthnService: WebAuthnService = uninitialized
@@ -30,9 +31,22 @@ class WebAuthnLoginResource extends Serializable {
   
   @GET
   @Path("login")  
-  @JsonSchema(value = classOf[WebAuthnLoginSchema], state = State.ENTRYPOINT)
+  @JsonSchema(classOf[WebAuthnLoginSchema])
   @LinkDescription(value = "Login", linkType = LinkType.FORM)  
-  def entry(): WebAuthnLogin = new WebAuthnLogin
+  def entry(): WebAuthnLogin = {
+
+    provider.builder
+      .forType(classOf[WebAuthnLogin], (entity: EntitySchemaBuilder[WebAuthnLogin]) => entity
+        .withLinks((instance, link) => {
+          linkTo(methodOn(classOf[WebAuthnLoginResource]).beginLogin(null))
+            .withRel("login")
+            .build(link.addLink)
+        })
+      )
+
+
+    new WebAuthnLogin
+  }
 
   @POST
   @Path("/options")

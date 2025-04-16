@@ -7,20 +7,12 @@ import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, met
 import java.lang.reflect.Type
 
 class WebAuthnLoginSchema extends EntityJSONSchema[WebAuthnLogin] {
-  override def build(instance: WebAuthnLogin, aType: Type, action: JsonSchema.State): SchemaBuilder = {
-    val builder = new SchemaBuilder()
-
-    builder.forType(classOf[WebAuthnLogin], (entity: EntitySchemaBuilder[WebAuthnLogin]) => entity
-      .property("username", property => property
-        .withWriteable(true)
+  override def build(instance: WebAuthnLogin, aType: Type): SchemaBuilder = {
+    new SchemaBuilder()
+      .forType(classOf[WebAuthnLogin], (entity: EntitySchemaBuilder[WebAuthnLogin]) => entity
+        .property("username", property => property
+          .withWriteable(true)
+        )
       )
-      .withLinks((instance, link) => {
-        linkTo(methodOn(classOf[WebAuthnLoginResource]).beginLogin(null))
-          .withRel("login")
-          .build(link.addLink)
-      })
-    )
-
-    builder
   }
 }

@@ -1,10 +1,11 @@
 package com.anjunar.technologyspeaks.security
 
 import com.anjunar.scala.mapper.annotations.JsonSchema
-import com.anjunar.scala.mapper.annotations.JsonSchema.State
+import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
 import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.control.{Credential, EMail, Role, User}
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
+import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.jpa.Pair
 import com.yubico.webauthn.*
 import com.yubico.webauthn.data.*
@@ -26,7 +27,7 @@ import scala.jdk.CollectionConverters.*
 @Produces(Array(MediaType.APPLICATION_JSON))
 @Consumes(Array(MediaType.APPLICATION_JSON))
 @SessionScoped
-class WebAuthnRegistrationResource extends Serializable {
+class WebAuthnRegistrationResource extends Serializable with SchemaBuilderContext {
 
   val logger = LoggerFactory.getLogger(classOf[WebAuthnRegistrationResource])
 
@@ -43,9 +44,22 @@ class WebAuthnRegistrationResource extends Serializable {
 
   @GET
   @Path("register")
-  @JsonSchema(value = classOf[WebAuthnRegistrationSchema], state = State.ENTRYPOINT)
+  @JsonSchema(classOf[WebAuthnRegistrationSchema])
   @LinkDescription(value = "Register", linkType = LinkType.FORM)
-  def entry(): WebAuthnLogin = new WebAuthnLogin
+  def entry(): WebAuthnLogin = {
+
+    provider.builder
+      .forType(classOf[WebAuthnLogin], (entity: EntitySchemaBuilder[WebAuthnLogin]) => entity
+        .withLinks((instance, link) => {
+          linkTo(methodOn(classOf[WebAuthnRegistrationResource]).generateRegistrationOptions(null))
+            .withRel("register")
+            .build(link.addLink)
+        })
+      )
+
+
+    new WebAuthnLogin
+  }
 
   def findExistingUser(userName: String, displayName: String): Optional[UserIdentity] = {
     val credential = Credential.forUserNameAndDisplayName(userName, displayName)

@@ -1,13 +1,12 @@
 package com.anjunar.scala.mapper
 
-import com.anjunar.scala.mapper.annotations.JsonSchema.State
-import com.anjunar.scala.mapper.annotations.{Action, JsonSchema}
+import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.mapper.exceptions.{ValidationException, ValidationViolation}
 import com.anjunar.scala.mapper.intermediate.model.{JsonNode, JsonObject}
 import com.anjunar.scala.mapper.loader.EntityLoader
 import com.anjunar.scala.mapper.{Context, ConverterRegistry, JsonMapper}
 import com.anjunar.scala.schema.JsonDescriptorsGenerator
-import com.anjunar.scala.schema.builder.EntityJSONSchema
+import com.anjunar.scala.schema.builder.{EntityJSONSchema, EntitySchemaBuilder, SchemaBuilderProvider}
 import com.anjunar.scala.schema.model.ObjectDescriptor
 import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
 import jakarta.inject.Inject
@@ -45,6 +44,9 @@ class JsonProvider extends MessageBodyReader[AnyRef] with MessageBodyWriter[AnyR
   @Inject
   var callback : Callback = uninitialized
 
+  @Inject
+  var schemaProvider : SchemaBuilderProvider = uninitialized
+
   override def isReadable(aClass: Class[?], javaType: Type, annotations: Array[Annotation], mediaType: MediaType) = {
     annotations.exists(annotation => annotation.annotationType() == classOf[JsonSchema])
   }
@@ -62,15 +64,13 @@ class JsonProvider extends MessageBodyReader[AnyRef] with MessageBodyWriter[AnyR
       .get
       .asInstanceOf[JsonSchema]
 
-    val state = jsonSchemaAnnotation.state()
-
     val jsonSchema : EntityJSONSchema[Any] = jsonSchemaAnnotation.value().getConstructor().newInstance().asInstanceOf[EntityJSONSchema[Any]]
 
     val jsonObject = jsonMapper.toJsonObjectForJava(jsonString)
 
     val entity = entityLoader.load(jsonObject, TypeResolver.resolve(javaTypeRaw), annotations)
 
-    val schemaBuilder = jsonSchema.build(entity, javaTypeRaw, state)
+    val schemaBuilder = jsonSchema.build(entity, javaTypeRaw)
     
     val context = new Context(validatorFactory.getValidator, registry, schemaBuilder, entityLoader)
 
@@ -126,13 +126,15 @@ class JsonProvider extends MessageBodyReader[AnyRef] with MessageBodyWriter[AnyR
       .get
       .asInstanceOf[JsonSchema]
     
-    val state = jsonSchemaAnnotation.state()
-
     val validator = validatorFactory.getValidator
 
     val jsonSchema = jsonSchemaAnnotation.value().getConstructor().newInstance().asInstanceOf[EntityJSONSchema[Any]]
 
-    val schema = jsonSchema.build(element, javaTypeRaw, state)
+    val schema = jsonSchema.build(element, javaTypeRaw)
+
+    // TODO : Better handling of Links
+    schemaProvider.builder.typeMapping.foreachEntry((clazz, builder) => schema.typeMapping.getOrElseUpdate(clazz, new EntitySchemaBuilder[AnyRef](clazz.asInstanceOf[Class[AnyRef]])).links = builder.links)
+    schemaProvider.builder.instanceMapping.foreachEntry((instance, builder) => schema.instanceMapping.getOrElseUpdate(instance, new EntitySchemaBuilder[AnyRef](instance.getClass.asInstanceOf[Class[AnyRef]])).links = builder.links)
 
     val context = new Context(validator, registry, schema, null)
 

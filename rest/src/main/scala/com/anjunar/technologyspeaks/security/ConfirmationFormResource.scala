@@ -1,12 +1,12 @@
 package com.anjunar.technologyspeaks.security
 
+import com.anjunar.scala.mapper.annotations.JsonSchema
+import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
+import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.control.{Role, User, UserFormResource}
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{createProxy, linkTo, methodOn}
 import com.anjunar.technologyspeaks.jpa.Pair
-import com.anjunar.scala.mapper.annotations.JsonSchema.State
-import com.anjunar.scala.mapper.annotations.{Action, JsonSchema}
-import com.anjunar.scala.schema.model.LinkType
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.*
@@ -18,23 +18,47 @@ import scala.compiletime.uninitialized
 
 @ApplicationScoped
 @Path("security/confirm") 
-class ConfirmationFormResource {
+class ConfirmationFormResource extends SchemaBuilderContext {
   
   @Inject
   var mailService : MailService = uninitialized
 
   @GET
   @Produces(Array("application/json"))
-  @JsonSchema(value = classOf[ConfirmationFormSchema], state = State.ENTRYPOINT)
+  @JsonSchema(classOf[ConfirmationFormSchema])
   @LinkDescription(value = "Bestätigung", linkType = LinkType.FORM)
-  def create: Confirmation = new Confirmation
+  def create: Confirmation = {
+
+    provider.builder
+      .forType(classOf[Confirmation], (entity: EntitySchemaBuilder[Confirmation]) => entity
+        .withLinks((instance, link) => {
+          linkTo(methodOn(classOf[ConfirmationFormResource]).confirm(null))
+            .build(link.addLink)
+
+          User.current()
+            .emails
+            .stream()
+            .flatMap(email => email.credentials.stream())
+            .filter(token => !token.validated)
+            .forEach(token => {
+              linkTo(methodOn(classOf[ConfirmationFormResource]).reSend(token.email.value))
+                .withRel("resend:" + token.email.value)
+                .build(link.addLink)
+            })
+
+        })
+      )
+
+
+    new Confirmation
+  }
 
   @POST
   @Produces(Array("application/json"))
   @Consumes(Array("application/json"))
-  @JsonSchema(value = classOf[ConfirmationReturnSchema], state = State.EXECUTE)
+  @JsonSchema(classOf[ConfirmationReturnSchema])
   @LinkDescription(value = "Bestätigung", linkType = LinkType.FORM)
-  def confirm(@JsonSchema(value = classOf[ConfirmationFormSchema], state = State.EXECUTE) confirmation: Confirmation): User = {
+  def confirm(@JsonSchema(classOf[ConfirmationFormSchema]) confirmation: Confirmation): User = {
     val current = User.current()
     
     val value = current
@@ -57,7 +81,7 @@ class ConfirmationFormResource {
 
   @PUT
   @Produces(Array("application/json"))
-  @JsonSchema(value = classOf[ConfirmationReturnSchema], state = State.EXECUTE)
+  @JsonSchema(classOf[ConfirmationReturnSchema])
   @LinkDescription(value = "Neuer Code", linkType = LinkType.ACTION)
   def reSend(@QueryParam("email") value : String): User = {
     val user = User.current()

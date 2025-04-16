@@ -1,5 +1,8 @@
 package com.anjunar.technologyspeaks.control
 
+import com.anjunar.scala.mapper.annotations.{DoNotLoad, JsonSchema, SecuredOwner}
+import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
+import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.control.{GeoPoint, Role, User}
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
@@ -7,9 +10,6 @@ import com.anjunar.technologyspeaks.jpa.Pair
 import com.anjunar.technologyspeaks.media.Media
 import com.anjunar.technologyspeaks.openstreetmap.geocoding.GeoService
 import com.anjunar.technologyspeaks.security.{Authenticator, EmailCredential, Secured}
-import com.anjunar.scala.mapper.annotations.JsonSchema.State
-import com.anjunar.scala.mapper.annotations.{Action, DoNotLoad, JsonSchema, SecuredOwner}
-import com.anjunar.scala.schema.model.LinkType
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -29,7 +29,7 @@ import scala.compiletime.uninitialized
 @Path("control/users/user")
 @ApplicationScoped
 @Secured
-class UserFormResource {
+class UserFormResource extends SchemaBuilderContext {
   
   @Inject 
   var authenticator: Authenticator = uninitialized
@@ -39,7 +39,7 @@ class UserFormResource {
   
   @GET
   @Produces(Array("application/json"))
-  @JsonSchema(value = classOf[UserFormSchema], state = State.ENTRYPOINT)
+  @JsonSchema(classOf[UserFormSchema])
   @RolesAllowed(Array("Administrator"))
   @LinkDescription(value = "Erstellen", linkType = LinkType.FORM)
   def create: User = {
@@ -52,16 +52,36 @@ class UserFormResource {
     
     user.info = userInfo
     user.address = address
+
+    provider.builder
+      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
+        .withLinks((user, link) => {
+          linkTo(methodOn(classOf[UserFormResource]).save(user))
+            .build(link.addLink)
+        })
+      )
+
     user
   }
 
   @GET
   @Path("{id}")
   @Produces(Array("application/json"))
-  @JsonSchema(value = classOf[UserFormSchema], state = State.READ)
+  @JsonSchema(classOf[UserFormSchema])
   @RolesAllowed(Array("Guest", "User", "Administrator"))
   @LinkDescription(value = "Profil", linkType = LinkType.FORM)
   def read(@PathParam("id") id: UUID): User = {
+
+    provider.builder
+      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
+        .withLinks((user, link) => {
+          linkTo(methodOn(classOf[UserFormResource]).update(user))
+            .build(link.addLink)
+          linkTo(methodOn(classOf[UserFormResource]).delete(user))
+            .build(link.addLink)
+        })
+      )
+
     val entity: User = if (Credential.current().hasRole("Guest") || Credential.current().hasRole("User")) then 
       User.current()
     else
@@ -72,37 +92,69 @@ class UserFormResource {
   @POST
   @Consumes(Array("application/json"))
   @Produces(Array("application/json"))
-  @JsonSchema(value = classOf[UserFormSchema], state = State.CREATE)
+  @JsonSchema(classOf[UserFormSchema])
   @RolesAllowed(Array("Administrator"))
   @LinkDescription(value = "Speichern", linkType = LinkType.FORM)
-  def save(@JsonSchema(value = classOf[UserFormSchema], state = State.CREATE) entity: User): User = {
+  def save(@JsonSchema(classOf[UserFormSchema]) entity: User): User = {
     entity.validate()
     entity.persist()
+
+    provider.builder
+      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
+        .withLinks((user, link) => {
+          linkTo(methodOn(classOf[UserFormResource]).update(user))
+            .build(link.addLink)
+          linkTo(methodOn(classOf[UserFormResource]).delete(user))
+            .build(link.addLink)
+        })
+      )
+
     entity
   }
 
   @PUT
   @Consumes(Array("application/json"))
   @Produces(Array("application/json"))
-  @JsonSchema(value = classOf[UserFormSchema], state = State.UPDATE)
+  @JsonSchema(classOf[UserFormSchema])
   @RolesAllowed(Array("Guest", "User", "Administrator"))
   @LinkDescription(value = "Aktualisieren", linkType = LinkType.FORM)
-  def update(@JsonSchema(value = classOf[UserFormSchema], state = State.UPDATE) @SecuredOwner entity: User): User = {
+  def update(@JsonSchema(classOf[UserFormSchema]) @SecuredOwner entity: User): User = {
     entity.validate()
+
+    provider.builder
+      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
+        .withLinks((user, link) => {
+          linkTo(methodOn(classOf[UserFormResource]).update(user))
+            .build(link.addLink)
+          linkTo(methodOn(classOf[UserFormResource]).delete(user))
+            .build(link.addLink)
+        })
+      )
+
     entity
   }
 
   @DELETE
   @Produces(Array("application/json"))
-  @JsonSchema(value = classOf[UserFormSchema], state = State.DELETE)
+  @JsonSchema(classOf[UserFormSchema])
   @RolesAllowed(Array("Administrator"))
   @LinkDescription(value = "Löschen", linkType = LinkType.FORM)
-  def delete(@JsonSchema(value = classOf[UserFormSchema], state = State.DELETE) @SecuredOwner entity: User): User = {
+  def delete(@JsonSchema(classOf[UserFormSchema]) @SecuredOwner entity: User): User = {
 
     val count = entityManager.createQuery("select count(e) from Event e where e.owner = :owner", classOf[Long])
       .setParameter("owner", entity)
       .getSingleResult
-    
+
+    provider.builder
+      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
+        .withLinks((user, link) => {
+          linkTo(methodOn(classOf[UserTableResource]).list(null))
+            .withRedirect
+            .build(link.addLink)
+        })
+      )
+
+
     if (count > 0) {
       entity.deleted = true
     } else {

@@ -1,5 +1,8 @@
 package com.anjunar.technologyspeaks.control
 
+import com.anjunar.scala.mapper.annotations.{DoNotLoad, JsonSchema}
+import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
+import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.control.User
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
@@ -8,9 +11,6 @@ import com.anjunar.technologyspeaks.jaxrs.search.provider.*
 import com.anjunar.technologyspeaks.jaxrs.search.{RestPredicate, RestSort, SearchBeanReader}
 import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, Table}
 import com.anjunar.technologyspeaks.security.Secured
-import com.anjunar.scala.mapper.annotations.JsonSchema.State
-import com.anjunar.scala.mapper.annotations.{DoNotLoad, JsonSchema}
-import com.anjunar.scala.schema.model.LinkType
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -29,20 +29,35 @@ import scala.compiletime.uninitialized
 @Path("control/users")
 @ApplicationScoped
 @Secured
-class UserTableResource {
+class UserTableResource extends SchemaBuilderContext {
 
   @Inject
   var jpaSearch: JPASearch = uninitialized
 
   @GET
   @Produces(Array("application/json"))
-  @JsonSchema(value = classOf[UserTableSchema], state = State.LIST)
+  @JsonSchema(classOf[UserTableSchema])
   @RolesAllowed(Array("Administrator"))
   @LinkDescription(value = "Benutzer", linkType = LinkType.TABLE)
   def list(@BeanParam search: UserTableResource.Search): Table[User] = {
     val context = jpaSearch.searchContext(search)
     val entities = jpaSearch.entities(search.index, search.limit, classOf[User], context)
     val count = jpaSearch.count(classOf[User], context)
+
+    provider.builder
+      .forType(classOf[Table[User]], (entity: EntitySchemaBuilder[Table[User]]) => entity
+        .withLinks((instance, link) => {
+          linkTo(methodOn(classOf[UserFormResource]).create)
+            .build(link.addLink)
+        })
+      )
+      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
+        .withLinks((row, link) => {
+          linkTo(methodOn(classOf[UserFormResource]).read(row.id))
+            .build(link.addLink)
+        })
+      )
+
     new Table[User](entities, count)
   }
 }

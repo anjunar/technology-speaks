@@ -1,12 +1,11 @@
 package com.anjunar.technologyspeaks.shared
 
+import com.anjunar.scala.mapper.annotations.JsonSchema
+import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, LinkContext, PropertyBuilder, SchemaBuilder}
 import com.anjunar.technologyspeaks.control.*
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.media.{Media, Thumbnail}
 import com.anjunar.technologyspeaks.security.WebAuthnRegistrationResource
-import com.anjunar.scala.mapper.annotations.{Action, JsonSchema}
-import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, LinkContext, PropertyBuilder, SchemaBuilder}
-import com.anjunar.scala.mapper.annotations.JsonSchema.State
 
 object UserSchema {
 
@@ -48,7 +47,7 @@ object UserSchema {
       .property("country")
     )
 
-  def dynamic(builder: SchemaBuilder, loaded: User, action : JsonSchema.State): Unit = {
+  def dynamic(builder: SchemaBuilder, loaded: User): Unit = {
     val token = Credential.current()
 
     val isOwnedOrAdmin = token.email.user == loaded || token.hasRole("Administrator")
@@ -57,9 +56,7 @@ object UserSchema {
       .forInstance(loaded, classOf[User], (entity: EntitySchemaBuilder[User]) => entity
         .property("id")
         .property("deleted")
-        .property("emails", property => property
-          .withWriteable(action == State.ENTRYPOINT || action == State.CREATE)
-        )
+        .property("emails")
         .property("enabled", property => property
           .withWriteable(isOwnedOrAdmin)
         )
@@ -80,15 +77,13 @@ object UserSchema {
     
   }
 
-  def static(builder: SchemaBuilder, action: JsonSchema.State, isOwnedOrAdmin : Boolean): Unit = {
+  def static(builder: SchemaBuilder, isOwnedOrAdmin : Boolean): Unit = {
 
     builder
       .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
         .property("id")
         .property("deleted")
-        .property("emails", property => property
-          .withWriteable(action == State.ENTRYPOINT || action == State.CREATE)
-        )
+        .property("emails")
         .property("enabled", property => property
           .withWriteable(isOwnedOrAdmin)
         )

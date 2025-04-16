@@ -1,7 +1,7 @@
 package com.anjunar.technologyspeaks
 
-import com.anjunar.technologyspeaks.control.User
 import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.technologyspeaks.control.User
 
 import java.util
 import scala.beans.BeanProperty

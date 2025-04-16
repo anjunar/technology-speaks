@@ -1,7 +1,7 @@
 package com.anjunar.technologyspeaks.shared
 
-import com.anjunar.technologyspeaks.jaxrs.types.Table
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, LinkContext, SchemaBuilder}
+import com.anjunar.technologyspeaks.jaxrs.types.Table
 
 object TableSchema {
 

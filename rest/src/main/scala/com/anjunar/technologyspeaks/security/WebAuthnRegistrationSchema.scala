@@ -7,7 +7,7 @@ import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, met
 import java.lang.reflect.Type
 
 class WebAuthnRegistrationSchema extends EntityJSONSchema[WebAuthnLogin] {
-  override def build(instance: WebAuthnLogin, aType: Type, action: JsonSchema.State): SchemaBuilder = {
+  override def build(instance: WebAuthnLogin, aType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder()
 
     builder.forType(classOf[WebAuthnLogin], (entity: EntitySchemaBuilder[WebAuthnLogin]) => entity
@@ -17,11 +17,6 @@ class WebAuthnRegistrationSchema extends EntityJSONSchema[WebAuthnLogin] {
       .property("displayName", property => property
         .withWriteable(true)
       )
-      .withLinks((instance, link) => {
-        linkTo(methodOn(classOf[WebAuthnRegistrationResource]).generateRegistrationOptions(null))
-          .withRel("register")
-          .build(link.addLink)
-      })
     )
 
     builder
