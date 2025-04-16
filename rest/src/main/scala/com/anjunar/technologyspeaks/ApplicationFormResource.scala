@@ -27,7 +27,9 @@ class ApplicationFormResource {
       val user = new User
 
       val email = new EMail()
-      email.value = "gast33331111355555@host.de"
+      email.value = "gast@host.de"
+
+      println("email: " + email.value)
 
       user.emails.add(email)
       new Application(user)

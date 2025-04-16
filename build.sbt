@@ -1,5 +1,4 @@
 import com.here.bom.Bom
-import scala.collection.immutable.Seq
 import scala.sys.process._
 
 lazy val jacksonDependencies = Bom.dependencies("com.fasterxml.jackson" % "jackson-bom" % "2.13.2.1")
@@ -97,15 +96,13 @@ lazy val application = (project in file("application"))
       "org.slf4j" % "slf4j-api",
       "org.jboss.resteasy" % "resteasy-jackson2-provider"
     ),
-    Compile / assemble := {
+    Compile / packageBin := {
       val jarOutput = (Compile / packageBin).value
       val cp = (Compile / dependencyClasspath).value.map(_.data)
 
-      // Sicherstellen, dass das WAR-Verzeichnis korrekt gesetzt ist
       val warOutputDir = baseDirectory.value / "target/deployment/webapp.war"
-      IO.delete(warOutputDir) // Lösche alte .war-Dateien, falls vorhanden
+      IO.delete(warOutputDir)
 
-      // Verzeichnisse erstellen: WEB-INF, lib, classes
       val webInf = warOutputDir / "WEB-INF"
       val libDir = webInf / "lib"
       val classesDir = webInf / "classes"
@@ -113,11 +110,8 @@ lazy val application = (project in file("application"))
       IO.createDirectory(libDir)
       IO.createDirectory(classesDir)
 
-      // JARs in lib kopieren
       val jarsToCopy = cp.filter(_.getName.endsWith(".jar"))
       jarsToCopy.foreach(jar => IO.copyFile(jar, libDir / jar.getName))
-
-      // Subprojekte durchgehen und deren classes kopieren
 
       val subprojectClassDirs = Seq("library/scala-universe2", "library/json-mapper2", "system", "domain", "rest").map { subproject =>
         baseDirectory.value / ".." / subproject / "target" / "scala-3.6.4" / "classes"
@@ -129,22 +123,16 @@ lazy val application = (project in file("application"))
         }
       }
       
-      // Klassen und Ressourcen in classes kopieren
-      val classDir = (Compile / classDirectory).value
-      IO.copyDirectory(classDir, classesDir)
-
       val resourceDirs = (Compile / resourceDirectories).value
       resourceDirs.foreach { resDir =>
         if (resDir.exists()) IO.copyDirectory(resDir, classesDir)
       }
 
-      // WEB-INF aus src/main/webapp kopieren
       val webappSrc = baseDirectory.value / "src" / "main" / "webapp" / "WEB-INF"
       if (webappSrc.exists()) {
         IO.copyDirectory(webappSrc, webInf)
       }
 
-      // Rückgabe der ursprünglichen jarOutput-Variable
       jarOutput
     },
     Compile / redeploy := {
@@ -156,5 +144,5 @@ lazy val application = (project in file("application"))
 
       if (exitCode != 0) sys.error(s"JBoss CLI failed with exit code $exitCode")
     },
-    Compile / redeploy := (Compile / redeploy).dependsOn(Compile / assemble).value
+    Compile / redeploy := (Compile / redeploy).dependsOn(Compile / packageBin).value
 )

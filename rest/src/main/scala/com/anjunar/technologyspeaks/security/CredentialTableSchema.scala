@@ -8,6 +8,7 @@ import com.anjunar.technologyspeaks.jaxrs.types.Table
 import com.anjunar.technologyspeaks.shared.{TableSchema, UserSchema}
 
 import java.lang.reflect.Type
+import com.anjunar.technologyspeaks.control.EMail
 
 class CredentialTableSchema extends EntityJSONSchema[Table[Credential]] {
   override def  build(root: Table[Credential], javaType: Type, action: JsonSchema.State): SchemaBuilder = {
@@ -17,7 +18,12 @@ class CredentialTableSchema extends EntityJSONSchema[Table[Credential]] {
 
     root.rows.forEach(row => builder.forInstance(row, classOf[Credential], entity => entity
       .property("displayName")
+      .property("email")
     ))
+
+    builder.forType(classOf[EMail], entity => entity
+      .property("value")
+    )
 
     builder
   }
