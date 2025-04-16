@@ -4,8 +4,9 @@ import scala.sys.process._
 lazy val jacksonDependencies = Bom.dependencies("com.fasterxml.jackson" % "jackson-bom" % "2.13.2.1")
 lazy val wildFlyDependencies = Bom.dependencies("org.wildfly.bom" % "wildfly-ee" % "35.0.0.Final")
 
-lazy val redeploy = taskKey[Unit]("Hot-deploys the WAR file into Wildfly")
-lazy val assemble = taskKey[File]("Paketiert ohne vorher zu kompilieren")
+lazy val redeploy = taskKey[Unit]("Redeploys the WAR file into Wildfly")
+
+Global / semanticdbEnabled := true
 
 lazy val root = (project in file("."))
   .aggregate(
@@ -113,16 +114,22 @@ lazy val application = (project in file("application"))
       val jarsToCopy = cp.filter(_.getName.endsWith(".jar"))
       jarsToCopy.foreach(jar => IO.copyFile(jar, libDir / jar.getName))
 
-      val subprojectClassDirs = Seq("library/scala-universe2", "library/json-mapper2", "system", "domain", "rest").map { subproject =>
-        baseDirectory.value / ".." / subproject / "target" / "scala-3.6.4" / "classes"
-      }
+      val subprojects = Seq("library/scala-universe2", "library/json-mapper2", "system", "domain", "rest")
 
-      subprojectClassDirs.foreach { classDir =>
-        if (classDir.exists()) {
-          IO.copyDirectory(classDir, classesDir)
+      val subprojectJarFiles = subprojects.flatMap { subproject =>
+        val jarDir = baseDirectory.value / ".." / subproject / "target" / "scala-3.6.4"
+        if (jarDir.exists()) {
+          (jarDir ** "*.jar").get
+        } else {
+          Seq.empty
         }
       }
-      
+
+      subprojectJarFiles.foreach { jar =>
+        val targetFile = libDir / jar.name
+        IO.copyFile(jar, targetFile)
+      }
+
       val resourceDirs = (Compile / resourceDirectories).value
       resourceDirs.foreach { resDir =>
         if (resDir.exists()) IO.copyDirectory(resDir, classesDir)

@@ -3,15 +3,19 @@ package com.anjunar.technologyspeaks.security
 import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.mapper.annotations.JsonSchema.State
 import com.anjunar.scala.schema.model.LinkType
-import com.anjunar.technologyspeaks.control.Credential
+import com.anjunar.scala.universe.introspector
+import com.anjunar.technologyspeaks.control.{Credential, User}
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
-import com.anjunar.technologyspeaks.jaxrs.search.{RestPredicate, RestSort}
+import com.anjunar.technologyspeaks.jaxrs.search.{PredicateProvider, RestPredicate, RestSort}
 import com.anjunar.technologyspeaks.jaxrs.search.jpa.JPASearch
 import com.anjunar.technologyspeaks.jaxrs.search.provider.{GenericDurationDateProvider, GenericIdProvider, GenericManyToManyProvider, GenericNameProvider, GenericSortProvider}
 import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, Table}
+import com.anjunar.technologyspeaks.security.CredentialTableResource.Search
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import jakarta.persistence.EntityManager
+import jakarta.persistence.criteria.{CriteriaBuilder, CriteriaQuery, Predicate, Root}
 import jakarta.ws.rs.{BeanParam, GET, Path, Produces, QueryParam}
 
 import java.util
@@ -32,8 +36,13 @@ class CredentialTableResource {
   @JsonSchema(value = classOf[CredentialTableSchema], state = State.LIST)
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Credentials", linkType = LinkType.TABLE)
-  def list(@BeanParam search: CredentialTableResource.Search): Table[Credential] = {
-    val context = jpaSearch.searchContext(search)
+  def list(@BeanParam search: Search): Table[Credential] = {
+    val user = User.current()
+
+    val context = jpaSearch.searchContext[Search, Credential](search, (value: Search, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[Credential], query: CriteriaQuery[?], property: introspector.BeanProperty, name: String) => {
+      builder.equal(root.get("email").get("user"), user)
+    })
+
     val entities = jpaSearch.entities(search.index, search.limit, classOf[Credential], context)
     val count = jpaSearch.count(classOf[Credential], context)
     new Table[Credential](entities, count)

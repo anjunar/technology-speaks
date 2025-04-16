@@ -5,7 +5,7 @@ import com.anjunar.scala.schema.builder.{EntityJSONSchema, EntitySchemaBuilder, 
 import com.anjunar.technologyspeaks.control.{Credential, User, UserFormResource}
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.jaxrs.types.Table
-import com.anjunar.technologyspeaks.shared.{TableSchema, UserSchema}
+import com.anjunar.technologyspeaks.shared.{RoleSchema, TableSchema, UserSchema}
 
 import java.lang.reflect.Type
 import com.anjunar.technologyspeaks.control.EMail
@@ -15,10 +15,12 @@ class CredentialTableSchema extends EntityJSONSchema[Table[Credential]] {
     val builder = new SchemaBuilder(true)
 
     TableSchema.static(builder)
+    RoleSchema.static(builder)
 
-    root.rows.forEach(row => builder.forInstance(row, classOf[Credential], entity => entity
+    root.rows.forEach(row => builder.forInstance(row, classOf[Credential], (entity : EntitySchemaBuilder[Credential]) => entity
       .property("displayName")
       .property("email")
+      .property("roles")
     ))
 
     builder.forType(classOf[EMail], entity => entity

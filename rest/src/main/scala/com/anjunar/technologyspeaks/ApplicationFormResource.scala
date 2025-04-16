@@ -1,10 +1,12 @@
 package com.anjunar.technologyspeaks
 
-import com.anjunar.technologyspeaks.control.{EMail, RoleTableResource, Credential, User, UserFormResource, UserTableResource}
+import com.anjunar.technologyspeaks.control.{Credential, EMail, RoleTableResource, User, UserFormResource, UserTableResource}
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.security.LogoutFormResource
 import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.mapper.annotations.JsonSchema.State
+import com.anjunar.scala.schema.model.LinkType
+import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.{GET, Path, Produces}
 import jakarta.ws.rs.core.{Context, SecurityContext}
@@ -20,6 +22,7 @@ class ApplicationFormResource {
   @GET
   @Produces(Array("application/json"))
   @JsonSchema(value = classOf[ApplicationFormSchema], state = State.READ)
+  @LinkDescription(value = "Main Entry Point", linkType = LinkType.FORM)
   def service(): Application = {
 
     val principal = Credential.current()
@@ -28,8 +31,6 @@ class ApplicationFormResource {
 
       val email = new EMail()
       email.value = "gast@host.de"
-
-      println("email: " + email.value)
 
       user.emails.add(email)
       new Application(user)

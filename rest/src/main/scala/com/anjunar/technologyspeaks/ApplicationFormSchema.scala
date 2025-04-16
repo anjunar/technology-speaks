@@ -2,7 +2,7 @@ package com.anjunar.technologyspeaks
 
 import com.anjunar.technologyspeaks.control.*
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
-import com.anjunar.technologyspeaks.security.{ConfirmationFormResource, LogoutFormResource, WebAuthnLoginResource, WebAuthnRegistrationResource}
+import com.anjunar.technologyspeaks.security.{ConfirmationFormResource, CredentialTableResource, LogoutFormResource, WebAuthnLoginResource, WebAuthnRegistrationResource}
 import com.anjunar.technologyspeaks.shared.{ApplicationSchema, UserSchema}
 import com.anjunar.scala.mapper.annotations.{Action, JsonSchema}
 import com.anjunar.scala.schema.builder.{EntityJSONSchema, EntitySchemaBuilder, SchemaBuilder}
@@ -44,6 +44,9 @@ class ApplicationFormSchema extends EntityJSONSchema[Application] {
               .withRel("roles")
               .build(link.addLink)
 
+            linkTo(methodOn(classOf[CredentialTableResource]).list(null))
+              .withRel("devices")
+              .build(link.addLink)
           } else {
             linkTo(methodOn(classOf[ConfirmationFormResource]).create)
               .withRel("confirm")

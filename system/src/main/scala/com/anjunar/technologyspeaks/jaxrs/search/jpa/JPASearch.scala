@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.jaxrs.search.jpa
 
-import com.anjunar.technologyspeaks.jaxrs.search.SearchBeanReader
+import com.anjunar.technologyspeaks.jaxrs.search.{PredicateProvider, SearchBeanReader}
 import com.anjunar.technologyspeaks.jaxrs.search.jpa.{JPASearchContext, JPASearchContextResult}
 import com.anjunar.technologyspeaks.jaxrs.types.AbstractSearch
 import jakarta.enterprise.context.ApplicationScoped
@@ -19,12 +19,13 @@ class JPASearch {
   @Inject 
   var entityManager: EntityManager = uninitialized
 
-  def searchContext(search: AbstractSearch): JPASearchContext = {
+  def searchContext[V <: AbstractSearch, E](search: V, predicateProviders : PredicateProvider[V,E]*): JPASearchContext = {
     val context = new JPASearchContext() {
       override def apply[C](entityManager: EntityManager, builder: CriteriaBuilder, query: CriteriaQuery[?], root: Root[C]): JPASearchContextResult = {
         val predicates = SearchBeanReader.read(search, entityManager, builder, root, query)
         val order = SearchBeanReader.order(search, entityManager, builder, root, query)
-        new JPASearchContextResult(predicates, order)
+        val externalPredicates = predicateProviders.map(predicate => predicate.build(search, entityManager, builder, root.asInstanceOf[Root[E]], query, null, null))
+        new JPASearchContextResult(externalPredicates.toArray ++ predicates, order)
       }
     }
     context
