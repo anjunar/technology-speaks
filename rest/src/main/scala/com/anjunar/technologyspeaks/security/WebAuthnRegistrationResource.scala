@@ -48,14 +48,11 @@ class WebAuthnRegistrationResource extends Serializable with SchemaBuilderContex
   @LinkDescription(value = "Register", linkType = LinkType.FORM)
   def entry(): WebAuthnLogin = {
 
-    provider.builder
-      .forType(classOf[WebAuthnLogin], (entity: EntitySchemaBuilder[WebAuthnLogin]) => entity
-        .withLinks((instance, link) => {
-          linkTo(methodOn(classOf[WebAuthnRegistrationResource]).generateRegistrationOptions(null))
-            .withRel("register")
-            .build(link.addLink)
-        })
-      )
+    forLinks(classOf[WebAuthnLogin], (instance, link) => {
+      linkTo(methodOn(classOf[WebAuthnRegistrationResource]).generateRegistrationOptions(null))
+        .withRel("register")
+        .build(link.addLink)
+    })
 
 
     new WebAuthnLogin

@@ -14,6 +14,7 @@ import java.util.stream.Collectors
 trait EntityContext {
 
   def persist(): Unit = {
+    validate()
     CDI.current().getBeanContainer.getEvent.select(new SaveLiteral).fire(this)
     entityManager.persist(this)
   }

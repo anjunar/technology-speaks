@@ -33,18 +33,15 @@ class ApplicationFormResource extends SchemaBuilderContext {
 
       user.emails.add(email)
 
-      provider.builder
-        .forType(classOf[Application], (entity: EntitySchemaBuilder[Application]) => entity
-          .withLinks((instance, link) => {
-            linkTo(methodOn(classOf[WebAuthnLoginResource]).entry())
-              .withRel("login")
-              .build(link.addLink)
+      forLinks(classOf[Application], (instance, link) => {
+        linkTo(methodOn(classOf[WebAuthnLoginResource]).entry())
+          .withRel("login")
+          .build(link.addLink)
 
-            linkTo(methodOn(classOf[WebAuthnRegistrationResource]).entry())
-              .withRel("register")
-              .build(link.addLink)
-          })
-        )
+        linkTo(methodOn(classOf[WebAuthnRegistrationResource]).entry())
+          .withRel("register")
+          .build(link.addLink)
+      })
 
 
       new Application(user)
@@ -52,35 +49,32 @@ class ApplicationFormResource extends SchemaBuilderContext {
     else {
       val user = principal.email.user
 
-      provider.builder
-        .forType(classOf[Application], (entity: EntitySchemaBuilder[Application]) => entity
-          .withLinks((instance, link) => {
-            if (principal.validated) {
-              linkTo(methodOn(classOf[UserFormResource]).read(user.id))
-                .withRel("profile")
-                .build(link.addLink)
+      forLinks(classOf[Application], (instance, link) => {
+        if (principal.validated) {
+          linkTo(methodOn(classOf[UserFormResource]).read(user.id))
+            .withRel("profile")
+            .build(link.addLink)
 
-              linkTo(methodOn(classOf[UserTableResource]).list(null))
-                .withRel("users")
-                .build(link.addLink)
+          linkTo(methodOn(classOf[UserTableResource]).list(null))
+            .withRel("users")
+            .build(link.addLink)
 
-              linkTo(methodOn(classOf[RoleTableResource]).list(null))
-                .withRel("roles")
-                .build(link.addLink)
+          linkTo(methodOn(classOf[RoleTableResource]).list(null))
+            .withRel("roles")
+            .build(link.addLink)
 
-              linkTo(methodOn(classOf[CredentialTableResource]).list(null))
-                .withRel("devices")
-                .build(link.addLink)
-            } else {
-              linkTo(methodOn(classOf[ConfirmationFormResource]).create)
-                .withRel("confirm")
-                .build(link.addLink)
-            }
+          linkTo(methodOn(classOf[CredentialTableResource]).list(null))
+            .withRel("devices")
+            .build(link.addLink)
+        } else {
+          linkTo(methodOn(classOf[ConfirmationFormResource]).create)
+            .withRel("confirm")
+            .build(link.addLink)
+        }
 
-            linkTo(methodOn(classOf[LogoutFormResource]).logout())
-              .build(link.addLink)
-          })
-        )
+        linkTo(methodOn(classOf[LogoutFormResource]).logout())
+          .build(link.addLink)
+      })
 
 
       new Application(user)

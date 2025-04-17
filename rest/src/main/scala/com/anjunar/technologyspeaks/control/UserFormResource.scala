@@ -30,13 +30,13 @@ import scala.compiletime.uninitialized
 @ApplicationScoped
 @Secured
 class UserFormResource extends SchemaBuilderContext {
-  
-  @Inject 
-  var authenticator: Authenticator = uninitialized
-  
+
   @Inject
-  var entityManager : EntityManager = uninitialized
-  
+  var authenticator: Authenticator = uninitialized
+
+  @Inject
+  var entityManager: EntityManager = uninitialized
+
   @GET
   @Produces(Array("application/json"))
   @JsonSchema(classOf[UserFormSchema])
@@ -46,20 +46,17 @@ class UserFormResource extends SchemaBuilderContext {
     val user = new User
     val userInfo = new UserInfo
     val address = new Address
-    
+
     userInfo.image = new Media
     address.point = new GeoPoint
-    
+
     user.info = userInfo
     user.address = address
 
-    provider.builder
-      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
-        .withLinks((user, link) => {
-          linkTo(methodOn(classOf[UserFormResource]).save(user))
-            .build(link.addLink)
-        })
-      )
+    forLinks(classOf[User], (user, link) => {
+      linkTo(methodOn(classOf[UserFormResource]).save(user))
+        .build(link.addLink)
+    })
 
     user
   }
@@ -72,20 +69,17 @@ class UserFormResource extends SchemaBuilderContext {
   @LinkDescription(value = "Profil", linkType = LinkType.FORM)
   def read(@PathParam("id") id: UUID): User = {
 
-    provider.builder
-      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
-        .withLinks((user, link) => {
-          linkTo(methodOn(classOf[UserFormResource]).update(user))
-            .build(link.addLink)
-          linkTo(methodOn(classOf[UserFormResource]).delete(user))
-            .build(link.addLink)
-        })
-      )
+    forLinks(classOf[User], (user, link) => {
+      linkTo(methodOn(classOf[UserFormResource]).update(user))
+        .build(link.addLink)
+      linkTo(methodOn(classOf[UserFormResource]).delete(user))
+        .build(link.addLink)
+    })
 
-    val entity: User = if (Credential.current().hasRole("Guest") || Credential.current().hasRole("User")) then 
+    val entity: User = if (Credential.current().hasRole("Guest") || Credential.current().hasRole("User")) then
       User.current()
     else
-       User.find(id)
+      User.find(id)
     entity
   }
 
@@ -99,15 +93,13 @@ class UserFormResource extends SchemaBuilderContext {
     entity.validate()
     entity.persist()
 
-    provider.builder
-      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
-        .withLinks((user, link) => {
-          linkTo(methodOn(classOf[UserFormResource]).update(user))
-            .build(link.addLink)
-          linkTo(methodOn(classOf[UserFormResource]).delete(user))
-            .build(link.addLink)
-        })
-      )
+    forLinks(classOf[User], (user, link) => {
+      linkTo(methodOn(classOf[UserFormResource]).update(user))
+        .build(link.addLink)
+      linkTo(methodOn(classOf[UserFormResource]).delete(user))
+        .build(link.addLink)
+    })
+
 
     entity
   }
@@ -121,15 +113,13 @@ class UserFormResource extends SchemaBuilderContext {
   def update(@JsonSchema(classOf[UserFormSchema]) @SecuredOwner entity: User): User = {
     entity.validate()
 
-    provider.builder
-      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
-        .withLinks((user, link) => {
-          linkTo(methodOn(classOf[UserFormResource]).update(user))
-            .build(link.addLink)
-          linkTo(methodOn(classOf[UserFormResource]).delete(user))
-            .build(link.addLink)
-        })
-      )
+    forLinks(classOf[User], (user, link) => {
+      linkTo(methodOn(classOf[UserFormResource]).update(user))
+        .build(link.addLink)
+      linkTo(methodOn(classOf[UserFormResource]).delete(user))
+        .build(link.addLink)
+    })
+
 
     entity
   }
@@ -141,26 +131,14 @@ class UserFormResource extends SchemaBuilderContext {
   @LinkDescription(value = "Löschen", linkType = LinkType.FORM)
   def delete(@JsonSchema(classOf[UserFormSchema]) @SecuredOwner entity: User): User = {
 
-    val count = entityManager.createQuery("select count(e) from Event e where e.owner = :owner", classOf[Long])
-      .setParameter("owner", entity)
-      .getSingleResult
+    forLinks(classOf[User], (user, link) => {
+      linkTo(methodOn(classOf[UserTableResource]).list(null))
+        .withRedirect
+        .build(link.addLink)
+    })
 
-    provider.builder
-      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
-        .withLinks((user, link) => {
-          linkTo(methodOn(classOf[UserTableResource]).list(null))
-            .withRedirect
-            .build(link.addLink)
-        })
-      )
+    entity.deleted = true
 
-
-    if (count > 0) {
-      entity.deleted = true
-    } else {
-      entity.delete()  
-    }
-    
     entity
   }
 }

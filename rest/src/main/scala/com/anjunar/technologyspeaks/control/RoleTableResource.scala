@@ -39,19 +39,15 @@ import scala.compiletime.uninitialized
     val entities = jpaSearch.entities(search.index, search.limit, classOf[Role], context)
     val count = jpaSearch.count(classOf[Role], context)
 
-    provider.builder
-      .forType(classOf[Table[Role]], (entity : EntitySchemaBuilder[Table[Role]]) => entity
-        .withLinks((instance, link) => {
-          linkTo(methodOn(classOf[RoleFormResource]).create)
-            .build(link.addLink)
-        })
-      )
-      .forType(classOf[Role], (entity : EntitySchemaBuilder[Role]) => entity
-        .withLinks((row, link) => {
-          linkTo(methodOn(classOf[RoleFormResource]).read(row.id))
-            .build(link.addLink)
-        })
-      )
+    forLinks(classOf[Table[Role]], (instance, link) => {
+      linkTo(methodOn(classOf[RoleFormResource]).create)
+        .build(link.addLink)
+    })
+
+    forLinks(classOf[Role], (row, link) => {
+      linkTo(methodOn(classOf[RoleFormResource]).read(row.id))
+        .build(link.addLink)
+    })
 
     new Table[Role](entities, count)
   }

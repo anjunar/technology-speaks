@@ -30,12 +30,10 @@ import scala.compiletime.uninitialized
   @LinkDescription(value = "Abmelden", linkType = LinkType.FORM)
   def logout(): Credential = {
 
-    provider.builder.forType(classOf[Credential], (entity: EntitySchemaBuilder[Credential]) => entity
-      .withLinks((instance, link) => {
-        linkTo(methodOn(classOf[LogoutFormResource]).logout(null))
-          .build(link.addLink)
-      })
-    )
+    forLinks(classOf[Credential], (instance, link) => {
+      linkTo(methodOn(classOf[LogoutFormResource]).logout(null))
+        .build(link.addLink)
+    })
 
 
     Credential.current()
@@ -49,15 +47,11 @@ import scala.compiletime.uninitialized
   def logout(@JsonSchema(classOf[LogoutFormSchema]) entity: Credential): Response = {
     authenticator.logout()
 
-    provider.builder
-      .forType(classOf[Credential], (entity: EntitySchemaBuilder[Credential]) => entity
-        .property("displayName")
-        .withLinks((instance, link) => {
-          linkTo(methodOn(classOf[ApplicationFormResource]).service())
-            .withRedirect
-            .build(link.addLink)
-        })
-      )
+    forLinks(classOf[Credential], (instance, link) => {
+      linkTo(methodOn(classOf[ApplicationFormResource]).service())
+        .withRedirect
+        .build(link.addLink)
+    })
 
     Response.ok().build()
   }

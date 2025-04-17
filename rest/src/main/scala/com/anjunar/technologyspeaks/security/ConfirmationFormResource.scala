@@ -29,26 +29,21 @@ class ConfirmationFormResource extends SchemaBuilderContext {
   @LinkDescription(value = "Bestätigung", linkType = LinkType.FORM)
   def create: Confirmation = {
 
-    provider.builder
-      .forType(classOf[Confirmation], (entity: EntitySchemaBuilder[Confirmation]) => entity
-        .withLinks((instance, link) => {
-          linkTo(methodOn(classOf[ConfirmationFormResource]).confirm(null))
-            .build(link.addLink)
+  forLinks(classOf[Confirmation], (instance, link) => {
+    linkTo(methodOn(classOf[ConfirmationFormResource]).confirm(null))
+      .build(link.addLink)
 
-          User.current()
-            .emails
-            .stream()
-            .flatMap(email => email.credentials.stream())
-            .filter(token => !token.validated)
-            .forEach(token => {
-              linkTo(methodOn(classOf[ConfirmationFormResource]).reSend(token.email.value))
-                .withRel("resend:" + token.email.value)
-                .build(link.addLink)
-            })
-
-        })
-      )
-
+    User.current()
+      .emails
+      .stream()
+      .flatMap(email => email.credentials.stream())
+      .filter(token => !token.validated)
+      .forEach(token => {
+        linkTo(methodOn(classOf[ConfirmationFormResource]).reSend(token.email.value))
+          .withRel("resend:" + token.email.value)
+          .build(link.addLink)
+      })
+  })
 
     new Confirmation
   }

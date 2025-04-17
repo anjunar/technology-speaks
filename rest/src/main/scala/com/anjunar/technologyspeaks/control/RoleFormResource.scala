@@ -27,13 +27,10 @@ class RoleFormResource extends SchemaBuilderContext {
   @LinkDescription(value = "Create", linkType = LinkType.FORM)
   def create: Role = {
 
-    provider.builder
-      .forType(classOf[Role], (builder : EntitySchemaBuilder[Role]) => builder
-        .withLinks((instance, link) => {
-          linkTo(methodOn(classOf[RoleFormResource]).save(instance))
-            .build(link.addLink)
-        })
-      )
+    forLinks(classOf[Role], (instance, link) => {
+      linkTo(methodOn(classOf[RoleFormResource]).save(instance))
+        .build(link.addLink)
+    })
 
     new Role
   }
@@ -46,18 +43,15 @@ class RoleFormResource extends SchemaBuilderContext {
   @LinkDescription(value = "Read", linkType = LinkType.FORM)
   def read(@PathParam("id") id: UUID): Role = {
 
-    provider.builder
-      .forType(classOf[Role], (builder: EntitySchemaBuilder[Role]) => builder
-        .withLinks((instance, link) => {
-          linkTo(methodOn(classOf[RoleFormResource]).update(instance))
-            .build(link.addLink)
-          linkTo(methodOn(classOf[RoleFormResource]).delete(instance))
-            .build(link.addLink)
-          linkTo(methodOn(classOf[RoleTableResource]).list(null))
-            .withRedirect
-            .build(link.addLink)
-        })
-      )
+    forLinks(classOf[Role], (instance, link) => {
+      linkTo(methodOn(classOf[RoleFormResource]).update(instance))
+        .build(link.addLink)
+      linkTo(methodOn(classOf[RoleFormResource]).delete(instance))
+        .build(link.addLink)
+      linkTo(methodOn(classOf[RoleTableResource]).list(null))
+        .withRedirect
+        .build(link.addLink)
+    })
 
 
     Role.find(id)
@@ -70,22 +64,17 @@ class RoleFormResource extends SchemaBuilderContext {
   @RolesAllowed(Array("Administrator"))
   @LinkDescription(value = "Save", linkType = LinkType.FORM)
   def save(@JsonSchema(classOf[RoleFormSchema]) entity: Role): Role = {
-    entity.validate()
     entity.persist()
 
-    provider.builder
-      .forType(classOf[Role], (builder: EntitySchemaBuilder[Role]) => builder
-        .withLinks((instance, link) => {
-          linkTo(methodOn(classOf[RoleFormResource]).update(instance))
-            .build(link.addLink)
-          linkTo(methodOn(classOf[RoleFormResource]).delete(instance))
-            .build(link.addLink)
-          linkTo(methodOn(classOf[RoleTableResource]).list(null))
-            .withRedirect
-            .build(link.addLink)
-        })
-      )
-
+    forLinks(classOf[Role], (instance, link) => {
+      linkTo(methodOn(classOf[RoleFormResource]).update(instance))
+        .build(link.addLink)
+      linkTo(methodOn(classOf[RoleFormResource]).delete(instance))
+        .build(link.addLink)
+      linkTo(methodOn(classOf[RoleTableResource]).list(null))
+        .withRedirect
+        .build(link.addLink)
+    })
 
     entity
   }
@@ -99,16 +88,13 @@ class RoleFormResource extends SchemaBuilderContext {
   def update(@JsonSchema(classOf[RoleFormSchema]) entity: Role): Role = {
     entity.validate()
 
-    provider.builder
-      .forType(classOf[Role], (builder: EntitySchemaBuilder[Role]) => builder
-        .withLinks((instance, link) => {
-          linkTo(methodOn(classOf[RoleFormResource]).delete(instance))
-            .build(link.addLink)
-          linkTo(methodOn(classOf[RoleTableResource]).list(null))
-            .withRedirect
-            .build(link.addLink)
-        })
-      )
+    forLinks(classOf[Role], (instance, link) => {
+      linkTo(methodOn(classOf[RoleFormResource]).delete(instance))
+        .build(link.addLink)
+      linkTo(methodOn(classOf[RoleTableResource]).list(null))
+        .withRedirect
+        .build(link.addLink)
+    })
 
     entity
   }
@@ -121,14 +107,11 @@ class RoleFormResource extends SchemaBuilderContext {
   def delete(@JsonSchema(classOf[RoleFormSchema]) entity: Role): Role = {
     entity.delete()
 
-    provider.builder
-      .forType(classOf[Role], (builder: EntitySchemaBuilder[Role]) => builder
-        .withLinks((instance, link) => {
-          linkTo(methodOn(classOf[RoleTableResource]).list(null))
-            .withRedirect
-            .build(link.addLink)
-        })
-      )
+    forLinks(classOf[Role], (instance, link) => {
+      linkTo(methodOn(classOf[RoleTableResource]).list(null))
+        .withRedirect
+        .build(link.addLink)
+    })
 
     entity
   }

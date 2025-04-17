@@ -44,19 +44,15 @@ class UserTableResource extends SchemaBuilderContext {
     val entities = jpaSearch.entities(search.index, search.limit, classOf[User], context)
     val count = jpaSearch.count(classOf[User], context)
 
-    provider.builder
-      .forType(classOf[Table[User]], (entity: EntitySchemaBuilder[Table[User]]) => entity
-        .withLinks((instance, link) => {
-          linkTo(methodOn(classOf[UserFormResource]).create)
-            .build(link.addLink)
-        })
-      )
-      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
-        .withLinks((row, link) => {
-          linkTo(methodOn(classOf[UserFormResource]).read(row.id))
-            .build(link.addLink)
-        })
-      )
+    forLinks(classOf[Table[User]], (instance, link) => {
+      linkTo(methodOn(classOf[UserFormResource]).create)
+        .build(link.addLink)
+    })
+
+    forLinks(classOf[User], (row, link) => {
+      linkTo(methodOn(classOf[UserFormResource]).read(row.id))
+        .build(link.addLink)
+    })
 
     new Table[User](entities, count)
   }
