@@ -50,7 +50,21 @@ object JsonDescriptorsGenerator {
           Some(new PropertyBuilder[Any](property.name, aClass.raw))
         }
       } else {
-        schema.typeMapping(aClass.raw).mapping.get(property.name)        
+        val option = schema.typeMapping(aClass.raw).mapping.get(property.name)
+        if (option.isDefined) {
+          val propertySchema = option.get
+          if (propertySchema.secured) {
+            if (propertySchema.visible) {
+              option
+            } else {
+              None
+            }
+          } else {
+            option
+          }
+        } else {
+          None
+        }
       }
       
       if (option.isDefined) {
@@ -108,8 +122,7 @@ object JsonDescriptorsGenerator {
       schemaDefinition.writeable,
       property.propertyType.raw.getSimpleName,
       schemaDefinition.step,
-      schemaDefinition.links.asJava
-    )
+      schemaDefinition.links.asJava)
     generateValidator(property, nodeDescriptor)
     nodeDescriptor
   }
@@ -151,6 +164,7 @@ object JsonDescriptorsGenerator {
     objectDescriptor.id = schemaDefinition.id
     objectDescriptor.name = schemaDefinition.naming
     objectDescriptor.writeable = schemaDefinition.writeable
+    objectDescriptor.links = schemaDefinition.links.asJava
     generateValidator(property, objectDescriptor)
     objectDescriptor
   }
@@ -167,6 +181,7 @@ object JsonDescriptorsGenerator {
     descriptor.id = schemaDefinition.id
     descriptor.name = schemaDefinition.naming
     descriptor.writeable = schemaDefinition.writeable
+    descriptor.links = schemaDefinition.links.asJava
     generateValidator(property, descriptor)
     descriptor
   }

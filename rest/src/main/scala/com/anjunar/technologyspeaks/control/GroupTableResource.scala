@@ -1,30 +1,28 @@
 package com.anjunar.technologyspeaks.control
 
 import com.anjunar.scala.mapper.annotations.JsonSchema
-import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
 import com.anjunar.scala.schema.model.LinkType
-import com.anjunar.technologyspeaks.control.Role
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
-import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
+import com.anjunar.technologyspeaks.jaxrs.search.{RestPredicate, RestSort}
 import com.anjunar.technologyspeaks.jaxrs.search.jpa.JPASearch
 import com.anjunar.technologyspeaks.jaxrs.search.provider.{GenericIdProvider, GenericNameProvider, GenericSortProvider}
-import com.anjunar.technologyspeaks.jaxrs.search.{RestPredicate, RestSort}
 import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, Table}
 import com.anjunar.technologyspeaks.security.Secured
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.ws.rs.*
+import jakarta.ws.rs.{BeanParam, GET, Path, Produces}
+import org.jboss.resteasy.annotations.jaxrs.QueryParam
 
-import java.util
-import java.util.UUID
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
+import java.util
+import java.util.UUID
 
-
-@Path("control/roles")
 @ApplicationScoped
-@Secured class RoleTableResource extends SchemaBuilderContext {
+@Path("/control/groups")
+@Secured
+class GroupTableResource {
 
   @Inject
   var jpaSearch: JPASearch = uninitialized
@@ -32,28 +30,30 @@ import scala.compiletime.uninitialized
   @GET
   @Produces(Array("application/json"))
   @JsonSchema(classOf[GroupTableSchema])
-  @RolesAllowed(Array("Guest", "User", "Administrator"))
+  @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Rollen", linkType = LinkType.TABLE)
-  def list(@BeanParam search: RoleTableResource.Search): Table[Role] = {
+  def list(@BeanParam search: GroupTableResource.Search): Table[Group] = {
     val context = jpaSearch.searchContext(search)
-    val entities = jpaSearch.entities(search.index, search.limit, classOf[Role], context)
-    val count = jpaSearch.count(classOf[Role], context)
+    val entities = jpaSearch.entities(search.index, search.limit, classOf[Group], context)
+    val count = jpaSearch.count(classOf[Group], context)
 
-    forLinks(classOf[Table[Role]], (instance, link) => {
-      linkTo(methodOn(classOf[RoleFormResource]).create)
+/*
+    forLinks(classOf[Table[Group]], (instance, link) => {
+      linkTo(methodOn(classOf[GroupFormResource]).create)
         .build(link.addLink)
     })
 
-    forLinks(classOf[Role], (row, link) => {
-      linkTo(methodOn(classOf[RoleFormResource]).read(row.id))
+    forLinks(classOf[Group], (row, link) => {
+      linkTo(methodOn(classOf[GroupFormResource]).read(row.id))
         .build(link.addLink)
     })
+*/
 
-    new Table[Role](entities, count)
+    new Table[Group](entities, count)
   }
 }
 
-object RoleTableResource {
+object GroupTableResource {
 
   class Search extends AbstractSearch {
 
@@ -78,4 +78,5 @@ object RoleTableResource {
     private var description: String = uninitialized
 
   }
+
 }

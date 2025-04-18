@@ -1,10 +1,13 @@
 package com.anjunar.scala.schema.model
 
 import com.anjunar.scala.mapper.annotations.IgnoreFilter
+import com.anjunar.scala.schema.JsonDescriptorsGenerator
 import com.anjunar.scala.schema.model.validators.Validator
+import com.anjunar.scala.universe.TypeResolver
 
 import java.util
 import scala.beans.BeanProperty
+import scala.compiletime.uninitialized
 
 @IgnoreFilter
 class NodeDescriptor {
@@ -31,7 +34,7 @@ class NodeDescriptor {
   var `type`: String = ""
 
   @BeanProperty
-  var step : String = "1"
+  var step : String = uninitialized
 
   @BeanProperty
   var links: util.Map[String, Link] = new util.LinkedHashMap[String, Link]()

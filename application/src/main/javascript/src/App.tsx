@@ -9,7 +9,7 @@ import onLink = Link.onLink;
 export function process(response: Response) {
     if (response.status === 403) {
         if (location.search.indexOf("redirect") === -1) {
-            navigate(`/security/login?redirect=${location.pathname}`)
+            navigate(`/security/login?redirect=${location.pathname}${location.search}`)
         }
     }
 }

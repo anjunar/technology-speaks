@@ -37,7 +37,7 @@ class UserTableResource extends SchemaBuilderContext {
   @GET
   @Produces(Array("application/json"))
   @JsonSchema(classOf[UserTableSchema])
-  @RolesAllowed(Array("Administrator"))
+  @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Benutzer", linkType = LinkType.TABLE)
   def list(@BeanParam search: UserTableResource.Search): Table[User] = {
     val context = jpaSearch.searchContext(search)

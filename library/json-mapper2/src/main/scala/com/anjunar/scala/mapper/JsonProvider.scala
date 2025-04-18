@@ -47,7 +47,7 @@ class JsonProvider extends MessageBodyReader[AnyRef] with MessageBodyWriter[AnyR
   @Inject
   var schemaProvider : SchemaBuilderProvider = uninitialized
 
-  override def isReadable(aClass: Class[?], javaType: Type, annotations: Array[Annotation], mediaType: MediaType) = {
+  override def isReadable(aClass: Class[?], javaType: Type, annotations: Array[Annotation], mediaType: MediaType): Boolean = {
     annotations.exists(annotation => annotation.annotationType() == classOf[JsonSchema])
   }
 
@@ -111,7 +111,7 @@ class JsonProvider extends MessageBodyReader[AnyRef] with MessageBodyWriter[AnyR
       })
   }
 
-  override def isWriteable(aClass: Class[?], javaType: Type, annotations: Array[Annotation], mediaType: MediaType) = {
+  override def isWriteable(aClass: Class[?], javaType: Type, annotations: Array[Annotation], mediaType: MediaType): Boolean = {
     annotations.exists(annotation => annotation.annotationType() == classOf[JsonSchema])
   }
 

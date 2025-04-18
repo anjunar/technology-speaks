@@ -15,6 +15,11 @@ class UserTableSchema extends EntityJSONSchema[Table[User]] {
   override def  build(root: Table[User], javaType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder(true)
 
+    val currentUser = User.current()
+
+    val view = User.View.findByUser(currentUser)
+
+
     TableSchema.static(builder)
     
     root.rows.forEach(user => UserSchema.dynamic(builder, user))

@@ -28,7 +28,13 @@ class MethodInterceptor(private val last: MethodInterceptor) extends InvocationH
 
   @throws[Throwable]
   override def invoke(proxy: AnyRef, thisMethod: Method, args: Array[AnyRef]): AnyRef = {
-    val javaType = TypeResolver.resolve(proxy.getClass.getSuperclass)
+    val interfaceOption = proxy.getClass.getInterfaces.headOption
+    val javaType = if (interfaceOption.isDefined) {
+      TypeResolver.resolve(interfaceOption.get)
+    } else {
+      TypeResolver.resolve(proxy.getClass.getSuperclass)
+    }
+
     val resolvedMethod = javaType.findMethod(thisMethod.getName, thisMethod.getParameterTypes()*)
     invocation = new MethodInvocation(resolvedMethod, args)
     WebURLBuilderFactory.createProxy(thisMethod.getReturnType, new MethodInterceptor(this))

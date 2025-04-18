@@ -10,6 +10,7 @@ import com.anjunar.technologyspeaks.jpa.Pair
 import com.anjunar.technologyspeaks.media.Media
 import com.anjunar.technologyspeaks.openstreetmap.geocoding.GeoService
 import com.anjunar.technologyspeaks.security.{Authenticator, EmailCredential, Secured}
+import com.anjunar.technologyspeaks.shared.UserSchema
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -33,9 +34,6 @@ class UserFormResource extends SchemaBuilderContext {
 
   @Inject
   var authenticator: Authenticator = uninitialized
-
-  @Inject
-  var entityManager: EntityManager = uninitialized
 
   @GET
   @Produces(Array("application/json"))
@@ -69,6 +67,11 @@ class UserFormResource extends SchemaBuilderContext {
   @LinkDescription(value = "Profil", linkType = LinkType.FORM)
   def read(@PathParam("id") id: UUID): User = {
 
+    val entity: User = if (Credential.current().hasRole("Guest") || Credential.current().hasRole("User")) then
+      User.current()
+    else
+      User.find(id)
+
     forLinks(classOf[User], (user, link) => {
       linkTo(methodOn(classOf[UserFormResource]).update(user))
         .build(link.addLink)
@@ -76,10 +79,6 @@ class UserFormResource extends SchemaBuilderContext {
         .build(link.addLink)
     })
 
-    val entity: User = if (Credential.current().hasRole("Guest") || Credential.current().hasRole("User")) then
-      User.current()
-    else
-      User.find(id)
     entity
   }
 
@@ -90,7 +89,6 @@ class UserFormResource extends SchemaBuilderContext {
   @RolesAllowed(Array("Administrator"))
   @LinkDescription(value = "Speichern", linkType = LinkType.FORM)
   def save(@JsonSchema(classOf[UserFormSchema]) entity: User): User = {
-    entity.validate()
     entity.persist()
 
     forLinks(classOf[User], (user, link) => {

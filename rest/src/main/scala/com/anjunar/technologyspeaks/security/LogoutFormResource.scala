@@ -25,7 +25,7 @@ import scala.compiletime.uninitialized
 
   @GET
   @Produces(Array("application/json"))
-  @JsonSchema(classOf[LogoutFormSchema])
+  @JsonSchema(classOf[ManagedPropertyFormSchema])
   @RolesAllowed(Array("Guest", "User", "Administrator"))
   @LinkDescription(value = "Abmelden", linkType = LinkType.FORM)
   def logout(): Credential = {
@@ -44,7 +44,7 @@ import scala.compiletime.uninitialized
   @Consumes(Array("application/json"))
   @RolesAllowed(Array("Guest", "User", "Administrator"))
   @LinkDescription(value = "Abmelden", linkType = LinkType.FORM)
-  def logout(@JsonSchema(classOf[LogoutFormSchema]) entity: Credential): Response = {
+  def logout(@JsonSchema(classOf[ManagedPropertyFormSchema]) entity: Credential): Response = {
     authenticator.logout()
 
     forLinks(classOf[Credential], (instance, link) => {

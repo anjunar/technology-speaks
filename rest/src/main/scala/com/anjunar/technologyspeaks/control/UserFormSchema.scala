@@ -18,6 +18,7 @@ class UserFormSchema extends EntityJSONSchema[User] {
     val current = credential.email.user
     val isOwnedOrAdmin = current == root.owner || credential.hasRole("Administrator")
 
+
     UserSchema.static(builder, isOwnedOrAdmin)
 
     builder

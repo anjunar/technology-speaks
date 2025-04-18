@@ -51,16 +51,20 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
     for (property <- beanModel.properties) {
       val option = propertyMapping.get(property.name)
 
-      if (option.isDefined || ignoreFilter != null) {
-        val registry = context.registry
-        val converter = registry.find(property.propertyType)
-        val value = property.get(instance.asInstanceOf[AnyRef])
+      if (option.isDefined) {
+        val propertySchema = option.get
 
-        value match
-          case null => 
-          case bool: Boolean => if bool then processProperty(context, properties, property, converter, value)
-          case string: String => if string.nonEmpty then processProperty(context, properties, property, converter, value)
-          case _ => processProperty(context, properties, property, converter, value)
+        if (propertySchema.secured) {
+          if (propertySchema.visible) {
+            proceed(instance, context, properties, property)
+          }
+        } else {
+          proceed(instance, context, properties, property)
+        }
+      } else {
+        if (ignoreFilter != null) {
+          proceed(instance, context, properties, property)
+        }
       }
 
     }
@@ -78,7 +82,19 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
     jsonObject
   }
 
-  private def generateLinks(linkFactory : (Any, LinkContext) => Unit,instance: Any, context: Context, links: mutable.LinkedHashMap[String, JsonNode], registry: ConverterRegistry): Unit = {
+  private def proceed(instance: Any, context: Context, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty) = {
+    val registry = context.registry
+    val converter = registry.find(property.propertyType)
+    val value = property.get(instance.asInstanceOf[AnyRef])
+
+    value match
+      case null =>
+      case bool: Boolean => if bool then processProperty(context, properties, property, converter, value)
+      case string: String => if string.nonEmpty then processProperty(context, properties, property, converter, value)
+      case _ => processProperty(context, properties, property, converter, value)
+  }
+
+  private def generateLinks(linkFactory : (Any, LinkContext) => Unit, instance: Any, context: Context, links: mutable.LinkedHashMap[String, JsonNode], registry: ConverterRegistry): Unit = {
     val linksResult = new mutable.HashMap[String, Link]()
 
     linkFactory(instance, (name: String, link: Link) => linksResult.put(name, link))

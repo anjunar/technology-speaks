@@ -6,8 +6,9 @@ import com.anjunar.scala.universe.introspector.{BeanIntrospector, BeanProperty}
 
 import java.time.{Duration, LocalDate, LocalDateTime, LocalTime}
 import java.util
-import java.util.UUID
+import java.util.{Optional, UUID}
 import scala.collection.mutable
+import scala.compiletime.uninitialized
 
 class PropertyBuilder[C](val name : String, val aClass : Class[?]) {
 
@@ -87,12 +88,14 @@ class PropertyBuilder[C](val name : String, val aClass : Class[?]) {
     }
   }
 
+  var visible: Boolean = true
+
+  var secured : Boolean = false
+
   val links = new mutable.LinkedHashMap[String, Link]
 
-  def withLinks(link: (link : LinkContext) => Unit): PropertyBuilder[C] = {
-    link(new LinkContext {
-      override def addLink(name : String, link: Link): Unit = links.put(name, link)
-    })
+  def withLinks(link: LinkContext => Unit): PropertyBuilder[C] = {
+    link((name: String, link: Link) => links.put(name, link))
     this
   }
 
@@ -131,5 +134,17 @@ class PropertyBuilder[C](val name : String, val aClass : Class[?]) {
     this
   }
 
+  def withManaged(value : String => (Boolean, UUID), link : (UUID, LinkContext) => Unit) : PropertyBuilder[C] = {
+    val (isVisible, id) = value(name)
+
+    if (id != null) {
+      link(id, (name: String, link: Link) => links.put(name, link))
+    }
+
+    visible = isVisible
+    secured = true
+
+    this
+  }
 
 }

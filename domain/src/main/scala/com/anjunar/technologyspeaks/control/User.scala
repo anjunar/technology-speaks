@@ -8,6 +8,7 @@ import com.anjunar.technologyspeaks.openstreetmap.geocoding2.MapBoxService
 import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityUser}
 import com.anjunar.technologyspeaks.shared.validators.Unique
 import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.technologyspeaks.shared.EntityView
 import jakarta.enterprise.event.Observes
 import jakarta.enterprise.inject.spi.CDI
 import jakarta.persistence.*
@@ -20,7 +21,6 @@ import scala.compiletime.uninitialized
 
 
 @Entity
-@Unique(message = "Benutzer schon vorhanden", property = "email")
 class User extends Identity with OwnerProvider with SecurityUser {
   
   @OneToMany(cascade = Array(CascadeType.ALL), mappedBy = "user")
@@ -68,6 +68,26 @@ object User extends RepositoryContext[User](classOf[User]) {
         .getSingleResult
     catch
       case e : NoResultException => null
+  }
+
+  @Entity(name = "UserView")
+  class View extends EntityView {}
+
+  object View extends RepositoryContext[View](classOf[View]) {
+    def findByUser(user : User) : View = {
+      try {
+        User.View.query("select v from UserView v where v.user = :user")
+          .setParameter("user", user)
+          .getSingleResult
+      } catch {
+        case e : NoResultException => {
+          val view = new View()
+          view.user = user
+          view.persist()
+          view
+        }
+      }
+    }
   }
 
 }

@@ -1,7 +1,7 @@
 package com.anjunar.technologyspeaks.jaxrs.link
 
 import com.anjunar.technologyspeaks.jaxrs.types.*
-import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityCredential, SecurityUser}
+import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityCredential}
 import com.anjunar.scala.mapper.annotations.SecuredOwner
 import com.anjunar.scala.schema.model.{Link, LinkType}
 import com.anjunar.scala.universe.TypeResolver

@@ -5,7 +5,7 @@ import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.anjunar.scala.universe.introspector.BeanIntrospector
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.persistence.EntityManager
+import jakarta.persistence.{EntityManager, NoResultException}
 import jakarta.validation.{ConstraintValidator, ConstraintValidatorContext}
 
 import scala.compiletime.uninitialized
@@ -35,7 +35,11 @@ class UniqueValidator extends ConstraintValidator[Unique, AbstractEntity] {
     val from = query.from(entity.getClass)
     
     query.select(from).where(Array(builder.equal(from.get(property), value))*)
-    val singleResult = entityManager.createQuery(query).getSingleResult
+    val singleResult = try {
+      entityManager.createQuery(query).getSingleResult
+    } catch {
+      case e: NoResultException => null
+    }
 
     if (inDatabase == null) {
       singleResult == null

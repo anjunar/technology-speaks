@@ -11,7 +11,6 @@ import scala.beans.BeanProperty
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@Table(name = "identity", uniqueConstraints = Array(new UniqueConstraint(columnNames = Array("email")))) 
 class Identity extends AbstractEntity {
 
   @BeanProperty
