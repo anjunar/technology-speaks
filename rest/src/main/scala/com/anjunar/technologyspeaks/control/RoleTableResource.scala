@@ -31,7 +31,7 @@ import scala.compiletime.uninitialized
 
   @GET
   @Produces(Array("application/json"))
-  @JsonSchema(classOf[GroupTableSchema])
+  @JsonSchema(classOf[RoleTableSchema])
   @RolesAllowed(Array("Guest", "User", "Administrator"))
   @LinkDescription(value = "Rollen", linkType = LinkType.TABLE)
   def list(@BeanParam search: RoleTableResource.Search): Table[Role] = {

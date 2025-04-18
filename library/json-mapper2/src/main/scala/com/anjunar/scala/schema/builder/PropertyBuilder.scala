@@ -10,7 +10,9 @@ import java.util.{Optional, UUID}
 import scala.collection.mutable
 import scala.compiletime.uninitialized
 
-class PropertyBuilder[C](val name : String, val aClass : Class[?]) {
+class PropertyBuilder[C](val name : String, val aClass : Class[?], isTable : Boolean) {
+
+  var schemaBuilder: SchemaBuilder = new SchemaBuilder(isTable)
 
   val property: BeanProperty = {
     val model = BeanIntrospector.createWithType(aClass)
@@ -82,7 +84,7 @@ class PropertyBuilder[C](val name : String, val aClass : Class[?]) {
 
   var step: String = {
     if (annotation == null) {
-      "1"
+      ""
     } else {
       annotation.step()
     }
@@ -144,6 +146,16 @@ class PropertyBuilder[C](val name : String, val aClass : Class[?]) {
     visible = isVisible
     secured = true
 
+    this
+  }
+
+  def forType[D](aClass: Class[D], builder: EntitySchemaBuilder[D] => Unit): PropertyBuilder[C] = {
+    schemaBuilder.forType(aClass, builder)
+    this
+  }
+
+  def forInstance[D](instance : util.Collection[D], aClass : Class[D], builder: D => EntitySchemaBuilder[D] => Unit) : PropertyBuilder[C] = {
+    instance.forEach(instance => schemaBuilder.forInstance(instance, aClass, builder(instance)))
     this
   }
 

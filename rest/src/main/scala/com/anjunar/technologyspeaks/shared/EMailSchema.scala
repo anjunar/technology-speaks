@@ -11,4 +11,9 @@ object EMailSchema {
     )
   }
 
+  def static(builder: EntitySchemaBuilder[EMail]): EntitySchemaBuilder[EMail] = {
+    builder.property("value")
+  }
+
+
 }

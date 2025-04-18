@@ -49,9 +49,11 @@ class UserTableResource extends SchemaBuilderContext {
         .build(link.addLink)
     })
 
-    forLinks(classOf[User], (row, link) => {
-      linkTo(methodOn(classOf[UserFormResource]).read(row.id))
-        .build(link.addLink)
+    entities.forEach(entity => {
+      forLinks(entity, classOf[User], (row, link) => {
+        linkTo(methodOn(classOf[UserFormResource]).read(row.id))
+          .build(link.addLink)
+      })
     })
 
     new Table[User](entities, count)

@@ -5,15 +5,12 @@ import com.anjunar.technologyspeaks.control.Group
 
 object GroupSchema {
 
-  def static(builder: SchemaBuilder, isOwnedOrAdmin: Boolean) : SchemaBuilder = {
-
-    builder.forType(classOf[Group], (builder : EntitySchemaBuilder[Group]) => builder
+  def static(builder: EntitySchemaBuilder[Group], isOwnedOrAdmin: Boolean): EntitySchemaBuilder[Group] = {
+    builder
       .property("id")
       .property("name", property => property
         .withWriteable(isOwnedOrAdmin)
       )
-    )
-
   }
 
 }

@@ -1,12 +1,12 @@
 package com.anjunar.technologyspeaks.shared
 
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilder}
-import com.anjunar.technologyspeaks.control.Address
+import com.anjunar.technologyspeaks.control.{Address, GeoPoint}
 
 object AddressSchema {
 
-  def static(builder: SchemaBuilder, isOwnedOrAdmin: Boolean): Unit = {
-    builder.forType(classOf[Address], (entity: EntitySchemaBuilder[Address]) => entity
+  def static(builder: EntitySchemaBuilder[Address], isOwnedOrAdmin: Boolean): EntitySchemaBuilder[Address] = {
+    builder
       .property("id")
       .property("street", property => property
         .withWriteable(isOwnedOrAdmin)
@@ -20,10 +20,10 @@ object AddressSchema {
       .property("country", property => property
         .withWriteable(isOwnedOrAdmin)
       )
-      .property("point")
-    )
+      .property("point", property => property
+        .forType(classOf[GeoPoint], GeoPointSchema.static)
+      )
 
   }
-
 
 }

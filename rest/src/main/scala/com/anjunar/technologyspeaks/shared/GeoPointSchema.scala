@@ -5,11 +5,11 @@ import com.anjunar.technologyspeaks.control.GeoPoint
 
 object GeoPointSchema {
 
-  def static(builder: SchemaBuilder, isOwnedOrAdmin: Boolean): Unit = {
-    builder.forType(classOf[GeoPoint], (entity: EntitySchemaBuilder[GeoPoint]) => entity
+  def static(builder: EntitySchemaBuilder[GeoPoint]): EntitySchemaBuilder[GeoPoint] = {
+    builder
       .property("x")
       .property("y")
-    )
+
   }
 
 

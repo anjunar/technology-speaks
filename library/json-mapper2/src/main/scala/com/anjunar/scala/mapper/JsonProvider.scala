@@ -72,7 +72,7 @@ class JsonProvider extends MessageBodyReader[AnyRef] with MessageBodyWriter[AnyR
 
     val schemaBuilder = jsonSchema.build(entity, javaTypeRaw)
     
-    val context = new Context(validatorFactory.getValidator, registry, schemaBuilder, entityLoader)
+    val context = new Context(null, validatorFactory.getValidator, registry, schemaBuilder, entityLoader)
 
     val value = jsonMapper.toJava(jsonObject, resolvedClass, context)
 
@@ -132,18 +132,21 @@ class JsonProvider extends MessageBodyReader[AnyRef] with MessageBodyWriter[AnyR
 
     val schema = jsonSchema.build(element, javaTypeRaw)
 
-    // TODO : Better handling of Links
-    schemaProvider.builder.typeMapping.foreachEntry((clazz, builder) => schema.typeMapping.getOrElseUpdate(clazz, new EntitySchemaBuilder[AnyRef](clazz.asInstanceOf[Class[AnyRef]])).links = builder.links)
-    schemaProvider.builder.instanceMapping.foreachEntry((instance, builder) => schema.instanceMapping.getOrElseUpdate(instance, new EntitySchemaBuilder[AnyRef](instance.getClass.asInstanceOf[Class[AnyRef]])).links = builder.links)
+    schemaProvider.builder.typeMapping.foreachEntry((clazz, builder) => {
+      schema.findEntitySchemaDeepByClass(clazz).foreach(b => b.links = builder.links)
+    })
+    schemaProvider.builder.instanceMapping.foreachEntry((instance, builder) => {
+      schema.findEntitySchemaDeepByInstance(instance).foreach(b => b.links = builder.links)
+    })
 
-    val context = new Context(validator, registry, schema, null)
+    val context = new Context(null, validator, registry, schema, null)
 
     val jsonObject = jsonMapper.toJson(element, resolvedClass, context)
 
     val properties = jsonObject.value
     val objectDescriptor = JsonDescriptorsGenerator.generateObject(resolvedClass, schema)
 
-    val contextForDescriptor = new Context(validatorFactory.getValidator, registry, schema, null)
+    val contextForDescriptor = new Context(null, validatorFactory.getValidator, registry, schema, null)
     val jsonDescriptor = jsonMapper.toJson(objectDescriptor, TypeResolver.resolve(classOf[ObjectDescriptor]), contextForDescriptor)
     
     properties.put("$descriptors", jsonDescriptor)

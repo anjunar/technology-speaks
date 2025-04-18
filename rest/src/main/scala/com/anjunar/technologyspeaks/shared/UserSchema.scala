@@ -6,39 +6,30 @@ import com.anjunar.technologyspeaks.control.*
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{createProxy, linkTo, methodOn}
 import com.anjunar.technologyspeaks.media.{Media, Thumbnail}
 import com.anjunar.technologyspeaks.security.{ManagedPropertyFormResource, WebAuthnRegistrationResource}
+import jakarta.validation.constraints.Email
 
 import java.util.{Optional, UUID}
 
 object UserSchema {
 
-  def staticForService(builder: SchemaBuilder): Unit = {
+  def staticForService(builder: EntitySchemaBuilder[User]): EntitySchemaBuilder[User] = {
     builder
-      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
-        .property("emails")
-        .property("info")
+      .property("emails", property => property
+        .forType(classOf[EMail], EMailSchema.static(_))
       )
-      .forType(classOf[UserInfo], entity => entity
-        .property("firstName")
-        .property("lastName")
+      .property("info", property => property
+        .forType(classOf[UserInfo], UserInfoSchema.staticCompact)
       )
-
-    EMailSchema.static(builder)
   }
 
-  def staticCompact(builder: SchemaBuilder, isOwnedOrAdmin : Boolean): SchemaBuilder = {
-
+  def staticCompact(builder: EntitySchemaBuilder[User]): EntitySchemaBuilder[User] = {
     builder
-      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
         .property("id")
         .property("emails")
-      )
-
-    builder
-
   }
 
 
-  def dynamic(builder: SchemaBuilder, loaded: User): Unit = {
+  def dynamic(builder: EntitySchemaBuilder[User], loaded: User): Unit = {
     val token = Credential.current()
 
     val currentUser = token.email.user
@@ -47,7 +38,6 @@ object UserSchema {
     val view = User.View.findByUser(loaded)
 
     builder
-      .forInstance(loaded, classOf[User], (entity: EntitySchemaBuilder[User]) => entity
         .property("id")
         .property("deleted")
         .property("emails", property => property
@@ -56,27 +46,20 @@ object UserSchema {
               .withRel("secured")
               .build(link.addLink)
           })
+          .forType(classOf[EMail], EMailSchema.static(_))
         )
         .property("enabled", property => property
           .withWriteable(isOwnedOrAdmin)
         )
         .property("info", property => property
           .withWriteable(isOwnedOrAdmin)
+          .forType(classOf[UserInfo], UserInfoSchema.static(_, isOwnedOrAdmin))
         )
         .property("address", property => property
           .withWriteable(isOwnedOrAdmin)
+          .forType(classOf[Address], AddressSchema.static(_, isOwnedOrAdmin))
         )
-      )
 
-    ManagedPropertySchema.static(builder, isOwnedOrAdmin)
-    EMailSchema.static(builder)
-    UserInfoSchema.static(builder, isOwnedOrAdmin)
-    AddressSchema.static(builder, isOwnedOrAdmin)
-    GeoPointSchema.static(builder, isOwnedOrAdmin)
-    MediaSchema.static(builder, isOwnedOrAdmin)
-    ThumbnailSchema.static(builder, isOwnedOrAdmin)
-    RoleSchema.static(builder)
-    
   }
 
   private def manage(currentUser: User, isOwnedOrAdmin: Boolean, view: EntityView, name: String) : (Boolean, UUID) = {
@@ -104,14 +87,13 @@ object UserSchema {
     }
   }
 
-  def static(builder: SchemaBuilder, isOwnedOrAdmin : Boolean): SchemaBuilder = {
+  def static(builder: EntitySchemaBuilder[User], isOwnedOrAdmin : Boolean): EntitySchemaBuilder[User] = {
 
     val currentUser = User.current()
 
     val view = User.View.findByUser(currentUser)
 
     builder
-      .forType(classOf[User], (entity: EntitySchemaBuilder[User]) => entity
         .property("id")
         .property("deleted")
         .property("emails", property => property
@@ -120,29 +102,19 @@ object UserSchema {
               .withRel("secured")
               .build(link.addLink)
           })
+          .forType(classOf[EMail], EMailSchema.static(_))
         )
         .property("enabled", property => property
           .withWriteable(isOwnedOrAdmin)
         )
         .property("info", property => property
           .withWriteable(isOwnedOrAdmin)
+          .forType(classOf[UserInfo], UserInfoSchema.static(_, isOwnedOrAdmin))
         )
         .property("address", property => property
           .withWriteable(isOwnedOrAdmin)
+          .forType(classOf[Address], AddressSchema.static(_, isOwnedOrAdmin))
         )
-      )
-
-    ManagedPropertySchema.static(builder, isOwnedOrAdmin)
-    EMailSchema.static(builder)
-    UserInfoSchema.static(builder, isOwnedOrAdmin)
-    AddressSchema.static(builder, isOwnedOrAdmin)
-    GeoPointSchema.static(builder, isOwnedOrAdmin)
-    MediaSchema.static(builder, isOwnedOrAdmin)
-    ThumbnailSchema.static(builder, isOwnedOrAdmin)
-    RoleSchema.static(builder)
-
-    builder
-
   }
 
 }

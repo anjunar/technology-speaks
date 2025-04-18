@@ -1,26 +1,23 @@
 package com.anjunar.technologyspeaks.shared
 
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilder}
-import com.anjunar.technologyspeaks.control.{GroupTableResource, User, UserTableResource}
+import com.anjunar.technologyspeaks.control.{Group, GroupTableResource, User, UserTableResource}
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 
 object ManagedPropertySchema {
 
-  def static(builder: SchemaBuilder, isOwnedOrAdmin: Boolean) : SchemaBuilder = {
+  def static(builder: EntitySchemaBuilder[ManagedProperty], isOwnedOrAdmin: Boolean) : EntitySchemaBuilder[ManagedProperty] = {
 
-    builder.forType(classOf[ManagedProperty], (builder : EntitySchemaBuilder[ManagedProperty]) => builder
-      .property("id")
+    builder
       .property("visibleForAll")
       .property("users", property => property
         .withWriteable(isOwnedOrAdmin)
+        .forType(classOf[User], UserSchema.staticCompact(_))
       )
       .property("groups", property => property
         .withWriteable(isOwnedOrAdmin)
+        .forType(classOf[Group], GroupSchema.static(_, isOwnedOrAdmin))
       )
-    )
-
-    GroupSchema.static(builder, isOwnedOrAdmin)
-    UserSchema.staticCompact(builder, isOwnedOrAdmin)
   }
 
 }

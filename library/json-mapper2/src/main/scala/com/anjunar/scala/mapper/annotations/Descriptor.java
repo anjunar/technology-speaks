@@ -15,7 +15,7 @@ public @interface Descriptor {
 
     String widget() default "";
     
-    String step() default "1";
+    String step() default "";
 
     boolean id() default false;
     

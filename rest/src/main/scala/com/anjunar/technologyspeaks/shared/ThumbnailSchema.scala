@@ -5,8 +5,8 @@ import com.anjunar.technologyspeaks.media.Thumbnail
 
 object ThumbnailSchema {
 
-  def static(builder: SchemaBuilder, isOwnedOrAdmin: Boolean): Unit = {
-    builder.forType(classOf[Thumbnail], (entity: EntitySchemaBuilder[Thumbnail]) => entity
+  def static(builder: EntitySchemaBuilder[Thumbnail], isOwnedOrAdmin: Boolean): EntitySchemaBuilder[Thumbnail] = {
+    builder
       .property("id")
       .property("name", property => property
         .withWriteable(isOwnedOrAdmin)
@@ -23,8 +23,6 @@ object ThumbnailSchema {
       .property("data", property => property
         .withWriteable(isOwnedOrAdmin)
       )
-    )
-
   }
 
 }

@@ -16,7 +16,7 @@ class SchemaBuilder(val table : Boolean = false) {
       val value = option.get.asInstanceOf[EntitySchemaBuilder[C]]
       value.withLinks(link)
     } else {
-      val value = new EntitySchemaBuilder[C](aClass)
+      val value = new EntitySchemaBuilder[C](aClass, table)
       value.withLinks(link)
       typeMapping.put(aClass, value)
     }
@@ -31,7 +31,7 @@ class SchemaBuilder(val table : Boolean = false) {
       val value = instanceOption.get.asInstanceOf[EntitySchemaBuilder[C]]
       value.withLinks(link)
     } else {
-      val value = new EntitySchemaBuilder[C](instance.getClass.asInstanceOf[Class[C]])
+      val value = new EntitySchemaBuilder[C](instance.getClass.asInstanceOf[Class[C]], table)
       value.withLinks(link)
       instanceMapping.put(instance, value)
     }
@@ -47,7 +47,7 @@ class SchemaBuilder(val table : Boolean = false) {
       val value = option.get.asInstanceOf[EntitySchemaBuilder[C]]
       builder(value)
     } else {
-      val value = new EntitySchemaBuilder[C](aClass)
+      val value = new EntitySchemaBuilder[C](aClass, table)
       builder(value)
       typeMapping.put(aClass, value)
     }
@@ -65,7 +65,7 @@ class SchemaBuilder(val table : Boolean = false) {
         val value = instanceOption.get.asInstanceOf[EntitySchemaBuilder[C]]
         builder(value)
       } else {
-        val value = new EntitySchemaBuilder[C](instance.getClass.asInstanceOf[Class[C]])
+        val value = new EntitySchemaBuilder[C](instance.getClass.asInstanceOf[Class[C]], table)
         builder(value)
         instanceMapping.put(instance, value)
       }
@@ -93,9 +93,40 @@ class SchemaBuilder(val table : Boolean = false) {
     }
   }
 
-  def findLinks(aClass: Class[?]): mutable.Iterable[(Any, LinkContext) => Unit] = {
+  def findEntitySchemaDeepByClass(aClass: Class[?]): Iterable[EntitySchemaBuilder[?]] = {
+    typeMapping.values ++ typeMapping
+      .values
+      .flatMap(builder => builder.mapping)
+      .flatMap(properties => properties._2.schemaBuilder.findEntitySchemaDeepByClass(aClass))
+      .filter(builder => builder.aClass == aClass)
+  }
+
+  def findEntitySchemaDeepByInstance(instance : Any): Iterable[EntitySchemaBuilder[?]] = {
+    val builders: Iterable[SchemaBuilder] = findSchemaBuilderDeep
+
+    builders
+      .flatMap(schema => schema.instanceMapping
+      .filter((aClass, builder) => aClass == instance)
+        .map((aClass, builder) => builder)
+      )
+  }
+
+  private def findSchemaBuilderDeep: Iterable[SchemaBuilder] = {
+    Seq(this) ++ typeMapping
+      .values
+      .flatMap(builder => builder.mapping.values.flatMap(property => property.schemaBuilder.findSchemaBuilderDeep))
+  }
+
+  def findLinksByClass(aClass: Class[?]): mutable.Iterable[(Any, LinkContext) => Unit] = {
     typeMapping
       .filter(entry => entry._1.isAssignableFrom(aClass) && entry._2.links != null)
+      .map(entry => entry._2.links)
+      .asInstanceOf[mutable.Iterable[(Any, LinkContext) => Unit]]
+  }
+
+  def findLinksByInstance(instance : Any): mutable.Iterable[(Any, LinkContext) => Unit] = {
+    instanceMapping
+      .filter((i, builder) => i == instance)
       .map(entry => entry._2.links)
       .asInstanceOf[mutable.Iterable[(Any, LinkContext) => Unit]]
   }

@@ -1,13 +1,14 @@
 package com.anjunar.scala.mapper
 
 import com.anjunar.scala.mapper.loader.EntityLoader
-import com.anjunar.scala.schema.builder.SchemaBuilder
+import com.anjunar.scala.schema.builder.{PropertyBuilder, SchemaBuilder}
 import jakarta.validation.{ConstraintViolation, Validator}
 
 import java.util
 import scala.collection.mutable
 
-case class Context(validator : Validator,
+case class Context(name : String,
+                   validator : Validator,
                    registry: ConverterRegistry,
                    schema: SchemaBuilder,
                    loader: EntityLoader) {
@@ -20,11 +21,12 @@ case class Context(validator : Validator,
 
 object Context {
 
-  def apply(propertyName: String, context: Context): Context = {
+  def apply(propertyName: String, propertySchema : SchemaBuilder, context: Context): Context = {
     val newContext = Context(
+      propertyName,
       context.validator,
       context.registry,
-      context.schema,
+      propertySchema,
       context.loader
     )
 

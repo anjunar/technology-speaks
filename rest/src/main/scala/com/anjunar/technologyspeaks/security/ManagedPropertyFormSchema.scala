@@ -10,12 +10,12 @@ import java.lang.reflect.Type
 
 class ManagedPropertyFormSchema extends EntityJSONSchema[ManagedProperty] {
   def build(root: ManagedProperty, javaType: Type): SchemaBuilder = {
+    val builder = new SchemaBuilder()
 
     val current = User.current()
     val isOwnedOrAdmin = current == root.view.owner || Credential.current().hasRole("Administrator")
 
-
-    ManagedPropertySchema.static(new SchemaBuilder(), isOwnedOrAdmin)
+    builder.forType(classOf[ManagedProperty], ManagedPropertySchema.static(_, isOwnedOrAdmin))
   }
 }
 

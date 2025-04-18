@@ -2,12 +2,14 @@ package com.anjunar.technologyspeaks.shared
 
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, LinkContext, SchemaBuilder}
 import com.anjunar.technologyspeaks.Application
+import com.anjunar.technologyspeaks.control.User
 
 object ApplicationSchema {
 
-  def read(builder: SchemaBuilder): Unit = builder
-    .forType(classOf[Application], (entity: EntitySchemaBuilder[Application]) => entity
-      .property("user")
+  def read(builder: EntitySchemaBuilder[Application]): EntitySchemaBuilder[Application] = {
+    builder.property("user", property => property
+      .forType(classOf[User], UserSchema.staticForService(_))
     )
+  }
 
 }

@@ -4,7 +4,7 @@ import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.{EntityJSONSchema, EntitySchemaBuilder, SchemaBuilder}
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.jaxrs.types.Table
-import com.anjunar.technologyspeaks.shared.{RoleSchema, TableSchema}
+import com.anjunar.technologyspeaks.shared.{GroupSchema, RoleSchema}
 
 import java.lang.annotation.Annotation
 import java.lang.reflect.Type
@@ -12,12 +12,15 @@ import java.lang.reflect.Type
 
 class RoleTableSchema extends EntityJSONSchema[Table[Role]] {
   override def build(root: Table[Role], javaType: Type): SchemaBuilder = {
-    val builder = new SchemaBuilder()
+    val builder = new SchemaBuilder(true)
 
-    TableSchema.static(builder)
-    RoleSchema.static(builder)
-
-    builder
+    builder.forType(classOf[Table[Role]], (builder: EntitySchemaBuilder[Table[Role]]) => builder
+      .property("rows", property => property
+        .withTitle("Roles")
+        .forType(classOf[Role], RoleSchema.static(_, false))
+      )
+      .property("size")
+    )
   }
 
 }

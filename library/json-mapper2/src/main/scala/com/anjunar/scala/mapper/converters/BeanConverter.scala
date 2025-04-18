@@ -56,14 +56,14 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
         if (propertySchema.secured) {
           if (propertySchema.visible) {
-            proceed(instance, context, properties, property)
+            proceed(instance, context, properties, property, propertySchema.schemaBuilder)
           }
         } else {
-          proceed(instance, context, properties, property)
+          proceed(instance, context, properties, property, propertySchema.schemaBuilder)
         }
       } else {
         if (ignoreFilter != null) {
-          proceed(instance, context, properties, property)
+          proceed(instance, context, properties, property, schema)
         }
       }
 
@@ -71,7 +71,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
     val registry = context.registry
     
-    val linkFactories = schema.findLinks(TypeResolver.rawType(resolvedType))
+    val linkFactories = schema.findLinksByClass(TypeResolver.rawType(resolvedType)) ++ schema.findLinksByInstance(instance)
     
     linkFactories.foreach(linkFactory => {
       generateLinks(linkFactory, instance, context, links, registry)
@@ -82,16 +82,16 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
     jsonObject
   }
 
-  private def proceed(instance: Any, context: Context, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty) = {
+  private def proceed(instance: Any, context: Context, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, propertySchema : SchemaBuilder) = {
     val registry = context.registry
     val converter = registry.find(property.propertyType)
     val value = property.get(instance.asInstanceOf[AnyRef])
 
     value match
       case null =>
-      case bool: Boolean => if bool then processProperty(context, properties, property, converter, value)
-      case string: String => if string.nonEmpty then processProperty(context, properties, property, converter, value)
-      case _ => processProperty(context, properties, property, converter, value)
+      case bool: Boolean => if bool then processProperty(context, properties, property, converter, value, propertySchema)
+      case string: String => if string.nonEmpty then processProperty(context, properties, property, converter, value, propertySchema)
+      case _ => processProperty(context, properties, property, converter, value, propertySchema)
   }
 
   private def generateLinks(linkFactory : (Any, LinkContext) => Unit, instance: Any, context: Context, links: mutable.LinkedHashMap[String, JsonNode], registry: ConverterRegistry): Unit = {
@@ -101,20 +101,20 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
     for (link <- linksResult) {
       val converter = registry.find(TypeResolver.resolve(classOf[Link]))
-      val node = converter.toJson(link._2, TypeResolver.resolve(classOf[Link]), Context(link._1, context))
+      val node = converter.toJson(link._2, TypeResolver.resolve(classOf[Link]), Context(link._1, context.schema, context))
 
       links.put(link._1, node)
     }
   }
 
-  private def processProperty(context: Context, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, converter: AbstractConverter, value: Any) = value match
-    case collection : util.Collection[?] => if ! collection.isEmpty then addProperty(context, properties, property, converter, value)
-    case map: util.Map[?, ?] => if !map.isEmpty then addProperty(context, properties, property, converter, value)
-    case _ => addProperty(context, properties, property, converter, value)
+  private def processProperty(context: Context, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, converter: AbstractConverter, value: Any, propertySchema : SchemaBuilder) = value match
+    case collection : util.Collection[?] => if ! collection.isEmpty then addProperty(context, properties, property, converter, value, propertySchema)
+    case map: util.Map[?, ?] => if !map.isEmpty then addProperty(context, properties, property, converter, value, propertySchema)
+    case _ => addProperty(context, properties, property, converter, value, propertySchema)
 
 
-  private def addProperty(context: Context, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, converter: AbstractConverter, value: Any) = {
-    val jsonNode = converter.toJson(value, property.propertyType, Context(property.name, context))
+  private def addProperty(context: Context, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, converter: AbstractConverter, value: Any, propertySchema : SchemaBuilder) = {
+    val jsonNode = converter.toJson(value, property.propertyType, Context(property.name, propertySchema, context))
     properties.put(property.name, jsonNode)
   }
 
@@ -154,7 +154,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
             val currentNode = jsonObject.value.get(property.name)
 
             val value = if currentNode.isDefined then 
-              converter.toJava(currentNode.get, property.propertyType, Context(property.name, context))
+              converter.toJava(currentNode.get, property.propertyType, Context(property.name, descriptor.schemaBuilder, context))
             else
               if classOf[java.lang.Boolean].isAssignableFrom(property.propertyType.raw) then
                 false else null
