@@ -11,6 +11,7 @@ import {registerEntity} from "react-ui-simplicity";
 import EMail from "./domain/user/EMail";
 import WebAuthnLogin from "./domain/user/WebAuthnLogin";
 import Credential from "./domain/user/Credential";
+import Group from "./domain/user/Group";
 
 export function init() {
     registerEntity(Application)
@@ -19,6 +20,7 @@ export function init() {
     registerEntity(Identity)
     registerEntity(Role)
     registerEntity(User)
+    registerEntity(Group)
     registerEntity(UserInfo)
     registerEntity(WebAuthnLogin)
     registerEntity(Credential)

@@ -63,6 +63,10 @@ class ApplicationFormResource extends SchemaBuilderContext {
             .withRel("roles")
             .build(link.addLink)
 
+          linkTo(methodOn(classOf[GroupTableResource]).list(null))
+            .withRel("groups")
+            .build(link.addLink)
+
           linkTo(methodOn(classOf[CredentialTableResource]).list(null))
             .withRel("devices")
             .build(link.addLink)

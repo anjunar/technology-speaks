@@ -25,7 +25,7 @@ object UserSchema {
   def staticCompact(builder: EntitySchemaBuilder[User]): EntitySchemaBuilder[User] = {
     builder
         .property("id")
-        .property("emails")
+        .property("name")
   }
 
 
@@ -39,6 +39,7 @@ object UserSchema {
 
     builder
         .property("id")
+        .property("name")
         .property("deleted")
         .property("emails", property => property
           .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
@@ -95,6 +96,7 @@ object UserSchema {
 
     builder
         .property("id")
+        .property("name")
         .property("deleted")
         .property("emails", property => property
           .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {

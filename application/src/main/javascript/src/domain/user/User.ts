@@ -11,6 +11,9 @@ export default class User extends Identity {
     $type = "User"
 
     @Basic()
+    name : string
+
+    @Basic()
     emails : EMail[] = []
 
     @Basic()

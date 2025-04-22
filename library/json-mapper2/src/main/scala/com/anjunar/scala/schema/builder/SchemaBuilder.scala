@@ -94,7 +94,7 @@ class SchemaBuilder(val table : Boolean = false) {
   }
 
   def findEntitySchemaDeepByClass(aClass: Class[?]): Iterable[EntitySchemaBuilder[?]] = {
-    typeMapping.values ++ typeMapping
+    typeMapping.values.filter(builder => builder.aClass == aClass) ++ typeMapping
       .values
       .flatMap(builder => builder.mapping)
       .flatMap(properties => properties._2.schemaBuilder.findEntitySchemaDeepByClass(aClass))

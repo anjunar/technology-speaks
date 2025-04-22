@@ -2,6 +2,7 @@ package com.anjunar.technologyspeaks.control
 
 import com.anjunar.scala.mapper.annotations.Descriptor
 import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
+import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.SecurityUser
 import jakarta.persistence.{Entity, ManyToMany, ManyToOne, Table}
 import com.anjunar.technologyspeaks.shared.AbstractEntity
@@ -37,3 +38,5 @@ class Group extends AbstractEntity with OwnerProvider {
   override def owner : SecurityUser = user
 
 }
+
+object Group extends RepositoryContext[Group](classOf[Group])

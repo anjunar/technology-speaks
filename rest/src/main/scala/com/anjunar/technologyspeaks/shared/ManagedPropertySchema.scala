@@ -12,11 +12,11 @@ object ManagedPropertySchema {
       .property("visibleForAll")
       .property("users", property => property
         .withWriteable(isOwnedOrAdmin)
-        .forType(classOf[User], UserSchema.staticCompact(_))
+        .forType(classOf[User], UserSchema.staticCompact)
       )
       .property("groups", property => property
         .withWriteable(isOwnedOrAdmin)
-        .forType(classOf[Group], GroupSchema.static(_, isOwnedOrAdmin))
+        .forType(classOf[Group], GroupSchema.staticCompact(_, isOwnedOrAdmin))
       )
   }
 

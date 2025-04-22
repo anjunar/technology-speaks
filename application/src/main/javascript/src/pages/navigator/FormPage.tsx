@@ -4,6 +4,7 @@ import {ActiveObject, Button, FormModel, FormSchemaFactory, JSONSerializer, Link
 import QueryParams = Router.QueryParams;
 import navigate = Router.navigate;
 import * as webauthnJson from "@github/webauthn-json";
+import SecuredProperty from "../../components/security/SecuredProperty";
 
 function FormPage(properties: FormView.Attributes) {
 
@@ -46,8 +47,14 @@ function FormPage(properties: FormView.Attributes) {
             </span>
         ))
 
-    let fields = Object.keys(domain.$descriptors.allProperties(domain.$type)).reverse().map(key => (
-        <FormSchemaFactory key={key} name={key}/>
+    let fields = Object.entries(domain.$descriptors.allProperties(domain.$type)).map(([key, descriptor]) => (
+        <div style={{display : "flex", alignItems : "center"}}>
+            <FormSchemaFactory style={{flex : 1}} key={key} name={key}/>
+            {
+                descriptor.links?.["secured"] && <SecuredProperty descriptor={descriptor}/>
+            }
+        </div>
+
     ))
 
     async function login() {

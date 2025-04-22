@@ -1,8 +1,10 @@
 package com.anjunar.technologyspeaks.control
 
 import com.anjunar.scala.mapper.annotations.JsonSchema
+import com.anjunar.scala.schema.builder.{SchemaBuilder, SchemaBuilderContext}
 import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
+import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.jaxrs.search.{RestPredicate, RestSort}
 import com.anjunar.technologyspeaks.jaxrs.search.jpa.JPASearch
 import com.anjunar.technologyspeaks.jaxrs.search.provider.{GenericIdProvider, GenericNameProvider, GenericSortProvider}
@@ -22,7 +24,7 @@ import java.util.UUID
 @ApplicationScoped
 @Path("/control/groups")
 @Secured
-class GroupTableResource {
+class GroupTableResource extends SchemaBuilderContext {
 
   @Inject
   var jpaSearch: JPASearch = uninitialized
@@ -31,13 +33,12 @@ class GroupTableResource {
   @Produces(Array("application/json"))
   @JsonSchema(classOf[GroupTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
-  @LinkDescription(value = "Rollen", linkType = LinkType.TABLE)
+  @LinkDescription(value = "Groups", linkType = LinkType.TABLE)
   def list(@BeanParam search: GroupTableResource.Search): Table[Group] = {
     val context = jpaSearch.searchContext(search)
     val entities = jpaSearch.entities(search.index, search.limit, classOf[Group], context)
     val count = jpaSearch.count(classOf[Group], context)
 
-/*
     forLinks(classOf[Table[Group]], (instance, link) => {
       linkTo(methodOn(classOf[GroupFormResource]).create)
         .build(link.addLink)
@@ -47,7 +48,6 @@ class GroupTableResource {
       linkTo(methodOn(classOf[GroupFormResource]).read(row.id))
         .build(link.addLink)
     })
-*/
 
     new Table[Group](entities, count)
   }

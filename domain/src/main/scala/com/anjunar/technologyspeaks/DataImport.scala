@@ -64,6 +64,7 @@ class DataImport {
       patrick = new User
       email.user = patrick
 
+      patrick.nickName = "Anjunar"
       patrick.enabled = true
       patrick.deleted = false
       patrick.info = info
