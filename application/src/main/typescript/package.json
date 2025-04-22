@@ -1,0 +1,11 @@
+{
+  "name": "react-simplicity",
+  "version": "1.0.0",
+  "description": "A UI library",
+  "author": "Patrick Bittner",
+  "license": "MIT",
+  "workspaces": [
+    "packages/library",
+    "packages/technology-speaks"
+  ]
+}
