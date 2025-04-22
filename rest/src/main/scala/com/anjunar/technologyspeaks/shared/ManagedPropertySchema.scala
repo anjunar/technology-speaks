@@ -9,13 +9,20 @@ object ManagedPropertySchema {
   def static(builder: EntitySchemaBuilder[ManagedProperty], isOwnedOrAdmin: Boolean) : EntitySchemaBuilder[ManagedProperty] = {
 
     builder
-      .property("visibleForAll")
+      .property("id")
+      .property("visibleForAll", property => property
+        .withWriteable(isOwnedOrAdmin)
+      )
       .property("users", property => property
         .withWriteable(isOwnedOrAdmin)
         .forType(classOf[User], UserSchema.staticCompact)
       )
       .property("groups", property => property
         .withWriteable(isOwnedOrAdmin)
+        .withLinks(links => {
+          linkTo(methodOn(classOf[GroupTableResource]).list(null))
+            .build(links.addLink)
+        })
         .forType(classOf[Group], GroupSchema.staticCompact(_, isOwnedOrAdmin))
       )
   }

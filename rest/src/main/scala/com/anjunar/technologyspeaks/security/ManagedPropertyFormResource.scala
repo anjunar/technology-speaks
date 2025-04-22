@@ -1,8 +1,10 @@
 package com.anjunar.technologyspeaks.security
 
-import com.anjunar.scala.mapper.annotations.JsonSchema
+import com.anjunar.scala.mapper.annotations.{JsonSchema, SecuredOwner}
+import com.anjunar.scala.schema.builder.SchemaBuilderContext
 import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
+import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.shared.ManagedProperty
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
@@ -13,7 +15,7 @@ import java.util.UUID
 @Path("security/properties/property")
 @ApplicationScoped
 @Secured
-class ManagedPropertyFormResource {
+class ManagedPropertyFormResource extends SchemaBuilderContext {
 
 
   @GET
@@ -22,7 +24,14 @@ class ManagedPropertyFormResource {
   @JsonSchema(classOf[ManagedPropertyFormSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Read", linkType = LinkType.FORM)
+  @SecuredOwner
   def read(@PathParam("id") id: UUID): ManagedProperty = {
+
+    forLinks(classOf[ManagedProperty], (instance, links) => {
+      linkTo(methodOn(classOf[ManagedPropertyFormResource]).update(instance))
+        .build(links.addLink)
+    })
+
     ManagedProperty.find(id)
   }
 
@@ -32,7 +41,7 @@ class ManagedPropertyFormResource {
   @JsonSchema(classOf[ManagedPropertyFormSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Update", linkType = LinkType.FORM)
-  def update(@JsonSchema(classOf[ManagedPropertyFormSchema]) entity: ManagedProperty): ManagedProperty = {
+  def update(@JsonSchema(classOf[ManagedPropertyFormSchema]) @SecuredOwner entity: ManagedProperty): ManagedProperty = {
     entity.validate()
     entity
   }

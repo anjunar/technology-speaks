@@ -143,8 +143,9 @@ class JaxRSInvocation(private val method: ResolvedMethod,
       if (hasRoles(rolesAllowed.value)) {
         if (securedOwner) {
           val ownerProvider = body.asInstanceOf[OwnerProvider]
-          val principal = identityManager.getPrincipal
-          if (principal.hasRole("Administrator") || ownerProvider.owner == principal) {
+          val credential = identityManager.getPrincipal
+          val currentUser = credential.user
+          if (credential.hasRole("Administrator") || ownerProvider.owner == currentUser) {
             consumer.accept(rel, new Link(url.toASCIIString, buildMethod, rel, valueDescription, linkType))
           }
         } else {

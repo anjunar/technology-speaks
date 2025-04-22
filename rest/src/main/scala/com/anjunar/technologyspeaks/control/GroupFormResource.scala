@@ -23,7 +23,7 @@ class GroupFormResource extends SchemaBuilderContext {
   @GET
   @Produces(Array("application/json"))
   @JsonSchema(classOf[GroupFormSchema])
-  @RolesAllowed(Array("Administrator"))
+  @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Create", linkType = LinkType.FORM)
   def create: Group = {
 
@@ -61,9 +61,12 @@ class GroupFormResource extends SchemaBuilderContext {
   @Consumes(Array("application/json"))
   @Produces(Array("application/json"))
   @JsonSchema(classOf[GroupFormSchema])
-  @RolesAllowed(Array("Administrator"))
+  @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Save", linkType = LinkType.FORM)
   def save(@JsonSchema(classOf[GroupFormSchema]) entity: Group): Group = {
+
+    val user = User.current()
+    entity.user = user
     entity.persist()
 
     forLinks(classOf[Group], (instance, link) => {
@@ -83,7 +86,7 @@ class GroupFormResource extends SchemaBuilderContext {
   @Consumes(Array("application/json"))
   @Produces(Array("application/json"))
   @JsonSchema(classOf[GroupFormSchema])
-  @RolesAllowed(Array("Administrator"))
+  @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Update", linkType = LinkType.FORM)
   def update(@JsonSchema(classOf[GroupFormSchema]) entity: Group): Group = {
     entity.validate()

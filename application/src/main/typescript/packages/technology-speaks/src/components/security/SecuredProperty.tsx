@@ -1,37 +1,50 @@
 import React, {useState} from "react"
-import {NodeDescriptor, Window} from "react-ui-simplicity";
+import {mapForm, NodeDescriptor, useForm, Window} from "react-ui-simplicity";
 import {createPortal} from "react-dom";
+import ManagedProperty from "../../domain/core/ManagedProperty";
+import SecuredPropertyForm from "./SecuredPropertyForm";
 
-function SecuredProperty(properties: ManagedProperty.Attributes) {
+function SecuredProperty(properties: SecuredProperty.Attributes) {
 
     const {descriptor} = properties
 
-    const [open, setOpen] = useState(false)
+    const [form, setForm] = useState(null)
+
+    async function openWindow() {
+        let link = descriptor.links["secured"];
+        let response = await fetch(`/service${link.url}`)
+        let json = await response.json()
+        setForm(mapForm<ManagedProperty>(json))
+    }
+
+    function closeWindow() {
+        setForm(null)
+    }
 
     return (
         <div>
             {
-                open && createPortal(
-                    <Window centered={true}>
+                form && createPortal(
+                    <Window centered={true} style={{width : "250px", height : "200px"}}>
                         <Window.Header>
                             <div style={{display : "flex", justifyContent : "flex-end"}}>
-                                <button className={"material-icons"} onClick={() => setOpen(false)}>close</button>
+                                <button className={"material-icons"} onClick={() => closeWindow()}>close</button>
                             </div>
                         </Window.Header>
                         <Window.Content>
                             <div>
-                                Test
+                                <SecuredPropertyForm form={form} onClose={closeWindow}/>
                             </div>
                         </Window.Content>
                     </Window>,
                 document.getElementById("viewport"))
             }
-            <button className={"material-icons"} onClick={() => setOpen(! open)}>settings</button>
+            <button className={"material-icons"} onClick={() => openWindow()}>settings</button>
         </div>
     )
 }
 
-namespace ManagedProperty {
+namespace SecuredProperty {
     export interface Attributes {
         descriptor : NodeDescriptor
     }

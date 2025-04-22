@@ -86,7 +86,7 @@ function SchemaForm(properties: SchemaForm.Attributes) {
 namespace SchemaForm {
     export interface Attributes {
         children: React.ReactNode
-        onSubmit?: any
+        onSubmit: (name : string, form : FormModel) => void
         onInput?: any
         onErrors?: (errors: Error[]) => void
         value?: any

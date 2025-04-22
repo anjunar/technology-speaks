@@ -54,13 +54,17 @@ function SchemaTable(properties: SchemaTable.Attributes) {
 
             }
 
-            return object[key]
-                .map((object: any) =>
-                    Object.keys(object)
-                        .filter(key => naming.indexOf(key) > -1)
-                        .map(key => object[key])
-                )
-                .join(" ")
+            if (object[key]) {
+                return object[key]
+                    .map((object: any) =>
+                        Object.keys(object)
+                            .filter(key => naming.indexOf(key) > -1)
+                            .map(key => object[key])
+                    )
+                    .join(" ")
+            } else {
+                return ""
+            }
         }
 
         if (property.$type === "ObjectDescriptor") {

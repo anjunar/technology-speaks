@@ -35,7 +35,7 @@ function RegisterPage(properties: RegisterPage.Attributes) {
         const registerJSON = await registerRequest.json()
 
         if (registerRequest.ok) {
-            navigate("/security/confirm")
+            navigate("/security/login")
         } else {
             alert("Something went wrong")
         }

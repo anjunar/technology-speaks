@@ -91,7 +91,7 @@ export class Model {
     readonly validators: Validator[] = []
     readonly asyncValidators: AsyncValidator[] = []
 
-    readonly oldValue : string | Node
+    oldValue : string | Node
 
     asyncValidate: () => void
 

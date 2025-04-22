@@ -18,7 +18,7 @@ class Group extends AbstractEntity with OwnerProvider {
 
   @BeanProperty
   @Size(min = 3, max = 80)
-  @Descriptor(title = "Name")
+  @Descriptor(title = "Name", naming = true)
   var name : String = uninitialized
 
   @BeanProperty

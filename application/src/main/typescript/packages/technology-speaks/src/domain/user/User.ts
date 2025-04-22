@@ -14,6 +14,9 @@ export default class User extends Identity {
     name : string
 
     @Basic()
+    nickName : string
+
+    @Basic()
     emails : EMail[] = []
 
     @Basic()

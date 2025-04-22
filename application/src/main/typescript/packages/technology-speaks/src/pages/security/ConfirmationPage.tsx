@@ -1,6 +1,6 @@
 import React from "react"
 import Confirmation from "../../domain/user/Confirmation";
-import {Button, SchemaForm, SchemaInput, useForm} from "react-ui-simplicity";
+import {Button, FormModel, JSONSerializer, SchemaForm, SchemaInput, useForm} from "react-ui-simplicity";
 
 function ConfirmationPage(properties: ConfirmationPage.Attributes) {
 
@@ -8,9 +8,24 @@ function ConfirmationPage(properties: ConfirmationPage.Attributes) {
     
     const domain = useForm(form)
 
+    async function onSubmit(name : string, form : FormModel) {
+
+        let link = domain.$links[name]
+        let body = JSONSerializer(domain)
+        let response = await fetch(`/service${link.url}`, {
+            method : link.method,
+            body : JSON.stringify(body),
+            headers : {"content-type" : "application/json"}
+        })
+
+        if (! response.ok) {
+            form.setErrors(await response.json())
+        }
+    }
+
     return (
         <div className={"confirmation-page"} style={{display : "flex", justifyContent : "center", alignItems : "center", height : "100%"}}>
-            <SchemaForm value={domain}>
+            <SchemaForm value={domain} onSubmit={onSubmit}>
                 <SchemaInput name={"code"}/>
                 <Button name={"confirm"}>Confirm</Button>
                 {

@@ -2,7 +2,9 @@ package com.anjunar.technologyspeaks.shared
 
 import com.anjunar.scala.mapper.annotations.Descriptor
 import com.anjunar.technologyspeaks.control.{Group, User}
+import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
+import com.anjunar.technologyspeaks.security.SecurityUser
 import jakarta.persistence.{Column, Entity, ManyToMany, ManyToOne}
 import jakarta.validation.constraints.Size
 
@@ -11,7 +13,7 @@ import scala.compiletime.uninitialized
 import java.util
 
 @Entity
-class ManagedProperty extends AbstractEntity {
+class ManagedProperty extends AbstractEntity with OwnerProvider {
 
   @ManyToOne(optional = false)
   @BeanProperty
@@ -37,6 +39,7 @@ class ManagedProperty extends AbstractEntity {
   @Descriptor(title = "Allowed Users")
   val users : util.Set[User] = new util.HashSet[User]()
 
+  override def owner: SecurityUser = view.user
 }
 
 object ManagedProperty extends RepositoryContext[ManagedProperty](classOf[ManagedProperty])

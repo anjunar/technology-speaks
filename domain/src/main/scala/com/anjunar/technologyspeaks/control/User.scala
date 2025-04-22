@@ -24,6 +24,7 @@ import scala.compiletime.uninitialized
 class User extends Identity with OwnerProvider with SecurityUser {
 
   @Size(min = 3, max = 80)
+  @Descriptor(title = "Nickname")
   @BeanProperty
   var nickName : String = uninitialized
 

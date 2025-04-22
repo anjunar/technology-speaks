@@ -40,6 +40,9 @@ object UserSchema {
     builder
         .property("id")
         .property("name")
+      .property("nickName", property => property
+        .withWriteable(isOwnedOrAdmin)
+      )
         .property("deleted")
         .property("emails", property => property
           .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
@@ -54,10 +57,20 @@ object UserSchema {
         )
         .property("info", property => property
           .withWriteable(isOwnedOrAdmin)
+          .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
+            linkTo(methodOn(classOf[ManagedPropertyFormResource]).read(id))
+              .withRel("secured")
+              .build(link.addLink)
+          })
           .forType(classOf[UserInfo], UserInfoSchema.static(_, isOwnedOrAdmin))
         )
         .property("address", property => property
           .withWriteable(isOwnedOrAdmin)
+          .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
+            linkTo(methodOn(classOf[ManagedPropertyFormResource]).read(id))
+              .withRel("secured")
+              .build(link.addLink)
+          })
           .forType(classOf[Address], AddressSchema.static(_, isOwnedOrAdmin))
         )
 
@@ -97,7 +110,10 @@ object UserSchema {
     builder
         .property("id")
         .property("name")
-        .property("deleted")
+        .property("nickName", property => property
+          .withWriteable(isOwnedOrAdmin)
+        )
+      .property("deleted")
         .property("emails", property => property
           .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
             linkTo(methodOn(classOf[ManagedPropertyFormResource]).read(id))
@@ -111,10 +127,20 @@ object UserSchema {
         )
         .property("info", property => property
           .withWriteable(isOwnedOrAdmin)
+          .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
+            linkTo(methodOn(classOf[ManagedPropertyFormResource]).read(id))
+              .withRel("secured")
+              .build(link.addLink)
+          })
           .forType(classOf[UserInfo], UserInfoSchema.static(_, isOwnedOrAdmin))
         )
         .property("address", property => property
           .withWriteable(isOwnedOrAdmin)
+          .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
+            linkTo(methodOn(classOf[ManagedPropertyFormResource]).read(id))
+              .withRel("secured")
+              .build(link.addLink)
+          })
           .forType(classOf[Address], AddressSchema.static(_, isOwnedOrAdmin))
         )
   }

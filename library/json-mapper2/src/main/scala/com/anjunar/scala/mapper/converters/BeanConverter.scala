@@ -155,9 +155,15 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
             val value = if currentNode.isDefined then 
               converter.toJava(currentNode.get, property.propertyType, Context(property.name, descriptor.schemaBuilder, context))
-            else
-              if classOf[java.lang.Boolean].isAssignableFrom(property.propertyType.raw) then
-                false else null
+            else {
+              property.propertyType.raw match {
+                case aClass : Class[?] if classOf[java.lang.Boolean].isAssignableFrom(aClass) => false
+                case aClass : Class[?] if classOf[util.Set[?]].isAssignableFrom(aClass) => new util.HashSet[AnyRef]()
+                case aClass : Class[?] if classOf[util.List[?]].isAssignableFrom(aClass) => new util.ArrayList[AnyRef]()
+                case aClass : Class[?] if classOf[util.Map[?,?]].isAssignableFrom(aClass) => new util.HashMap[AnyRef, AnyRef]()
+                case _ => null
+              }
+            }
 
             val violations = context.validator.validateValue(aType.raw, property.name, value)
 

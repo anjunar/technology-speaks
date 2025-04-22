@@ -3,9 +3,10 @@ package com.anjunar.technologyspeaks.control
 import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.{SchemaBuilder, SchemaBuilderContext}
 import com.anjunar.scala.schema.model.LinkType
+import com.anjunar.scala.universe.introspector
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
-import com.anjunar.technologyspeaks.jaxrs.search.{RestPredicate, RestSort}
+import com.anjunar.technologyspeaks.jaxrs.search.{PredicateProvider, RestPredicate, RestSort}
 import com.anjunar.technologyspeaks.jaxrs.search.jpa.JPASearch
 import com.anjunar.technologyspeaks.jaxrs.search.provider.{GenericIdProvider, GenericNameProvider, GenericSortProvider}
 import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, Table}
@@ -13,6 +14,8 @@ import com.anjunar.technologyspeaks.security.Secured
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import jakarta.persistence.EntityManager
+import jakarta.persistence.criteria.{CriteriaBuilder, CriteriaQuery, Predicate, Root}
 import jakarta.ws.rs.{BeanParam, GET, Path, Produces}
 import org.jboss.resteasy.annotations.jaxrs.QueryParam
 
@@ -35,7 +38,9 @@ class GroupTableResource extends SchemaBuilderContext {
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Groups", linkType = LinkType.TABLE)
   def list(@BeanParam search: GroupTableResource.Search): Table[Group] = {
-    val context = jpaSearch.searchContext(search)
+    val context = jpaSearch.searchContext(search, (value: GroupTableResource.Search, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[Group], query: CriteriaQuery[_], property: introspector.BeanProperty, name: String) => {
+      builder.equal(root.get("user"), User.current())
+    })
     val entities = jpaSearch.entities(search.index, search.limit, classOf[Group], context)
     val count = jpaSearch.count(classOf[Group], context)
 

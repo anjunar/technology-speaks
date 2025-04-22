@@ -1,7 +1,7 @@
 package com.anjunar.technologyspeaks.control
 
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
-import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityCredential}
+import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityCredential, SecurityUser}
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.anjunar.scala.mapper.annotations.Descriptor
 import com.yubico.webauthn.data.ByteArray
@@ -48,7 +48,9 @@ class Credential extends AbstractEntity with SecurityCredential {
   var email : EMail = uninitialized
 
   override def hasRole(name: String): Boolean = roles.stream.anyMatch((role: Role) => role.name == name)
-  
+
+  override def user: SecurityUser = email.user
+
   def validated : Boolean = hasRole("User") || hasRole("Administrator")
 
   def generateOneTimeToken(): Unit = {
