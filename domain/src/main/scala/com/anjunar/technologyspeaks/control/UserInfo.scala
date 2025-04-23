@@ -14,6 +14,10 @@ import scala.compiletime.uninitialized
 @Entity 
 class UserInfo extends AbstractEntity {
 
+  @OneToOne(mappedBy = "info", optional = false)
+  @BeanProperty
+  var user : User = uninitialized
+
   @Size(min = 3, max = 80)
   @NotBlank 
   @BeanProperty

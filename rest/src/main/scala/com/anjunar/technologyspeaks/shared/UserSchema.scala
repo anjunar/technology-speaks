@@ -12,7 +12,7 @@ import java.util.{Optional, UUID}
 
 object UserSchema {
 
-  def staticForService(builder: EntitySchemaBuilder[User]): EntitySchemaBuilder[User] = {
+  def staticForService(builder: EntitySchemaBuilder[User], isOwnedOrAdmin : Boolean): EntitySchemaBuilder[User] = {
     builder
       .property("emails", property => property
         .forType(classOf[EMail], EMailSchema.static(_))
@@ -22,10 +22,25 @@ object UserSchema {
       )
   }
 
-  def staticCompact(builder: EntitySchemaBuilder[User]): EntitySchemaBuilder[User] = {
+  def dynamicCompact(builder: EntitySchemaBuilder[User], loaded : User): EntitySchemaBuilder[User] = {
+    val token = Credential.current()
+
+    val currentUser = token.email.user
+
+    val isOwnedOrAdmin = currentUser == loaded.owner || token.hasRole("Administrator")
+    val view = User.View.findByUser(currentUser)
+
     builder
-        .property("id")
-        .property("name")
+      .property("id")
+      .property("nickName")
+      .property("info", property => property
+        .withManaged(name => manage(loaded, isOwnedOrAdmin, view, name), (id, link) => {
+          linkTo(methodOn(classOf[ManagedPropertyFormResource]).read(id))
+            .withRel("secured")
+            .build(link.addLink)
+        })
+        .forType(classOf[UserInfo], UserInfoSchema.staticCompact)
+      )
   }
 
 
@@ -39,10 +54,9 @@ object UserSchema {
 
     builder
         .property("id")
-        .property("name")
-      .property("nickName", property => property
-        .withWriteable(isOwnedOrAdmin)
-      )
+        .property("nickName", property => property
+          .withWriteable(isOwnedOrAdmin)
+        )
         .property("deleted")
         .property("emails", property => property
           .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
@@ -62,7 +76,7 @@ object UserSchema {
               .withRel("secured")
               .build(link.addLink)
           })
-          .forType(classOf[UserInfo], UserInfoSchema.static(_, isOwnedOrAdmin))
+          .forType(classOf[UserInfo], UserInfoSchema.static(_, loaded.info))
         )
         .property("address", property => property
           .withWriteable(isOwnedOrAdmin)
@@ -71,7 +85,7 @@ object UserSchema {
               .withRel("secured")
               .build(link.addLink)
           })
-          .forType(classOf[Address], AddressSchema.static(_, isOwnedOrAdmin))
+          .forType(classOf[Address], AddressSchema.static(_, loaded.address))
         )
 
   }
@@ -99,50 +113,6 @@ object UserSchema {
         (managedProperty.users.contains(currentUser) || managedProperty.groups.stream().anyMatch(group => group.users.contains(currentUser)), null)
       }
     }
-  }
-
-  def static(builder: EntitySchemaBuilder[User], isOwnedOrAdmin : Boolean): EntitySchemaBuilder[User] = {
-
-    val currentUser = User.current()
-
-    val view = User.View.findByUser(currentUser)
-
-    builder
-        .property("id")
-        .property("name")
-        .property("nickName", property => property
-          .withWriteable(isOwnedOrAdmin)
-        )
-      .property("deleted")
-        .property("emails", property => property
-          .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
-            linkTo(methodOn(classOf[ManagedPropertyFormResource]).read(id))
-              .withRel("secured")
-              .build(link.addLink)
-          })
-          .forType(classOf[EMail], EMailSchema.static(_))
-        )
-        .property("enabled", property => property
-          .withWriteable(isOwnedOrAdmin)
-        )
-        .property("info", property => property
-          .withWriteable(isOwnedOrAdmin)
-          .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
-            linkTo(methodOn(classOf[ManagedPropertyFormResource]).read(id))
-              .withRel("secured")
-              .build(link.addLink)
-          })
-          .forType(classOf[UserInfo], UserInfoSchema.static(_, isOwnedOrAdmin))
-        )
-        .property("address", property => property
-          .withWriteable(isOwnedOrAdmin)
-          .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
-            linkTo(methodOn(classOf[ManagedPropertyFormResource]).read(id))
-              .withRel("secured")
-              .build(link.addLink)
-          })
-          .forType(classOf[Address], AddressSchema.static(_, isOwnedOrAdmin))
-        )
   }
 
 }

@@ -5,12 +5,6 @@ import com.anjunar.technologyspeaks.control.EMail
 
 object EMailSchema {
 
-  def static(builder: SchemaBuilder): Unit = {
-    builder.forType(classOf[EMail], (entity: EntitySchemaBuilder[EMail]) => entity
-      .property("value")
-    )
-  }
-
   def static(builder: EntitySchemaBuilder[EMail]): EntitySchemaBuilder[EMail] = {
     builder.property("value")
   }

@@ -24,7 +24,7 @@ import scala.compiletime.uninitialized
 class User extends Identity with OwnerProvider with SecurityUser {
 
   @Size(min = 3, max = 80)
-  @Descriptor(title = "Nickname")
+  @Descriptor(title = "Nickname", naming = true)
   @BeanProperty
   var nickName : String = uninitialized
 
@@ -35,16 +35,13 @@ class User extends Identity with OwnerProvider with SecurityUser {
   
   @OneToOne(cascade = Array(CascadeType.ALL), orphanRemoval = true)
   @BeanProperty
-  @Descriptor(title = "Info")
+  @Descriptor(title = "Info", naming = true)
   var info: UserInfo = uninitialized
 
   @OneToOne(cascade = Array(CascadeType.ALL), orphanRemoval = true)
   @BeanProperty
   @Descriptor(title = "Adresse")
   var address : Address = uninitialized
-
-  @Descriptor(title = "Name", naming = true)
-  def getName : String = if info == null then nickName else s"${info.firstName} ${info.lastName}"
 
   override def owner: User = this
 

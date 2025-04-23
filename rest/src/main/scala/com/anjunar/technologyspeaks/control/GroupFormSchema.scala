@@ -13,11 +13,7 @@ class GroupFormSchema extends EntityJSONSchema[Group] {
   override def build(root: Group, javaType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder()
 
-    val credential = Credential.current()
-    val current = credential.email.user
-    val isOwnedOrAdmin = current == root.owner || credential.hasRole("Administrator")
-
-    builder.forType(classOf[Group], GroupSchema.staticFull(_, isOwnedOrAdmin))
+    builder.forType(classOf[Group], GroupSchema.full(_, root))
   }
 }
 

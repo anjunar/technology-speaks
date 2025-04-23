@@ -1,12 +1,18 @@
 package com.anjunar.technologyspeaks.shared
 
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilder}
-import com.anjunar.technologyspeaks.control.{Group, User, UserTableResource}
+import com.anjunar.technologyspeaks.control.{Credential, Group, User, UserTableResource}
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
+
+import java.util
 
 object GroupSchema {
 
-  def staticCompact(builder: EntitySchemaBuilder[Group], isOwnedOrAdmin: Boolean): EntitySchemaBuilder[Group] = {
+  def compact(builder: EntitySchemaBuilder[Group], loaded : Group): EntitySchemaBuilder[Group] = {
+    val credential = Credential.current()
+    val currentUser = User.current()
+    val isOwnedOrAdmin = loaded.owner == currentUser || credential.hasRole("Administrator")
+
     builder
       .property("id")
       .property("name", property => property
@@ -17,7 +23,12 @@ object GroupSchema {
       )
   }
 
-  def staticFull(builder: EntitySchemaBuilder[Group], isOwnedOrAdmin: Boolean): EntitySchemaBuilder[Group] = {
+  def full(builder: EntitySchemaBuilder[Group], loaded : Group): EntitySchemaBuilder[Group] = {
+
+    val credential = Credential.current()
+    val currentUser = User.current()
+    val isOwnedOrAdmin = loaded.owner == currentUser || credential.hasRole("Administrator")
+
     builder
       .property("id")
       .property("name", property => property
@@ -32,8 +43,9 @@ object GroupSchema {
           linkTo(methodOn(classOf[UserTableResource]).list(null))
             .build(links.addLink)
         })
-        .forType(classOf[User], UserSchema.staticCompact)
+        .forInstance(loaded.users, classOf[User], (entity : User) => builder => UserSchema.dynamicCompact(builder, entity))
       )
   }
+
 
 }

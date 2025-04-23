@@ -17,6 +17,28 @@ import Loader = withPageable.Loader;
 import Query = withPageable.Query;
 import Callback = withPageable.Callback;
 
+function namingMultiselect(option: any, schema: ObjectDescriptor) : string {
+    return Reflect.ownKeys(option)
+        .filter((key: any) => {
+            if (schema.properties) {
+                return schema.properties[key]?.name === true
+            } else {
+                return schema.oneOf.some(object => {
+                    return object.properties[key]?.name === true
+                })
+            }
+        })
+        .map((key) => {
+            let value = option[key];
+            if (typeof value === "string") {
+                return value
+            } else {
+                return namingMultiselect(value, schema.properties[key as string] as ObjectDescriptor)
+            }
+        })
+        .join(" ");
+}
+
 function SchemaLazySelect(properties: SchemaLazySelect.Attributes) {
 
     const context = useContext(SchemaFormContext)
@@ -44,34 +66,10 @@ function SchemaLazySelect(properties: SchemaLazySelect.Attributes) {
     let selectOption = (option: any) => {
         if (multiSelect) {
             let schema = contextSchema as CollectionDescriptor
-            return Reflect.ownKeys(option)
-                .filter((key: any) => {
-                    if (schema.items.properties) {
-                        return schema.items.properties[key]?.name === true
-                    } else {
-                        return schema.items.oneOf.some(object => {
-                            return object.properties[key]?.name === true
-                        })
-                    }
-                })
-                .map(key => {
-                    return option[key]
-                })
-                .join(" ")
+            return namingMultiselect(option, schema.items)
         } else {
             let schema = contextSchema as ObjectDescriptor & Validable
-            return Reflect.ownKeys(option)
-                .filter((key: any) => {
-                    if (schema.properties) {
-                        return schema.properties[key]?.name === true
-                    } else {
-                        return schema.oneOf.some((object: any) => {
-                            return object.properties[key]?.naming === true
-                        })
-                    }
-                })
-                .map(key => option[key])
-                .join(" ")
+            return namingMultiselect(option, schema)
         }
     }
 

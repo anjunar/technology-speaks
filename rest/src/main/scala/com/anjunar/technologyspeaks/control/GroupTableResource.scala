@@ -49,9 +49,11 @@ class GroupTableResource extends SchemaBuilderContext {
         .build(link.addLink)
     })
 
-    forLinks(classOf[Group], (row, link) => {
-      linkTo(methodOn(classOf[GroupFormResource]).read(row.id))
-        .build(link.addLink)
+    entities.forEach(entity => {
+      forLinks(entity, classOf[Group], (row, link) => {
+        linkTo(methodOn(classOf[GroupFormResource]).read(row.id))
+          .build(link.addLink)
+      })
     })
 
     new Table[Group](entities, count)

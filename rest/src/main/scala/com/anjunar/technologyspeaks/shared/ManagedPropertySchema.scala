@@ -1,12 +1,16 @@
 package com.anjunar.technologyspeaks.shared
 
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilder}
-import com.anjunar.technologyspeaks.control.{Group, GroupTableResource, User, UserTableResource}
+import com.anjunar.technologyspeaks.control.{Credential, Group, GroupTableResource, User, UserTableResource}
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 
 object ManagedPropertySchema {
 
-  def static(builder: EntitySchemaBuilder[ManagedProperty], isOwnedOrAdmin: Boolean) : EntitySchemaBuilder[ManagedProperty] = {
+  def static(builder: EntitySchemaBuilder[ManagedProperty], loaded : ManagedProperty) : EntitySchemaBuilder[ManagedProperty] = {
+
+    val current = User.current()
+    val isOwnedOrAdmin = current == loaded.view.owner || Credential.current().hasRole("Administrator")
+
 
     builder
       .property("id")
@@ -15,7 +19,7 @@ object ManagedPropertySchema {
       )
       .property("users", property => property
         .withWriteable(isOwnedOrAdmin)
-        .forType(classOf[User], UserSchema.staticCompact)
+        .forInstance(loaded.users, classOf[User], (entity : User) => builder => UserSchema.dynamicCompact(builder, entity))
       )
       .property("groups", property => property
         .withWriteable(isOwnedOrAdmin)
@@ -23,7 +27,7 @@ object ManagedPropertySchema {
           linkTo(methodOn(classOf[GroupTableResource]).list(null))
             .build(links.addLink)
         })
-        .forType(classOf[Group], GroupSchema.staticCompact(_, isOwnedOrAdmin))
+        .forInstance(loaded.groups, classOf[Group], (entity : Group) => builder => GroupSchema.compact(builder, entity))
       )
   }
 

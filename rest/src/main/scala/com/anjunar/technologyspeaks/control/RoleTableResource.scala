@@ -44,9 +44,11 @@ import scala.compiletime.uninitialized
         .build(link.addLink)
     })
 
-    forLinks(classOf[Role], (row, link) => {
-      linkTo(methodOn(classOf[RoleFormResource]).read(row.id))
-        .build(link.addLink)
+    entities.forEach(entity => {
+      forLinks(entity, classOf[Role], (row, link) => {
+        linkTo(methodOn(classOf[RoleFormResource]).read(row.id))
+          .build(link.addLink)
+      })
     })
 
     new Table[Role](entities, count)

@@ -17,7 +17,7 @@ class RoleTableSchema extends EntityJSONSchema[Table[Role]] {
     builder.forType(classOf[Table[Role]], (builder: EntitySchemaBuilder[Table[Role]]) => builder
       .property("rows", property => property
         .withTitle("Roles")
-        .forType(classOf[Role], RoleSchema.static(_, false))
+        .forInstance(root.rows, classOf[Role], (entity : Role) => builder => RoleSchema.static(builder, entity))
       )
       .property("size")
     )

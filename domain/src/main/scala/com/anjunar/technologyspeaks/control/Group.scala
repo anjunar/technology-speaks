@@ -6,7 +6,7 @@ import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.SecurityUser
 import jakarta.persistence.{Entity, ManyToMany, ManyToOne, Table}
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import jakarta.validation.constraints.Size
+import jakarta.validation.constraints.{NotEmpty, Size}
 
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
@@ -18,6 +18,7 @@ class Group extends AbstractEntity with OwnerProvider {
 
   @BeanProperty
   @Size(min = 3, max = 80)
+  @NotEmpty
   @Descriptor(title = "Name", naming = true)
   var name : String = uninitialized
 

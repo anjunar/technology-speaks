@@ -1,11 +1,15 @@
 package com.anjunar.technologyspeaks.shared
 
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilder}
-import com.anjunar.technologyspeaks.control.{Address, GeoPoint}
+import com.anjunar.technologyspeaks.control.{Address, Credential, GeoPoint, User}
 
 object AddressSchema {
 
-  def static(builder: EntitySchemaBuilder[Address], isOwnedOrAdmin: Boolean): EntitySchemaBuilder[Address] = {
+  def static(builder: EntitySchemaBuilder[Address], loaded : Address): EntitySchemaBuilder[Address] = {
+
+    val current = User.current()
+    val isOwnedOrAdmin = current == loaded.user.owner || Credential.current().hasRole("Administrator")
+
     builder
       .property("id")
       .property("street", property => property

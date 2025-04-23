@@ -67,10 +67,7 @@ class UserFormResource extends SchemaBuilderContext {
   @LinkDescription(value = "Profil", linkType = LinkType.FORM)
   def read(@PathParam("id") id: UUID): User = {
 
-    val entity: User = if (Credential.current().hasRole("Guest") || Credential.current().hasRole("User")) then
-      User.current()
-    else
-      User.find(id)
+    val entity = User.find(id)
 
     forLinks(classOf[User], (user, link) => {
       linkTo(methodOn(classOf[UserFormResource]).update(user))

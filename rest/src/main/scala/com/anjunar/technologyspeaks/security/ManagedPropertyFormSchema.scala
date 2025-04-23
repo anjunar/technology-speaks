@@ -12,10 +12,7 @@ class ManagedPropertyFormSchema extends EntityJSONSchema[ManagedProperty] {
   def build(root: ManagedProperty, javaType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder()
 
-    val current = User.current()
-    val isOwnedOrAdmin = current == root.view.owner || Credential.current().hasRole("Administrator")
-
-    builder.forType(classOf[ManagedProperty], ManagedPropertySchema.static(_, isOwnedOrAdmin))
+    builder.forType(classOf[ManagedProperty], ManagedPropertySchema.static(_, root))
   }
 }
 

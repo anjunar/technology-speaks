@@ -1,7 +1,7 @@
 package com.anjunar.technologyspeaks.shared
 
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilder}
-import com.anjunar.technologyspeaks.control.UserInfo
+import com.anjunar.technologyspeaks.control.{Credential, User, UserInfo}
 import com.anjunar.technologyspeaks.media.Media
 
 object UserInfoSchema {
@@ -12,7 +12,11 @@ object UserInfoSchema {
       .property("lastName")
   }
 
-  def static(builder: EntitySchemaBuilder[UserInfo], isOwnedOrAdmin: Boolean): EntitySchemaBuilder[UserInfo] = {
+  def static(builder: EntitySchemaBuilder[UserInfo], loaded : UserInfo): EntitySchemaBuilder[UserInfo] = {
+
+    val current = User.current()
+    val isOwnedOrAdmin = current == loaded.user.owner || Credential.current().hasRole("Administrator")
+
     builder
       .property("id")
       .property("firstName", property => property

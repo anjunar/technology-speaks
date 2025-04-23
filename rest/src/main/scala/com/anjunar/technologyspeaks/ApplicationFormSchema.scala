@@ -16,6 +16,6 @@ class ApplicationFormSchema extends EntityJSONSchema[Application] {
   override def build(root: Application, javaType: Type): SchemaBuilder =
     val builder = new SchemaBuilder()
 
-    builder.forType(classOf[Application], ApplicationSchema.read)
+    builder.forType(classOf[Application], ApplicationSchema.read(_, false))
 }
 

@@ -3,7 +3,7 @@ package com.anjunar.scala.schema.builder
 import scala.collection.mutable
 import scala.compiletime.uninitialized
 
-class SchemaBuilder(val table : Boolean = false) {
+class SchemaBuilder(var table : Boolean = false) {
   
   val typeMapping = new mutable.LinkedHashMap[Class[?], EntitySchemaBuilder[?]]
 
@@ -126,7 +126,7 @@ class SchemaBuilder(val table : Boolean = false) {
 
   def findLinksByInstance(instance : Any): mutable.Iterable[(Any, LinkContext) => Unit] = {
     instanceMapping
-      .filter((i, builder) => i == instance)
+      .filter((i, builder) => i == instance && builder.links != null)
       .map(entry => entry._2.links)
       .asInstanceOf[mutable.Iterable[(Any, LinkContext) => Unit]]
   }

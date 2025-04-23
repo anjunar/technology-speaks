@@ -14,11 +14,7 @@ class UserFormSchema extends EntityJSONSchema[User] {
   override def build(root: User, javaType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder()
 
-    val credential = Credential.current()
-    val current = credential.email.user
-    val isOwnedOrAdmin = current == root.owner || credential.hasRole("Administrator")
-
-    builder.forType(classOf[User], UserSchema.static(_, isOwnedOrAdmin))
+    builder.forType(classOf[User], UserSchema.dynamic(_, root))
   }
 }
 
