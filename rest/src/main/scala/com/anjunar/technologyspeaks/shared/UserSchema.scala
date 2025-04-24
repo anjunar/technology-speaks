@@ -14,9 +14,7 @@ object UserSchema {
 
   def staticForService(builder: EntitySchemaBuilder[User], isOwnedOrAdmin : Boolean): EntitySchemaBuilder[User] = {
     builder
-      .property("emails", property => property
-        .forType(classOf[EMail], EMailSchema.static(_))
-      )
+      .property("nickName")
       .property("info", property => property
         .forType(classOf[UserInfo], UserInfoSchema.staticCompact)
       )

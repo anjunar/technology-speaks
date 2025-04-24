@@ -1,5 +1,5 @@
 import {AbstractEntity, Basic, Entity} from "react-ui-simplicity";
-import Group from "../user/Group";
+import Group from "../control/Group";
 
 @Entity("ManagedProperty")
 export default class ManagedProperty extends AbstractEntity {

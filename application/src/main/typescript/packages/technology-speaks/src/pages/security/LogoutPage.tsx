@@ -1,7 +1,7 @@
 import React from "react"
 import {Button, FormModel, JSONSerializer, Router, SchemaForm, SchemaInput, useForm} from "react-ui-simplicity";
 import navigate = Router.navigate;
-import Credential from "../../domain/user/Credential";
+import Credential from "../../domain/control/Credential";
 import {process} from "../../App"
 
 function LogoutPage(properties: LogoutPage.Attributes) {

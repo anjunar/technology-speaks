@@ -1,4 +1,4 @@
-import User from "./user/User";
+import User from "./control/User";
 import {ActiveObject, Basic, Entity} from "react-ui-simplicity";
 
 @Entity("Application")

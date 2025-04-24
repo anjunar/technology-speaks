@@ -8,7 +8,7 @@ import LoginPage from "./pages/security/LoginPage";
 import RegisterPage from "./pages/security/RegisterPage";
 import ConfirmationPage from "./pages/security/ConfirmationPage";
 import {UAParser} from "ua-parser-js";
-import WebAuthnLogin from "./domain/user/WebAuthnLogin";
+import WebAuthnLogin from "./domain/control/WebAuthnLogin";
 import LogoutPage from "./pages/security/LogoutPage";
 
 export const routes: Router.Route[] = [

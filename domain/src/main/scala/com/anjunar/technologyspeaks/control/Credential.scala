@@ -4,6 +4,7 @@ import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityCredential, SecurityUser}
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
 import com.yubico.webauthn.data.ByteArray
 import jakarta.enterprise.inject.spi.CDI
 import jakarta.persistence.{CascadeType, Column, Entity, ManyToMany, ManyToOne, NoResultException}
@@ -16,7 +17,7 @@ import java.util
 import java.util.Base64
 
 @Entity
-class Credential extends AbstractEntity with SecurityCredential {
+class Credential extends AbstractEntity with SecurityCredential with OwnerProvider {
 
   @BeanProperty
   @Descriptor(title = "Device Name", widget = "text")
@@ -50,6 +51,8 @@ class Credential extends AbstractEntity with SecurityCredential {
   override def hasRole(name: String): Boolean = roles.stream.anyMatch((role: Role) => role.name == name)
 
   override def user: SecurityUser = email.user
+
+  override def owner: SecurityUser = user
 
   def validated : Boolean = hasRole("User") || hasRole("Administrator")
 

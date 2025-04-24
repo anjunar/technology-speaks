@@ -48,8 +48,8 @@ function FormPage(properties: FormView.Attributes) {
         ))
 
     let fields = Object.entries(domain.$descriptors.allProperties(domain.$type)).map(([key, descriptor]) => (
-        <div style={{display : "flex", alignItems : "center"}}>
-            <FormSchemaFactory style={{flex : 1}} key={key} name={key}/>
+        <div key={key} style={{display : "flex", alignItems : "center"}}>
+            <FormSchemaFactory style={{flex : 1}} name={key}/>
             {
                 descriptor.links?.["secured"] && <SecuredProperty descriptor={descriptor}/>
             }

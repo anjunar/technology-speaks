@@ -107,7 +107,7 @@ function Router(properties: Router.Attributes) {
             } else {
                 const [regex, route] = option;
 
-                if (oldRoute === route.path && oldComponent === route.component && oldSearch === search && ! state) {
+                if (oldRoute === route.path && oldComponent === route.component && (oldSearch === search || route.subRouter) && ! state) {
                     oldSearch = search
                     return route.children
                 } else {

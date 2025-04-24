@@ -45,7 +45,7 @@ function App(properties: AppContent.Attributes) {
                     </button>
                 </div>
                 <div slot={"right"}>
-                    <div style={{display : "flex", gap : "5px", justifyContent : "flex-end"}}>
+                    <div style={{display : "flex", gap : "5px", justifyContent : "flex-end", alignItems : "center"}}>
                         {
                             onLink(application.$links, "login", (link) => (
                                 <Link value={link.url}>
@@ -60,6 +60,15 @@ function App(properties: AppContent.Attributes) {
                                 </Link>
                             ))
                         }
+
+                        {
+                            onLink(application.$links, "profile", (link) => (
+                                <Link value={link.url}>
+                                    {application.user.nickName}
+                                </Link>
+                            ))
+                        }
+
                         {
                             onLink(application.$links, "logout", (link) => (
                                 <Link value={link.url}>

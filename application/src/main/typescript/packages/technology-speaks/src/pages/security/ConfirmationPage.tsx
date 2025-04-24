@@ -1,5 +1,5 @@
 import React from "react"
-import Confirmation from "../../domain/user/Confirmation";
+import Confirmation from "../../domain/control/Confirmation";
 import {Button, FormModel, JSONSerializer, SchemaForm, SchemaInput, useForm} from "react-ui-simplicity";
 
 function ConfirmationPage(properties: ConfirmationPage.Attributes) {
