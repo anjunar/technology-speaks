@@ -1,6 +1,5 @@
 import GeoPoint from "./GeoPoint";
-import AbstractEntity from "../core/AbstractEntity";
-import {Basic, Entity} from "react-ui-simplicity";
+import {Basic, Entity, AbstractEntity} from "react-ui-simplicity";
 
 @Entity("Address")
 export default class Address extends AbstractEntity {

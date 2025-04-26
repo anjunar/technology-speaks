@@ -1,4 +1,3 @@
-import AbstractEntity from "./domain/core/AbstractEntity";
 import Identity from "./domain/control/Identity";
 import User from "./domain/control/User";
 import UserInfo from "./domain/control/UserInfo";
@@ -16,7 +15,6 @@ import ManagedProperty from "./domain/core/ManagedProperty";
 
 export function init() {
     registerEntity(Application)
-    registerEntity(AbstractEntity)
     registerEntity(Confirmation)
     registerEntity(Identity)
     registerEntity(Role)
