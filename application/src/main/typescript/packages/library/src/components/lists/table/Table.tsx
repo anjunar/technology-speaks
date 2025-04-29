@@ -90,7 +90,8 @@ function TableRenderer(properties: TableRenderer.Attributes) {
                 // @ts-ignore
                 property: child.props.property,
                 visible: true,
-                sort: "none",
+                // @ts-ignore
+                sort: child.props.sortable ? "none" : null,
                 element: child
             }
         })
@@ -390,7 +391,7 @@ namespace Table {
     }
 
     export namespace Head {
-        export function Cell({ children, property, computed  } : { children : React.ReactNode, property? : string, computed? : boolean}) {
+        export function Cell({ children, property, sortable  } : { children : React.ReactNode, property? : string, sortable : boolean}) {
             return <div>{children}</div>
         }
     }

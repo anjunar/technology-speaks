@@ -119,7 +119,7 @@ function SchemaTable(properties: SchemaTable.Attributes) {
             </Table.Filter>
             <Table.Head>
                 {toArray(schema).map(([key, value]) => (
-                    <Table.Head.Cell key={key} property={key}>
+                        <Table.Head.Cell key={key} property={key} sortable={value.type === "String" || value.type === "Number" || value.type === "Date" || value.type === "Boolean" || value.type === "Temporal"}>
                         {value.title}
                     </Table.Head.Cell>
                 ))}
