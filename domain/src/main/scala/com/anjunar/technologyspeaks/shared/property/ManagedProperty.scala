@@ -1,16 +1,17 @@
-package com.anjunar.technologyspeaks.shared
+package com.anjunar.technologyspeaks.shared.property
 
 import com.anjunar.scala.mapper.annotations.Descriptor
 import com.anjunar.technologyspeaks.control.{Group, User}
 import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.SecurityUser
+import com.anjunar.technologyspeaks.shared.AbstractEntity
 import jakarta.persistence.{Column, Entity, ManyToMany, ManyToOne}
 import jakarta.validation.constraints.Size
 
+import java.util
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
-import java.util
 
 @Entity
 class ManagedProperty extends AbstractEntity with OwnerProvider {

@@ -35,7 +35,11 @@ export default function JSONDeserializer<T>(object: any, buildObjectGraph : bool
             }
 
             if (element instanceof Array) {
-                instance[name] = element.map(item => JSONDeserializer(item, buildObjectGraph))
+                if (instance[name] instanceof Array) {
+                    instance[name].push(...element.map(item => JSONDeserializer(item, buildObjectGraph)))
+                } else {
+                    instance[name] = element.map(item => JSONDeserializer(item, buildObjectGraph))
+                }
             } else {
                 if (element instanceof Object) {
                     if (converter) {

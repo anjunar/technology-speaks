@@ -3,7 +3,7 @@ package com.anjunar.scala.schema.builder
 import scala.collection.mutable
 import scala.compiletime.uninitialized
 
-class SchemaBuilder(var table : Boolean = false) {
+class SchemaBuilder(var table : Boolean = false, val parent : SchemaBuilder = null) {
   
   val typeMapping = new mutable.LinkedHashMap[Class[?], EntitySchemaBuilder[?]]
 
@@ -16,7 +16,7 @@ class SchemaBuilder(var table : Boolean = false) {
       val value = option.get.asInstanceOf[EntitySchemaBuilder[C]]
       value.withLinks(link)
     } else {
-      val value = new EntitySchemaBuilder[C](aClass, table)
+      val value = new EntitySchemaBuilder[C](aClass, table, this)
       value.withLinks(link)
       typeMapping.put(aClass, value)
     }
@@ -31,7 +31,7 @@ class SchemaBuilder(var table : Boolean = false) {
       val value = instanceOption.get.asInstanceOf[EntitySchemaBuilder[C]]
       value.withLinks(link)
     } else {
-      val value = new EntitySchemaBuilder[C](instance.getClass.asInstanceOf[Class[C]], table)
+      val value = new EntitySchemaBuilder[C](instance.getClass.asInstanceOf[Class[C]], table, this)
       value.withLinks(link)
       instanceMapping.put(instance, value)
     }
@@ -47,7 +47,7 @@ class SchemaBuilder(var table : Boolean = false) {
       val value = option.get.asInstanceOf[EntitySchemaBuilder[C]]
       builder(value)
     } else {
-      val value = new EntitySchemaBuilder[C](aClass, table)
+      val value = new EntitySchemaBuilder[C](aClass, table, this)
       builder(value)
       typeMapping.put(aClass, value)
     }
@@ -65,7 +65,7 @@ class SchemaBuilder(var table : Boolean = false) {
         val value = instanceOption.get.asInstanceOf[EntitySchemaBuilder[C]]
         builder(value)
       } else {
-        val value = new EntitySchemaBuilder[C](instance.getClass.asInstanceOf[Class[C]], table)
+        val value = new EntitySchemaBuilder[C](instance.getClass.asInstanceOf[Class[C]], table, this)
         builder(value)
         instanceMapping.put(instance, value)
       }
@@ -74,10 +74,29 @@ class SchemaBuilder(var table : Boolean = false) {
   }
 
   def findTypeMapping(aClass : Class[?]) : Map[String, PropertyBuilder[?]] = {
-    typeMapping
+    val mapping = typeMapping
       .filter(entry => entry._1.isAssignableFrom(aClass))
       .flatMap(entry => entry._2.mapping)
       .toMap
+
+    if (mapping.isEmpty && parent != null) {
+      parent.findTypeMapping(aClass)
+    } else {
+      mapping
+    }
+  }
+
+  def findTypeMapping2(aClass: Class[?]): Map[String, PropertyBuilder[?]] = {
+    val mapping = typeMapping
+      .filter(entry => entry._1 == aClass)
+      .flatMap(entry => entry._2.mapping)
+      .toMap
+
+    if (mapping.isEmpty && parent != null) {
+      parent.findTypeMapping(aClass)
+    } else {
+      mapping
+    }
   }
 
   def findInstanceMapping(instance : AnyRef): Map[String, PropertyBuilder[?]] = {
@@ -86,10 +105,16 @@ class SchemaBuilder(var table : Boolean = false) {
       .flatMap(entry => entry._2.mapping)
       .toMap
     
-    if (propertyMapping.isEmpty) {
-      findTypeMapping(instance.getClass)
+    val mapping = if (propertyMapping.isEmpty) {
+      findTypeMapping2(instance.getClass)
     } else {
       propertyMapping
+    }
+
+    if (mapping.isEmpty && parent != null) {
+      parent.findInstanceMapping(instance)
+    } else {
+      mapping
     }
   }
 

@@ -8,7 +8,7 @@ import com.anjunar.technologyspeaks.openstreetmap.geocoding2.MapBoxService
 import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityUser}
 import com.anjunar.technologyspeaks.shared.validators.Unique
 import com.anjunar.scala.mapper.annotations.Descriptor
-import com.anjunar.technologyspeaks.shared.EntityView
+import com.anjunar.technologyspeaks.shared.property.EntityView
 import jakarta.enterprise.event.Observes
 import jakarta.enterprise.inject.spi.CDI
 import jakarta.persistence.*

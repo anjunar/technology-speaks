@@ -5,7 +5,7 @@ import com.anjunar.scala.schema.builder.SchemaBuilderContext
 import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
-import com.anjunar.technologyspeaks.shared.ManagedProperty
+import com.anjunar.technologyspeaks.shared.property.ManagedProperty
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.{Consumes, GET, PUT, Path, PathParam, Produces}

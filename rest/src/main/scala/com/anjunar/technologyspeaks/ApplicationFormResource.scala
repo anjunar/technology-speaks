@@ -7,6 +7,7 @@ import com.anjunar.technologyspeaks.control.*
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.security.*
+import com.anjunar.technologyspeaks.timeline.PostTableResource
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.core.{Context, SecurityContext}
 import jakarta.ws.rs.{GET, Path, Produces}
@@ -70,6 +71,11 @@ class ApplicationFormResource extends SchemaBuilderContext {
           linkTo(methodOn(classOf[CredentialTableResource]).list(null))
             .withRel("devices")
             .build(link.addLink)
+
+          linkTo(methodOn(classOf[PostTableResource]).list(null))
+            .withRel("timeline")
+            .build(link.addLink)
+
         } else {
           linkTo(methodOn(classOf[ConfirmationFormResource]).create)
             .withRel("confirm")

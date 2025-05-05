@@ -89,10 +89,9 @@ function SchemaFactory(properties: SchemaFactory.Attributes) {
             return (
                 <EditorState providers={[new ParagraphProvider(), new ListProvider(), new ImageProvider(), new TableProvider(), new CodeProvider()]}>
                     <DomState>
-                        <Editor name={name} style={{height: "calc(100% - 48px)", width: "100%"}}/>
+                        <Editor name={name} style={{height: "400px", width: "100%"}}/>
                     </DomState>
                 </EditorState>
-
             )
         }
         case "image":

@@ -131,7 +131,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
       val schema = context.schema
 
-      val propertyMapping = schema.findTypeMapping(beanModel.underlying.raw)
+      val propertyMapping = schema.findTypeMapping2(beanModel.underlying.raw)
 
       if (! (aType <:< TypeResolver.resolve(classOf[NodeDescriptor]))) {
         val nodeId = propertyMapping.get("id")

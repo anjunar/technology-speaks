@@ -3,6 +3,7 @@ package com.anjunar.technologyspeaks.shared
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilder}
 import com.anjunar.technologyspeaks.control.{Credential, Group, GroupTableResource, User, UserTableResource}
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
+import com.anjunar.technologyspeaks.shared.property.ManagedProperty
 
 object ManagedPropertySchema {
 

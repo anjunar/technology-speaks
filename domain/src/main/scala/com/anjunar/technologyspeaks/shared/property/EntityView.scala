@@ -1,9 +1,10 @@
-package com.anjunar.technologyspeaks.shared
+package com.anjunar.technologyspeaks.shared.property
 
 import com.anjunar.technologyspeaks.control.User
 import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
 import com.anjunar.technologyspeaks.security.SecurityUser
-import jakarta.persistence.{CascadeType, Entity, Inheritance, InheritanceType, ManyToOne, MappedSuperclass, OneToMany}
+import com.anjunar.technologyspeaks.shared.AbstractEntity
+import jakarta.persistence.*
 
 import java.util
 import scala.beans.BeanProperty

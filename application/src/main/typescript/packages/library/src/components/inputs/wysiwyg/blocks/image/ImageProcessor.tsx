@@ -4,11 +4,30 @@ import {TextNode} from "../../core/TreeNode";
 import {ParagraphNode} from "../paragraph/ParagraphNode";
 import {EditorContext} from "../../contexts/EditorState";
 
+const encodeBase64 = (type: string, subType: string, data: string) => {
+    if (data) {
+        return `data:${type}/${subType};base64,${data}`
+    }
+    return null
+}
+
+function decodeBase64(result: string) {
+    let base64 = /data:(\w+)\/(\w+);base64,((?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}={2}))/g
+    let regexResult = base64.exec(result)
+    if (regexResult) {
+        let type = regexResult[1]
+        let subType = regexResult[2]
+        let data = regexResult[3]
+        return {type, subType, data}
+    }
+    throw new Error("Cannot decode to Base64")
+}
+
 function ImageProcessor(properties: ImageProcessor.Attributes) {
 
     const {node} = properties
 
-    const [image, setImage] = useState(node.src)
+    const [image, setImage] = useState(encodeBase64(node.type, node.subType, node.src))
 
     const {ast: {root, triggerAST}, cursor: {currentCursor, triggerCursor}, event: {currentEvent}} = useContext(EditorContext)
 
@@ -32,7 +51,12 @@ function ImageProcessor(properties: ImageProcessor.Attributes) {
                         const image = new Image()
                         image.src = result
                         image.onload = () => {
+                            let {type, subType, data} = decodeBase64(result);
                             let ratio = image.width / image.height;
+
+                            node.src = data
+                            node.type = type
+                            node.subType = subType
                             node.aspectRatio = ratio
                             node.width = 360
                             node.height = 360 / ratio

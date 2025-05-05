@@ -2,7 +2,7 @@ import {AbstractContainerNode, AbstractNode} from "../../core/TreeNode";
 import Entity from "../../../../../mapper/annotations/Entity";
 import Basic from "../../../../../mapper/annotations/Basic";
 
-@Entity("TextNode")
+@Entity("TableCellNode")
 export class TableCellNode extends AbstractContainerNode<AbstractNode> {
 
     $type = "TableCellNode"
@@ -10,12 +10,12 @@ export class TableCellNode extends AbstractContainerNode<AbstractNode> {
     @Basic()
     readonly children: AbstractNode[];
 
-    constructor(children: AbstractNode[]) {
+    constructor(children: AbstractNode[] = []) {
         super(children);
     }
 }
 
-@Entity("TextNode")
+@Entity("TableRowNode")
 export class TableRowNode extends AbstractContainerNode<TableCellNode> {
 
     $type = "TableRowNode"
@@ -23,12 +23,12 @@ export class TableRowNode extends AbstractContainerNode<TableCellNode> {
     @Basic()
     readonly children: TableCellNode[];
 
-    constructor(children: TableCellNode[]) {
+    constructor(children: TableCellNode[] = []) {
         super(children);
     }
 }
 
-@Entity("TextNode")
+@Entity("TableNode")
 export class TableNode extends AbstractContainerNode<TableRowNode> {
 
     $type = "TableNode"
@@ -42,7 +42,7 @@ export class TableNode extends AbstractContainerNode<TableRowNode> {
     @Basic()
     readonly children: TableRowNode[];
 
-    constructor(children: TableRowNode[]) {
+    constructor(children: TableRowNode[] = []) {
         super(children);
     }
 

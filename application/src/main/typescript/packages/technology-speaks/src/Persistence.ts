@@ -12,6 +12,7 @@ import WebAuthnLogin from "./domain/control/WebAuthnLogin";
 import Credential from "./domain/control/Credential";
 import Group from "./domain/control/Group";
 import ManagedProperty from "./domain/core/ManagedProperty";
+import Post from "./domain/timeline/Post";
 
 export function init() {
     registerEntity(Application)
@@ -27,5 +28,6 @@ export function init() {
     registerEntity(Address)
     registerEntity(GeoPoint)
     registerEntity(ManagedProperty)
+    registerEntity(Post)
 }
 

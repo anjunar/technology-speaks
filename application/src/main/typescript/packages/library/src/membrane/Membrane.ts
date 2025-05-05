@@ -1,5 +1,6 @@
 import {Temporal, TemporalAmount} from "@js-joda/core";
 import {findClass, findProperties} from "../mapper/Registry";
+import {AbstractNode} from "../components/inputs/wysiwyg";
 
 const regex = /\d+/;
 
@@ -23,12 +24,6 @@ export function objectMembrane(object : any, callbacks : ((name : string[], valu
                 return result
             },
             get(target: any, p: string | symbol, receiver: any): any {
-                let result = Reflect.get(target, p, receiver);
-
-                if (p === "constructor") {
-                    return result
-                }
-
                 if (p === "isProxy") {
                     return true
                 }
@@ -39,6 +34,16 @@ export function objectMembrane(object : any, callbacks : ((name : string[], valu
 
                 if (p === "$resolve") {
                     return target
+                }
+
+                if (target instanceof Node || target instanceof AbstractNode) {
+                    return Reflect.get(target, p, target)
+                }
+
+                let result = Reflect.get(target, p, receiver);
+
+                if (p === "constructor") {
+                    return result
                 }
 
                 if (result instanceof Temporal || result instanceof TemporalAmount) {

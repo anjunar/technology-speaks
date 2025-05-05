@@ -10,9 +10,9 @@ import java.util.{Optional, UUID}
 import scala.collection.mutable
 import scala.compiletime.uninitialized
 
-class PropertyBuilder[C](val name : String, val aClass : Class[?], isTable : Boolean) {
+class PropertyBuilder[C](val name : String, val aClass : Class[?], isTable : Boolean, parent : SchemaBuilder) {
 
-  var schemaBuilder: SchemaBuilder = new SchemaBuilder(isTable)
+  var schemaBuilder: SchemaBuilder = new SchemaBuilder(isTable, parent)
 
   val property: BeanProperty = {
     val model = BeanIntrospector.createWithType(aClass)
