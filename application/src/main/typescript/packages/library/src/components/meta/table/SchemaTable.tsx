@@ -1,4 +1,4 @@
-import React, {CSSProperties, useState} from "react"
+import React, {CSSProperties, useMemo, useState} from "react"
 import Table from "../../lists/table/Table"
 import SchemaFactory from "./SchemaFactory";
 import Image from "../../inputs/upload/image/Image";
@@ -24,6 +24,7 @@ function SchemaTable(properties: SchemaTable.Attributes) {
 
     const tableLoader = new (class extends SchemaTable.Loader {
         onLoad(query: any, callback: any) {
+            loader.listener = tableLoader.listener
             loader.onLoad(query, (rows, size, loadedSchema) => {
                     if (schema && loadedSchema) {
                         if (JSON.stringify(schema) !== JSON.stringify(loadedSchema)) {

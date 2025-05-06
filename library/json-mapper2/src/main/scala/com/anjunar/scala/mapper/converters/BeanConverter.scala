@@ -40,10 +40,10 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
     if (typeMapping.isEmpty) {
 
-      typeMapping = schema.findTypeMapping2(aType.underlying)
+      typeMapping = schema.findTypeMapping2(instance.getClass)
 
       if (typeMapping.isEmpty) {
-        typeMapping = schema.findTypeMapping2(aType.raw)
+        typeMapping = schema.findTypeMapping2(aType.underlying)
       }
     }
 

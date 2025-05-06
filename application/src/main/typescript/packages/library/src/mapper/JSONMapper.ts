@@ -6,6 +6,7 @@ import {match} from "../pattern-match/PatternMatching";
 import {findSchemaProperties} from "./Registry";
 import ObjectDescriptor from "../domain/descriptors/ObjectDescriptor";
 import CollectionDescriptor from "../domain/descriptors/CollectionDescriptor";
+import QueryTableObject from "../domain/container/QueryTableObject";
 
 export function traverseObjectGraph(object : any, schema : ObjectDescriptor, buildObjectGraph : boolean = true) {
 
@@ -18,6 +19,8 @@ export function traverseObjectGraph(object : any, schema : ObjectDescriptor, bui
 
         return schema.oneOf.find(one => one.type === object.$type).properties[name]
     }
+
+    object.$descriptors = schema
 
     let schemaProperties = findSchemaProperties(object.constructor)
 
@@ -55,10 +58,10 @@ export function mapForm<T extends ActiveObject>(object : any, buildObjectGraph :
     return entity
 }
 
-export function mapTable<T extends ActiveObject>(object : any, buildObjectGraph : boolean = false) : [T[], number, LinkContainerObject, ObjectDescriptor] {
-    let entity : TableObject<T> = JSONDeserializer(object, buildObjectGraph);
+export function mapTable<S extends ActiveObject,T extends ActiveObject>(object : any, buildObjectGraph : boolean = false) : [T[], number, LinkContainerObject, ObjectDescriptor, S] {
+    let entity : QueryTableObject<S, T> = JSONDeserializer(object, buildObjectGraph);
 
     traverseObjectGraph(entity, entity.$descriptors, buildObjectGraph)
 
-    return [entity.rows || [], entity.size, entity.$links, entity.$descriptors]
+    return [entity.rows || [], entity.size, entity.$links, entity.$descriptors, entity.search]
 }

@@ -15,6 +15,10 @@ object DocumentSchema {
 
     builder
       .property("id")
+      .property("title", property => property
+        .withTitle("Title")
+        .withWriteable(true)
+      )
       .property("user", property => property
         .forType(classOf[User], UserSchema.staticForService(_, isOwnedOrAdmin))
       )

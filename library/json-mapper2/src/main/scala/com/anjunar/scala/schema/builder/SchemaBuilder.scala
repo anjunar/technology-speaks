@@ -78,7 +78,7 @@ class SchemaBuilder(var table : Boolean = false, val parent : SchemaBuilder = nu
 
   def findTypeMapping(aClass : Type) : Map[String, PropertyBuilder[?]] = {
     val mapping = typeMapping
-      .filter(entry => TypeToken.of(entry._1).isSubtypeOf(aClass))
+      .filter(entry => TypeToken.of(entry._1).isSupertypeOf(aClass))
       .flatMap(entry => entry._2.mapping)
       .toMap
 
@@ -96,7 +96,7 @@ class SchemaBuilder(var table : Boolean = false, val parent : SchemaBuilder = nu
       .toMap
 
     if (mapping.isEmpty && parent != null) {
-      parent.findTypeMapping(aClass)
+      parent.findTypeMapping2(aClass)
     } else {
       mapping
     }
@@ -116,11 +116,11 @@ class SchemaBuilder(var table : Boolean = false, val parent : SchemaBuilder = nu
   }
 
   def findEntitySchemaDeepByClass(aClass: Type): Iterable[EntitySchemaBuilder[?]] = {
-    typeMapping.values.filter(builder => builder.aClass == aClass) ++ typeMapping
+    typeMapping.values.filter(builder => TypeToken.of(builder.aClass).isSubtypeOf(aClass)) ++ typeMapping
       .values
       .flatMap(builder => builder.mapping)
       .flatMap(properties => properties._2.schemaBuilder.findEntitySchemaDeepByClass(aClass))
-      .filter(builder => builder.aClass == aClass)
+      .filter(builder => TypeToken.of(builder.aClass).isSubtypeOf(aClass))
   }
 
   def findEntitySchemaDeepByInstance(instance : Any): Iterable[EntitySchemaBuilder[?]] = {
@@ -141,7 +141,7 @@ class SchemaBuilder(var table : Boolean = false, val parent : SchemaBuilder = nu
 
   def findLinksByClass(aClass: Class[?]): mutable.Iterable[(Any, LinkContext) => Unit] = {
     typeMapping
-      .filter(entry => TypeToken.of(entry._1).isSubtypeOf(aClass) && entry._2.links != null)
+      .filter(entry => TypeToken.of(entry._1).getRawType.isAssignableFrom(aClass) && entry._2.links != null)
       .map(entry => entry._2.links)
       .asInstanceOf[mutable.Iterable[(Any, LinkContext) => Unit]]
   }

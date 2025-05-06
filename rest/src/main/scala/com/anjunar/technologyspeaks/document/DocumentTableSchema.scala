@@ -14,6 +14,7 @@ class DocumentTableSchema extends EntityJSONSchema[Table[Document]] {
       .property("search", property => property
         .forType(classOf[DocumentSearch], (builder: EntitySchemaBuilder[DocumentSearch]) => builder
           .property("text", property => property
+            .withWriteable(true)
             .withTitle("Text")
           )
         )

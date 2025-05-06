@@ -12,7 +12,7 @@ class DocumentSearch extends AbstractSearch {
   @DefaultValue("Hello World")
   @QueryParam("text")
   @BeanProperty
-  @Descriptor(title = "Text")
+  @Descriptor(title = "Text", writeable = true)
   var text: String = uninitialized
 
 }

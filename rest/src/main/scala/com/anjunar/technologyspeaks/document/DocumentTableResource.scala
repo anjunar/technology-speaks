@@ -39,7 +39,7 @@ class DocumentTableResource extends SchemaBuilderContext {
     val count = service.count(embeddings)
     val entities = service.find(embeddings)
 
-    forLinks(classOf[Table[Document]], (instance, link) => {
+    forLinks(classOf[QueryTable[DocumentSearch, Document]], (instance, link) => {
       linkTo(methodOn(classOf[DocumentFormResource]).create)
         .build(link.addLink)
     })

@@ -25,14 +25,14 @@ class DocumentService {
 
   def find(embeddings : Array[Float]) : util.List[Document] = {
 
-    Document.query("SELECT d FROM Document d where FUNCTION('l2_distance', d.embedding, :embedding) < 1 ORDER BY FUNCTION('l2_distance', d.embedding, :embedding)")
+    Document.query("SELECT d FROM Document d where FUNCTION('l2_distance', d.embedding, :embedding) < 10 ORDER BY FUNCTION('l2_distance', d.embedding, :embedding)")
       .setMaxResults(5)
       .setParameter("embedding", embeddings)
       .getResultList
   }
 
   def count(embeddings: Array[Float]): Long = {
-    Document.count("SELECT count(d) FROM Document d where FUNCTION('l2_distance', d.embedding, :embedding) < 1")
+    Document.count("SELECT count(d) FROM Document d where FUNCTION('l2_distance', d.embedding, :embedding) < 10")
       .setParameter("embedding", embeddings)
       .getSingleResult
   }

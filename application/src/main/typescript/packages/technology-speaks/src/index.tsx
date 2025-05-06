@@ -10,8 +10,6 @@ init()
 const root = ReactDOM.createRoot(document.getElementById('root'))
 
 root.render(
-    <StrictMode>
-        <System routes={routes}/>
-    </StrictMode>
+    <System routes={routes}/>
 );
 
