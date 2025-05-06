@@ -22,7 +22,7 @@ class ResolvedClass(val underlying : Type) extends Annotated {
       val result = ArrayBuffer[ResolvedClass]()
       var cursor : Type = underlying
       while (cursor != null) {
-        result.addOne(TypeResolver.resolve(cursor))
+        result.addOne(TypeResolver.resolve(TypeToken.of(underlying).resolveType(cursor).getType))
         val rawClass = TypeResolver.rawType(TypeToken.of(underlying).resolveType(cursor).getType)
         rawClass.getGenericInterfaces.foreach(interface => TypeResolver.resolve(TypeToken.of(underlying).resolveType(interface).getType))
         cursor = rawClass.getGenericSuperclass

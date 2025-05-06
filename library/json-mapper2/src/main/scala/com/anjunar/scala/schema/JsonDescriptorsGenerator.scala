@@ -47,7 +47,7 @@ object JsonDescriptorsGenerator {
         if (descriptor == null) {
           None
         } else {
-          val builder = new PropertyBuilder[Any](property.name, aClass.raw, schema.table, schema)
+          val builder = new PropertyBuilder[Any](property.name, aClass.underlying, schema.table, schema)
 
           val mappingOption = schema.typeMapping.get(aClass.raw)
           if (mappingOption.isDefined) {

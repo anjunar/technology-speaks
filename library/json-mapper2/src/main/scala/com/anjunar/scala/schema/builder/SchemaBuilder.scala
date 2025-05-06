@@ -1,11 +1,14 @@
 package com.anjunar.scala.schema.builder
 
+import com.google.common.reflect.TypeToken
+
+import java.lang.reflect.Type
 import scala.collection.mutable
 import scala.compiletime.uninitialized
 
 class SchemaBuilder(var table : Boolean = false, val parent : SchemaBuilder = null) {
   
-  val typeMapping = new mutable.LinkedHashMap[Class[?], EntitySchemaBuilder[?]]
+  val typeMapping = new mutable.LinkedHashMap[Type, EntitySchemaBuilder[?]]
 
   val instanceMapping = new mutable.LinkedHashMap[Any, EntitySchemaBuilder[?]]
 
@@ -39,7 +42,7 @@ class SchemaBuilder(var table : Boolean = false, val parent : SchemaBuilder = nu
     this
   }
 
-  def forType[C](aClass : Class[C], builder: EntitySchemaBuilder[C] => Unit) : SchemaBuilder = {
+  def forType[C](aClass : Type, builder: EntitySchemaBuilder[C] => Unit) : SchemaBuilder = {
 
     val option = typeMapping.get(aClass)
     
@@ -73,9 +76,9 @@ class SchemaBuilder(var table : Boolean = false, val parent : SchemaBuilder = nu
     this
   }
 
-  def findTypeMapping(aClass : Class[?]) : Map[String, PropertyBuilder[?]] = {
+  def findTypeMapping(aClass : Type) : Map[String, PropertyBuilder[?]] = {
     val mapping = typeMapping
-      .filter(entry => entry._1.isAssignableFrom(aClass))
+      .filter(entry => TypeToken.of(entry._1).isSubtypeOf(aClass))
       .flatMap(entry => entry._2.mapping)
       .toMap
 
@@ -86,7 +89,7 @@ class SchemaBuilder(var table : Boolean = false, val parent : SchemaBuilder = nu
     }
   }
 
-  def findTypeMapping2(aClass: Class[?]): Map[String, PropertyBuilder[?]] = {
+  def findTypeMapping2(aClass: Type): Map[String, PropertyBuilder[?]] = {
     val mapping = typeMapping
       .filter(entry => entry._1 == aClass)
       .flatMap(entry => entry._2.mapping)
@@ -105,20 +108,14 @@ class SchemaBuilder(var table : Boolean = false, val parent : SchemaBuilder = nu
       .flatMap(entry => entry._2.mapping)
       .toMap
     
-    val mapping = if (propertyMapping.isEmpty) {
-      findTypeMapping2(instance.getClass)
+    if (propertyMapping.isEmpty && parent != null) {
+      parent.findInstanceMapping(instance)
     } else {
       propertyMapping
     }
-
-    if (mapping.isEmpty && parent != null) {
-      parent.findInstanceMapping(instance)
-    } else {
-      mapping
-    }
   }
 
-  def findEntitySchemaDeepByClass(aClass: Class[?]): Iterable[EntitySchemaBuilder[?]] = {
+  def findEntitySchemaDeepByClass(aClass: Type): Iterable[EntitySchemaBuilder[?]] = {
     typeMapping.values.filter(builder => builder.aClass == aClass) ++ typeMapping
       .values
       .flatMap(builder => builder.mapping)
@@ -144,7 +141,7 @@ class SchemaBuilder(var table : Boolean = false, val parent : SchemaBuilder = nu
 
   def findLinksByClass(aClass: Class[?]): mutable.Iterable[(Any, LinkContext) => Unit] = {
     typeMapping
-      .filter(entry => entry._1.isAssignableFrom(aClass) && entry._2.links != null)
+      .filter(entry => TypeToken.of(entry._1).isSubtypeOf(aClass) && entry._2.links != null)
       .map(entry => entry._2.links)
       .asInstanceOf[mutable.Iterable[(Any, LinkContext) => Unit]]
   }

@@ -4,6 +4,7 @@ import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
 import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.control.*
+import com.anjunar.technologyspeaks.document.{DocumentTableResource, DocumentTableSchema}
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.security.*
@@ -74,6 +75,10 @@ class ApplicationFormResource extends SchemaBuilderContext {
 
           linkTo(methodOn(classOf[PostTableResource]).list(null))
             .withRel("timeline")
+            .build(link.addLink)
+
+          linkTo(methodOn(classOf[DocumentTableResource]).list(null))
+            .withRel("documents")
             .build(link.addLink)
 
         } else {

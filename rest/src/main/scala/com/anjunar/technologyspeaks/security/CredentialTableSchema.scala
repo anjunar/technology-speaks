@@ -13,7 +13,7 @@ class CredentialTableSchema extends EntityJSONSchema[Table[Credential]] {
   override def  build(root: Table[Credential], javaType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder(true)
 
-    builder.forType(classOf[Table[Credential]], (builder: EntitySchemaBuilder[Table[Credential]]) => builder
+    builder.forType(javaType, (builder: EntitySchemaBuilder[Table[Credential]]) => builder
       .property("rows", property => property
         .withTitle("Credentials")
         .forInstance(root.rows, classOf[Credential], (entity : Credential) => builder => CredentialSchema.static(builder, entity))

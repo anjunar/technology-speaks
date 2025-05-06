@@ -36,10 +36,19 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
     val schema = context.schema
 
-    val propertyMapping = schema.findInstanceMapping(instance.asInstanceOf[AnyRef])
+    var typeMapping = schema.findInstanceMapping(instance.asInstanceOf[AnyRef])
+
+    if (typeMapping.isEmpty) {
+
+      typeMapping = schema.findTypeMapping2(aType.underlying)
+
+      if (typeMapping.isEmpty) {
+        typeMapping = schema.findTypeMapping2(aType.raw)
+      }
+    }
 
     if (!(aType <:< TypeResolver.resolve(classOf[NodeDescriptor]))) {
-      val nodeId = propertyMapping.get("id")
+      val nodeId = typeMapping.get("id")
 
       if (nodeId.isEmpty && beanModel.properties.exists(property => property.name == "id")) {
         log.warn("No Id for: " + aType.raw.getName)
@@ -49,7 +58,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
     val ignoreFilter = aType.findDeclaredAnnotation(classOf[IgnoreFilter])
 
     for (property <- beanModel.properties) {
-      val option = propertyMapping.get(property.name)
+      val option = typeMapping.get(property.name)
 
       if (option.isDefined) {
         val propertySchema = option.get
@@ -131,7 +140,11 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
       val schema = context.schema
 
-      val propertyMapping = schema.findTypeMapping2(beanModel.underlying.raw)
+      var propertyMapping = schema.findTypeMapping2(aType.underlying)
+
+      if (propertyMapping.isEmpty) {
+        propertyMapping = schema.findTypeMapping2(beanModel.underlying.raw)
+      }
 
       if (! (aType <:< TypeResolver.resolve(classOf[NodeDescriptor]))) {
         val nodeId = propertyMapping.get("id")

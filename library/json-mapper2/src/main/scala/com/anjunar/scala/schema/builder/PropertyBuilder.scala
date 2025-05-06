@@ -4,13 +4,14 @@ import com.anjunar.scala.mapper.annotations.Descriptor
 import com.anjunar.scala.schema.model.Link
 import com.anjunar.scala.universe.introspector.{BeanIntrospector, BeanProperty}
 
+import java.lang.reflect.Type
 import java.time.{Duration, LocalDate, LocalDateTime, LocalTime}
 import java.util
 import java.util.{Optional, UUID}
 import scala.collection.mutable
 import scala.compiletime.uninitialized
 
-class PropertyBuilder[C](val name : String, val aClass : Class[?], isTable : Boolean, parent : SchemaBuilder) {
+class PropertyBuilder[C](val name : String, val aClass : Type, isTable : Boolean, parent : SchemaBuilder) {
 
   var schemaBuilder: SchemaBuilder = new SchemaBuilder(isTable, parent)
 

@@ -42,7 +42,12 @@ trait RepositoryContext[E](clazz: Class[E]) {
   def query(qlString: String): TypedQuery[E] = {
     entityManager.createQuery(qlString, clazz)
   }
-  
+
+  def count(qlString: String): TypedQuery[Long] = {
+    entityManager.createQuery(qlString, classOf[Long])
+  }
+
+
   def entityManager: EntityManager = {
     entityManagers.get()
   }

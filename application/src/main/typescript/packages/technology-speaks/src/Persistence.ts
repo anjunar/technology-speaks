@@ -13,9 +13,12 @@ import Credential from "./domain/control/Credential";
 import Group from "./domain/control/Group";
 import ManagedProperty from "./domain/core/ManagedProperty";
 import Post from "./domain/timeline/Post";
+import Document from "./domain/document/Document";
+import DocumentSearch from "./domain/document/DocumentSearch";
 
 export function init() {
     registerEntity(Application)
+
     registerEntity(Confirmation)
     registerEntity(Identity)
     registerEntity(Role)
@@ -27,7 +30,12 @@ export function init() {
     registerEntity(EMail)
     registerEntity(Address)
     registerEntity(GeoPoint)
+
     registerEntity(ManagedProperty)
+
     registerEntity(Post)
+
+    registerEntity(Document)
+    registerEntity(DocumentSearch)
 }
 

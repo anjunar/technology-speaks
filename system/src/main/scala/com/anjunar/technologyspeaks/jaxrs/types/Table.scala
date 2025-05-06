@@ -4,20 +4,17 @@ import com.anjunar.scala.mapper.annotations.Descriptor
 
 import java.util
 import java.util.List
+import scala.annotation.meta.field
 import scala.beans.BeanProperty
 
 
-class Table[E](_rows: util.List[E],
-               _size: Long) {
+class Table[E](@BeanProperty
+               @(Descriptor @field)(title = "Rows", widget = "table")
+               var rows: util.List[E],
+               @BeanProperty
+               @(Descriptor @field)(title = "Size")
+               var size: Long) {
 
-  @BeanProperty
-  @Descriptor(title = "Reihen", widget = "table") 
-  var rows: util.List[E] = _rows
-
-  @BeanProperty
-  @Descriptor(title = "Größe") 
-  var size: Long = _size
-  
   def this() = {
     this(null, 0L)
   }

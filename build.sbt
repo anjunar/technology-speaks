@@ -73,7 +73,8 @@ lazy val domain = (project in file("domain"))
   .settings(
     libraryDependencies ++= Seq(
       "org.hibernate.orm" % "hibernate-core" % "6.6.13.Final",
-      "org.hibernate.orm" % "hibernate-envers" % "6.6.13.Final"
+      "org.hibernate.orm" % "hibernate-envers" % "6.6.13.Final",
+      "org.hibernate.orm" % "hibernate-vector" % "6.6.13.Final"
     )
   )
 

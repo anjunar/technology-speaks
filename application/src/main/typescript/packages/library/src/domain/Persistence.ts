@@ -22,10 +22,12 @@ import EnumDescriptor from "./descriptors/EnumDescriptor";
 import NodeDescriptor from "./descriptors/NodeDescriptor";
 import ObjectDescriptor from "./descriptors/ObjectDescriptor";
 import {AbstractContainerNode, AbstractNode, CodeNode, ImageNode, ItemNode, ListNode, ParagraphNode, RootNode, TableCellNode, TableNode, TableRowNode, TextNode} from "../components/inputs/wysiwyg";
+import QueryTableObject from "./container/QueryTableObject";
 
 export function init() {
 
     registerEntity(TableObject)
+    registerEntity(QueryTableObject)
     registerEntity(RowObject)
     registerEntity(LinkObject)
     registerEntity(Media)

@@ -2,10 +2,11 @@ package com.anjunar.scala.schema.builder
 
 import com.anjunar.scala.schema.model.Link
 
+import java.lang.reflect.Type
 import scala.collection.mutable
 import scala.compiletime.uninitialized
 
-class EntitySchemaBuilder[C](val aClass : Class[C], isTable : Boolean, parent : SchemaBuilder) {
+class EntitySchemaBuilder[C](val aClass : Type, isTable : Boolean, parent : SchemaBuilder) {
   
   val mapping = new mutable.LinkedHashMap[String, PropertyBuilder[C]]
   
