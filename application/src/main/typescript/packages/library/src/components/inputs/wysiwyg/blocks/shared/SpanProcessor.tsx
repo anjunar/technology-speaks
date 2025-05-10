@@ -77,7 +77,6 @@ const compositionUpdate: CommandRule<TextNode> = {
             let end = node.text.substring(current.offset)
 
             node.text = start + end
-            node.text = node.text.replaceAll(" ", "\u00A0")
             current.offset -= currentEvent.data.length;
 
             console.log(currentEvent.data)
@@ -86,7 +85,6 @@ const compositionUpdate: CommandRule<TextNode> = {
             let end = node.text.substring(current.offset)
 
             node.text = start + currentEvent.data + end
-            node.text = node.text.replaceAll(" ", "\u00A0")
             current.offset += currentEvent.data.length;
 
             console.log(currentEvent.data)
@@ -105,7 +103,6 @@ const insertText: CommandRule<TextNode> = {
         let end = node.text.substring(current.offset)
 
         node.text = start + currentEvent.data + end
-        node.text = node.text.replaceAll(" ", "\u00A0")
         current.offset += currentEvent.data.length;
 
     }

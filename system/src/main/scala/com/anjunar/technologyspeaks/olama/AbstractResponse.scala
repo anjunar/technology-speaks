@@ -25,19 +25,19 @@ class AbstractResponse {
 
   @BeanProperty
   @JsonProperty("prompt_eval_count")
-  var promptEvalCount: Int = uninitialized
+  var promptEvalCount: Long = uninitialized
 
   @BeanProperty
   @JsonProperty("prompt_eval_duration")
-  var promptEvalDuration: Int = uninitialized
+  var promptEvalDuration: Long = uninitialized
 
   @BeanProperty
   @JsonProperty("eval_count")
-  var evalCount: Int = uninitialized
+  var evalCount: Long = uninitialized
 
   @BeanProperty
   @JsonProperty("eval_duration")
-  var evalDuration: Int = uninitialized
+  var evalDuration: Long = uninitialized
 
 
 }

@@ -4,6 +4,8 @@ import java.util
 import scala.beans.BeanProperty
 
 class JsonObject extends JsonNode {
+
+
   
   @BeanProperty
   val properties : util.LinkedHashMap[String, JsonNode] = new util.LinkedHashMap[String, JsonNode]()

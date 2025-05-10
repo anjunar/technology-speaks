@@ -1,7 +1,7 @@
 package com.anjunar.technologyspeaks.shared.editor
 
 import com.anjunar.scala.mapper.annotations.IgnoreFilter
-import jakarta.persistence.Entity
+import jakarta.persistence.{Entity, Lob}
 
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
@@ -12,6 +12,7 @@ class TextNode extends AbstractNode {
   @BeanProperty
   var block : String = uninitialized
 
+  @Lob
   @BeanProperty
   var text : String = uninitialized
 

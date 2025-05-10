@@ -81,12 +81,15 @@ function SchemaTable(properties: SchemaTable.Attributes) {
                     .filter(([key, object]) => {
                         return naming.indexOf(key) > -1
                     })
-                    .map(([key, object]) => {
-                        if (object instanceof Temporal) {
+                    .map(([key1, value]) => {
+                        if (value instanceof Temporal) {
                             // @ts-ignore
-                            return object.toJSON()
+                            return value.toJSON()
                         }
-                        return object
+                        if (value instanceof Object) {
+                            return renderCellContent(object[key], key1, property.properties[key1] as NodeDescriptor & Validable)
+                        }
+                        return value
                     })
                     .join(" ")
             }

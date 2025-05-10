@@ -11,6 +11,8 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget
 class OLlamaService extends Serializable {
 
   private val client = ClientBuilder.newClient
+  client.register(classOf[LoggingRequestFilter])
+
   private val target = client.target("http://localhost:11434")
 
   private val webTarget = target.asInstanceOf[ResteasyWebTarget]

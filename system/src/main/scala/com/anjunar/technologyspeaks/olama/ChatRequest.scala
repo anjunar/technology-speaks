@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.olama
 
-import com.anjunar.technologyspeaks.olama.json.{JsonFunction, JsonObject}
+import com.anjunar.technologyspeaks.olama.json.{JsonFunction, JsonNode, JsonObject}
 
 import java.util
 import scala.beans.BeanProperty
@@ -15,7 +15,7 @@ class ChatRequest extends AbstractRequest {
   val tools : util.List[JsonFunction] = new util.ArrayList[JsonFunction]()
 
   @BeanProperty
-  var format: JsonObject = uninitialized
+  var format: JsonNode = uninitialized
 
   @BeanProperty
   var stream: Boolean = uninitialized

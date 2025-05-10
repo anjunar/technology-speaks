@@ -1,14 +1,12 @@
 package com.anjunar.technologyspeaks.olama.json
 
-import com.fasterxml.jackson.annotation.JsonProperty
-
+import java.util
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
-class JsonNode {
+class JsonArray extends JsonNode {
 
-  @JsonProperty("type")
   @BeanProperty
-  var nodeType : NodeType = uninitialized
+  var items : JsonNode = uninitialized
 
 }

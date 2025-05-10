@@ -7,6 +7,7 @@ import java.util.Arrays;
 
 public enum NodeType {
 
+    ARRAY("array"),
     OBJECT("object"),
     INTEGER("integer"),
     LONG("long"),

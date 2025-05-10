@@ -7,19 +7,21 @@ import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.SecurityUser
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.anjunar.technologyspeaks.shared.editor.RootNode
-import jakarta.persistence.{CascadeType, Column, Entity, ManyToOne, OneToOne}
+import jakarta.persistence.{CascadeType, Column, Entity, ManyToOne, OneToMany, OneToOne, Transient}
 import jakarta.validation.constraints.Size
 import org.hibernate.`type`.SqlTypes
 import org.hibernate.annotations.JdbcTypeCode
 
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
-import org.hibernate.annotations
+
+import java.util
 
 @Entity
 class Document extends AbstractEntity with OwnerProvider {
 
   @Size(min = 3, max = 80)
+  @Descriptor(title = "Title")
   @BeanProperty
   var title : String = uninitialized
 
@@ -33,11 +35,14 @@ class Document extends AbstractEntity with OwnerProvider {
   @BeanProperty
   var root: RootNode = uninitialized
 
-  @Column
-  @JdbcTypeCode(SqlTypes.VECTOR)
-  @annotations.Array(length = 3072)
+  @Descriptor(title = "Score")
+  @Transient
   @BeanProperty
-  var embedding: Array[Float] = uninitialized
+  var score: Double = uninitialized
+
+  @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, mappedBy = "document")
+  @BeanProperty
+  val chunks : util.List[Chunk] = new util.ArrayList[Chunk]()
 
   override def owner: SecurityUser = user
 

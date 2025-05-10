@@ -7,6 +7,9 @@ export default class Document extends AbstractEntity {
     $type = "Document"
 
     @Basic()
+    score : number
+
+    @Basic()
     title : string
 
     @Basic()

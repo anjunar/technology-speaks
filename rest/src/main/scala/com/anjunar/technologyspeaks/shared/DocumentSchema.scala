@@ -28,5 +28,20 @@ object DocumentSchema {
       )
   }
 
+  def staticTable(builder: EntitySchemaBuilder[Document], loaded: Document): EntitySchemaBuilder[Document] = {
+
+    val credential = Credential.current()
+    val currentUser = User.current()
+    val isOwnedOrAdmin = currentUser == loaded.owner || credential.hasRole("Administrator")
+
+    builder
+      .property("id")
+      .property("title")
+      .property("score")
+      .property("user", property => property
+        .forType(classOf[User], UserSchema.staticForService(_, isOwnedOrAdmin))
+      )
+  }
+
 
 }
