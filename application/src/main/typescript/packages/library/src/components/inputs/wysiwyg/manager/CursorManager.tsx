@@ -71,7 +71,7 @@ function CursorManager(properties: CursorManager.Attributes) {
 
     useEffect(() => {
         positionCursor();
-    }, [cursorDeferredValue]);
+    }, [cursor]);
 
     useEffect(() => {
         function onFocus() {
@@ -105,6 +105,8 @@ function CursorManager(properties: CursorManager.Attributes) {
             if (selection && !selection.isCollapsed) {
                 return
             } else {
+
+                // @ts-ignore
                 let caretPosition = document.caretPositionFromPoint(event.clientX, event.clientY);
 
                 let selectedNode: AbstractNode

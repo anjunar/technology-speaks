@@ -6,6 +6,21 @@ import {CommandRule} from "../../commands/KeyCommand";
 import EditorState, {EditorContext} from "../../contexts/EditorState";
 import {generateStyleClassNames, generateStyleObject} from "./ProcessorUtils";
 
+function getClientXYFromTextOffset(node: Node, offset: number): { x: number; y: number } | null {
+    const range = document.createRange();
+    range.setStart(node, offset);
+    range.setEnd(node, offset);
+
+    const rects = range.getClientRects();
+    const rect = rects[0];
+
+    if (rect) {
+        return { x: rect.left, y: rect.top };
+    }
+
+    return null;
+}
+
 const deleteContentBackward: CommandRule<TextNode> = {
     test(value: EditorState.GeneralEvent, node: AbstractNode, container: AbstractNode): boolean {
         return (value.type === "Backspace" || value.type === "deleteContentBackward") && node === container
@@ -183,7 +198,16 @@ const arrowUp: CommandRule<TextNode> = {
         return value.type === "ArrowUp" && node === container
     },
     process(current, node, currentEvent, root) {
-        onArrowUp(node, current, root)
+
+        let {x,y} = getClientXYFromTextOffset(current.container.dom, current.offset);
+        // @ts-ignore
+        let {offsetNode, offset} = document.caretPositionFromPoint(x, y - 8);
+
+        if (offsetNode === current.container.dom && offset !== current.offset) {
+            current.offset = offset
+        } else {
+            onArrowUp(node, current, root)
+        }
     }
 }
 
@@ -192,7 +216,15 @@ const arrowDown: CommandRule<TextNode> = {
         return value.type === "ArrowDown" && node === container
     },
     process(current, node, currentEvent, root) {
-        onArrowDown(node, current, root)
+        let {x,y} = getClientXYFromTextOffset(current.container.dom, current.offset);
+        // @ts-ignore
+        let {offsetNode, offset} = document.caretPositionFromPoint(x, y + 24);
+
+        if (offsetNode === current.container.dom && offset !== current.offset) {
+            current.offset = offset
+        } else {
+            onArrowDown(node, current, root)
+        }
     }
 }
 
