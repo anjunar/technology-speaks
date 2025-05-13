@@ -1,10 +1,10 @@
 import GeoPoint from "./GeoPoint";
 import {Basic, Entity, AbstractEntity} from "react-ui-simplicity";
 
-@Entity("Address")
+@Entity("address")
 export default class Address extends AbstractEntity {
 
-    $type = "Address"
+    $type = "address"
 
     @Basic()
     street: string

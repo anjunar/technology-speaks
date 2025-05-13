@@ -1,10 +1,10 @@
 import {Basic, Entity, AbstractEntity} from "react-ui-simplicity";
 import User from "./User";
 
-@Entity("Group")
+@Entity("group")
 export default class Group extends AbstractEntity {
 
-    $type = "Group"
+    $type = "group"
 
     @Basic()
     name : string

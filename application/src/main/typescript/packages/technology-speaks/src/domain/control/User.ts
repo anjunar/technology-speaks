@@ -5,10 +5,10 @@ import Address from "./Address";
 import {Basic, Entity} from "react-ui-simplicity";
 import EMail from "./EMail";
 
-@Entity("User")
+@Entity("user")
 export default class User extends Identity {
 
-    $type = "User"
+    $type = "user"
 
     @Basic()
     name : string

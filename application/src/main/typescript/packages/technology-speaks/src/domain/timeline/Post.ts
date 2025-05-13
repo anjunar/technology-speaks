@@ -1,10 +1,10 @@
 import {AbstractEntity, Basic, Entity, RootNode} from "react-ui-simplicity";
 import User from "../control/User";
 
-@Entity("Post")
+@Entity("post")
 export default class Post extends AbstractEntity {
 
-    $type = "Post"
+    $type = "post"
 
     @Basic()
     user : User

@@ -6,10 +6,10 @@ interface PropertiesContainer {
     [key: string]: NodeDescriptor
 }
 
-@Entity("ObjectDescriptor")
+@Entity("objectDescriptor")
 export default class ObjectDescriptor extends NodeDescriptor {
 
-    $type = "ObjectDescriptor"
+    $type = "objectDescriptor"
 
     @Basic()
     properties: PropertiesContainer

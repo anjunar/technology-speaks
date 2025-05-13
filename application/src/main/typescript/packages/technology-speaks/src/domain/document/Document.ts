@@ -1,10 +1,10 @@
 import {AbstractEntity, Basic, Entity, RootNode} from "react-ui-simplicity";
 import User from "../control/User";
 
-@Entity("Document")
+@Entity("document")
 export default class Document extends AbstractEntity {
 
-    $type = "Document"
+    $type = "document"
 
     @Basic()
     score : number

@@ -1,9 +1,9 @@
 import {ActiveObject, Basic, Entity} from "react-ui-simplicity";
 
-@Entity("DocumentSearch")
+@Entity("documentSearch")
 export default class DocumentSearch extends ActiveObject {
 
-    $type = "DocumentSearch"
+    $type = "documentSearch"
 
     @Basic()
     text : string

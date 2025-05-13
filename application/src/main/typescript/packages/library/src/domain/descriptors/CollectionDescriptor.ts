@@ -3,10 +3,10 @@ import Basic from "../../mapper/annotations/Basic";
 import Entity from "../../mapper/annotations/Entity";
 import ObjectDescriptor from "./ObjectDescriptor";
 
-@Entity("CollectionDescriptor")
+@Entity("collectionDescriptor")
 export default class CollectionDescriptor extends NodeDescriptor    {
 
-    $type = "CollectionDescriptor"
+    $type = "collectionDescriptor"
 
     @Basic()
     items : ObjectDescriptor

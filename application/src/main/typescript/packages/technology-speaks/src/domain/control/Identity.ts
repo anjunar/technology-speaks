@@ -1,9 +1,9 @@
 import {Basic, Entity, AbstractEntity} from "react-ui-simplicity";
 
-@Entity("Identity")
+@Entity("identity")
 export default class Identity extends AbstractEntity {
 
-    $type = "Identity"
+    $type = "identity"
 
     @Basic()
     enabled : boolean

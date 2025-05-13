@@ -40,7 +40,7 @@ function SchemaTable(properties: SchemaTable.Attributes) {
     })()
 
     const renderCellContent = (object: any, key: string, property: any) => {
-        if (property.$type === "CollectionDescriptor") {
+        if (property.$type === "collectionDescriptor") {
             let naming: any[] = [];
             if (property.items.properties) {
                 naming = Object.entries(property.items.properties)
@@ -68,7 +68,7 @@ function SchemaTable(properties: SchemaTable.Attributes) {
             }
         }
 
-        if (property.$type === "ObjectDescriptor") {
+        if (property.$type === "objectDescriptor") {
             if (property.widget === "image" && object[key]) {
                 return (<Image style={{width: "32px", height: "32px"}} value={object[key]} disabled={true}/>)
             }

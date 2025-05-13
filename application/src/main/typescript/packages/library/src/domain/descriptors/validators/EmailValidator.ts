@@ -1,5 +1,5 @@
 import Validator from "./Validator";
 import Entity from "../../../mapper/annotations/Entity";
 
-@Entity("EmailValidator")
+@Entity("emailValidator")
 export default class EmailValidator implements Validator {}

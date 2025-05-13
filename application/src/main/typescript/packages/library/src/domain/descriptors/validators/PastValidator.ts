@@ -1,5 +1,5 @@
 import Validator from "./Validator";
 import Entity from "../../../mapper/annotations/Entity";
 
-@Entity("PastValidator")
+@Entity("pastValidator")
 export default class PastValidator implements Validator {}

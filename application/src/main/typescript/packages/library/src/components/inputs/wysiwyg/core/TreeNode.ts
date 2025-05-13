@@ -5,7 +5,7 @@ import Basic from "../../../../mapper/annotations/Basic";
 import MappedSuperclass from "../../../../mapper/annotations/MappedSuperclass";
 import Entity from "../../../../mapper/annotations/Entity";
 
-@MappedSuperclass("AbstractNode")
+@MappedSuperclass("abstractNode")
 export abstract class AbstractNode extends AbstractEntity {
 
     dom: Node
@@ -81,7 +81,7 @@ export abstract class AbstractNode extends AbstractEntity {
 
 }
 
-@MappedSuperclass("AbstractContainerNode")
+@MappedSuperclass("abstractContainerNode")
 export abstract class AbstractContainerNode<C extends AbstractNode> extends AbstractNode {
 
     readonly abstract children: C[]

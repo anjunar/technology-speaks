@@ -1,10 +1,10 @@
 import {AbstractEntity, ActiveObject, Basic, Entity} from "react-ui-simplicity";
 import Role from "./Role";
 
-@Entity("Credential")
+@Entity("credential")
 export default class Credential extends AbstractEntity {
 
-    $type = "Credential"
+    $type = "credential"
 
     @Basic()
     displayName : string

@@ -1,9 +1,9 @@
 import {ActiveObject, Basic, Entity} from "react-ui-simplicity";
 
-@Entity("Confirmation")
+@Entity("confirmation")
 export default class Confirmation extends ActiveObject {
 
-    $type = "Confirmation"
+    $type = "confirmation"
 
     @Basic()
     code : string
