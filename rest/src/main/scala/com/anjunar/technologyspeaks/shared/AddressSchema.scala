@@ -5,7 +5,22 @@ import com.anjunar.technologyspeaks.control.{Address, Credential, GeoPoint, User
 
 object AddressSchema {
 
-  def static(builder: EntitySchemaBuilder[Address], loaded : Address): EntitySchemaBuilder[Address] = {
+  def static(builder: EntitySchemaBuilder[Address]): EntitySchemaBuilder[Address] = {
+
+    builder
+      .property("id")
+      .property("street")
+      .property("number")
+      .property("zipCode")
+      .property("country")
+      .property("point", property => property
+        .forType(classOf[GeoPoint], GeoPointSchema.static)
+      )
+
+  }
+
+
+  def dynamic(builder: EntitySchemaBuilder[Address], loaded : Address): EntitySchemaBuilder[Address] = {
 
     val current = User.current()
     val isOwnedOrAdmin = current == loaded.user.owner || Credential.current().hasRole("Administrator")

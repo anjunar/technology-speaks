@@ -12,7 +12,7 @@ class CredentialFormSchema extends EntityJSONSchema[Credential] {
   def build(root: Credential, javaType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder()
 
-    builder.forType(classOf[Credential], CredentialSchema.static(_, root))
+    builder.forType(classOf[Credential], CredentialSchema.dynamic(_, root))
   }
 }
 

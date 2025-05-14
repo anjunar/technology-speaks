@@ -16,7 +16,8 @@ class CredentialTableSchema extends EntityJSONSchema[Table[Credential]] {
     builder.forType(javaType, (builder: EntitySchemaBuilder[Table[Credential]]) => builder
       .property("rows", property => property
         .withTitle("Credentials")
-        .forInstance(root.rows, classOf[Credential], (entity : Credential) => builder => CredentialSchema.static(builder, entity))
+        .forType(classOf[Credential], builder => CredentialSchema.static(builder))
+        .forInstance(root.rows, classOf[Credential], (entity : Credential) => builder => CredentialSchema.dynamic(builder, entity))
       )
       .property("size")
     )

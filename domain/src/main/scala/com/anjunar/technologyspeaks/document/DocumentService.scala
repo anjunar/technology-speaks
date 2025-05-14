@@ -103,6 +103,7 @@ class DocumentService {
     case node : Table => ""
     case node : ContainerNode => node.children.stream().map(node => toText(node)).collect(Collectors.joining("\n"))
     case node : TextNode => node.value
+    case _ => ""
   }
 
 }

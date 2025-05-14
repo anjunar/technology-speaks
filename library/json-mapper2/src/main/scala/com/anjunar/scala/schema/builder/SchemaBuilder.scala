@@ -59,20 +59,17 @@ class SchemaBuilder(var table : Boolean = false, val parent : SchemaBuilder = nu
   }
 
   def forInstance[C](instance : C, aClass : Class[C], builder: EntitySchemaBuilder[C] => Unit) : SchemaBuilder = {
-    if (instance == null) {
-      forType(aClass, builder)
-    } else {
-      val instanceOption = instanceMapping.get(instance)
+    val instanceOption = instanceMapping.get(instance)
 
-      if (instanceOption.isDefined) {
-        val value = instanceOption.get.asInstanceOf[EntitySchemaBuilder[C]]
-        builder(value)
-      } else {
-        val value = new EntitySchemaBuilder[C](instance.getClass.asInstanceOf[Class[C]], table, this)
-        builder(value)
-        instanceMapping.put(instance, value)
-      }
+    if (instanceOption.isDefined) {
+      val value = instanceOption.get.asInstanceOf[EntitySchemaBuilder[C]]
+      builder(value)
+    } else {
+      val value = new EntitySchemaBuilder[C](instance.getClass.asInstanceOf[Class[C]], table, this)
+      builder(value)
+      instanceMapping.put(instance, value)
     }
+
     this
   }
 

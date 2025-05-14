@@ -6,11 +6,14 @@ import com.google.common.base.Strings
 import jakarta.persistence.EntityManager
 import jakarta.persistence.criteria.{CriteriaBuilder, CriteriaQuery, Predicate, Root}
 
+import java.util.{Objects, UUID}
 
-class GenericIdProvider[E] extends PredicateProvider[String, E] {
-  override def build(value: String, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[_], property: BeanProperty, name: String): Predicate = {
-    if (Strings.isNullOrEmpty(value)) 
+
+class GenericIdProvider[E] extends PredicateProvider[UUID, E] {
+  override def build(value: UUID, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?], property: BeanProperty, name: String): Predicate = {
+    if (Objects.isNull(value)) {
       return builder.conjunction
-    builder.like(builder.lower(root.get(property.name).as(classOf[String])), builder.literal(value.toLowerCase + "%"))
+    }
+    builder.equal(root.get(property.name), value)
   }
 }

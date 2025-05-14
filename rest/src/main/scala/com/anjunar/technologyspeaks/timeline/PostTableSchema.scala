@@ -13,7 +13,8 @@ class PostTableSchema extends EntityJSONSchema[Table[Post]] {
     builder.forType(classOf[Table[Post]], (builder: EntitySchemaBuilder[Table[Post]]) => builder
       .property("rows", property => property
         .withTitle("Posts")
-        .forInstance(root.rows, classOf[Post], (entity : Post) => builder => PostSchema.static(builder, entity))
+        .forType(classOf[Post], builder => PostSchema.static(builder))
+        .forInstance(root.rows, classOf[Post], (entity : Post) => builder => PostSchema.dynamic(builder, entity))
       )
       .property("size")
     )

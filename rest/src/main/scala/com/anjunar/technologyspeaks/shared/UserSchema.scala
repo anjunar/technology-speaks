@@ -13,12 +13,30 @@ import java.util.{Optional, UUID}
 
 object UserSchema {
 
-  def staticForService(builder: EntitySchemaBuilder[User], isOwnedOrAdmin : Boolean): EntitySchemaBuilder[User] = {
+  def staticCompact(builder: EntitySchemaBuilder[User]): EntitySchemaBuilder[User] = {
     builder
       .property("nickName")
       .property("info", property => property
-        .forType(classOf[UserInfo], UserInfoSchema.staticCompact)
+        .forType(classOf[UserInfo], UserInfoSchema.static)
       )
+  }
+
+  def static(builder: EntitySchemaBuilder[User]): Unit = {
+    builder
+      .property("id")
+      .property("nickName")
+      .property("deleted")
+      .property("emails", property => property
+        .forType(classOf[EMail], EMailSchema.static)
+      )
+      .property("enabled")
+      .property("info", property => property
+        .forType(classOf[UserInfo], UserInfoSchema.static)
+      )
+      .property("address", property => property
+        .forType(classOf[Address], AddressSchema.static)
+      )
+
   }
 
   def dynamicCompact(builder: EntitySchemaBuilder[User], loaded : User): EntitySchemaBuilder[User] = {
@@ -38,10 +56,9 @@ object UserSchema {
             .withRel("secured")
             .build(link.addLink)
         })
-        .forType(classOf[UserInfo], UserInfoSchema.staticCompact)
+        .forType(classOf[UserInfo], UserInfoSchema.static)
       )
   }
-
 
   def dynamic(builder: EntitySchemaBuilder[User], loaded: User): Unit = {
     val token = Credential.current()
@@ -75,7 +92,7 @@ object UserSchema {
               .withRel("secured")
               .build(link.addLink)
           })
-          .forType(classOf[UserInfo], UserInfoSchema.static(_, loaded.info))
+          .forType(classOf[UserInfo], UserInfoSchema.dynamic(_, loaded.info))
         )
         .property("address", property => property
           .withWriteable(isOwnedOrAdmin)
@@ -84,7 +101,7 @@ object UserSchema {
               .withRel("secured")
               .build(link.addLink)
           })
-          .forType(classOf[Address], AddressSchema.static(_, loaded.address))
+          .forType(classOf[Address], AddressSchema.dynamic(_, loaded.address))
         )
 
   }

@@ -43,39 +43,21 @@ object JsonDescriptorsGenerator {
 
     beanModel.properties.foreach(property => {
 
-      val option = if (schema.table) {
-        val descriptor = property.findAnnotation(classOf[Descriptor])
-        if (descriptor == null) {
-          None
-        } else {
-          val builder = new PropertyBuilder[Any](property.name, aClass.underlying, schema.table, schema)
+      val typeMapping = schema.findTypeMapping(aClass.underlying).get(property.name)
 
-          val mappingOption = schema.typeMapping.get(aClass.raw)
-          if (mappingOption.isDefined) {
-            val option = mappingOption.get.mapping.get(property.name)
-            if (option.isDefined) {
-              builder.schemaBuilder = option.get.schemaBuilder
-            }
+      val option = if (typeMapping.isDefined) {
+        val propertySchema = typeMapping.get
+        if (propertySchema.secured) {
+          if (propertySchema.visible) {
+            typeMapping
+          } else {
+            None
           }
-          Some(builder)
+        } else {
+          typeMapping
         }
       } else {
-        val option = schema.findTypeMapping(aClass.raw).get(property.name)
-
-        if (option.isDefined) {
-          val propertySchema = option.get
-          if (propertySchema.secured) {
-            if (propertySchema.visible) {
-              option
-            } else {
-              None
-            }
-          } else {
-            option
-          }
-        } else {
-          None
-        }
+        None
       }
 
       if (option.isDefined) {

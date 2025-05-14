@@ -5,7 +5,14 @@ import com.anjunar.technologyspeaks.control.{Credential, Role, User}
 
 object RoleSchema {
 
-  def static(builder: EntitySchemaBuilder[Role], loaded : Role): EntitySchemaBuilder[Role] = {
+  def static(builder: EntitySchemaBuilder[Role]): EntitySchemaBuilder[Role] = {
+    builder
+      .property("id")
+      .property("name")
+      .property("description")
+  }
+
+  def dynamic(builder: EntitySchemaBuilder[Role], loaded : Role): EntitySchemaBuilder[Role] = {
 
     val credential = Credential.current()
     val isAdmin = credential.hasRole("Administrator")

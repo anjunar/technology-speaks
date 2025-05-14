@@ -6,9 +6,9 @@ import com.anjunar.technologyspeaks.control.User
 
 object ApplicationSchema {
 
-  def read(builder: EntitySchemaBuilder[Application], isOwnedOrAdmin : Boolean): EntitySchemaBuilder[Application] = {
+  def static(builder: EntitySchemaBuilder[Application]): EntitySchemaBuilder[Application] = {
     builder.property("user", property => property
-      .forType(classOf[User], UserSchema.staticForService(_, isOwnedOrAdmin))
+      .forType(classOf[User], UserSchema.staticCompact)
     )
   }
 

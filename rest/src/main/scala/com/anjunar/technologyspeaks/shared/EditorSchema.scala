@@ -10,6 +10,7 @@ object EditorSchema {
   def static(builder: EntitySchemaBuilder[Editor]): EntitySchemaBuilder[Editor] = {
     builder
       .property("files", property => property
+        .withWriteable(true)
         .forType(classOf[File], (builder : EntitySchemaBuilder[File]) => builder
           .property("name", property => property
             .withWriteable(true)
@@ -26,6 +27,7 @@ object EditorSchema {
         )
       )
       .property("json", property => property
+        .withWidget("editor")
         .withWriteable(true)
       )
   }

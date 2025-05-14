@@ -8,22 +8,14 @@ import java.util
 
 object GroupSchema {
 
-  def compact(builder: EntitySchemaBuilder[Group], loaded : Group): EntitySchemaBuilder[Group] = {
-    val credential = Credential.current()
-    val currentUser = User.current()
-    val isOwnedOrAdmin = loaded.owner == currentUser || credential.hasRole("Administrator")
-
+  def static(builder: EntitySchemaBuilder[Group]): EntitySchemaBuilder[Group] = {
     builder
       .property("id")
-      .property("name", property => property
-        .withWriteable(isOwnedOrAdmin)
-      )
-      .property("description", property => property
-        .withWriteable(isOwnedOrAdmin)
-      )
+      .property("name")
+      .property("description")
   }
 
-  def full(builder: EntitySchemaBuilder[Group], loaded : Group): EntitySchemaBuilder[Group] = {
+  def dynamic(builder: EntitySchemaBuilder[Group], loaded : Group): EntitySchemaBuilder[Group] = {
 
     val credential = Credential.current()
     val currentUser = User.current()

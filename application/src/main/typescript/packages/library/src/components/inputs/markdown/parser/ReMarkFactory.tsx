@@ -19,7 +19,7 @@ export const encodeBase64 = (type: string, subType: string, data: string) => {
 }
 
 
-function createImagePlugin(model: EditorModel): Plugin {
+export function createImagePlugin(model: EditorModel): Plugin {
     return () => (tree: any) => {
         visit(tree, 'element', (node: Element) => {
             if (node.tagName === 'img' && node.properties?.src) {

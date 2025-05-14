@@ -9,7 +9,7 @@ class PostFormSchema extends EntityJSONSchema[Post] {
   override def build(root: Post, javaType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder()
 
-    builder.forType(classOf[Post], PostSchema.static(_, root))
+    builder.forType(classOf[Post], PostSchema.dynamic(_, root))
   }
 }
 

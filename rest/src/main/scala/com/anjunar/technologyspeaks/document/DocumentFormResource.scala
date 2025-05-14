@@ -55,6 +55,13 @@ class DocumentFormResource extends SchemaBuilderContext {
         .build(link.addLink)
       linkTo(methodOn(classOf[DocumentFormResource]).delete(instance))
         .build(link.addLink)
+
+      val chunkSearch = new ChunkTableResource.Search
+      chunkSearch.document = id
+
+      linkTo(methodOn(classOf[ChunkTableResource]).list(chunkSearch))
+        .build(link.addLink)
+
       linkTo(methodOn(classOf[DocumentTableResource]).list(null))
         .withRedirect
         .build(link.addLink)

@@ -9,7 +9,7 @@ class DocumentFormSchema extends EntityJSONSchema[Document] {
   override def build(root: Document, javaType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder()
 
-    builder.forType(classOf[Document], DocumentSchema.static(_, root))
+    builder.forType(classOf[Document], DocumentSchema.dynamic(_, root))
   }
 }
 

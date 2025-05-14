@@ -6,13 +6,13 @@ import com.anjunar.technologyspeaks.media.Media
 
 object UserInfoSchema {
 
-  def staticCompact(builder: EntitySchemaBuilder[UserInfo]): EntitySchemaBuilder[UserInfo] = {
+  def static(builder: EntitySchemaBuilder[UserInfo]): EntitySchemaBuilder[UserInfo] = {
     builder
       .property("firstName")
       .property("lastName")
   }
 
-  def static(builder: EntitySchemaBuilder[UserInfo], loaded : UserInfo): EntitySchemaBuilder[UserInfo] = {
+  def dynamic(builder: EntitySchemaBuilder[UserInfo], loaded : UserInfo): EntitySchemaBuilder[UserInfo] = {
 
     val current = User.current()
     val isOwnedOrAdmin = current == loaded.user.owner || Credential.current().hasRole("Administrator")

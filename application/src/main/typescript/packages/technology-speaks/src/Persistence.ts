@@ -15,6 +15,7 @@ import ManagedProperty from "./domain/core/ManagedProperty";
 import Post from "./domain/timeline/Post";
 import Document from "./domain/document/Document";
 import DocumentSearch from "./domain/document/DocumentSearch";
+import Chunk from "./domain/document/Chunk";
 
 export function init() {
     registerEntity(Application)
@@ -37,5 +38,6 @@ export function init() {
 
     registerEntity(Document)
     registerEntity(DocumentSearch)
+    registerEntity(Chunk)
 }
 

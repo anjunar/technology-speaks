@@ -13,7 +13,8 @@ class GroupTableSchema extends EntityJSONSchema[Table[Group]] {
     builder.forType(classOf[Table[Group]], (builder: EntitySchemaBuilder[Table[Group]]) => builder
       .property("rows", property => property
         .withTitle("Groups")
-        .forInstance(root.rows, classOf[Group], (entity : Group) => builder => GroupSchema.full(builder, entity))
+        .forType(classOf[Group], builder => GroupSchema.static(builder))
+        .forInstance(root.rows, classOf[Group], (entity : Group) => builder => GroupSchema.dynamic(builder, entity))
       )
       .property("size")
     )

@@ -2,7 +2,7 @@ import "./MarkDown.css"
 import React, {CSSProperties, RefObject, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react"
 import Toolbar from "./ui/Toolbar";
 import Footer from "./ui/Footer";
-import {encodeBase64, findNodesByRange, reMarkFactoryForHTML, reMarkFactoryForMarkDown} from "./parser/ReMarkFactory";
+import {createImagePlugin, encodeBase64, findNodesByRange, reMarkFactoryForHTML, reMarkFactoryForMarkDown} from "./parser/ReMarkFactory";
 import type {Root} from 'mdast';
 import {Node} from 'unist';
 import {useInput} from "../../../hooks";
@@ -84,7 +84,6 @@ function MarkDown(properties: MarkDown.Attributes) {
     }, [text]);
 
     useEffect(() => {
-
         if (state?.ast) {
             reMarkForHTML.run(state.ast)
                 .then((tree: any) => reMarkForHTML
@@ -92,9 +91,7 @@ function MarkDown(properties: MarkDown.Attributes) {
                 )
                 .then(html => viewRef.current.innerHTML = html)
         }
-
     }, [state]);
-
     useEffect(() => {
         if (state?.ast) {
             let markDown: string = reMarkForMarkDown.stringify(state.ast);

@@ -6,7 +6,17 @@ import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, met
 
 object CredentialSchema {
 
-  def static(builder: EntitySchemaBuilder[Credential], loaded : Credential): EntitySchemaBuilder[Credential] = {
+  def static(builder: EntitySchemaBuilder[Credential]): EntitySchemaBuilder[Credential] = {
+
+    builder
+      .property("id")
+      .property("displayName")
+      .property("roles", property => property
+        .forType(classOf[Role], builder => RoleSchema.static(builder))
+      )
+  }
+
+  def dynamic(builder: EntitySchemaBuilder[Credential], loaded : Credential): EntitySchemaBuilder[Credential] = {
 
     val credential = Credential.current()
     val isAdmin = credential.hasRole("Administrator")
@@ -20,7 +30,8 @@ object CredentialSchema {
           linkTo(methodOn(classOf[RoleTableResource]).list(null))
             .build(links.addLink)
         })
-        .forInstance(loaded.roles, classOf[Role], (entity : Role) => builder => RoleSchema.static(builder, entity))
+        .forType(classOf[Role], builder => RoleSchema.static(builder))
+        .forInstance(loaded.roles, classOf[Role], (entity : Role) => builder => RoleSchema.dynamic(builder, entity))
       )
   }
 

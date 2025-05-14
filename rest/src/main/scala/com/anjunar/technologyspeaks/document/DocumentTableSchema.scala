@@ -21,7 +21,8 @@ class DocumentTableSchema extends EntityJSONSchema[Table[Document]] {
       )
       .property("rows", property => property
         .withTitle("Documents")
-        .forInstance(root.rows, classOf[Document], (entity : Document) => builder => DocumentSchema.staticTable(builder, entity))
+        .forType(classOf[Document], builder => DocumentSchema.static(builder))
+        .forInstance(root.rows, classOf[Document], (entity : Document) => builder => DocumentSchema.dynamic(builder, entity))
       )
       .property("size")
     )

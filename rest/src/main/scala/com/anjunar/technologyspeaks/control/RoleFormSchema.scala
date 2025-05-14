@@ -12,7 +12,7 @@ class RoleFormSchema extends EntityJSONSchema[Role] {
   override def build(root: Role, javaType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder()
 
-    builder.forType(classOf[Role], RoleSchema.static(_, root))
+    builder.forType(classOf[Role], RoleSchema.dynamic(_, root))
   }
 }
 

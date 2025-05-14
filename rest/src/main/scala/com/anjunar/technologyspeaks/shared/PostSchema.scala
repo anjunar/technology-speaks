@@ -7,7 +7,15 @@ import com.anjunar.technologyspeaks.timeline.Post
 
 object PostSchema {
 
-  def static(builder: EntitySchemaBuilder[Post], loaded: Post): EntitySchemaBuilder[Post] = {
+  def static(builder: EntitySchemaBuilder[Post]): EntitySchemaBuilder[Post] = {
+    builder
+      .property("id")
+      .property("user", property => property
+        .forType(classOf[User], UserSchema.staticCompact)
+      )
+  }
+
+  def dynamic(builder: EntitySchemaBuilder[Post], loaded: Post): EntitySchemaBuilder[Post] = {
 
     val credential = Credential.current()
     val currentUser = User.current()
@@ -16,9 +24,9 @@ object PostSchema {
     builder
       .property("id")
       .property("user", property => property
-        .forType(classOf[User], UserSchema.staticForService(_, isOwnedOrAdmin))
+        .forType(classOf[User], UserSchema.staticCompact)
       )
-      .property("root", property => property
+      .property("editor", property => property
         .withWriteable(isOwnedOrAdmin)
         .forType(classOf[Editor], EditorSchema.static)
       )

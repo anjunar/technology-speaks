@@ -14,9 +14,11 @@ import org.hibernate.annotations
 @Entity
 class Chunk extends AbstractEntity {
 
+  @Descriptor(title = "Title")
   @BeanProperty
   var title : String = uninitialized
 
+  @Descriptor(title = "Content")
   @Lob
   @BeanProperty
   var content : String = uninitialized

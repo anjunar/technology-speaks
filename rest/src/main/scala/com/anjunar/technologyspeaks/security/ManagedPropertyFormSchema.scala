@@ -13,7 +13,7 @@ class ManagedPropertyFormSchema extends EntityJSONSchema[ManagedProperty] {
   def build(root: ManagedProperty, javaType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder()
 
-    builder.forType(classOf[ManagedProperty], ManagedPropertySchema.static(_, root))
+    builder.forType(classOf[ManagedProperty], ManagedPropertySchema.dynamic(_, root))
   }
 }
 

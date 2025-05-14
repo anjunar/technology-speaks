@@ -13,7 +13,7 @@ class GroupFormSchema extends EntityJSONSchema[Group] {
   override def build(root: Group, javaType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder()
 
-    builder.forType(classOf[Group], GroupSchema.full(_, root))
+    builder.forType(classOf[Group], GroupSchema.dynamic(_, root))
   }
 }
 

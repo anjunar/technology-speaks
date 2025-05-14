@@ -18,6 +18,7 @@ class UserTableSchema extends EntityJSONSchema[Table[User]] {
     builder.forType(classOf[Table[User]], (builder: EntitySchemaBuilder[Table[User]]) => builder
       .property("rows", property => property
         .withTitle("Users")
+        .forType(classOf[User], builder => UserSchema.static(builder))
         .forInstance(root.rows, classOf[User], (instance : User) => entity => UserSchema.dynamic(entity, instance))
       )
       .property("size")

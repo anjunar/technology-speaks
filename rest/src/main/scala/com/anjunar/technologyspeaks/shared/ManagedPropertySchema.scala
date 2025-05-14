@@ -7,7 +7,7 @@ import com.anjunar.technologyspeaks.shared.property.ManagedProperty
 
 object ManagedPropertySchema {
 
-  def static(builder: EntitySchemaBuilder[ManagedProperty], loaded : ManagedProperty) : EntitySchemaBuilder[ManagedProperty] = {
+  def dynamic(builder: EntitySchemaBuilder[ManagedProperty], loaded : ManagedProperty) : EntitySchemaBuilder[ManagedProperty] = {
 
     val current = User.current()
     val isOwnedOrAdmin = current == loaded.view.owner || Credential.current().hasRole("Administrator")
@@ -28,7 +28,7 @@ object ManagedPropertySchema {
           linkTo(methodOn(classOf[GroupTableResource]).list(null))
             .build(links.addLink)
         })
-        .forInstance(loaded.groups, classOf[Group], (entity : Group) => builder => GroupSchema.compact(builder, entity))
+        .forType(classOf[Group], builder => GroupSchema.static(builder))
       )
   }
 
