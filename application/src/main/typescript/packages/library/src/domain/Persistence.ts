@@ -23,7 +23,7 @@ import NodeDescriptor from "./descriptors/NodeDescriptor";
 import ObjectDescriptor from "./descriptors/ObjectDescriptor";
 import QueryTableObject from "./container/QueryTableObject";
 import EditorModel from "../components/inputs/markdown/model/EditorModel";
-import File from "../components/inputs/markdown/model/File";
+import EditorFile from "../components/inputs/markdown/model/EditorFile";
 
 export function init() {
 
@@ -47,7 +47,7 @@ export function init() {
     registerEntity(PatternValidator)
 
     registerEntity(EditorModel)
-    registerEntity(File)
+    registerEntity(EditorFile)
 
     registerConverter(Date, new DateConverter())
     registerConverter(LocalDateTime, new LocalDateTimeConverter())

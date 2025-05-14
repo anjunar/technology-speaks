@@ -2,7 +2,7 @@ import {Basic, Entity} from "../../../../mapper";
 import {AbstractEntity} from "../../../../domain/container";
 
 @Entity("file")
-export default class File extends AbstractEntity {
+export default class EditorFile extends AbstractEntity {
 
     $type = "file"
 

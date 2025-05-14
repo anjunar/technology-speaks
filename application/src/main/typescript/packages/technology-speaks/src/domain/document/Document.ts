@@ -1,6 +1,6 @@
 import {AbstractEntity, Basic, Entity, MarkDown, RootNode} from "react-ui-simplicity";
 import User from "../control/User";
-import EditorModel from "react-ui-simplicity/src/components/inputs/markdown/model/EditorModel";
+import {EditorModel} from "react-ui-simplicity";
 
 @Entity("document")
 export default class Document extends AbstractEntity {

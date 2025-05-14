@@ -8,7 +8,7 @@ import {Node} from 'unist';
 import {useInput} from "../../../hooks";
 import {Model} from "../../shared";
 import EditorModel from "./model/EditorModel";
-import File from "./model/File";
+import EditorFile from "./model/EditorFile";
 
 
 export const MarkDownContext = React.createContext<MarkDown.Context>(null)
@@ -39,7 +39,7 @@ function MarkDown(properties: MarkDown.Attributes) {
         return reMarkFactoryForMarkDown(state)
     }, []);
 
-    function onStoreClick(file: File) {
+    function onStoreClick(file: EditorFile) {
         let textArea = textAreaRef.current;
 
         let selectionStart = textArea.selectionStart;
