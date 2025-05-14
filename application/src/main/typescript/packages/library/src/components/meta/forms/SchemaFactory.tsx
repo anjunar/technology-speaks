@@ -88,7 +88,7 @@ function SchemaFactory(properties: SchemaFactory.Attributes) {
         }
         case "editor" : {
             return (
-                <MarkDown name={name} style={{height: "100%"}} {...rest}/>
+                <MarkDown name={name} style={{height: "800px"}}/>
             )
         }
         case "image":

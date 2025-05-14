@@ -75,7 +75,7 @@ class DocumentService {
 
   def update(document: Document): Unit = {
 
-    val text = toText(document.editor.ast)
+    val text = toText(document.editor.json)
 
     val jsonString = createChunks(text)
 

@@ -58,7 +58,7 @@ function MarkDown(properties: MarkDown.Attributes) {
     function onSelect() {
         let textArea = textAreaRef.current;
 
-        const nodes = findNodesByRange(JSON.parse(state.ast), textArea.selectionStart, textArea.selectionEnd);
+        const nodes = findNodesByRange(state.ast, textArea.selectionStart, textArea.selectionEnd);
 
         setCursor(nodes.filter(node => node.type !== "root"))
     }
@@ -68,7 +68,7 @@ function MarkDown(properties: MarkDown.Attributes) {
 
         const editor = new EditorModel();
         editor.files = state?.files || [];
-        editor.ast = JSON.stringify(ast);
+        editor.ast = ast;
 
         setState(editor)
 
@@ -86,7 +86,7 @@ function MarkDown(properties: MarkDown.Attributes) {
     useEffect(() => {
 
         if (state?.ast) {
-            reMarkForHTML.run(JSON.parse(state.ast) as Root)
+            reMarkForHTML.run(state.ast)
                 .then((tree: any) => reMarkForHTML
                     .stringify(tree)
                 )
@@ -97,7 +97,7 @@ function MarkDown(properties: MarkDown.Attributes) {
 
     useEffect(() => {
         if (state?.ast) {
-            let markDown: string = reMarkForMarkDown.stringify(JSON.parse(state.ast) as Root);
+            let markDown: string = reMarkForMarkDown.stringify(state.ast);
 
             if (markDown !== text) {
                 setText(markDown)

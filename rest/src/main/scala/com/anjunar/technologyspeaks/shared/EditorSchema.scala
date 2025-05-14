@@ -25,7 +25,7 @@ object EditorSchema {
           )
         )
       )
-      .property("ast", property => property
+      .property("json", property => property
         .withWriteable(true)
       )
   }

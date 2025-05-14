@@ -22,6 +22,6 @@ class Editor extends AbstractEntity {
   @Type(classOf[RootType])
   @Converter(classOf[RootConverter])
   @BeanProperty
-  var ast : Root = uninitialized
+  var json : Root = uninitialized
 
 }

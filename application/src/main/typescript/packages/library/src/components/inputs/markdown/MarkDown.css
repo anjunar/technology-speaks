@@ -12,6 +12,7 @@
         flex: 1;
         height: 50%;
         white-space: pre-wrap;
+        overflow: auto;
 
         table {
             width: 100%;
