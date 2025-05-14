@@ -24,7 +24,7 @@ object PostSchema {
     builder
       .property("id")
       .property("user", property => property
-        .forType(classOf[User], UserSchema.staticCompact)
+        .forType(classOf[User], builder => UserSchema.dynamicCompact(builder, loaded.user))
       )
       .property("editor", property => property
         .withWriteable(isOwnedOrAdmin)
