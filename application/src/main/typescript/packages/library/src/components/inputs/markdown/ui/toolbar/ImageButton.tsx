@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from "react"
 import {MarkDownContext} from "../../MarkDown";
+import File from "../../model/File";
 
 function decodeBase64(result: string) {
     let base64 = /data:(\w+)\/(\w+);base64,((?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}={2}))/g
@@ -40,13 +41,14 @@ function ImageButton(properties: ImageButton.Attributes) {
 
                         const {type, subType, data} = decodeBase64(reader.result as string)
 
-                        model.store.files.push({
-                            name: file.name,
-                            type: type,
-                            subType : subType,
-                            data: data,
-                            lastModified: file.lastModified
-                        })
+                        const markdownFile = new File()
+                        markdownFile.name = file.name
+                        markdownFile.type = type
+                        markdownFile.subType = subType
+                        markdownFile.data = data
+                        markdownFile.lastModified = file.lastModified
+
+                        model.files.push(markdownFile)
 
                         let pre = textArea.value.substring(0, selectionStart);
                         let post = textArea.value.substring(selectionEnd);

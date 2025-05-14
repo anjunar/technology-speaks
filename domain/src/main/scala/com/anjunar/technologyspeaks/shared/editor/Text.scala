@@ -5,9 +5,4 @@ import jakarta.persistence.{Entity, Lob}
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
-class TextNode extends Node {
-
-  @BeanProperty
-  var value: String = uninitialized
-
-}
+class Text extends TextNode

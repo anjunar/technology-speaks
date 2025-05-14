@@ -3,7 +3,7 @@ package com.anjunar.technologyspeaks.shared
 import com.anjunar.scala.schema.builder.EntitySchemaBuilder
 import com.anjunar.technologyspeaks.control.{Credential, User}
 import com.anjunar.technologyspeaks.document.Document
-import com.anjunar.technologyspeaks.shared.editor.RootNode
+import com.anjunar.technologyspeaks.shared.editor.{Editor, Root}
 
 object DocumentSchema {
 
@@ -22,9 +22,9 @@ object DocumentSchema {
       .property("user", property => property
         .forType(classOf[User], UserSchema.staticForService(_, isOwnedOrAdmin))
       )
-      .property("root", property => property
+      .property("editor", property => property
         .withWriteable(isOwnedOrAdmin)
-        .forType(classOf[RootNode], EditorSchema.static)
+        .forType(classOf[Editor], EditorSchema.static)
       )
   }
 

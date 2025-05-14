@@ -21,8 +21,9 @@ import CollectionDescriptor from "./descriptors/CollectionDescriptor";
 import EnumDescriptor from "./descriptors/EnumDescriptor";
 import NodeDescriptor from "./descriptors/NodeDescriptor";
 import ObjectDescriptor from "./descriptors/ObjectDescriptor";
-import {AbstractContainerNode, AbstractNode, CodeNode, ImageNode, ItemNode, ListNode, ParagraphNode, RootNode, TableCellNode, TableNode, TableRowNode, TextNode} from "../components/inputs/wysiwyg";
 import QueryTableObject from "./container/QueryTableObject";
+import EditorModel from "../components/inputs/markdown/model/EditorModel";
+import File from "../components/inputs/markdown/model/File";
 
 export function init() {
 
@@ -44,6 +45,9 @@ export function init() {
     registerEntity(EmailValidator)
     registerEntity(PastValidator)
     registerEntity(PatternValidator)
+
+    registerEntity(EditorModel)
+    registerEntity(File)
 
     registerConverter(Date, new DateConverter())
     registerConverter(LocalDateTime, new LocalDateTimeConverter())

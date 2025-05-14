@@ -75,7 +75,7 @@ class DocumentService {
 
   def update(document: Document): Unit = {
 
-    val text = toText(document.root)
+    val text = toText(document.editor.ast)
 
     val jsonString = createChunks(text)
 
@@ -99,14 +99,10 @@ class DocumentService {
     document.chunks.addAll(chunks)
   }
 
-  private def toText(node: AbstractNode): String = node match {
-    case node: RootNode => node.children.stream().map(toText).collect(Collectors.joining("\n"))
-    case node: CodeNode => node.text
-    case node: ListNode => node.children.stream().map(toText).collect(Collectors.joining("\n"))
-    case node: ItemNode => node.children.stream().map(toText).collect(Collectors.joining("\t\n"))
-    case node: ParagraphNode => node.children.stream().map(toText).collect(Collectors.joining("\n"))
-    case node: TextNode => node.text
-    case _ => ""
+  private def toText(root: Node): String = root match {
+    case node : Table => ""
+    case node : ContainerNode => node.children.stream().map(node => toText(node)).collect(Collectors.joining("\n"))
+    case node : TextNode => node.value
   }
 
 }

@@ -5,7 +5,7 @@ import com.anjunar.scala.mapper.exceptions.{ValidationException, ValidationViola
 import com.anjunar.scala.mapper.intermediate.model.{JsonNode, JsonObject}
 import com.anjunar.scala.mapper.loader.EntityLoader
 import com.anjunar.scala.mapper.{Context, ConverterRegistry, JsonMapper}
-import com.anjunar.scala.schema.JsonDescriptorsGenerator
+import com.anjunar.scala.schema.{JsonDescriptorsContext, JsonDescriptorsGenerator}
 import com.anjunar.scala.schema.builder.{EntityJSONSchema, EntitySchemaBuilder, SchemaBuilderProvider}
 import com.anjunar.scala.schema.model.ObjectDescriptor
 import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
@@ -144,7 +144,7 @@ class JsonProvider extends MessageBodyReader[AnyRef] with MessageBodyWriter[AnyR
     val jsonObject = jsonMapper.toJson(element, resolvedClass, context)
 
     val properties = jsonObject.value
-    val objectDescriptor = JsonDescriptorsGenerator.generateObject(resolvedClass, schema)
+    val objectDescriptor = JsonDescriptorsGenerator.generateObject(resolvedClass, schema, new JsonDescriptorsContext(null))
 
     val contextForDescriptor = new Context(null, validatorFactory.getValidator, registry, schema, null)
     val jsonDescriptor = jsonMapper.toJson(objectDescriptor, TypeResolver.resolve(classOf[ObjectDescriptor]), contextForDescriptor)

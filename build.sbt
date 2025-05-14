@@ -51,6 +51,7 @@ lazy val system = (project in file("system"))
   .dependsOn(jsonMapper2)
   .settings(
     libraryDependencies ++= Seq(
+      "org.postgresql" % "postgresql" % "42.7.5",
       "commons-io" % "commons-io" % "2.19.0",
       "org.apache.commons" % "commons-lang3" % "3.17.0",
       "org.apache.commons" % "commons-text" % "1.13.1",
@@ -85,6 +86,7 @@ lazy val application = (project in file("application"))
   .dependsOn(rest)
   .settings(
     ss = excludeDependencies ++= Seq(
+      "org.postgresql" % "postgresql",
       "org.hibernate.orm" % "hibernate-core",
       "org.hibernate.orm" % "hibernate-envers",
       "jakarta.validation" % "jakarta.validation-api",

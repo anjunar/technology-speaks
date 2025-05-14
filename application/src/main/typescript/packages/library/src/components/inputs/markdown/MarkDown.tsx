@@ -1,18 +1,21 @@
 import "./MarkDown.css"
-import React, {CSSProperties, RefObject, useEffect, useMemo, useRef, useState} from "react"
+import React, {CSSProperties, RefObject, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react"
 import Toolbar from "./ui/Toolbar";
 import Footer from "./ui/Footer";
-import EditorModel = MarkDown.EditorModel;
 import {encodeBase64, findNodesByRange, reMarkFactoryForHTML, reMarkFactoryForMarkDown} from "./parser/ReMarkFactory";
-import type { Root } from 'mdast';
-import { Node } from 'unist';
+import type {Root} from 'mdast';
+import {Node} from 'unist';
+import {useInput} from "../../../hooks";
+import {Model} from "../../shared";
+import EditorModel from "./model/EditorModel";
+import File from "./model/File";
 
 
 export const MarkDownContext = React.createContext<MarkDown.Context>(null)
 
 function MarkDown(properties: MarkDown.Attributes) {
 
-    const {style} = properties
+    const {style, value, standalone, name, onModel, onChange} = properties
 
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -22,26 +25,21 @@ function MarkDown(properties: MarkDown.Attributes) {
 
     const [astUpdate, setAstUpdate] = useState(false)
 
-    const [model, setModel] = useState<EditorModel>({
-        store: {
-            files: []
-        },
-        ast: null
-    })
+    const [model, state, setState] = useInput<EditorModel>(name, value, standalone, "editor")
 
-    const [text, setText] = useState('**test**');
+    const [text, setText] = useState("");
 
     const [cursor, setCursor] = useState<Node[]>(null)
 
     const reMarkForHTML = useMemo(() => {
-        return reMarkFactoryForHTML(model)
+        return reMarkFactoryForHTML(state)
     }, []);
 
     const reMarkForMarkDown = useMemo(() => {
-        return reMarkFactoryForMarkDown(model)
+        return reMarkFactoryForMarkDown(state)
     }, []);
 
-    function onStoreClick(file: MarkDown.File) {
+    function onStoreClick(file: File) {
         let textArea = textAreaRef.current;
 
         let selectionStart = textArea.selectionStart;
@@ -52,7 +50,7 @@ function MarkDown(properties: MarkDown.Attributes) {
 
         textArea.value = `${pre}![Picture](${file.name})${post}`
 
-        const event = new Event('input', { bubbles: true, cancelable: true});
+        const event = new Event('input', {bubbles: true, cancelable: true});
 
         textArea.dispatchEvent(event);
     }
@@ -60,7 +58,7 @@ function MarkDown(properties: MarkDown.Attributes) {
     function onSelect() {
         let textArea = textAreaRef.current;
 
-        const nodes = findNodesByRange(model.ast, textArea.selectionStart, textArea.selectionEnd);
+        const nodes = findNodesByRange(JSON.parse(state.ast), textArea.selectionStart, textArea.selectionEnd);
 
         setCursor(nodes.filter(node => node.type !== "root"))
     }
@@ -68,28 +66,38 @@ function MarkDown(properties: MarkDown.Attributes) {
     useEffect(() => {
         let ast = reMarkForHTML.parse(text);
 
-        setModel({
-            store: model.store,
-            ast: ast
-        })
+        const editor = new EditorModel();
+        editor.files = state?.files || [];
+        editor.ast = JSON.stringify(ast);
+
+        setState(editor)
+
+        if (onChange) {
+            onChange(state)
+        }
+
+        if (onModel) {
+            onModel(model)
+        }
+
 
     }, [text]);
 
     useEffect(() => {
 
-        if (model.ast) {
-            reMarkForHTML.run(model.ast)
-                .then((tree : any) => reMarkForHTML
+        if (state?.ast) {
+            reMarkForHTML.run(JSON.parse(state.ast) as Root)
+                .then((tree: any) => reMarkForHTML
                     .stringify(tree)
                 )
                 .then(html => viewRef.current.innerHTML = html)
         }
 
-    }, [model]);
+    }, [state]);
 
     useEffect(() => {
-        if (model.ast) {
-            let markDown : string = reMarkForMarkDown.stringify(model.ast);
+        if (state?.ast) {
+            let markDown: string = reMarkForMarkDown.stringify(JSON.parse(state.ast) as Root);
 
             if (markDown !== text) {
                 setText(markDown)
@@ -97,14 +105,37 @@ function MarkDown(properties: MarkDown.Attributes) {
         }
     }, [astUpdate]);
 
+    useEffect(() => {
+        // For form validation -> Error messages
+        model.callbacks.push((validate: boolean) => {
+            if (onModel) {
+                onModel(model)
+            }
+        })
+
+        if (onModel) {
+            onModel(model)
+        }
+    }, []);
+
+    useLayoutEffect(() => {
+        if (onModel) {
+            onModel(model)
+        }
+    }, [value, model.dirty]);
+
     return (
         <div className={"markdown-editor"} style={style}>
-            <MarkDownContext.Provider value={{model: model, textAreaRef, cursor, updateAST() { setAstUpdate(! astUpdate) }}}>
+            <MarkDownContext.Provider value={{
+                model: state, textAreaRef, cursor, updateAST() {
+                    setAstUpdate(!astUpdate)
+                }
+            }}>
                 <Toolbar page={page} onPage={value => setPage(value)}/>
                 <textarea onSelect={onSelect} ref={textAreaRef} onInput={(event: any) => setText(event.target.value)} value={text} className={"content"}></textarea>
                 <div>
                     {
-                        model.store.files.map(file => <img key={file.name} title={file.name} src={encodeBase64(file.type, file.subType, file.data)} style={{height: "32px"}} onClick={() => onStoreClick(file)}/>)
+                        state?.files?.map(file => <img key={file.name} title={file.name} src={encodeBase64(file.type, file.subType, file.data)} style={{height: "32px"}} onClick={() => onStoreClick(file)}/>)
                     }
                 </div>
                 <div ref={viewRef} className={"view"}></div>
@@ -117,30 +148,19 @@ function MarkDown(properties: MarkDown.Attributes) {
 namespace MarkDown {
     export interface Attributes {
         style?: CSSProperties
-    }
-
-    export interface EditorModel {
-        store: FileStore
-        ast: Root
-    }
-
-    export interface File {
-        name: string,
-        type: string
-        subType: string,
-        lastModified: number
-        data: string
-    }
-
-    export interface FileStore {
-        files: File[]
+        name: string
+        standalone?: boolean
+        value?: EditorModel
+        onChange?: (value: EditorModel) => void
+        onModel?: (value: Model) => void
     }
 
     export interface Context {
         model: EditorModel
         textAreaRef: RefObject<HTMLTextAreaElement>
         cursor: Node[]
-        updateAST() : void
+
+        updateAST(): void
     }
 }
 

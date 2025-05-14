@@ -9,7 +9,7 @@ import remarkGfm from 'remark-gfm'
 import {visit} from 'unist-util-visit';
 import type {Element} from 'hast';
 import { Node } from 'unist';
-import EditorModel = MarkDown.EditorModel;
+import EditorModel from "../model/EditorModel";
 
 export const encodeBase64 = (type: string, subType: string, data: string) => {
     if (data) {
@@ -24,7 +24,7 @@ function createImagePlugin(model: EditorModel): Plugin {
         visit(tree, 'element', (node: Element) => {
             if (node.tagName === 'img' && node.properties?.src) {
                 const href = node.properties.src as string;
-                const file = model.store.files.find(f => f.name === href);
+                const file = model.files.find(f => f.name === href);
 
                 if (file) {
                     node.properties.src = encodeBase64(file.type, file.subType, file.data);

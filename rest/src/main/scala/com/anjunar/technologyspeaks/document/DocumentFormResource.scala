@@ -7,7 +7,6 @@ import com.anjunar.technologyspeaks.control.User
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.security.Secured
-import com.anjunar.technologyspeaks.shared.editor.{ParagraphNode, RootNode, TextNode}
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -38,17 +37,7 @@ class DocumentFormResource extends SchemaBuilderContext {
 
     val Document = new Document
 
-    val textNode = new TextNode()
-    textNode.text = "Hello World"
-
-    val paragraphNode = new ParagraphNode()
-    paragraphNode.children.add(textNode)
-
-    val rootNode = new RootNode()
-    rootNode.children.add(paragraphNode)
-
     Document.user = User.current()
-    Document.root = rootNode
 
     Document
   }

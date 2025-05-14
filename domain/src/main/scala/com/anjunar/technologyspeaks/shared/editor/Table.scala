@@ -1,13 +1,13 @@
 package com.anjunar.technologyspeaks.shared.editor
 
-import jakarta.persistence.{Entity, Lob}
+import jakarta.persistence.Entity
 
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
-class TextNode extends Node {
+class Table extends ContainerNode {
 
   @BeanProperty
-  var value: String = uninitialized
+  var align : String = uninitialized
 
 }

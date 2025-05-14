@@ -7,6 +7,7 @@
             <module name="net.bytebuddy"/>
             <module name="org.apache.commons.io"/>
             <module name="org.apache.commons.lang3"/>
+            <module name="org.postgresql"/>
             <module name="sun.jdk" export="true" >
                 <imports>
                     <include path="sun/misc/Unsafe" />

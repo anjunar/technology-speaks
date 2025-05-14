@@ -1,13 +1,13 @@
 package com.anjunar.scala.mapper.converters
 
-import com.anjunar.scala.mapper.annotations.IgnoreFilter
+import com.anjunar.scala.mapper.annotations.{Converter, IgnoreFilter, JacksonJsonConverter}
 import com.anjunar.scala.mapper.intermediate.model.{JsonNode, JsonObject, JsonString}
 import com.anjunar.scala.mapper.{Context, ConverterRegistry}
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, LinkContext, PropertyBuilder, SchemaBuilder}
 import com.anjunar.scala.schema.model.{Link, Links, NodeDescriptor}
 import com.anjunar.scala.universe.introspector.{BeanIntrospector, BeanProperty}
 import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
-import com.fasterxml.jackson.annotation.JsonSubTypes
+import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.google.common.reflect.TypeToken
 import com.typesafe.scalalogging.Logger
 
@@ -28,8 +28,10 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
   override def toJson(instance: Any, aType: ResolvedClass, context: Context): JsonNode = {
 
+    val jsonTypeInfo = aType.findAnnotation(classOf[JsonTypeInfo])
+
     val properties = new mutable.LinkedHashMap[String, JsonNode]
-    properties.put("$type", JsonString(lowercaseFirstChar(instance.getClass.getSimpleName)))
+    properties.put(if jsonTypeInfo == null then "$type" else jsonTypeInfo.property(), JsonString(lowercaseFirstChar(instance.getClass.getSimpleName)))
     val jsonObject = JsonObject(properties)
 
     val links = new mutable.LinkedHashMap[String, JsonNode]
@@ -128,17 +130,28 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
 
   private def addProperty(context: Context, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, converter: AbstractConverter, value: Any, propertySchema : SchemaBuilder) = {
-    val jsonNode = converter.toJson(value, property.propertyType, Context(property.name, propertySchema, context))
-    properties.put(property.name, jsonNode)
+
+    val jpaConverter = property.findAnnotation(classOf[Converter])
+
+    if (jpaConverter == null) {
+      val jsonNode = converter.toJson(value, property.propertyType, Context(property.name, propertySchema, context))
+      properties.put(property.name, jsonNode)
+    } else {
+      val jpaConverterInstance = jpaConverter.value().getConstructor().newInstance()
+      val jsonString = jpaConverterInstance.toJson(value)
+      properties.put(property.name, JsonString(jsonString))
+    }
+
   }
 
   override def toJava(jsonNode: JsonNode, aType: ResolvedClass, context: Context): Any = jsonNode match
     case jsonObject: JsonObject =>
       val jsonSubTypes = aType.findDeclaredAnnotation(classOf[JsonSubTypes])
+      val jsonTypeInfo = aType.findAnnotation(classOf[JsonTypeInfo])
 
       val beanModel = if (jsonSubTypes == null) BeanIntrospector.create(aType) else
         BeanIntrospector.createWithType(
-          jsonSubTypes.value().find(subType => lowercaseFirstChar(subType.value().getSimpleName) == jsonObject.value("$type").value).get.value()
+          jsonSubTypes.value().find(subType => lowercaseFirstChar(subType.value().getSimpleName) == jsonObject.value(if jsonTypeInfo == null then "$type" else jsonTypeInfo.property()).value).get.value()
         )
 
       val entity = context.loader.load(jsonObject, beanModel.underlying, Array())
@@ -171,9 +184,17 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
             val converter = registry.find(property.propertyType)
             val currentNode = jsonObject.value.get(property.name)
 
-            val value = if currentNode.isDefined then 
-              converter.toJava(currentNode.get, property.propertyType, Context(property.name, descriptor.schemaBuilder, context))
-            else {
+            val value = if currentNode.isDefined then {
+              val jpaConverter = property.findAnnotation(classOf[Converter])
+
+              if (jpaConverter == null) {
+                converter.toJava(currentNode.get, property.propertyType, Context(property.name, descriptor.schemaBuilder, context))
+              } else {
+                val jpaConverterInstance = jpaConverter.value().getConstructor().newInstance()
+                jpaConverterInstance.toJava(currentNode.get.value)
+              }
+
+            } else {
               property.propertyType.raw match {
                 case aClass : Class[?] if classOf[java.lang.Boolean].isAssignableFrom(aClass) => false
                 case aClass : Class[?] if classOf[util.Set[?]].isAssignableFrom(aClass) => new util.HashSet[AnyRef]()
