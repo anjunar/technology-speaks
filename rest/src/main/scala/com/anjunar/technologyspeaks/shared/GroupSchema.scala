@@ -35,6 +35,7 @@ object GroupSchema {
           linkTo(methodOn(classOf[UserTableResource]).list(null))
             .build(links.addLink)
         })
+        .forType(classOf[User], builder => UserSchema.staticCompact(builder))
         .forInstance(loaded.users, classOf[User], (entity : User) => builder => UserSchema.dynamicCompact(builder, entity))
       )
   }

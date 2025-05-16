@@ -9,12 +9,12 @@ import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, met
 import com.anjunar.technologyspeaks.jaxrs.search.jpa.{JPASearch, JPASearchContext, JPASearchContextResult}
 import com.anjunar.technologyspeaks.jaxrs.search.provider.*
 import com.anjunar.technologyspeaks.jaxrs.search.{RestPredicate, RestSort, SearchBeanReader}
-import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, Table}
+import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, QueryTable, Table}
 import com.anjunar.technologyspeaks.security.Secured
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.persistence.EntityManager
+import jakarta.persistence.{EntityManager, TupleElement}
 import jakarta.persistence.criteria.*
 import jakarta.ws.rs.{Path, *}
 
@@ -34,14 +34,26 @@ class UserTableResource extends SchemaBuilderContext {
   @Inject
   var jpaSearch: JPASearch = uninitialized
 
-  @GET
+  @POST
   @Produces(Array("application/json"))
+  @Consumes(Array("application/json"))
   @JsonSchema(classOf[UserTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Benutzer", linkType = LinkType.TABLE)
-  def list(@BeanParam search: UserTableResource.Search): Table[User] = {
+  def list(search: UserTableSearch): QueryTable[UserTableSearch, User] = {
     val context = jpaSearch.searchContext(search)
-    val entities = jpaSearch.entities(search.index, search.limit, classOf[User], context)
+    val tuples = jpaSearch.entities(search.index, search.limit, classOf[User], context)
+    val entities = tuples.stream().map(tuple => {
+      var user : User = null
+      var score = 0.0
+      tuple.getElements.forEach({
+        case tupleElement : TupleElement[?] if tupleElement.getJavaType == classOf[User] => user = tuple.get(0, classOf[User])
+        case tupleElement : TupleElement[?] if tupleElement.getAlias == "distance" => score = tuple.get(1, classOf[Double])
+      })
+
+      user.score = score
+      user
+    }).toList
     val count = jpaSearch.count(classOf[User], context)
 
     forLinks(classOf[Table[User]], (instance, link) => {
@@ -56,45 +68,6 @@ class UserTableResource extends SchemaBuilderContext {
       })
     })
 
-    new Table[User](entities, count)
-  }
-}
-
-object UserTableResource {
-  class Search extends AbstractSearch {
-    @RestSort(classOf[GenericSortProvider[?]])
-    @QueryParam("sort")
-    @BeanProperty
-    private var sort: util.List[String] = uninitialized
-
-    @RestPredicate(classOf[GenericIdProvider[?]])
-    @QueryParam("id")
-    @BeanProperty
-    private var id: UUID = uninitialized
-
-    @RestPredicate(classOf[GenericNameProvider[?]])
-    @QueryParam("email")
-    @BeanProperty
-    private var email: String = uninitialized
-
-    @RestPredicate(classOf[GenericNameProvider[?]])
-    @QueryParam("firstName")
-    @BeanProperty
-    private var firstName: String = uninitialized
-
-    @RestPredicate(classOf[GenericNameProvider[?]])
-    @QueryParam("lastName")
-    @BeanProperty
-    private var lastName: String = uninitialized
-
-    @RestPredicate(classOf[GenericDurationDateProvider[?]])
-    @QueryParam("birthDate")
-    @BeanProperty
-    private var birthDate: LocalDate = uninitialized
-
-    @RestPredicate(classOf[GenericManyToManyProvider[?]])
-    @QueryParam("roles")
-    @BeanProperty
-    private var roles: util.Set[UUID] = uninitialized
+    new QueryTable[UserTableSearch, User](new UserTableSearch,entities, count)
   }
 }

@@ -23,7 +23,7 @@ object AddressSchema {
   def dynamic(builder: EntitySchemaBuilder[Address], loaded : Address): EntitySchemaBuilder[Address] = {
 
     val current = User.current()
-    val isOwnedOrAdmin = current == loaded.user.owner || Credential.current().hasRole("Administrator")
+    val isOwnedOrAdmin = Credential.current().hasRole("Administrator") || loaded != null && current == loaded.user.owner
 
     builder
       .property("id")

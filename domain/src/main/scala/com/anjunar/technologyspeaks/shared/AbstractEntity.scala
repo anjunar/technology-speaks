@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.shared
 
-import com.anjunar.technologyspeaks.jpa.EntityContext
+import com.anjunar.technologyspeaks.jpa.{EntityContext, EntityInterface}
 import com.anjunar.scala.mapper.annotations.Descriptor
 import jakarta.persistence.*
 
@@ -10,13 +10,13 @@ import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
 @MappedSuperclass
-abstract class AbstractEntity extends EntityContext {
+abstract class AbstractEntity extends EntityContext with EntityInterface {
 
   @Id
   @Column(name = "id", unique = true, nullable = false)
   @BeanProperty
   @Descriptor(title = "Id", id = true)
-  var id: UUID = UUID.randomUUID()
+  val id: UUID = UUID.randomUUID()
 
   @Version
   @BeanProperty

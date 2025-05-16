@@ -1,17 +1,19 @@
 import React from "react"
-import {Button, FormSchemaFactory, SchemaForm, useForm} from "react-ui-simplicity";
+import {AbstractSearch, ActiveObject, Button, FormSchemaFactory, SchemaForm, useForm} from "react-ui-simplicity";
 
 function Search(properties: Search.Attributes) {
 
     const {value, submit} = properties
 
-    let domain = useForm(value);
+    let domain : AbstractSearch = useForm(value);
 
-    let fields = Object.entries(domain.$descriptors.properties).map(([key, descriptor]) => (
-        <div key={key} style={{display: "flex", alignItems: "center"}}>
-            <FormSchemaFactory style={{flex: 1}} name={key}/>
-        </div>
-    ))
+    let fields = Object.entries(domain.$descriptors?.properties)
+        .filter(([key, descriptor]) => ! descriptor.hidden)
+        .map(([key, descriptor]) => (
+            <div key={key} style={{display: "flex", alignItems: "center"}}>
+                <FormSchemaFactory style={{flex: 1}} name={key}/>
+            </div>
+        ))
 
     function onSubmit(name: string, form: any) {
         submit(domain)
@@ -32,7 +34,7 @@ function Search(properties: Search.Attributes) {
 namespace Search {
     export interface Attributes {
         value: any
-        submit : (form : any) => void
+        submit: (form: any) => void
     }
 }
 

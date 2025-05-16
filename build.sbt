@@ -1,29 +1,14 @@
-import com.here.bom.Bom
-import scala.sys.process._
-
-lazy val jacksonDependencies = Bom.dependencies("com.fasterxml.jackson" % "jackson-bom" % "2.13.2.1")
-lazy val wildFlyDependencies = Bom.dependencies("org.wildfly.bom" % "wildfly-ee" % "35.0.0.Final")
+import scala.sys.process.*
 
 lazy val redeploy = taskKey[Unit]("Redeploys the WAR file into Wildfly")
 
 Global / semanticdbEnabled := true
 
-lazy val root = (project in file("."))
-  .aggregate(
-    scalaUniverse2, jsonMapper2, system, domain, rest, application
-  )
-  .settings(wildFlyDependencies)
-  .settings(jacksonDependencies)
-  .settings(
-    ThisBuild / scalaVersion := "3.6.4",
-    ThisBuild / version := "0.1.0-SNAPSHOT",
+ThisBuild / scalaVersion := "3.7.0"
+ThisBuild / version := "0.1.0-SNAPSHOT"
 
-    ThisBuild / dependencyOverrides ++= wildFlyDependencies.key.value,
-    ThisBuild / dependencyOverrides ++= jacksonDependencies.key.value,
-
-    ThisBuild / javacOptions ++= Seq("--release", "17"),
-    ThisBuild / scalacOptions ++= Seq("-release", "17")
-  )
+ThisBuild / javacOptions ++= Seq("--release", "17")
+ThisBuild / scalacOptions ++= Seq("-release", "17")
 
 lazy val scalaUniverse2 = (project in file("library/scala-universe2"))
   .settings(
@@ -38,12 +23,12 @@ lazy val jsonMapper2 = (project in file("library/json-mapper2"))
   .dependsOn(scalaUniverse2)
   .settings(
     libraryDependencies ++= Seq(
-      "jakarta.validation" % "jakarta.validation-api" % "3.1.0",
+      "jakarta.validation" % "jakarta.validation-api" % "3.1.1",
       "jakarta.enterprise" % "jakarta.enterprise.cdi-api" % "4.1.0",
       "jakarta.ws.rs" % "jakarta.ws.rs-api" % "4.0.0",
-      "com.fasterxml.jackson.core" % "jackson-annotations" % "2.16.1",
-      "org.apache.commons" % "commons-lang3" % "3.14.0",
-      "org.apache.commons" % "commons-text" % "1.12.0"
+      "com.fasterxml.jackson.core" % "jackson-annotations" % "2.19.0",
+      "org.apache.commons" % "commons-lang3" % "3.17.0",
+      "org.apache.commons" % "commons-text" % "1.13.1"
     )
   )
 
@@ -51,33 +36,30 @@ lazy val system = (project in file("system"))
   .dependsOn(jsonMapper2)
   .settings(
     libraryDependencies ++= Seq(
-      "org.postgresql" % "postgresql" % "42.7.5",
-      "commons-io" % "commons-io" % "2.19.0",
+      "com.google.guava" % "guava" % "33.0.0-jre",
+      "com.pgvector" % "pgvector" % "0.1.6",
+      "com.yubico" % "webauthn-server-core" % "2.7.0",
+      "commons-io" % "commons-io" % "2.16.0",
+      "jakarta.platform" % "jakarta.jakartaee-api" % "10.0.0",
+      "net.bytebuddy" % "byte-buddy" % "1.15.11",
       "org.apache.commons" % "commons-lang3" % "3.17.0",
       "org.apache.commons" % "commons-text" % "1.13.1",
-      "jakarta.platform" % "jakarta.jakartaee-api" % "10.0.0",
-      "org.jboss.resteasy" % "resteasy-client" % "6.2.12.Final",
-      "com.google.guava" % "guava" % "33.0.0-jre",
-      "net.bytebuddy" % "byte-buddy" % "1.17.5",
-      "org.slf4j" % "slf4j-api" % "2.0.17",
+      "org.hibernate.orm" % "hibernate-core" % "7.0.0.Beta5",
+      "org.hibernate.orm" % "hibernate-envers" % "7.0.0.Beta5",
+      "org.hibernate.orm" % "hibernate-vector" % "7.0.0.Beta5",
+      "org.jboss.resteasy" % "resteasy-client" % "7.0.0.Beta1",
+      "org.jboss.resteasy" % "resteasy-jackson2-provider" % "7.0.0.Beta1",
       "org.jsoup" % "jsoup" % "1.19.1",
+      "org.postgresql" % "postgresql" % "42.7.5",
+      "org.slf4j" % "slf4j-api" % "2.0.16",
       "org.thymeleaf" % "thymeleaf" % "2.0.21",
-      "org.thymeleaf.extras" % "thymeleaf-extras-java8time" % "3.0.4.RELEASE",
-      "com.yubico" % "webauthn-server-core" % "2.6.0",
-      "org.jboss.resteasy" % "resteasy-jackson2-provider" % "6.2.12.Final"
+      "org.thymeleaf.extras" % "thymeleaf-extras-java8time" % "3.0.4.RELEASE"
     )
   )
 
 
 lazy val domain = (project in file("domain"))
   .dependsOn(system)
-  .settings(
-    libraryDependencies ++= Seq(
-      "org.hibernate.orm" % "hibernate-core" % "6.6.13.Final",
-      "org.hibernate.orm" % "hibernate-envers" % "6.6.13.Final",
-      "org.hibernate.orm" % "hibernate-vector" % "6.6.13.Final"
-    )
-  )
 
 lazy val rest = (project in file("rest"))
   .dependsOn(domain)
@@ -86,19 +68,19 @@ lazy val application = (project in file("application"))
   .dependsOn(rest)
   .settings(
     ss = excludeDependencies ++= Seq(
-      "org.postgresql" % "postgresql",
+      "commons-io" % "commons-io",
+      "jakarta.enterprise" % "jakarta.enterprise.cdi-api",
+      "jakarta.platform" % "jakarta.jakartaee-api",
+      "jakarta.validation" % "jakarta.validation-api",
+      "jakarta.ws.rs" % "jakarta.ws.rs-api",
+      "net.bytebuddy" % "byte-buddy",
+      "org.apache.commons" % "commons-lang3",
       "org.hibernate.orm" % "hibernate-core",
       "org.hibernate.orm" % "hibernate-envers",
-      "jakarta.validation" % "jakarta.validation-api",
-      "jakarta.enterprise" % "jakarta.enterprise.cdi-api",
-      "jakarta.ws.rs" % "jakarta.ws.rs-api",
-      "commons-io" % "commons-io",
-      "org.apache.commons" % "commons-lang3",
-      "jakarta.platform" % "jakarta.jakartaee-api",
       "org.jboss.resteasy" % "resteasy-client",
-      "net.bytebuddy" % "byte-buddy",
-      "org.slf4j" % "slf4j-api",
-      "org.jboss.resteasy" % "resteasy-jackson2-provider"
+      "org.jboss.resteasy" % "resteasy-jackson2-provider",
+      "org.postgresql" % "postgresql",
+      "org.slf4j" % "slf4j-api"
     ),
     Compile / packageBin := {
       val jarOutput = (Compile / packageBin).value
@@ -120,7 +102,7 @@ lazy val application = (project in file("application"))
       val subprojects = Seq("library/scala-universe2", "library/json-mapper2", "system", "domain", "rest")
 
       val subprojectJarFiles = subprojects.flatMap { subproject =>
-        val jarDir = baseDirectory.value / ".." / subproject / "target" / "scala-3.6.4"
+        val jarDir = baseDirectory.value / ".." / subproject / "target" / "scala-3.7.0"
         if (jarDir.exists()) {
           (jarDir ** "*.jar").get
         } else {
@@ -147,7 +129,7 @@ lazy val application = (project in file("application"))
     },
     Compile / redeploy := {
       val base = baseDirectory.value
-      val cliPath = "D:\\Development\\wildfly-preview-35.0.0.Final\\bin\\jboss-cli.bat" 
+      val cliPath = "D:\\Development\\wildfly-preview-36.0.0.Final\\bin\\jboss-cli.bat"
 
       val command = Seq(cliPath, "--connect", "--command=/deployment=webapp.war:redeploy")
       val exitCode = Process(command, base).!

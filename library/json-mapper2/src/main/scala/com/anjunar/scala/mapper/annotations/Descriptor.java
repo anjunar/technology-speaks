@@ -24,5 +24,7 @@ public @interface Descriptor {
     boolean naming() default false;
 
     boolean writeable() default false ;
+
+    boolean hidden() default false;
     
 }

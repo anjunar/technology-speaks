@@ -30,6 +30,9 @@ export default class NodeDescriptor {
     writeable? : boolean
 
     @Basic()
+    hidden? : boolean
+
+    @Basic()
     step? : string
 
     get readOnly() {

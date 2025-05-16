@@ -1,10 +1,12 @@
 package com.anjunar.technologyspeaks.jaxrs.search.jpa
 
-import jakarta.persistence.criteria.{Order, Predicate}
+import jakarta.persistence.criteria.{Order, Predicate, Selection}
+
+import java.util
+import scala.collection.mutable
 
 
-class JPASearchContextResult(private val predicates: Array[Predicate], private val orders: Array[Order]) {
-  def getPredicates: Array[Predicate] = predicates
-
-  def getOrders: Array[Order] = orders
-}
+case class JPASearchContextResult(selection : Array[Selection[_]],
+                                  predicates: Array[Predicate],
+                                  orders: Array[Order],
+                                  parameters: mutable.Map[String, Any])

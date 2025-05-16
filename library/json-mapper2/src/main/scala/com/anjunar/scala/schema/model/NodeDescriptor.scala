@@ -31,6 +31,9 @@ class NodeDescriptor {
   var writeable: Boolean = false
 
   @BeanProperty
+  var hidden : Boolean = false
+
+  @BeanProperty
   var `type`: String = ""
 
   @BeanProperty
@@ -45,7 +48,7 @@ class NodeDescriptor {
 }
 
 object NodeDescriptor {
-  def apply(title: String, description: String, widget: String, id: Boolean, name: Boolean, writeable: Boolean, aType : String, step : String, links: util.Map[String, Link]): NodeDescriptor = {
+  def apply(title: String, description: String, widget: String, id: Boolean, name: Boolean, writeable: Boolean, hidden : Boolean, aType : String, step : String, links: util.Map[String, Link]): NodeDescriptor = {
     val descriptor = new NodeDescriptor
     descriptor.title = title
     descriptor.description = description
@@ -53,6 +56,7 @@ object NodeDescriptor {
     descriptor.id = id
     descriptor.name = name
     descriptor.writeable = writeable
+    descriptor.hidden = hidden
     descriptor.`type` = aType
     descriptor.step = step
     descriptor.links = links

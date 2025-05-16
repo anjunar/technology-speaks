@@ -52,7 +52,11 @@ function SchemaLazySelect(properties: SchemaLazySelect.Attributes) {
             let link = Object.values(contextSchema.links || {}).find(link => link.rel === "list")
 
             if (link) {
-                let response = await fetch("/service" + link.url + `?index=${query.index}&limit=${query.limit}`)
+                let response = await fetch("/service" + link.url, {
+                    body: JSON.stringify(query),
+                    method: link.method,
+                    headers: {"content-type": "application/json"}
+                })
 
                 if (response.ok) {
                     const [table, size] = mapTable(await response.json())

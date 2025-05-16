@@ -1,4 +1,4 @@
-import {AbstractEntity, ActiveObject, Basic, Entity} from "react-ui-simplicity";
+import {AbstractEntity, Basic, Entity} from "react-ui-simplicity";
 import Role from "./Role";
 
 @Entity("credential")

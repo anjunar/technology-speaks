@@ -19,7 +19,8 @@ object EnumDescriptor {
             widget: String, 
             id: Boolean, 
             name: Boolean, 
-            writeable: Boolean, 
+            writeable: Boolean,
+            hidden : Boolean,
             aType: String, 
             links: util.Map[String, Link],
             enums : util.List[String]): EnumDescriptor = {
@@ -31,6 +32,7 @@ object EnumDescriptor {
     descriptor.id = id
     descriptor.name = name
     descriptor.writeable = writeable
+    descriptor.hidden = hidden
     descriptor.`type` = aType
     descriptor.links = links
     descriptor.enums = enums

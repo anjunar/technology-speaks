@@ -1,4 +1,4 @@
-package com.anjunar.technologyspeaks.security
+package com.anjunar.technologyspeaks.control
 
 import com.anjunar.scala.mapper.annotations.{JsonSchema, SecuredOwner}
 import com.anjunar.scala.schema.builder.SchemaBuilderContext
@@ -6,9 +6,10 @@ import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.control.Credential
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
+import com.anjunar.technologyspeaks.security.Secured
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
-import jakarta.ws.rs.{Consumes, GET, PUT, Path, PathParam, Produces}
+import jakarta.ws.rs.*
 
 import java.util.UUID
 

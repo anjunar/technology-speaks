@@ -9,7 +9,7 @@ import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, met
 import com.anjunar.technologyspeaks.jaxrs.search.jpa.JPASearch
 import com.anjunar.technologyspeaks.jaxrs.search.provider.{GenericIdProvider, GenericNameProvider, GenericSortProvider}
 import com.anjunar.technologyspeaks.jaxrs.search.{RestPredicate, RestSort}
-import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, Table}
+import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, QueryTable, Table}
 import com.anjunar.technologyspeaks.security.Secured
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
@@ -29,14 +29,16 @@ import scala.compiletime.uninitialized
   @Inject
   var jpaSearch: JPASearch = uninitialized
 
-  @GET
+  @POST
   @Produces(Array("application/json"))
+  @Consumes(Array("application/json"))
   @JsonSchema(classOf[RoleTableSchema])
   @RolesAllowed(Array("Guest", "User", "Administrator"))
-  @LinkDescription(value = "Rollen", linkType = LinkType.TABLE)
-  def list(@BeanParam search: RoleTableResource.Search): Table[Role] = {
+  @LinkDescription(value = "Roles", linkType = LinkType.TABLE)
+  def list(search: RoleTableSearch): QueryTable[RoleTableSearch, Role] = {
     val context = jpaSearch.searchContext(search)
-    val entities = jpaSearch.entities(search.index, search.limit, classOf[Role], context)
+    val tuples = jpaSearch.entities(search.index, search.limit, classOf[Role], context)
+    val entities = tuples.stream().map(tuple => tuple.get(0, classOf[Role])).toList
     val count = jpaSearch.count(classOf[Role], context)
 
     forLinks(classOf[Table[Role]], (instance, link) => {
@@ -51,33 +53,6 @@ import scala.compiletime.uninitialized
       })
     })
 
-    new Table[Role](entities, count)
-  }
-}
-
-object RoleTableResource {
-
-  class Search extends AbstractSearch {
-
-    @RestSort(classOf[GenericSortProvider[?]])
-    @QueryParam("sort")
-    @BeanProperty
-    private var sort: util.List[String] = uninitialized
-
-    @RestPredicate(classOf[GenericIdProvider[?]])
-    @QueryParam("id")
-    @BeanProperty
-    private var id: UUID = uninitialized
-
-    @RestPredicate(classOf[GenericNameProvider[?]])
-    @QueryParam("name")
-    @BeanProperty
-    private var name: String = uninitialized
-
-    @RestPredicate(classOf[GenericNameProvider[?]])
-    @QueryParam("description")
-    @BeanProperty
-    private var description: String = uninitialized
-
+    new QueryTable[RoleTableSearch, Role](new RoleTableSearch, entities, count)
   }
 }

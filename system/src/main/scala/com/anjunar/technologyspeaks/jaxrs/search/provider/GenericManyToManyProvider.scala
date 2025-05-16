@@ -1,18 +1,21 @@
 package com.anjunar.technologyspeaks.jaxrs.search.provider
 
-import com.anjunar.technologyspeaks.jaxrs.search.PredicateProvider
+import com.anjunar.technologyspeaks.jaxrs.search.{Context, PredicateProvider}
 import com.anjunar.scala.universe.introspector.BeanProperty
+import com.anjunar.technologyspeaks.jpa.EntityInterface
 import jakarta.persistence.EntityManager
 import jakarta.persistence.criteria.{CriteriaBuilder, CriteriaQuery, Predicate, Root}
 
 import java.util
 import java.util.{Set, UUID}
+import scala.collection.mutable
 
 
-class GenericManyToManyProvider[E] extends PredicateProvider[util.Set[UUID], E] {
-  override def build(value: util.Set[UUID], entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?], property: BeanProperty, name: String): Predicate = {
+class GenericManyToManyProvider[E] extends PredicateProvider[util.Set[? <: EntityInterface], E] {
+  override def build(context : Context[util.Set[? <: EntityInterface], E]): Unit = {
+    val Context(value, entityManager, builder, predicates, root, query, selection, property, name, parameters) = context
+
     if (value != null && !value.isEmpty) 
-      return root.join(property.name).get("id").in(value)
-    builder.conjunction
+      predicates.addOne(root.join(property.name).get("id").in(value.stream().map(entity => entity.id).toList))
   }
 }

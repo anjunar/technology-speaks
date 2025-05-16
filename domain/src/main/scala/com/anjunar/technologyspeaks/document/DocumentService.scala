@@ -59,18 +59,31 @@ class DocumentService {
     service.generateEmbeddings(request).embeddings.head
   }
 
-  def find(embeddings: Array[Float]): util.List[Chunk] = {
+  def findTop5Embeddings(vector: Array[Float]): java.util.List[Chunk] = {
+    val cb = entityManager.getCriteriaBuilder
+    val query = cb.createTupleQuery()
+    val root = query.from(classOf[Chunk])
 
-    entityManager.createQuery("SELECT d, FUNCTION('cosine_distance', d.embedding, :embedding) as dist FROM Chunk d where FUNCTION('cosine_distance', d.embedding, :embedding) < 2 ORDER BY FUNCTION('cosine_distance', d.embedding, :embedding)", classOf[Array[AnyRef]])
+    val distanceExpr = cb.function(
+      "cosine_distance",
+      classOf[java.lang.Double],
+      root.get("embedding"),
+      cb.parameter(classOf[Array[java.lang.Float]], "embedding")
+    )
+
+    query.multiselect(root, distanceExpr)
+      .orderBy(cb.asc(distanceExpr))
+
+    entityManager.createQuery(query)
+      .setParameter("embedding", vector)
       .setMaxResults(5)
-      .setParameter("embedding", embeddings)
       .getResultStream
-      .map {
-        case Array(doc: Chunk, dist: Double) =>
-          doc.distance = dist
-          doc
-      }
-      .collect(Collectors.toList())
+        .map(entity => {
+          val chunk = entity.get(0, classOf[Chunk])
+          chunk.distance = entity.get(1, classOf[Double])
+          chunk
+        })
+        .toList
   }
 
   def update(document: Document): Unit = {

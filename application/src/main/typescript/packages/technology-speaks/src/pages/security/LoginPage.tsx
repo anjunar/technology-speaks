@@ -2,7 +2,7 @@ import React from "react"
 import * as webauthnJson from "@github/webauthn-json";
 import {Button, JSONDeserializer, JSONSerializer, Router, SchemaForm, SchemaInput, useForm} from "react-ui-simplicity";
 import navigate = Router.navigate;
-import WebAuthnLogin from "../../domain/control/WebAuthnLogin";
+import WebAuthnLogin from "../../domain/security/WebAuthnLogin";
 
 function LoginPage(properties: LoginPage.Attributes) {
 

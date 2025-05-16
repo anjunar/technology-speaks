@@ -8,12 +8,12 @@ import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, met
 import com.anjunar.technologyspeaks.jaxrs.search.{RestPredicate, RestSort}
 import com.anjunar.technologyspeaks.jaxrs.search.jpa.JPASearch
 import com.anjunar.technologyspeaks.jaxrs.search.provider.{GenericIdProvider, GenericNameProvider, GenericSortProvider}
-import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, Table}
+import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, QueryTable, Table}
 import com.anjunar.technologyspeaks.security.Secured
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.ws.rs.{BeanParam, GET, Path, Produces, QueryParam}
+import jakarta.ws.rs.{BeanParam, Consumes, GET, POST, Path, Produces, QueryParam}
 
 import java.util
 import java.util.UUID
@@ -28,14 +28,16 @@ class PostTableResource extends SchemaBuilderContext {
   @Inject
   var jpaSearch: JPASearch = uninitialized
 
-  @GET
+  @POST
   @Produces(Array("application/json"))
+  @Consumes(Array("application/json"))
   @JsonSchema(classOf[PostTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Timeline", linkType = LinkType.TABLE)
-  def list(@BeanParam search: PostTableResource.Search): Table[Post] = {
+  def list(search: PostTableSearch): QueryTable[PostTableSearch, Post] = {
     val context = jpaSearch.searchContext(search)
-    val entities = jpaSearch.entities(search.index, search.limit, classOf[Post], context)
+    val tuples = jpaSearch.entities(search.index, search.limit, classOf[Post], context)
+    val entities = tuples.stream().map(tuple => tuple.get(0, classOf[Post])).toList
     val count = jpaSearch.count(classOf[Post], context)
 
     forLinks(classOf[Table[Post]], (instance, link) => {
@@ -50,23 +52,6 @@ class PostTableResource extends SchemaBuilderContext {
       })
     })
 
-    new Table[Post](entities, count)
-  }
-}
-
-object PostTableResource {
-
-  class Search extends AbstractSearch {
-
-    @RestSort(classOf[GenericSortProvider[?]])
-    @QueryParam("sort")
-    @BeanProperty
-    var sort: util.List[String] = uninitialized
-
-    @RestPredicate(classOf[GenericIdProvider[?]])
-    @QueryParam("id")
-    @BeanProperty
-    var id: UUID = uninitialized
-
+    new QueryTable[PostTableSearch, Post](new PostTableSearch, entities, count)
   }
 }

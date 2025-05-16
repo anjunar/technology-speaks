@@ -7,10 +7,8 @@ import jakarta.ws.rs.{DefaultValue, QueryParam}
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
-class DocumentSearch extends AbstractSearch {
+class DocumentTableSearch extends AbstractSearch {
 
-  @DefaultValue("Hello World")
-  @QueryParam("text")
   @BeanProperty
   @Descriptor(title = "Text", writeable = true)
   var text: String = uninitialized

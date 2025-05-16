@@ -2,7 +2,7 @@ import React, {useEffect} from "react"
 import * as webauthnJson from "@github/webauthn-json";
 import {UAParser} from 'ua-parser-js';
 import {Button, JSONSerializer, Router, SchemaForm, SchemaInput, useForm} from "react-ui-simplicity";
-import WebAuthnLogin from "../../domain/control/WebAuthnLogin";
+import WebAuthnLogin from "../../domain/security/WebAuthnLogin";
 import navigate = Router.navigate;
 
 

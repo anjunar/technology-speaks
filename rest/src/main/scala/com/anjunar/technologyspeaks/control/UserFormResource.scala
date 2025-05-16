@@ -35,6 +35,9 @@ class UserFormResource extends SchemaBuilderContext {
   @Inject
   var authenticator: Authenticator = uninitialized
 
+  @Inject
+  var service : UserService = uninitialized
+
   @GET
   @Produces(Array("application/json"))
   @JsonSchema(classOf[UserFormSchema])
@@ -88,6 +91,8 @@ class UserFormResource extends SchemaBuilderContext {
   def save(@JsonSchema(classOf[UserFormSchema]) entity: User): User = {
     entity.persist()
 
+    service.update(entity)
+
     forLinks(classOf[User], (user, link) => {
       linkTo(methodOn(classOf[UserFormResource]).update(user))
         .build(link.addLink)
@@ -107,6 +112,8 @@ class UserFormResource extends SchemaBuilderContext {
   @LinkDescription(value = "Aktualisieren", linkType = LinkType.FORM)
   def update(@JsonSchema(classOf[UserFormSchema]) @SecuredOwner entity: User): User = {
     entity.validate()
+
+    service.update(entity)
 
     forLinks(classOf[User], (user, link) => {
       linkTo(methodOn(classOf[UserFormResource]).update(user))

@@ -6,17 +6,17 @@ import com.anjunar.technologyspeaks.shared.DocumentSchema
 
 import java.lang.reflect.Type
 
-class DocumentTableSchema extends EntityJSONSchema[Table[Document]] {
-  override def build(root: Table[Document], javaType: Type): SchemaBuilder = {
+class DocumentTableSchema extends EntityJSONSchema[QueryTable[DocumentTableSearch, Document]] {
+  override def build(root: QueryTable[DocumentTableSearch, Document], javaType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder(true)
 
-    builder.forType(javaType, (builder: EntitySchemaBuilder[QueryTable[DocumentSearch, Document]]) => builder
+    builder.forType(javaType, (builder: EntitySchemaBuilder[QueryTable[DocumentTableSearch, Document]]) => builder
       .property("search", property => property
-        .forType(classOf[DocumentSearch], (builder: EntitySchemaBuilder[DocumentSearch]) => builder
-          .property("text", property => property
-            .withWriteable(true)
-            .withTitle("Text")
-          )
+        .forType(classOf[DocumentTableSearch], (builder: EntitySchemaBuilder[DocumentTableSearch]) => builder
+          .property("sort")
+          .property("index")
+          .property("limit")
+          .property("text")
         )
       )
       .property("rows", property => property

@@ -126,6 +126,7 @@ object JsonDescriptorsGenerator {
       schemaDefinition.id,
       schemaDefinition.naming,
       schemaDefinition.writeable,
+      schemaDefinition.hidden,
       propertyType.getSimpleName,
       schemaDefinition.step,
       schemaDefinition.links.asJava)
@@ -153,6 +154,7 @@ object JsonDescriptorsGenerator {
       schemaDefinition.id,
       schemaDefinition.naming,
       schemaDefinition.writeable,
+      schemaDefinition.hidden,
       property.propertyType.raw.getSimpleName,
       schemaDefinition.links.asJava,
       enums.toList.asJava
@@ -170,6 +172,7 @@ object JsonDescriptorsGenerator {
     objectDescriptor.id = schemaDefinition.id
     objectDescriptor.name = schemaDefinition.naming
     objectDescriptor.writeable = schemaDefinition.writeable
+    objectDescriptor.hidden = schemaDefinition.hidden
     objectDescriptor.links = schemaDefinition.links.asJava
     generateValidator(property, objectDescriptor)
     objectDescriptor
@@ -189,6 +192,7 @@ object JsonDescriptorsGenerator {
     descriptor.id = schemaDefinition.id
     descriptor.name = schemaDefinition.naming
     descriptor.writeable = schemaDefinition.writeable
+    descriptor.hidden = schemaDefinition.hidden
     descriptor.links = schemaDefinition.links.asJava
     generateValidator(property, descriptor)
     descriptor

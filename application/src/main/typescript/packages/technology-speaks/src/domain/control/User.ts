@@ -31,5 +31,8 @@ export default class User extends Identity {
     @Basic()
     roles : Role[] = []
 
+    @Basic()
+    score : number
+
 
 }

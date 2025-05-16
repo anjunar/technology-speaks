@@ -8,23 +8,26 @@ import java.lang.reflect.InvocationTargetException
 import java.util
 import java.util.function.IntFunction
 import java.util.{ArrayList, List, Objects}
+import scala.collection.mutable
 
 
 object SearchBeanReader {
   
-  def read[E](search: AnyRef, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?]): Array[Predicate] = {
+  def read[E](search: AnyRef, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?]): (Array[Predicate], mutable.Map[String, Any], mutable.Buffer[Selection[?]]) = {
     val beanModel = BeanIntrospector.createWithType(search.getClass)
-    val predicates = new util.ArrayList[Predicate]
+    val predicates = new mutable.ListBuffer[Predicate]
+    val selection = new mutable.ListBuffer[Selection[_]]
+    val parameters = mutable.Map[String, Any]()
     for (property <- beanModel.properties) {
       val restPredicate = property.findDeclaredAnnotation(classOf[RestPredicate])
       if (Objects.nonNull(restPredicate)) {
         val value = property.get(search)
         val predicateClass = restPredicate.value
         val jpaPredicate = predicateClass.getConstructor().newInstance().asInstanceOf[PredicateProvider[AnyRef, E]]
-        predicates.add(jpaPredicate.build(value.asInstanceOf[AnyRef], entityManager, builder, root, query, property, restPredicate.property()))
+        jpaPredicate.build(Context(value.asInstanceOf[AnyRef], entityManager, builder, predicates, root, query, selection, property, restPredicate.property(), parameters))
       }
     }
-    predicates.toArray((value: Int) => new Array[Predicate](value))
+    (predicates.toArray, parameters, selection)
   }
 
   def order[E](search: AnyRef, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?]): Array[Order] = {

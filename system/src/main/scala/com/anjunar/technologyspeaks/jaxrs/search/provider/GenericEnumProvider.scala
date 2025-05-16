@@ -1,17 +1,19 @@
 package com.anjunar.technologyspeaks.jaxrs.search.provider
 
-import com.anjunar.technologyspeaks.jaxrs.search.PredicateProvider
+import com.anjunar.technologyspeaks.jaxrs.search.{Context, PredicateProvider}
 import com.anjunar.scala.universe.introspector.BeanProperty
 import jakarta.persistence.EntityManager
 import jakarta.persistence.criteria.{CriteriaBuilder, CriteriaQuery, Predicate, Root}
 
 import java.util.Objects
+import scala.collection.mutable
 
 
-class GenericEnumProvider[E] extends PredicateProvider[Enum[_], E] {
-  override def build(value: Enum[?], entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?], property: BeanProperty, name: String): Predicate = {
+class GenericEnumProvider[E] extends PredicateProvider[Enum[?], E] {
+  override def build(context : Context[Enum[?], E]): Unit = {
+    val Context(value, entityManager, builder, predicates, root, query, selection, property, name, parameters) = context
+
     if (Objects.nonNull(value)) 
-      return builder.equal(root.get(property.name), value)
-    builder.conjunction
+      return predicates.addOne(builder.equal(root.get(property.name), value))
   }
 }

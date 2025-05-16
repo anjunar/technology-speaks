@@ -15,7 +15,7 @@ object UserInfoSchema {
   def dynamic(builder: EntitySchemaBuilder[UserInfo], loaded : UserInfo): EntitySchemaBuilder[UserInfo] = {
 
     val current = User.current()
-    val isOwnedOrAdmin = current == loaded.user.owner || Credential.current().hasRole("Administrator")
+    val isOwnedOrAdmin = Credential.current().hasRole("Administrator") || (loaded != null && current == loaded.user.owner)
 
     builder
       .property("id")

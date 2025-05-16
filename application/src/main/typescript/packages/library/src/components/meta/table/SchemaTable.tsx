@@ -24,7 +24,6 @@ function SchemaTable(properties: SchemaTable.Attributes) {
 
     const tableLoader = new (class extends SchemaTable.Loader {
         onLoad(query: any, callback: any) {
-            loader.listener = tableLoader.listener
             loader.onLoad(query, (rows, size, loadedSchema) => {
                     if (schema && loadedSchema) {
                         if (JSON.stringify(schema) !== JSON.stringify(loadedSchema)) {
@@ -38,6 +37,10 @@ function SchemaTable(properties: SchemaTable.Attributes) {
             )
         }
     })()
+
+    setTimeout(() => {
+        loader.listener = tableLoader.listener
+    }, 100)
 
     const renderCellContent = (object: any, key: string, property: any) => {
         if (property.$type === "collectionDescriptor") {

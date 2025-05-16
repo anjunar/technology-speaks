@@ -15,7 +15,7 @@ import java.util.Objects
 class DataImport {
 
   @Transactional
-  def init(@Observes @Initialized(classOf[ApplicationScoped]) init: ServletContext): Unit = {
+  def init(@Observes @Initialized(classOf[ApplicationScoped]) init: ServletContext, service : UserService): Unit = {
     var administrator = Role.query(Pair("name", "Administrator"))
     if (Objects.isNull(administrator)) {
       administrator = new Role
@@ -70,6 +70,9 @@ class DataImport {
       patrick.info = info
       patrick.address = address
       patrick.emails.add(email)
+
+      service.update(patrick)
+
       patrick.persist()
     }
   }

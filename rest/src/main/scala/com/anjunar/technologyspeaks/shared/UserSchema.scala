@@ -24,6 +24,7 @@ object UserSchema {
   def static(builder: EntitySchemaBuilder[User]): Unit = {
     builder
       .property("id")
+      .property("score")
       .property("nickName")
       .property("deleted")
       .property("emails", property => property
@@ -44,7 +45,7 @@ object UserSchema {
 
     val currentUser = token.email.user
 
-    val isOwnedOrAdmin = currentUser == loaded.owner || token.hasRole("Administrator")
+    val isOwnedOrAdmin = loaded != null && (currentUser == loaded.owner || token.hasRole("Administrator"))
     val view = User.View.findByUser(currentUser)
 
     builder
@@ -70,6 +71,7 @@ object UserSchema {
 
     builder
         .property("id")
+        .property("score")
         .property("nickName", property => property
           .withWriteable(isOwnedOrAdmin)
         )

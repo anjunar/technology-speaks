@@ -13,11 +13,14 @@ import jakarta.enterprise.event.Observes
 import jakarta.enterprise.inject.spi.CDI
 import jakarta.persistence.*
 import jakarta.validation.constraints.*
+import org.hibernate.`type`.SqlTypes
+import org.hibernate.annotations.JdbcTypeCode
 
 import java.util
 import java.util.{HashSet, Objects, Set}
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
+import org.hibernate.annotations
 
 
 @Entity
@@ -42,6 +45,21 @@ class User extends Identity with OwnerProvider with SecurityUser {
   @BeanProperty
   @Descriptor(title = "Adresse")
   var address : Address = uninitialized
+
+  @JdbcTypeCode(SqlTypes.VECTOR)
+  @annotations.Array(length = 3072)
+  @BeanProperty
+  var nickNameVector: Array[Float] = uninitialized
+
+  @JdbcTypeCode(SqlTypes.VECTOR)
+  @annotations.Array(length = 3072)
+  @BeanProperty
+  var fullNameVector: Array[Float] = uninitialized
+
+  @Transient
+  @Descriptor(title = "Score")
+  @BeanProperty
+  var score: Double = uninitialized
 
   override def owner: User = this
 

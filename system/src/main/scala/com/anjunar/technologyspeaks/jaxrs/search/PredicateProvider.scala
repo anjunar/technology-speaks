@@ -4,6 +4,8 @@ import com.anjunar.scala.universe.introspector.BeanProperty
 import jakarta.persistence.EntityManager
 import jakarta.persistence.criteria.{CriteriaBuilder, CriteriaQuery, Predicate, Root}
 
+import scala.collection.mutable
+
 trait PredicateProvider[V, E] {
-  def build(value: V, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?], property: BeanProperty, name: String): Predicate
+  def build(context : Context[V,E]) : Unit
 }

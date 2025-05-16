@@ -1,4 +1,4 @@
-package com.anjunar.technologyspeaks.security
+package com.anjunar.technologyspeaks.control
 
 import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.SchemaBuilderContext
@@ -9,9 +9,9 @@ import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.jaxrs.search.jpa.JPASearch
 import com.anjunar.technologyspeaks.jaxrs.search.provider.*
-import com.anjunar.technologyspeaks.jaxrs.search.{PredicateProvider, RestPredicate, RestSort}
-import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, Table}
-import com.anjunar.technologyspeaks.security.CredentialTableResource.Search
+import com.anjunar.technologyspeaks.jaxrs.search.{Context, PredicateProvider, RestPredicate, RestSort}
+import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, QueryTable, Table}
+import com.anjunar.technologyspeaks.security.Secured
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -21,7 +21,9 @@ import jakarta.ws.rs.*
 
 import java.util
 import java.util.UUID
+import java.util.stream.Collectors
 import scala.beans.BeanProperty
+import scala.collection.mutable
 import scala.compiletime.uninitialized
 
 @Path("security/credentials")
@@ -32,19 +34,21 @@ class CredentialTableResource extends SchemaBuilderContext {
   @Inject
   var jpaSearch: JPASearch = uninitialized
 
-  @GET
+  @POST
   @Produces(Array("application/json"))
+  @Consumes(Array("application/json"))
   @JsonSchema(classOf[CredentialTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Credentials", linkType = LinkType.TABLE)
-  def list(@BeanParam search: Search): Table[Credential] = {
+  def list(search: CredentialTableSearch): QueryTable[CredentialTableSearch, Credential] = {
     val user = User.current()
 
-    val context = jpaSearch.searchContext[Search, Credential](search, (value: Search, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[Credential], query: CriteriaQuery[?], property: introspector.BeanProperty, name: String) => {
-      builder.equal(root.get("email").get("user"), user)
+    val context = jpaSearch.searchContext[CredentialTableSearch, Credential](search, (context: Context[CredentialTableSearch, Credential]) => {
+      context.builder.equal(context.root.get("email").get("user"), user)
     })
 
-    val entities = jpaSearch.entities(search.index, search.limit, classOf[Credential], context)
+    val tuples = jpaSearch.entities(search.index, search.limit, classOf[Credential], context)
+    val entities = tuples.stream().map(tuple => tuple.get(0, classOf[Credential])).toList
     val count = jpaSearch.count(classOf[Credential], context)
 
     entities.forEach(entity => {
@@ -54,28 +58,8 @@ class CredentialTableResource extends SchemaBuilderContext {
       })
     })
 
-    new Table[Credential](entities, count)
+    new QueryTable[CredentialTableSearch, Credential](new CredentialTableSearch, entities, count)
   }
 
 
 }
-
-object CredentialTableResource {
-  class Search extends AbstractSearch {
-    @RestSort(classOf[GenericSortProvider[?]])
-    @QueryParam("sort")
-    @BeanProperty
-    private var sort: util.List[String] = uninitialized
-
-    @RestPredicate(classOf[GenericNameProvider[?]])
-    @QueryParam("displayName")
-    @BeanProperty
-    private var displayName: String = uninitialized
-
-    @RestPredicate(classOf[GenericManyToManyProvider[?]])
-    @QueryParam("roles")
-    @BeanProperty
-    private var roles: util.Set[UUID] = uninitialized
-  }
-}
-

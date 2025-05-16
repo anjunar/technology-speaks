@@ -83,6 +83,14 @@ class PropertyBuilder[C](val name : String, val aClass : Type, isTable : Boolean
     }
   }
 
+  var hidden: Boolean = {
+    if (annotation == null) {
+      false
+    } else {
+      annotation.hidden()
+    }
+  }
+
   var step: String = {
     if (annotation == null) {
       ""
@@ -131,7 +139,12 @@ class PropertyBuilder[C](val name : String, val aClass : Type, isTable : Boolean
     writeable = value
     this
   }
-  
+
+  def withHidden(value : Boolean): PropertyBuilder[C] = {
+    hidden = value
+    this
+  }
+
   def withStep(value : String) : PropertyBuilder[C] = {
     step = value
     this

@@ -1,4 +1,4 @@
-import {registerConverter, registerEntity} from "../mapper/Registry";
+import {registerConverter, registerEntity} from "../mapper";
 import LinkObject from "./container/LinkObject";
 import Media from "../components/inputs/upload/image/Media";
 import TableObject from "./container/TableObject";
@@ -24,10 +24,12 @@ import ObjectDescriptor from "./descriptors/ObjectDescriptor";
 import QueryTableObject from "./container/QueryTableObject";
 import EditorModel from "../components/inputs/markdown/model/EditorModel";
 import EditorFile from "../components/inputs/markdown/model/EditorFile";
+import SortObject from "./container/SortObject";
 
 export function init() {
 
     registerEntity(TableObject)
+    registerEntity(SortObject)
     registerEntity(QueryTableObject)
     registerEntity(RowObject)
     registerEntity(LinkObject)

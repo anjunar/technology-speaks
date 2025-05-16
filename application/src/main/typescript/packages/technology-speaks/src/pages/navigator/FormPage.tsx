@@ -17,7 +17,7 @@ function FormPage(properties: FormView.Attributes) {
     function generateLinks() {
         if (domain.$links) {
             let links1 = Object.entries(domain.$links)
-                .filter(([rel, link]) => link.method === "GET")
+                .filter(([rel, link]) => link.method === "GET" || link.linkType === "table")
                 .map(([rel, link]) => (
                     <Link
                         style={{margin: "5px"}}
@@ -35,7 +35,7 @@ function FormPage(properties: FormView.Attributes) {
     let links1 = generateLinks()
 
     let actions = Object.entries(domain.$links || {})
-        .filter(([rel, link]) => link.method !== "GET")
+        .filter(([rel, link]) => link.method !== "GET" && link.linkType !== "table")
         .map(([rel, link]) => (
             <span key={link.rel}>
                 <Button name={link.rel}>
@@ -47,7 +47,11 @@ function FormPage(properties: FormView.Attributes) {
             </span>
         ))
 
-    let fields = Object.entries(domain.$descriptors.allProperties(domain.$type)).map(([key, descriptor]) => (
+    let fields = Object.entries(domain.$descriptors.allProperties(domain.$type))
+        .filter(([key, descriptor]) => {
+            return ! descriptor.hidden
+        })
+        .map(([key, descriptor]) => (
         <div key={key} style={{display : "flex", alignItems : "center"}}>
             <FormSchemaFactory style={{flex : 1}} name={key}/>
             {

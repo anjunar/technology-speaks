@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {debounce} from "../components/shared/Utils";
 import {objectMembrane} from "../membrane/Membrane";
 
@@ -16,5 +16,14 @@ export function useForm<T>(object: T | (() => T)): T {
         }, 30)];
         return objectMembrane(entity, callbacks)
     })
+
+    useEffect(() => {
+
+        if (state.$resolve !== entity) {
+            setState(entity)
+        }
+
+    }, [entity]);
+
     return state
 }

@@ -112,7 +112,7 @@ class JsonProvider extends MessageBodyReader[AnyRef] with MessageBodyWriter[AnyR
   }
 
   override def isWriteable(aClass: Class[?], javaType: Type, annotations: Array[Annotation], mediaType: MediaType): Boolean = {
-    annotations.exists(annotation => annotation.annotationType() == classOf[JsonSchema])
+    if annotations == null then false else annotations.exists(annotation => annotation.annotationType() == classOf[JsonSchema])
   }
 
   @throws[IOException]
