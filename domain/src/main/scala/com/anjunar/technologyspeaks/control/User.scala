@@ -46,16 +46,6 @@ class User extends Identity with OwnerProvider with SecurityUser {
   @Descriptor(title = "Adresse")
   var address : Address = uninitialized
 
-  @JdbcTypeCode(SqlTypes.VECTOR)
-  @annotations.Array(length = 3072)
-  @BeanProperty
-  var nickNameVector: Array[Float] = uninitialized
-
-  @JdbcTypeCode(SqlTypes.VECTOR)
-  @annotations.Array(length = 3072)
-  @BeanProperty
-  var fullNameVector: Array[Float] = uninitialized
-
   @Transient
   @Descriptor(title = "Score")
   @BeanProperty

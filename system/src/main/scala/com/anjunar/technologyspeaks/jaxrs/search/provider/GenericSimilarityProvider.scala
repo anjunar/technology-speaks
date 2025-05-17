@@ -1,4 +1,4 @@
-package com.anjunar.technologyspeaks.control
+package com.anjunar.technologyspeaks.jaxrs.search.provider
 
 import com.anjunar.scala.universe.introspector.BeanProperty
 import com.anjunar.technologyspeaks.jaxrs.search.{Context, PredicateProvider}
@@ -12,25 +12,21 @@ import org.postgresql.util.PGobject
 
 import scala.collection.mutable
 
-class UserTableNamePredicate extends PredicateProvider[String, User] {
-  override def build(context : Context[String, User]): Unit = {
+class GenericSimilarityProvider[E] extends PredicateProvider[String, E] {
+  override def build(context : Context[String, E]): Unit = {
     val Context(value, entityManager, builder, predicates, root, query, selection, property, name, parameters) = context
 
     if (!(value == null) && value.nonEmpty) {
-      val service = CDI.current().select(classOf[UserService]).select().get()
-
-      val vector = service.createEmbeddings(s"A Users full Name (First Name, Last Name): ${value}")
-
-      parameters.put(property.name, vector)
+      parameters.put(property.name, context.value)
 
       val distanceExpr = builder.function(
-        "cosine_distance",
+        "similarity",
         classOf[java.lang.Double],
-        root.get("fullNameVector"),
-        builder.parameter(classOf[Array[java.lang.Float]], property.name)
+        root.get(property.name),
+        builder.parameter(classOf[String], property.name)
       )
 
-      predicates.addOne(builder.lessThan(distanceExpr, builder.literal[java.lang.Double](1.0d)))
+      predicates.addOne(builder.greaterThan(distanceExpr, builder.literal[java.lang.Double](0.3d)))
 
       selection.addOne(distanceExpr.alias("distance"))
     }

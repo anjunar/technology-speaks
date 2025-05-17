@@ -2,7 +2,7 @@ package com.anjunar.technologyspeaks.control
 
 import com.anjunar.scala.mapper.annotations.Descriptor
 import com.anjunar.technologyspeaks.jaxrs.search.RestPredicate
-import com.anjunar.technologyspeaks.jaxrs.search.provider.{GenericDurationDateProvider, GenericNameProvider}
+import com.anjunar.technologyspeaks.jaxrs.search.provider.{GenericDurationDateProvider, GenericNameProvider, GenericSimilarityProvider}
 import com.anjunar.technologyspeaks.jaxrs.types.AbstractSearch
 import jakarta.ws.rs.QueryParam
 
@@ -16,18 +16,18 @@ class UserTableSearch extends AbstractSearch {
   @RestPredicate(classOf[GenericNameProvider[?]])
   @QueryParam("email")
   @BeanProperty
-  private var email: String = uninitialized
+  var email: String = uninitialized
 
   @Descriptor(title = "Name", writeable = true)
-  @RestPredicate(classOf[UserTableNamePredicate])
+  @RestPredicate(classOf[GenericSimilarityProvider[?]])
   @QueryParam("nickName")
   @BeanProperty
-  private var nickName: String = uninitialized
+  var nickName: String = uninitialized
 
   @Descriptor(title = "Birthdate", writeable = true)
   @RestPredicate(classOf[GenericDurationDateProvider[?]])
   @QueryParam("birthDate")
   @BeanProperty
-  private var birthDate: LocalDate = uninitialized
+  var birthDate: LocalDate = uninitialized
 
 }

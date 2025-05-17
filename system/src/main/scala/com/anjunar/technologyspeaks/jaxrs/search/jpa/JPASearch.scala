@@ -50,6 +50,8 @@ class JPASearch {
     val query = builder.createQuery(classOf[java.lang.Long])
     val root = query.from(entityClass)
     val apply = context.apply(entityManager, builder, query, root)
-    entityManager.createQuery(query.select(builder.count(root)).where(apply.predicates*)).getSingleResult
+    val typedQuery = entityManager.createQuery(query.select(builder.count(root)).where(apply.predicates *))
+    apply.parameters.foreach((key, value) => typedQuery.setParameter(key, value))
+    typedQuery.getSingleResult
   }
 }
