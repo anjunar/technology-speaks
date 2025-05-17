@@ -49,6 +49,7 @@ class DocumentFormResource extends SchemaBuilderContext {
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Read", linkType = LinkType.FORM)
   def read(@PathParam("id") id: UUID): Document = {
+    val document = Document.find(id)
 
     forLinks(classOf[Document], (instance, link) => {
       linkTo(methodOn(classOf[DocumentFormResource]).update(instance))
@@ -57,7 +58,7 @@ class DocumentFormResource extends SchemaBuilderContext {
         .build(link.addLink)
 
       val chunkSearch = new ChunkTableSearch
-      chunkSearch.document = id
+      chunkSearch.document = document
 
       linkTo(methodOn(classOf[ChunkTableResource]).list(chunkSearch))
         .build(link.addLink)
@@ -68,7 +69,7 @@ class DocumentFormResource extends SchemaBuilderContext {
     })
 
 
-    Document.find(id)
+    document
   }
 
   @POST

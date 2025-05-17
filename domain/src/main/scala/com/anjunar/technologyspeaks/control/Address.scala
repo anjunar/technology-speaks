@@ -3,7 +3,7 @@ package com.anjunar.technologyspeaks.control
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.anjunar.scala.mapper.annotations.Descriptor
-import jakarta.persistence.{Embedded, Entity, OneToOne}
+import jakarta.persistence.{CascadeType, Embedded, Entity, OneToOne}
 import jakarta.validation.constraints.{NotBlank, Pattern, Size}
 
 import scala.beans.BeanProperty
@@ -12,7 +12,7 @@ import scala.compiletime.uninitialized
 @Entity
 class Address extends AbstractEntity {
 
-  @OneToOne(mappedBy = "address", optional = false)
+  @OneToOne(mappedBy = "address")
   @BeanProperty
   var user : User = uninitialized
 

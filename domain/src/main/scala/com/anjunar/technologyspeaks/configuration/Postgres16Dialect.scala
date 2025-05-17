@@ -6,12 +6,13 @@ import org.hibernate.`type`.StandardBasicTypes
 import org.hibernate.boot.model.FunctionContributions
 import org.hibernate.dialect.PostgreSQLDialect
 
-class Postgres14Dialect extends PostgreSQLDialect {
+class Postgres16Dialect extends PostgreSQLDialect {
   override def initializeFunctionRegistry(functionContributions: FunctionContributions): Unit = {
     super.initializeFunctionRegistry(functionContributions)
     val typeConfiguration = functionContributions.getTypeConfiguration
     val functionRegistry = functionContributions.getFunctionRegistry
-    functionRegistry.registerPattern("levensthein", "levenshtein(?1, ?2)", typeConfiguration.getBasicTypeRegistry.resolve(StandardBasicTypes.INTEGER))
+    functionRegistry.registerPattern("levensthein", "levenshtein(?1, ?2)", typeConfiguration.getBasicTypeRegistry.resolve(StandardBasicTypes.DOUBLE))
+    functionRegistry.registerPattern("similarity", "similarity(?1, ?2)", typeConfiguration.getBasicTypeRegistry.resolve(StandardBasicTypes.DOUBLE))
     functionRegistry.registerPattern("jsonPathAsJson", "?1::json -> ?2", typeConfiguration.getBasicTypeRegistry.resolve(StandardBasicTypes.STRING))
     functionRegistry.registerPattern("jsonPathAsText", "?1::json ->> ?2", typeConfiguration.getBasicTypeRegistry.resolve(StandardBasicTypes.STRING))
     functionRegistry.registerPattern("distance", "?1 @@ to_tsquery(?2, ?3)", typeConfiguration.getBasicTypeRegistry.resolve(StandardBasicTypes.BOOLEAN))

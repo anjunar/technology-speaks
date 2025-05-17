@@ -1,5 +1,6 @@
 import Entity from "../../mapper/annotations/Entity";
 import Basic from "../../mapper/annotations/Basic";
+import ActiveObject from "./ActiveObject";
 
 @Entity("link")
 export default class LinkObject {
@@ -20,5 +21,8 @@ export default class LinkObject {
 
     @Basic()
     linkType : string
+
+    @Basic()
+    body : ActiveObject
 
 }

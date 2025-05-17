@@ -19,7 +19,7 @@ class UserTableNamePredicate extends PredicateProvider[String, User] {
     if (!(value == null) && value.nonEmpty) {
       val service = CDI.current().select(classOf[UserService]).select().get()
 
-      val vector = service.createEmbeddings(value)
+      val vector = service.createEmbeddings(s"A Users full Name (First Name, Last Name): ${value}")
 
       parameters.put(property.name, vector)
 

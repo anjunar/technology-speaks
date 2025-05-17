@@ -1,13 +1,14 @@
 package com.anjunar.technologyspeaks.jaxrs.link
 
-import com.anjunar.technologyspeaks.jaxrs.types.*
-import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityCredential}
 import com.anjunar.scala.mapper.annotations.SecuredOwner
 import com.anjunar.scala.schema.model.{Link, LinkType}
 import com.anjunar.scala.universe.TypeResolver
 import com.anjunar.scala.universe.annotations.Annotated
 import com.anjunar.scala.universe.introspector.BeanIntrospector
 import com.anjunar.scala.universe.members.ResolvedMethod
+import com.anjunar.technologyspeaks.jaxrs.types.*
+import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityCredential}
+import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.annotation.security.RolesAllowed
 import jakarta.persistence.EntityManager
 import jakarta.ws.rs.*
@@ -22,21 +23,22 @@ import scala.compiletime.uninitialized
 
 
 class JaxRSInvocation(private val method: ResolvedMethod,
-                      private val arguments: Array[AnyRef], 
-                      private val converterProvider: ParamConverterProvider, 
-                      private val uriBuilder: UriBuilder, 
-                      private val identityManager: IdentityContext) {
+                      private val arguments: Array[AnyRef],
+                      private val converterProvider: ParamConverterProvider,
+                      private val uriBuilder: UriBuilder,
+                      private val identityManager: IdentityContext,
+                      private val objectMapper: ObjectMapper) {
 
   private var rel: String = method.name
   private var httpMethod: String = uninitialized
   private var body: AnyRef = uninitialized
   private var securedOwner = false
-  private var owner : OwnerProvider = uninitialized
+  private var owner: OwnerProvider = uninitialized
   private val params = new util.HashMap[String, AnyRef]
   private val classPath: Path = method.owner.findDeclaredAnnotation(classOf[Path])
   private val methodPath: Path = method.findDeclaredAnnotation(classOf[Path])
   private val principal: SecurityCredential = identityManager.getPrincipal
-  
+
   if (classPath != null && methodPath != null) {
     uriBuilder.path(classPath.value)
     uriBuilder.path(methodPath.value)
@@ -65,9 +67,11 @@ class JaxRSInvocation(private val method: ResolvedMethod,
 
       }
       else {
-        body = arg
-        val annotation = parameter.findDeclaredAnnotation(classOf[SecuredOwner])
-        if (Objects.nonNull(annotation)) securedOwner = true
+        if (parameter.findAnnotation(classOf[LinkBody]) != null) {
+          body = arg
+          val annotation = parameter.findDeclaredAnnotation(classOf[SecuredOwner])
+          if (Objects.nonNull(annotation)) securedOwner = true
+        }
       }
     }
 
@@ -126,19 +130,19 @@ class JaxRSInvocation(private val method: ResolvedMethod,
 
     val linkType = if linkDescription == null then LinkType.OTHER else linkDescription.linkType()
     val valueDescription = if linkDescription == null then null else linkDescription.value()
-    
+
     if (Objects.nonNull(owner)) {
       if (identityManager.getPrincipal.equals(owner.owner) || identityManager.getPrincipal.hasRole("Administrator")) {
-        proceed(consumer, url, rolesAllowed, linkType, valueDescription)    
-      } 
+        proceed(consumer, url, rolesAllowed, linkType, valueDescription)
+      }
     } else {
-      proceed(consumer, url, rolesAllowed, linkType, valueDescription)  
+      proceed(consumer, url, rolesAllowed, linkType, valueDescription)
     }
   }
 
   private def proceed(consumer: BiConsumer[String, Link], url: URI, rolesAllowed: RolesAllowed, linkType: LinkType, valueDescription: String): Unit = {
     if (rolesAllowed == null)
-      consumer.accept(rel, new Link(url.toASCIIString, buildMethod, rel, valueDescription, linkType))
+      consumer.accept(rel, new Link(url.toASCIIString, buildMethod, rel, valueDescription, linkType, body))
     else {
       if (hasRoles(rolesAllowed.value)) {
         if (securedOwner) {
@@ -146,19 +150,19 @@ class JaxRSInvocation(private val method: ResolvedMethod,
           val credential = identityManager.getPrincipal
           val currentUser = credential.user
           if (credential.hasRole("Administrator") || ownerProvider.owner == currentUser) {
-            consumer.accept(rel, new Link(url.toASCIIString, buildMethod, rel, valueDescription, linkType))
+            consumer.accept(rel, new Link(url.toASCIIString, buildMethod, rel, valueDescription, linkType, body))
           }
         } else {
-          consumer.accept(rel, new Link(url.toASCIIString, buildMethod, rel, valueDescription, linkType))
+          consumer.accept(rel, new Link(url.toASCIIString, buildMethod, rel, valueDescription, linkType, body))
         }
       }
     }
   }
 
   def setRel(value: String): Unit = this.rel = value
-  
-  def setSecuredOwner(owner : OwnerProvider): Unit = this.owner = owner
+
+  def setSecuredOwner(owner: OwnerProvider): Unit = this.owner = owner
 
   def setRedirect(): Unit = setRel("redirect")
-  
+
 }

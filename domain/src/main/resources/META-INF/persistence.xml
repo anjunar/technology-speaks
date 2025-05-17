@@ -7,7 +7,7 @@
         <validation-mode>NONE</validation-mode>
         <properties>
             <property name="hibernate.query.literal_handling_mode" value="INLINE"/>
-            <property name="hibernate.dialect" value="com.anjunar.technologyspeaks.configuration.Postgres14Dialect"/>
+            <property name="hibernate.dialect" value="com.anjunar.technologyspeaks.configuration.Postgres16Dialect"/>
             <property name="hibernate.connection.autocommit" value="false"/>
             <property name="hibernate.hbm2ddl.auto" value="update"/>
             <property name="hibernate.show_sql" value="true"/>

@@ -19,6 +19,8 @@ function TablePage(properties : TableView.Attributes) {
 
     const url = "service" + atob(queryParams.link || "")
 
+    const body = atob(queryParams.body || "")
+
     const loader = useMemo(() => {
         return new (class extends Loader {
             async onLoad(query : Query, callback : Callback) {
@@ -55,7 +57,7 @@ function TablePage(properties : TableView.Attributes) {
         let linkModel = Object.values(row.$links as LinkContainerObject).find((link) => link.rel === "read")
 
         if (linkModel) {
-            navigate(`/navigator/form?link=${btoa(linkModel.url)}`)
+            navigate(`/navigator/form?link=${btoa(linkModel.url)}&body=${btoa(JSON.stringify(JSONSerializer(linkModel.body)))}`)
         }
     }
 
@@ -67,7 +69,9 @@ function TablePage(properties : TableView.Attributes) {
         <div>
             <div>
                 {url}
-                <br />
+                <br/>
+                {body}
+                <br/>
                 {Object.values(links).map(link => (
                     <Link
                         style={{ margin: "5px" }}

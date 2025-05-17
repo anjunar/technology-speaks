@@ -55,13 +55,6 @@ class DocumentTableResource extends SchemaBuilderContext {
       forLinks(entity, classOf[Document], (row, link) => {
         linkTo(methodOn(classOf[DocumentFormResource]).read(row.id))
           .build(link.addLink)
-
-        val chunkSearch = new ChunkTableSearch
-        chunkSearch.document = row.id
-
-        linkTo(methodOn(classOf[ChunkTableResource]).list(chunkSearch))
-          .build(link.addLink)
-
       })
     })
 

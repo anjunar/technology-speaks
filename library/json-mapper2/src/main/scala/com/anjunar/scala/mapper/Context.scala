@@ -8,6 +8,7 @@ import java.util
 import scala.collection.mutable
 
 case class Context(name : String,
+                   noValidation : Boolean,
                    validator : Validator,
                    registry: ConverterRegistry,
                    schema: SchemaBuilder,
@@ -21,9 +22,10 @@ case class Context(name : String,
 
 object Context {
 
-  def apply(propertyName: String, propertySchema : SchemaBuilder, context: Context): Context = {
+  def apply(propertyName: String, noValidation : Boolean, propertySchema : SchemaBuilder, context: Context): Context = {
     val newContext = Context(
       propertyName,
+      noValidation,
       context.validator,
       context.registry,
       propertySchema,

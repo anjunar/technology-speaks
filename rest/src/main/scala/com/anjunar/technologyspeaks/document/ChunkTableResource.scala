@@ -4,7 +4,7 @@ import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
 import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.control.{Group, Role}
-import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
+import com.anjunar.technologyspeaks.jaxrs.link.{LinkBody, LinkDescription}
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.jaxrs.search.jpa.JPASearch
 import com.anjunar.technologyspeaks.jaxrs.search.provider.{GenericIdProvider, GenericManyToOneProvider, GenericNameProvider, GenericSortProvider}
@@ -36,7 +36,7 @@ class ChunkTableResource extends SchemaBuilderContext {
   @JsonSchema(classOf[ChunkTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Document Chunks", linkType = LinkType.TABLE)
-  def list(search: ChunkTableSearch): QueryTable[ChunkTableSearch, Chunk] = {
+  def list(@LinkBody search: ChunkTableSearch): QueryTable[ChunkTableSearch, Chunk] = {
     val context = jpaSearch.searchContext(search)
     val tuples = jpaSearch.entities(search.index, search.limit, classOf[Chunk], context)
     val entities = tuples.stream().map(tuple => tuple.get(0, classOf[Chunk])).toList

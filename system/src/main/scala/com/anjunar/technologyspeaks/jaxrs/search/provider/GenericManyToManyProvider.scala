@@ -2,7 +2,7 @@ package com.anjunar.technologyspeaks.jaxrs.search.provider
 
 import com.anjunar.technologyspeaks.jaxrs.search.{Context, PredicateProvider}
 import com.anjunar.scala.universe.introspector.BeanProperty
-import com.anjunar.technologyspeaks.jpa.EntityInterface
+import com.anjunar.technologyspeaks.jaxrs.types.IdProvider
 import jakarta.persistence.EntityManager
 import jakarta.persistence.criteria.{CriteriaBuilder, CriteriaQuery, Predicate, Root}
 
@@ -11,8 +11,8 @@ import java.util.{Set, UUID}
 import scala.collection.mutable
 
 
-class GenericManyToManyProvider[E] extends PredicateProvider[util.Set[? <: EntityInterface], E] {
-  override def build(context : Context[util.Set[? <: EntityInterface], E]): Unit = {
+class GenericManyToManyProvider[E] extends PredicateProvider[util.Set[? <: IdProvider], E] {
+  override def build(context : Context[util.Set[? <: IdProvider], E]): Unit = {
     val Context(value, entityManager, builder, predicates, root, query, selection, property, name, parameters) = context
 
     if (value != null && !value.isEmpty) 

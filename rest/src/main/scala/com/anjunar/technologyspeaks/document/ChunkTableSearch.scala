@@ -1,5 +1,6 @@
 package com.anjunar.technologyspeaks.document
 
+import com.anjunar.scala.mapper.annotations.IgnoreFilter
 import com.anjunar.technologyspeaks.jaxrs.search.RestPredicate
 import com.anjunar.technologyspeaks.jaxrs.search.provider.GenericManyToOneProvider
 import com.anjunar.technologyspeaks.jaxrs.types.AbstractSearch
@@ -9,10 +10,11 @@ import java.util.UUID
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
+@IgnoreFilter
 class ChunkTableSearch extends AbstractSearch {
 
   @RestPredicate(classOf[GenericManyToOneProvider[?]])
   @BeanProperty
-  var document: UUID = uninitialized
+  var document: Document = uninitialized
 
 }

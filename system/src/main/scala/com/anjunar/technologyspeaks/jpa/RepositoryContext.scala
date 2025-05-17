@@ -14,6 +14,10 @@ trait RepositoryContext[E](clazz: Class[E]) {
     entityManager.find(clazz, id)
   }
 
+  def reference(id: Object): E = {
+    entityManager.getReference(clazz, id)
+  }
+
   def findAll() : util.List[E] = {
     val builder = entityManager.getCriteriaBuilder
     val query = builder.createQuery(clazz)

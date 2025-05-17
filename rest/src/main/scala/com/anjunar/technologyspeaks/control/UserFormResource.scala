@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.control
 
-import com.anjunar.scala.mapper.annotations.{DoNotLoad, JsonSchema, SecuredOwner}
+import com.anjunar.scala.mapper.annotations.{DoNotLoad, JsonSchema, NoValidation, SecuredOwner}
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
 import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.control.{GeoPoint, Role, User}
@@ -45,17 +45,13 @@ class UserFormResource extends SchemaBuilderContext {
   @LinkDescription(value = "Erstellen", linkType = LinkType.FORM)
   def create: User = {
     val user = new User
-    val userInfo = new UserInfo
-    val address = new Address
 
-    userInfo.image = new Media
-    address.point = new GeoPoint
-
-    user.info = userInfo
-    user.address = address
+    user.persist()
 
     forLinks(classOf[User], (user, link) => {
-      linkTo(methodOn(classOf[UserFormResource]).save(user))
+      linkTo(methodOn(classOf[UserFormResource]).update(user))
+        .build(link.addLink)
+      linkTo(methodOn(classOf[UserFormResource]).delete(user.id))
         .build(link.addLink)
     })
 
@@ -75,7 +71,7 @@ class UserFormResource extends SchemaBuilderContext {
     forLinks(classOf[User], (user, link) => {
       linkTo(methodOn(classOf[UserFormResource]).update(user))
         .build(link.addLink)
-      linkTo(methodOn(classOf[UserFormResource]).delete(user))
+      linkTo(methodOn(classOf[UserFormResource]).delete(user.id))
         .build(link.addLink)
     })
 
@@ -96,7 +92,7 @@ class UserFormResource extends SchemaBuilderContext {
     forLinks(classOf[User], (user, link) => {
       linkTo(methodOn(classOf[UserFormResource]).update(user))
         .build(link.addLink)
-      linkTo(methodOn(classOf[UserFormResource]).delete(user))
+      linkTo(methodOn(classOf[UserFormResource]).delete(user.id))
         .build(link.addLink)
     })
 
@@ -118,7 +114,7 @@ class UserFormResource extends SchemaBuilderContext {
     forLinks(classOf[User], (user, link) => {
       linkTo(methodOn(classOf[UserFormResource]).update(user))
         .build(link.addLink)
-      linkTo(methodOn(classOf[UserFormResource]).delete(user))
+      linkTo(methodOn(classOf[UserFormResource]).delete(user.id))
         .build(link.addLink)
     })
 
@@ -126,21 +122,23 @@ class UserFormResource extends SchemaBuilderContext {
     entity
   }
 
+  @Path("/{id}")
   @DELETE
-  @Produces(Array("application/json"))
-  @JsonSchema(classOf[UserFormSchema])
   @RolesAllowed(Array("Administrator"))
   @LinkDescription(value = "Löschen", linkType = LinkType.FORM)
-  def delete(@JsonSchema(classOf[UserFormSchema]) @SecuredOwner entity: User): User = {
+  def delete(@PathParam("id") id : UUID): Response = {
 
-    forLinks(classOf[User], (user, link) => {
-      linkTo(methodOn(classOf[UserTableResource]).list(null))
-        .withRedirect
-        .build(link.addLink)
-    })
+    val entity = User.find(id)
 
-    entity.deleted = true
+    val view = User.View.findByUser(entity)
 
-    entity
+    if (entity.owner == User.current() || Credential.current().hasRole("Administrator")) {
+      view.delete()
+      entity.delete()
+
+      entity.entityManager.flush()
+    }
+
+    Response.ok().build()
   }
 }

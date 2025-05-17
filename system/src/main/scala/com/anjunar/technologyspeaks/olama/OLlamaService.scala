@@ -3,11 +3,11 @@ package com.anjunar.technologyspeaks.olama
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider
 import jakarta.annotation.PreDestroy
-import jakarta.enterprise.context.{RequestScoped, SessionScoped}
+import jakarta.enterprise.context.{ApplicationScoped, RequestScoped, SessionScoped}
 import jakarta.ws.rs.client.ClientBuilder
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget
 
-@SessionScoped
+@ApplicationScoped
 class OLlamaService extends Serializable {
 
   private val client = ClientBuilder.newClient

@@ -1,6 +1,6 @@
 package com.anjunar.scala.mapper
 
-import com.anjunar.scala.mapper.annotations.JsonSchema
+import com.anjunar.scala.mapper.annotations.{JsonSchema, NoValidation}
 import com.anjunar.scala.mapper.exceptions.{ValidationException, ValidationViolation}
 import com.anjunar.scala.mapper.intermediate.model.{JsonNode, JsonObject}
 import com.anjunar.scala.mapper.loader.EntityLoader
@@ -64,6 +64,8 @@ class JsonProvider extends MessageBodyReader[AnyRef] with MessageBodyWriter[AnyR
       .get
       .asInstanceOf[JsonSchema]
 
+    val noValidation: Boolean = annotations.exists(annotation => annotation.annotationType() == classOf[NoValidation])
+
     val jsonSchema : EntityJSONSchema[Any] = jsonSchemaAnnotation.value().getConstructor().newInstance().asInstanceOf[EntityJSONSchema[Any]]
 
     val jsonObject = jsonMapper.toJsonObjectForJava(jsonString)
@@ -72,7 +74,7 @@ class JsonProvider extends MessageBodyReader[AnyRef] with MessageBodyWriter[AnyR
 
     val schemaBuilder = jsonSchema.build(entity, javaTypeRaw)
     
-    val context = new Context(null, validatorFactory.getValidator, registry, schemaBuilder, entityLoader)
+    val context = new Context(null, noValidation, validatorFactory.getValidator, registry, schemaBuilder, entityLoader)
 
     val value = jsonMapper.toJava(jsonObject, resolvedClass, context)
 
@@ -139,14 +141,14 @@ class JsonProvider extends MessageBodyReader[AnyRef] with MessageBodyWriter[AnyR
       schema.findEntitySchemaDeepByInstance(instance).foreach(b => b.links = builder.links)
     })
 
-    val context = new Context(null, validator, registry, schema, null)
+    val context = new Context(null, true, validator, registry, schema, null)
 
     val jsonObject = jsonMapper.toJson(element, resolvedClass, context)
 
     val properties = jsonObject.value
     val objectDescriptor = JsonDescriptorsGenerator.generateObject(resolvedClass, schema, new JsonDescriptorsContext(null))
 
-    val contextForDescriptor = new Context(null, validatorFactory.getValidator, registry, schema, null)
+    val contextForDescriptor = new Context(null, true, validatorFactory.getValidator, registry, schema, null)
     val jsonDescriptor = jsonMapper.toJson(objectDescriptor, TypeResolver.resolve(classOf[ObjectDescriptor]), contextForDescriptor)
     
     properties.put("$descriptors", jsonDescriptor)

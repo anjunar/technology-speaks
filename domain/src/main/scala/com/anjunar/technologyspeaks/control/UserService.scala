@@ -26,10 +26,10 @@ class UserService {
 
   def update(user: User): Unit = {
 
-    val nickNameVector = createEmbeddings(user.nickName)
+    val nickNameVector = createEmbeddings(s"A Users Nickname: ${user.nickName}")
 
     val fullNameVector = if (user.info != null) {
-      createEmbeddings(s"${user.nickName}, ${user.info.firstName}, ${user.info.lastName}")
+      createEmbeddings(s"A Users full Name (First Name, Last Name): ${user.info.firstName}, ${user.info.lastName}")
     } else {
       null
     }

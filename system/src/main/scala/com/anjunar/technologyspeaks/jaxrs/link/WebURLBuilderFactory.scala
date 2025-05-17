@@ -1,6 +1,7 @@
 package com.anjunar.technologyspeaks.jaxrs.link
 
 import com.anjunar.technologyspeaks.security.IdentityContext
+import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.enterprise.inject.spi.CDI
 import jakarta.ws.rs.core.UriBuilder
 import jakarta.ws.rs.ext.ParamConverterProvider
@@ -23,13 +24,15 @@ object WebURLBuilderFactory {
 
   private val proxyCache: ThreadLocal[mutable.Map[Class[?], Class[?]]] = new ThreadLocal[mutable.Map[Class[?], Class[?]]]
 
+  private val objectMapper = new ObjectMapper()
+
   def linkTo(invocation: AnyRef): WebURLBuilder = {
     val element = invocation.getClass.getField("handler").get(invocation)
     val interceptor = element.asInstanceOf[InvocationHandler]
     val invocations = interceptor.asInstanceOf[MethodInterceptor].getInvocations
     val uriBuilder = UriBuilder.fromPath("/")
     val lastInvocation = invocations.get(invocations.size() - 1)
-    new WebURLBuilder(new JaxRSInvocation(lastInvocation.getMethod, lastInvocation.getArguments, paramConverterProvider, uriBuilder, identity))
+    new WebURLBuilder(new JaxRSInvocation(lastInvocation.getMethod, lastInvocation.getArguments, paramConverterProvider, uriBuilder, identity, objectMapper))
   }
 
   def methodOn[E](aClass: Class[E]): E = createProxy(aClass, new MethodInterceptor(null))

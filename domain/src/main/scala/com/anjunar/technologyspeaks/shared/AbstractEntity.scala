@@ -1,7 +1,8 @@
 package com.anjunar.technologyspeaks.shared
 
-import com.anjunar.technologyspeaks.jpa.{EntityContext, EntityInterface}
+import com.anjunar.technologyspeaks.jpa.EntityContext
 import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.technologyspeaks.jaxrs.types.IdProvider
 import jakarta.persistence.*
 
 import java.time.LocalDateTime
@@ -10,7 +11,7 @@ import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
 @MappedSuperclass
-abstract class AbstractEntity extends EntityContext with EntityInterface {
+abstract class AbstractEntity extends EntityContext with IdProvider {
 
   @Id
   @Column(name = "id", unique = true, nullable = false)

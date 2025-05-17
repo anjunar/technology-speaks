@@ -10,6 +10,7 @@ import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.google.common.reflect.TypeToken
 import com.typesafe.scalalogging.Logger
+import jakarta.validation.ConstraintViolation
 
 import java.lang.reflect.Type
 import java.util
@@ -62,7 +63,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
       }
     }
 
-    val ignoreFilter = aType.findDeclaredAnnotation(classOf[IgnoreFilter])
+    val ignoreFilter = instance.getClass.getAnnotation(classOf[IgnoreFilter])
 
     for (property <- beanModel.properties) {
       val option = typeMapping.get(property.name)
@@ -117,7 +118,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
     for (link <- linksResult) {
       val converter = registry.find(TypeResolver.resolve(classOf[Link]))
-      val node = converter.toJson(link._2, TypeResolver.resolve(classOf[Link]), Context(link._1, context.schema, context))
+      val node = converter.toJson(link._2, TypeResolver.resolve(classOf[Link]), Context(link._1,context.noValidation, context.schema, context))
 
       links.put(link._1, node)
     }
@@ -134,7 +135,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
     val jpaConverter = property.findAnnotation(classOf[Converter])
 
     if (jpaConverter == null) {
-      val jsonNode = converter.toJson(value, property.propertyType, Context(property.name, propertySchema, context))
+      val jsonNode = converter.toJson(value, property.propertyType, Context(property.name, context.noValidation, propertySchema, context))
       properties.put(property.name, jsonNode)
     } else {
       val jpaConverterInstance = jpaConverter.value().getConstructor().newInstance()
@@ -188,7 +189,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
               val jpaConverter = property.findAnnotation(classOf[Converter])
 
               if (jpaConverter == null) {
-                converter.toJava(currentNode.get, property.propertyType, Context(property.name, descriptor.schemaBuilder, context))
+                converter.toJava(currentNode.get, property.propertyType, Context(property.name, context.noValidation, descriptor.schemaBuilder, context))
               } else {
                 val jpaConverterInstance = jpaConverter.value().getConstructor().newInstance()
                 jpaConverterInstance.toJava(currentNode.get.value)
@@ -204,7 +205,11 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
               }
             }
 
-            val violations = context.validator.validateValue(aType.raw, property.name, value)
+            val violations : util.Set[ConstraintViolation[Any]] = if (context.noValidation) {
+              new util.HashSet[ConstraintViolation[Any]]()
+            } else {
+              context.validator.validateValue(aType.raw.asInstanceOf[Class[Any]], property.name, value)
+            }
 
             if (violations.isEmpty) {
               value match
