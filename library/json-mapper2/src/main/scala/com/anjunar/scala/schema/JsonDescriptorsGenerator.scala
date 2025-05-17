@@ -8,8 +8,10 @@ import com.anjunar.scala.schema.model.{CollectionDescriptor, EnumDescriptor, Nod
 import com.anjunar.scala.universe.introspector.{BeanIntrospector, BeanProperty}
 import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonValue}
+import com.google.common.reflect.{TypeParameter, TypeToken}
 import jakarta.validation.constraints.{NotBlank, NotNull, Size}
 
+import java.lang.reflect.Type
 import java.util
 import scala.jdk.CollectionConverters.*
 
@@ -32,7 +34,7 @@ object JsonDescriptorsGenerator {
       throw new IllegalStateException("no Analyzer found : " + aClass.raw.getName)
     }
   }
-  
+
   def generateObject(aClass : ResolvedClass, schema: SchemaBuilder, context : JsonDescriptorsContext) : ObjectDescriptor = {
 
     val beanModel = BeanIntrospector.create(aClass)
@@ -65,23 +67,34 @@ object JsonDescriptorsGenerator {
 
         val converter = property.findAnnotation(classOf[Converter])
 
+        val descriptorAnnotation = property.findAnnotation(classOf[Descriptor])
+        val propertyType = if (descriptorAnnotation == null || descriptorAnnotation.schemaType() == classOf[Void]) {
+          property.propertyType
+        } else {
+          if (classOf[util.Collection[?]].isAssignableFrom(property.propertyType.raw)) {
+            TypeResolver.resolve(Helper.mapOf(descriptorAnnotation.schemaType()).getType)
+          } else {
+            TypeResolver.resolve(descriptorAnnotation.schemaType())
+          }
+        }
+
         if (converter == null) {
-          findAnalyzer(property.propertyType) match
+          findAnalyzer(propertyType) match
             case p: PrimitiveAnalyser =>
-              val nodeDescriptor: NodeDescriptor = generatePrimitive(property, property.propertyType.raw, schemaDefinition)
+              val nodeDescriptor = generatePrimitive(property, propertyType.raw, schemaDefinition)
               descriptor.properties.put(property.name, nodeDescriptor)
             case e: EnumAnalyzer =>
-              val enumDescriptor: EnumDescriptor = generateEnum(property, schemaDefinition)
+              val enumDescriptor = generateEnum(property, schemaDefinition)
               descriptor.properties.put(property.name, enumDescriptor)
             case c: CollectionAnalyzer =>
-              val collectionDescriptor = generateArray(property, schemaDefinition, new JsonDescriptorsContext(context))
+              val collectionDescriptor = generateArray(property, propertyType, schemaDefinition, new JsonDescriptorsContext(context))
               collectionDescriptor.links.putAll(schemaDefinition.links.asJava)
               descriptor.properties.put(property.name, collectionDescriptor)
             case c: ArrayAnalyzer =>
-              val collectionDescriptor = generatePrimitive(property, property.propertyType.raw, schemaDefinition)
+              val collectionDescriptor = generatePrimitive(property, propertyType.raw, schemaDefinition)
               descriptor.properties.put(property.name, collectionDescriptor)
             case o: ObjectAnalyzer =>
-              val objectDescriptor: ObjectDescriptor = generateObject(property, schemaDefinition, new JsonDescriptorsContext(context))
+              val objectDescriptor = generateObject(property, propertyType, schemaDefinition, new JsonDescriptorsContext(context))
               descriptor.properties.put(property.name, objectDescriptor)
         } else {
           descriptor.properties.put(property.name, generatePrimitive(property, classOf[String], schemaDefinition))
@@ -163,8 +176,7 @@ object JsonDescriptorsGenerator {
     enumDescriptor
   }
 
-  private def generateObject(property: BeanProperty, schemaDefinition: PropertyBuilder[?], context : JsonDescriptorsContext): ObjectDescriptor = {
-    val propertyType = property.propertyType
+  private def generateObject(property: BeanProperty, propertyType : ResolvedClass, schemaDefinition: PropertyBuilder[?], context : JsonDescriptorsContext): ObjectDescriptor = {
     val objectDescriptor = generateObject(propertyType, schemaDefinition.schemaBuilder, new JsonDescriptorsContext(context))
     objectDescriptor.title = schemaDefinition.title
     objectDescriptor.description = schemaDefinition.description
@@ -178,9 +190,9 @@ object JsonDescriptorsGenerator {
     objectDescriptor
   }
 
-  private def generateArray(property: BeanProperty, schemaDefinition: PropertyBuilder[?], context : JsonDescriptorsContext): CollectionDescriptor = {
+  private def generateArray(property: BeanProperty, propertyType : ResolvedClass, schemaDefinition: PropertyBuilder[?], context : JsonDescriptorsContext): CollectionDescriptor = {
     val descriptor = new CollectionDescriptor
-    val collectionType = property.propertyType.typeArguments.head
+    val collectionType = propertyType.typeArguments.head
 
     context.descriptor = descriptor
 

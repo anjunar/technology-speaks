@@ -1,6 +1,6 @@
 package com.anjunar.scala.mapper.converters
 
-import com.anjunar.scala.mapper.annotations.{Converter, IgnoreFilter, JacksonJsonConverter}
+import com.anjunar.scala.mapper.annotations.{Converter, Filter, IgnoreFilter, JacksonJsonConverter}
 import com.anjunar.scala.mapper.intermediate.model.{JsonNode, JsonObject, JsonString}
 import com.anjunar.scala.mapper.{Context, ConverterRegistry}
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, LinkContext, PropertyBuilder, SchemaBuilder}
@@ -65,7 +65,19 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
     val ignoreFilter = instance.getClass.getAnnotation(classOf[IgnoreFilter])
 
-    for (property <- beanModel.properties) {
+    val beanProperties = if (context.parent != null && ! context.parent.filter.isEmpty) {
+      beanModel.properties.filter(property => context.parent.filter.contains(property.name))
+    } else {
+      beanModel.properties
+    }
+
+    for (property <- beanProperties) {
+
+      val filter = property.findAnnotation(classOf[Filter])
+      if (filter != null) {
+        context.filter = filter.value()
+      }
+
       val option = typeMapping.get(property.name)
 
       if (option.isDefined) {
@@ -87,7 +99,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
     }
 
     val registry = context.registry
-    
+
     val linkFactories = schema.findLinksByClass(TypeResolver.rawType(resolvedType)) ++ schema.findLinksByInstance(instance)
     
     linkFactories.foreach(linkFactory => {
@@ -117,10 +129,13 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
     linkFactory(instance, (name: String, link: Link) => linksResult.put(name, link))
 
     for (link <- linksResult) {
-      val converter = registry.find(TypeResolver.resolve(classOf[Link]))
-      val node = converter.toJson(link._2, TypeResolver.resolve(classOf[Link]), Context(link._1,context.noValidation, context.schema, context))
+      if (! context.links.contains(link._2)) {
+        context.links.addOne(link._2)
+        val converter = registry.find(TypeResolver.resolve(classOf[Link]))
+        val node = converter.toJson(link._2, TypeResolver.resolve(classOf[Link]), Context(context, link._1, context.noValidation, context.schema, context))
 
-      links.put(link._1, node)
+        links.put(link._1, node)
+      }
     }
   }
 
@@ -135,7 +150,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
     val jpaConverter = property.findAnnotation(classOf[Converter])
 
     if (jpaConverter == null) {
-      val jsonNode = converter.toJson(value, property.propertyType, Context(property.name, context.noValidation, propertySchema, context))
+      val jsonNode = converter.toJson(value, property.propertyType, Context(context, property.name, context.noValidation, propertySchema, context))
       properties.put(property.name, jsonNode)
     } else {
       val jpaConverterInstance = jpaConverter.value().getConstructor().newInstance()
@@ -189,7 +204,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
               val jpaConverter = property.findAnnotation(classOf[Converter])
 
               if (jpaConverter == null) {
-                converter.toJava(currentNode.get, property.propertyType, Context(property.name, context.noValidation, descriptor.schemaBuilder, context))
+                converter.toJava(currentNode.get, property.propertyType, Context(context, property.name, context.noValidation, descriptor.schemaBuilder, context))
               } else {
                 val jpaConverterInstance = jpaConverter.value().getConstructor().newInstance()
                 jpaConverterInstance.toJava(currentNode.get.value)

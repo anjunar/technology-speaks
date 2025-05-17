@@ -6,9 +6,9 @@ import com.anjunar.scala.schema.builder.SchemaBuilder
 import scala.beans.BeanProperty
 
 @IgnoreFilter
-class Link(@BeanProperty val url: String, 
-           @BeanProperty val method : String,
-           @BeanProperty val rel : String,
-           @BeanProperty val title: String,
-           @BeanProperty val linkType : LinkType,
-           @BeanProperty val body : AnyRef)
+case class Link(@BeanProperty url: String,
+                @BeanProperty method : String,
+                @BeanProperty rel : String,
+                @BeanProperty title: String,
+                @BeanProperty linkType : LinkType,
+                @BeanProperty body : AnyRef)

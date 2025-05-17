@@ -28,13 +28,12 @@ class PostTableResource extends SchemaBuilderContext {
   @Inject
   var jpaSearch: JPASearch = uninitialized
 
-  @POST
+  @GET
   @Produces(Array("application/json"))
-  @Consumes(Array("application/json"))
   @JsonSchema(classOf[PostTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Timeline", linkType = LinkType.TABLE)
-  def list(search: PostTableSearch): QueryTable[PostTableSearch, Post] = {
+  def list(@BeanParam search: PostTableSearch): QueryTable[PostTableSearch, Post] = {
     val context = jpaSearch.searchContext(search)
     val tuples = jpaSearch.entities(search.index, search.limit, classOf[Post], context)
     val entities = tuples.stream().map(tuple => tuple.get(0, classOf[Post])).toList

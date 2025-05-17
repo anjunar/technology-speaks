@@ -34,13 +34,12 @@ class CredentialTableResource extends SchemaBuilderContext {
   @Inject
   var jpaSearch: JPASearch = uninitialized
 
-  @POST
+  @GET
   @Produces(Array("application/json"))
-  @Consumes(Array("application/json"))
   @JsonSchema(classOf[CredentialTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Credentials", linkType = LinkType.TABLE)
-  def list(search: CredentialTableSearch): QueryTable[CredentialTableSearch, Credential] = {
+  def list(@BeanParam search: CredentialTableSearch): QueryTable[CredentialTableSearch, Credential] = {
     val user = User.current()
 
     val context = jpaSearch.searchContext[CredentialTableSearch, Credential](search, (context: Context[CredentialTableSearch, Credential]) => {

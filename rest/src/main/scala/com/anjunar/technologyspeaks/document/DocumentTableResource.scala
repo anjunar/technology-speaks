@@ -32,13 +32,12 @@ class DocumentTableResource extends SchemaBuilderContext {
   @Inject
   var service : DocumentService = uninitialized
 
-  @POST
+  @GET
   @Produces(Array("application/json"))
-  @Consumes(Array("application/json"))
   @JsonSchema(classOf[DocumentTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Documents", linkType = LinkType.TABLE)
-  def list(search : DocumentTableSearch): QueryTable[DocumentTableSearch, Document] = {
+  def list(@BeanParam search : DocumentTableSearch): QueryTable[DocumentTableSearch, Document] = {
 
     val entities: util.List[Document] = if (Strings.isNullOrEmpty(search.text)) {
       Lists.newArrayList()

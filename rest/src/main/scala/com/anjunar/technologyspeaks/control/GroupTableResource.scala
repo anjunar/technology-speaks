@@ -33,15 +33,14 @@ class GroupTableResource extends SchemaBuilderContext {
   @Inject
   var jpaSearch: JPASearch = uninitialized
 
-  @POST
+  @GET
   @Produces(Array("application/json"))
-  @Consumes(Array("application/json"))
   @JsonSchema(classOf[GroupTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Groups", linkType = LinkType.TABLE)
-  def list(search: GroupTableSearch): QueryTable[GroupTableSearch, Group] = {
+  def list(@BeanParam search: GroupTableSearch): QueryTable[GroupTableSearch, Group] = {
     val context = jpaSearch.searchContext(search, (context : Context[GroupTableSearch, Group]) => {
-      context.builder.equal(context.root.get("user"), User.current())
+      context.predicates.addOne(context.builder.equal(context.root.get("user"), User.current()))
     })
     val tuples = jpaSearch.entities(search.index, search.limit, classOf[Group], context)
     val entities = tuples.stream().map(tuple => tuple.get(0, classOf[Group])).toList

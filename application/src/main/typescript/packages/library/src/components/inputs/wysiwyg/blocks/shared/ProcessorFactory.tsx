@@ -12,14 +12,14 @@ function ProcessorFactory(properties: ProcessorFactory.Attributes) : React.React
     const {providers} = useContext(EditorContext)
 
     return match<AbstractNode, React.ReactNode>(node)
-        .with(TextNode, (node) => {
+        .withObject(TextNode, (node) => {
             return <SpanProcessor node={node}/>
         })
-        .with(RootNode, (node) => {
+        .withObject(RootNode, (node) => {
             return <RootProcessor node={node as RootNode}/>
         })
         // @ts-ignore
-        .with(AbstractNode, (node) => {
+        .withObject(AbstractNode, (node) => {
             let provider = providers.find(provider => node instanceof provider.node);
             return React.createElement(provider.processor, {node})
         })

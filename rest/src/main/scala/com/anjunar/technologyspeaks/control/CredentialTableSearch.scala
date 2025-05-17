@@ -16,12 +16,14 @@ class CredentialTableSearch extends AbstractSearch {
 
   @Descriptor(title = "Display Name", writeable = true)
   @RestPredicate(classOf[GenericNameProvider[?]])
+  @QueryParam("displayName")
   @BeanProperty
   var displayName: String = uninitialized
 
-  @Descriptor(title = "Roles", writeable = true)
+  @Descriptor(title = "Roles", writeable = true, schemaType = classOf[Role])
   @RestPredicate(classOf[GenericManyToManyProvider[?]])
+  @QueryParam("roles")
   @BeanProperty
-  val roles: util.Set[Role] = new util.HashSet[Role]()
+  val roles: util.Set[UUID] = new util.HashSet[UUID]()
 
 }

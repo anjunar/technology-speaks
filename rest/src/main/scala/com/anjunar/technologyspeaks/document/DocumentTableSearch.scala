@@ -10,6 +10,7 @@ import scala.compiletime.uninitialized
 class DocumentTableSearch extends AbstractSearch {
 
   @BeanProperty
+  @QueryParam("text")
   @Descriptor(title = "Text", writeable = true)
   var text: String = uninitialized
 

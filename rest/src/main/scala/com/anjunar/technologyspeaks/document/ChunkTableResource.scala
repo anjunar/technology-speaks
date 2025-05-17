@@ -30,13 +30,12 @@ class ChunkTableResource extends SchemaBuilderContext {
   @Inject
   var jpaSearch: JPASearch = uninitialized
 
-  @POST
+  @GET
   @Produces(Array("application/json"))
-  @Consumes(Array("application/json"))
   @JsonSchema(classOf[ChunkTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Document Chunks", linkType = LinkType.TABLE)
-  def list(@LinkBody search: ChunkTableSearch): QueryTable[ChunkTableSearch, Chunk] = {
+  def list(@BeanParam search: ChunkTableSearch): QueryTable[ChunkTableSearch, Chunk] = {
     val context = jpaSearch.searchContext(search)
     val tuples = jpaSearch.entities(search.index, search.limit, classOf[Chunk], context)
     val entities = tuples.stream().map(tuple => tuple.get(0, classOf[Chunk])).toList

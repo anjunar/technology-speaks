@@ -16,14 +16,14 @@ import ActiveObject from "../../domain/container/ActiveObject";
 export const configureValidators = (property: NodeDescriptor): any => {
     return Object.values(property.validators || {}).reduce((current: any, prev: any) => {
         match(prev)
-            .with(NotNullValidator, () => current["required"] = true)
-            .with(NotBlankValidator, () => current["required"] = true)
-            .with(EmailValidator, () => current["email"] = true)
-            .with(PastValidator, () => current["past"] = true)
-            .with(PatternValidator, (validator) => {
+            .withObject(NotNullValidator, () => current["required"] = true)
+            .withObject(NotBlankValidator, () => current["required"] = true)
+            .withObject(EmailValidator, () => current["email"] = true)
+            .withObject(PastValidator, () => current["past"] = true)
+            .withObject(PatternValidator, (validator) => {
                 current["pattern"] = validator.regexp
             })
-            .with(SizeValidator, (validator) => {
+            .withObject(SizeValidator, (validator) => {
                 if (property.type === "String") {
                     if (validator.min) {
                         current["minLength"] = validator.min

@@ -6,7 +6,18 @@ export function match<T, O>(object: T): Matcher<T, O> {
     let result : O
     let matched = false
     return {
-        with<E extends T>(clazz: new (...args: any[]) => E, callback: (value: E) => O): Matcher<T, O> {
+        withType<E>(type: string, callback: (value: E) => O): Matcher<T, O> {
+            if (typeof object === type) {
+                if (! result) {
+                    // @ts-ignore
+                    result = callback(object as E);
+
+                    matched = true;
+                }
+            }
+            return this
+        },
+        withObject<E extends T>(clazz: new (...args: any[]) => E, callback: (value: E) => O): Matcher<T, O> {
             if (isOfType(object, clazz)) {
                 if (! result) {
                     result = callback(object as E);
@@ -29,7 +40,8 @@ export function match<T, O>(object: T): Matcher<T, O> {
 }
 
 interface Matcher<T, O> {
-    with<E extends T>(clazz: new (...args: any[]) => E, callback: (value: E) => O): Matcher<T, O>;
+    withObject<E extends T>(clazz: new (...args: any[]) => E, callback: (value: E) => O): Matcher<T, O>;
+    withType<E extends T>(type: string, callback: (value: E) => O): Matcher<T, O>;
     exhaustive(): O;
     nonExhaustive(): O;
 }

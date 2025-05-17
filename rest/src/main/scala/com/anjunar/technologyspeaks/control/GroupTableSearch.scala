@@ -4,7 +4,7 @@ import com.anjunar.scala.mapper.annotations.Descriptor
 import com.anjunar.technologyspeaks.jaxrs.search.{RestPredicate, RestSort}
 import com.anjunar.technologyspeaks.jaxrs.search.provider.{GenericIdProvider, GenericNameProvider, GenericSortProvider}
 import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, Sort}
-import org.jboss.resteasy.annotations.jaxrs.QueryParam
+import jakarta.ws.rs.QueryParam
 
 import java.util
 import java.util.UUID
@@ -15,7 +15,8 @@ class GroupTableSearch extends AbstractSearch {
 
   @Descriptor(title = "Name", writeable = true)
   @RestPredicate(classOf[GenericNameProvider[?]])
+  @QueryParam("name")
   @BeanProperty
-  private var name: String = uninitialized
+  var name: String = uninitialized
 
 }

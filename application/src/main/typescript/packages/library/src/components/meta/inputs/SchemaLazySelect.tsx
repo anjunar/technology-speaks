@@ -52,11 +52,7 @@ function SchemaLazySelect(properties: SchemaLazySelect.Attributes) {
             let link = Object.values(contextSchema.links || {}).find(link => link.rel === "list")
 
             if (link) {
-                let response = await fetch("/service" + link.url, {
-                    body: JSON.stringify(query),
-                    method: link.method,
-                    headers: {"content-type": "application/json"}
-                })
+                let response = await fetch("/service" + link.url + `?index=${query.index}&limit=${query.limit}`)
 
                 if (response.ok) {
                     const [table, size] = mapTable(await response.json())
@@ -80,9 +76,9 @@ function SchemaLazySelect(properties: SchemaLazySelect.Attributes) {
     let configureValidators = (property: NodeDescriptor & Validable): any => {
         return Object.values(property.validators || {}).reduce((current: any, prev: any) => {
             match(prev)
-                .with(NotNullValidator, () => current["required"] = true)
-                .with(NotBlankValidator, () => current["required"] = true)
-                .with(SizeValidator, (validator) => {
+                .withObject(NotNullValidator, () => current["required"] = true)
+                .withObject(NotBlankValidator, () => current["required"] = true)
+                .withObject(SizeValidator, (validator) => {
                     if (validator.min) {
                         current["min"] = validator.min
                     }

@@ -29,13 +29,13 @@ import scala.compiletime.uninitialized
   @Inject
   var jpaSearch: JPASearch = uninitialized
 
-  @POST
+  @GET
   @Produces(Array("application/json"))
   @Consumes(Array("application/json"))
   @JsonSchema(classOf[RoleTableSchema])
   @RolesAllowed(Array("Guest", "User", "Administrator"))
   @LinkDescription(value = "Roles", linkType = LinkType.TABLE)
-  def list(search: RoleTableSearch): QueryTable[RoleTableSearch, Role] = {
+  def list(@BeanParam search: RoleTableSearch): QueryTable[RoleTableSearch, Role] = {
     val context = jpaSearch.searchContext(search)
     val tuples = jpaSearch.entities(search.index, search.limit, classOf[Role], context)
     val entities = tuples.stream().map(tuple => tuple.get(0, classOf[Role])).toList
