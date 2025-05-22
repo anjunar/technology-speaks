@@ -14,7 +14,7 @@ import scala.collection.mutable.ListBuffer
 
 object SearchBeanReader {
   
-  def read[E](search: AnyRef, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?]): (Array[Predicate], mutable.Map[String, Any], mutable.Buffer[Expression[java.lang.Double]]) = {
+  def read[E](search: AnyRef, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?]): (mutable.Buffer[Predicate], mutable.Map[String, Any], mutable.Buffer[Expression[java.lang.Double]]) = {
     val beanModel = BeanIntrospector.createWithType(search.getClass)
     val predicates = new mutable.ListBuffer[Predicate]
     val selection = new mutable.ListBuffer[Expression[java.lang.Double]]
@@ -28,7 +28,7 @@ object SearchBeanReader {
         jpaPredicate.build(Context(value.asInstanceOf[AnyRef], entityManager, builder, predicates, root, query, selection, property, restPredicate.property(), parameters))
       }
     }
-    (predicates.toArray, parameters, selection)
+    (predicates, parameters, selection)
   }
 
   def order[E](search: AnyRef, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?], selection : Expression[java.lang.Double], predicates : mutable.Buffer[Predicate]): Array[Order] = {

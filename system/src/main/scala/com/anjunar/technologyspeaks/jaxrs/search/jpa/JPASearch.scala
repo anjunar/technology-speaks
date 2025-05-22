@@ -24,8 +24,8 @@ class JPASearch {
     val context = new JPASearchContext() {
       override def apply[C](entityManager: EntityManager, builder: CriteriaBuilder, query: CriteriaQuery[?], root: Root[C]): JPASearchContextResult = {
         val (predicates, parameters, selection) = SearchBeanReader.read(search, entityManager, builder, root, query)
-        predicateProviders.foreach(predicate => predicate.build(Context(search, entityManager, builder, predicates.toBuffer, root.asInstanceOf[Root[E]], query, selection, null, null, parameters)))
-        JPASearchContextResult(selection.toArray, predicates, parameters)
+        predicateProviders.foreach(predicate => predicate.build(Context(search, entityManager, builder, predicates, root.asInstanceOf[Root[E]], query, selection, null, null, parameters)))
+        JPASearchContextResult(selection.toArray, predicates.toArray, parameters)
       }
 
       override def sort[C](entityManager: EntityManager, builder: CriteriaBuilder, query: CriteriaQuery[?], root: Root[C],  selection : Expression[java.lang.Double], predicates : mutable.Buffer[Predicate]): Array[Order] = {

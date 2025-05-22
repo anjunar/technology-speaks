@@ -43,7 +43,7 @@ class CredentialTableResource extends SchemaBuilderContext {
     val user = User.current()
 
     val context = jpaSearch.searchContext[CredentialTableSearch, Credential](search, (context: Context[CredentialTableSearch, Credential]) => {
-      context.builder.equal(context.root.get("email").get("user"), user)
+      context.predicates.addOne(context.builder.equal(context.root.get("email").get("user"), user))
     })
 
     val tuples = jpaSearch.entities(search.index, search.limit, classOf[Credential], context)
