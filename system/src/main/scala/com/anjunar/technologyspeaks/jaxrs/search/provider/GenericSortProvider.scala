@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.jaxrs.search.provider
 
-import com.anjunar.technologyspeaks.jaxrs.search.RestSortProvider
+import com.anjunar.technologyspeaks.jaxrs.search.{Context, RestSortProvider}
 import jakarta.persistence.EntityManager
 import jakarta.persistence.criteria.{CriteriaBuilder, Order, Root}
 
@@ -9,20 +9,36 @@ import java.util.{ArrayList, List}
 
 
 class GenericSortProvider[E] extends RestSortProvider[util.List[String], E] {
-  override def sort(value: util.List[String], entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E]): util.List[Order] = {
+  override def sort(context : Context[util.List[String], E]): util.List[Order] = {
+    val Context(value, entityManager, builder, predicates, root, query, selection, property, name, parameters) = context
+
     val result = new util.ArrayList[Order]
     if (value == null) return result
 
     value.forEach(sortExpression => {
       val sortSegment = sortExpression.split(":")
-      val cursor = cursor1(root, sortSegment(0))
+      val key = sortSegment(0)
       val direction = sortSegment(1)
-      direction match {
-        case "asc" =>
-          result.add(builder.asc(cursor))
-        case "desc" =>
-          result.add(builder.desc(cursor))
+
+      if (key == "score") {
+        if (selection.head != null) {
+          direction match {
+            case "asc" =>
+              result.add(builder.asc(selection.head))
+            case "desc" =>
+              result.add(builder.desc(selection.head))
+          }
+        }
+      } else {
+        val cursor = cursor1(root, key)
+        direction match {
+          case "asc" =>
+            result.add(builder.asc(cursor))
+          case "desc" =>
+            result.add(builder.desc(cursor))
+        }
       }
+
     })
 
     result

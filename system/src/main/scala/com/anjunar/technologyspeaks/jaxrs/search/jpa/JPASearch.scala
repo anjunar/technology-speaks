@@ -24,9 +24,12 @@ class JPASearch {
     val context = new JPASearchContext() {
       override def apply[C](entityManager: EntityManager, builder: CriteriaBuilder, query: CriteriaQuery[?], root: Root[C]): JPASearchContextResult = {
         val (predicates, parameters, selection) = SearchBeanReader.read(search, entityManager, builder, root, query)
-        val order = SearchBeanReader.order(search, entityManager, builder, root, query)
         predicateProviders.foreach(predicate => predicate.build(Context(search, entityManager, builder, predicates.toBuffer, root.asInstanceOf[Root[E]], query, selection, null, null, parameters)))
-        JPASearchContextResult(selection.toArray, predicates, order, parameters)
+        JPASearchContextResult(selection.toArray, predicates, parameters)
+      }
+
+      override def sort[C](entityManager: EntityManager, builder: CriteriaBuilder, query: CriteriaQuery[?], root: Root[C],  selection : Expression[java.lang.Double], predicates : mutable.Buffer[Predicate]): Array[Order] = {
+        SearchBeanReader.order(search, entityManager, builder, root, query, selection, predicates)
       }
     }
     context
@@ -36,9 +39,20 @@ class JPASearch {
     val builder = entityManager.getCriteriaBuilder
     val query = builder.createTupleQuery()
     val root = query.from(entityClass)
-    val apply = context.apply(entityManager, builder, query, root)
-    val typedQuery = entityManager.createQuery(query.multiselect((Array(root) ++ apply.selection)*).where(apply.predicates *).orderBy(apply.orders *))
-    apply.parameters.foreach((key, value) => typedQuery.setParameter(key, value))
+    val search = context.apply(entityManager, builder, query, root)
+
+    val typedQuery = if (search.selection.isEmpty) {
+      val orders = context.sort(entityManager, builder, query, root, null, search.predicates.toBuffer)
+      entityManager.createQuery(query.multiselect(root).where(search.predicates *).orderBy(orders *))
+    } else {
+      val sumExpr = search.selection.reduce((a, b) => builder.sum(a, b))
+      val count = Double.box(search.selection.length.toDouble)
+      val score = builder.quot(sumExpr, builder.literal(count)).asInstanceOf[Expression[java.lang.Double]]
+      val orders = context.sort(entityManager, builder, query, root, score, search.predicates.toBuffer)
+      entityManager.createQuery(query.multiselect(root, score.alias("score")).where(search.predicates *).orderBy(orders *))
+    }
+
+    search.parameters.foreach((key, value) => typedQuery.setParameter(key, value))
     typedQuery
       .setFirstResult(index)
       .setMaxResults(limit)

@@ -12,14 +12,17 @@ abstract class AbstractSearch {
 
   @Descriptor(title = "Sort", writeable = true, hidden = true)
   @RestSort(classOf[GenericSortProvider[?]])
+  @QueryParam("sort")
   @BeanProperty
-  val sort: util.List[Sort] = new util.ArrayList[Sort]()
+  val sort: util.List[String] = new util.ArrayList[String]()
 
   @Descriptor(title = "Index", writeable = true, hidden = true)
+  @QueryParam("index")
   @BeanProperty
   var index = 0
 
   @Descriptor(title = "Limit", writeable = true, hidden = true)
+  @QueryParam("limit")
   @BeanProperty
   var limit = 5
 

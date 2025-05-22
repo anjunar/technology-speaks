@@ -5,18 +5,19 @@ import jakarta.persistence.EntityManager
 import jakarta.persistence.criteria.*
 
 import java.lang.reflect.InvocationTargetException
-import java.util
+import java.{lang, util}
 import java.util.function.IntFunction
 import java.util.{ArrayList, List, Objects}
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 
 object SearchBeanReader {
   
-  def read[E](search: AnyRef, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?]): (Array[Predicate], mutable.Map[String, Any], mutable.Buffer[Selection[?]]) = {
+  def read[E](search: AnyRef, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?]): (Array[Predicate], mutable.Map[String, Any], mutable.Buffer[Expression[java.lang.Double]]) = {
     val beanModel = BeanIntrospector.createWithType(search.getClass)
     val predicates = new mutable.ListBuffer[Predicate]
-    val selection = new mutable.ListBuffer[Selection[_]]
+    val selection = new mutable.ListBuffer[Expression[java.lang.Double]]
     val parameters = mutable.Map[String, Any]()
     for (property <- beanModel.properties) {
       val restPredicate = property.findDeclaredAnnotation(classOf[RestPredicate])
@@ -30,18 +31,18 @@ object SearchBeanReader {
     (predicates.toArray, parameters, selection)
   }
 
-  def order[E](search: AnyRef, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?]): Array[Order] = {
+  def order[E](search: AnyRef, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?], selection : Expression[java.lang.Double], predicates : mutable.Buffer[Predicate]): Array[Order] = {
     val beanModel = BeanIntrospector.createWithType(search.getClass)
-    var predicates : util.List[Order] = new util.ArrayList[Order]
+    var orders : util.List[Order] = new util.ArrayList[Order]
     for (property <- beanModel.properties) {
       val restPredicate = property.findDeclaredAnnotation(classOf[RestSort])
       if (Objects.nonNull(restPredicate)) {
         val value = property.get(search)
         val predicateClass = restPredicate.value
         val jpaPredicate = predicateClass.getConstructor().newInstance().asInstanceOf[RestSortProvider[AnyRef, E]]
-        predicates = jpaPredicate.sort(value.asInstanceOf[AnyRef], entityManager, builder, root)
+        orders = jpaPredicate.sort(Context(value.asInstanceOf[AnyRef], entityManager, builder, predicates, root, query, ListBuffer(selection), property, null, null))
       }
     }
-    predicates.toArray((value: Int) => new Array[Order](value))
+    orders.toArray((value: Int) => new Array[Order](value))
   }
 }

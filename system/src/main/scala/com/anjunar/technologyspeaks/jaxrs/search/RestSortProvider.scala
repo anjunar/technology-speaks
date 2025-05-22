@@ -10,7 +10,7 @@ import java.util.List
 
 trait RestSortProvider[V, E] {
   
-  def sort(value: V, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E]): util.List[Order]
+  def sort(context : Context[V, E]): util.List[Order]
 
   def cursor1(path: Path[_], pathString: String): Path[_] = {
     if (Strings.isNullOrEmpty(pathString)) return path

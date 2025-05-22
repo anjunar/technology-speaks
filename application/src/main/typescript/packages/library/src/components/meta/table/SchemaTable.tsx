@@ -8,6 +8,8 @@ import CollectionDescriptor from "../../../domain/descriptors/CollectionDescript
 import {Temporal, TemporalAccessor, TemporalAmount} from "@js-joda/core";
 import Validable from "../../../domain/descriptors/Validable";
 
+const sortable = ["String", "Double", "Float", "Integer", "Long", "LocalDate", "LocalDateTime", "Instant", "Boolean"]
+
 function SchemaTable(properties: SchemaTable.Attributes) {
 
     const {loader, onRowClick, selectable, name, style} = properties
@@ -126,7 +128,7 @@ function SchemaTable(properties: SchemaTable.Attributes) {
             </Table.Filter>
             <Table.Head>
                 {toArray(schema).map(([key, value]) => (
-                        <Table.Head.Cell key={key} property={key} sortable={value.type === "String" || value.type === "Number" || value.type === "Date" || value.type === "Boolean" || value.type === "Temporal"}>
+                        <Table.Head.Cell key={key} property={key} sortable={sortable.indexOf(value.type) > -1}>
                         {value.title}
                     </Table.Head.Cell>
                 ))}

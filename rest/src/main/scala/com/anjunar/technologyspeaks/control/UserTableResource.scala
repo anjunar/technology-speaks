@@ -47,7 +47,7 @@ class UserTableResource extends SchemaBuilderContext {
       var score = 0.0
       tuple.getElements.forEach({
         case tupleElement : TupleElement[?] if tupleElement.getJavaType == classOf[User] => user = tuple.get(0, classOf[User])
-        case tupleElement : TupleElement[?] if tupleElement.getAlias == "distance" => score = tuple.get(1, classOf[Double])
+        case tupleElement : TupleElement[?] if tupleElement.getAlias == "score" => score = tuple.get(1, classOf[Double])
       })
 
       user.score = score

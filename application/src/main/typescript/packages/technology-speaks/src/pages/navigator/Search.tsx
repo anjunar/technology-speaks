@@ -34,7 +34,7 @@ function Search(properties: Search.Attributes) {
 namespace Search {
     export interface Attributes {
         value: any
-        submit: (form: any) => void
+        submit: (form: AbstractSearch) => void
     }
 }
 

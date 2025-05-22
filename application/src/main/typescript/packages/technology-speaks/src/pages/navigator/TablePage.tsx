@@ -22,7 +22,7 @@ function TablePage(properties: TableView.Attributes) {
     const body = atob(queryParams.body || "")
 
     const loader = useMemo(() => {
-        return new (class extends Loader {
+        return new class extends Loader {
             async onLoad(query: Query, callback: Callback) {
                 const urlBuilder = new URL(url, window.location.origin)
                 let searchParams = urlBuilder.searchParams;
@@ -72,7 +72,7 @@ function TablePage(properties: TableView.Attributes) {
 
                 if (query.sort instanceof Array) {
                     query.sort
-                        .filter(order => order.value !== "none")
+                        .filter(order => order.value && order.value !== "none")
                         .map(order => order.property + ":" + order.value)
                         .forEach(order => searchParams.append("sort", order))
                 }
@@ -80,15 +80,17 @@ function TablePage(properties: TableView.Attributes) {
                 let response = await fetch(urlBuilder.toString())
 
                 if (response.ok) {
-                    let [mapped, size, links, schema, search] = mapTable(await response.json());
+                    let [mapped, size, links, schema, search2] = mapTable(await response.json());
                     setLinks(links || {})
-                    setSearch(search)
+                    if (search === null) {
+                        setSearch(search2)
+                    }
                     callback(mapped, size, schema)
                 } else {
                     process(response)
                 }
             }
-        })()
+        }
     }, [search]);
 
     const onRowClick = (row: any) => {
@@ -99,7 +101,8 @@ function TablePage(properties: TableView.Attributes) {
         }
     }
 
-    function onSearchSubmit(search: ActiveObject) {
+    function onSearchSubmit(search: AbstractSearch) {
+        setSearch(search)
         loader.fire()
     }
 

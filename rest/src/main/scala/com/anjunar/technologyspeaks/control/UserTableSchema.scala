@@ -22,6 +22,8 @@ class UserTableSchema extends EntityJSONSchema[QueryTable[UserTableSearch, User]
           .property("index")
           .property("limit")
           .property("nickName")
+          .property("firstName")
+          .property("lastName")
           .property("email")
           .property("birthDate")
         )

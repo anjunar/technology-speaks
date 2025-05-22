@@ -2,7 +2,7 @@ package com.anjunar.technologyspeaks.jaxrs.search
 
 import com.anjunar.scala.universe.introspector.BeanProperty
 import jakarta.persistence.EntityManager
-import jakarta.persistence.criteria.{CriteriaBuilder, CriteriaQuery, Predicate, Root, Selection}
+import jakarta.persistence.criteria.{CriteriaBuilder, CriteriaQuery, Expression, Predicate, Root, Selection}
 
 import scala.collection.mutable
 
@@ -12,7 +12,7 @@ case class Context[V,E](value: V,
                         predicates : mutable.Buffer[Predicate],
                         root: Root[E],
                         query: CriteriaQuery[?],
-                        selection : mutable.Buffer[Selection[_]],
+                        selection : mutable.Buffer[Expression[java.lang.Double]],
                         property: BeanProperty,
                         name: String,
                         parameters: mutable.Map[String, Any])
