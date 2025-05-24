@@ -1,9 +1,11 @@
 import "./Table.css"
-import React, {createContext, CSSProperties, useContext, useLayoutEffect, useMemo, useState} from "react"
+import React, {createContext, CSSProperties, useContext, useEffect, useLayoutEffect, useMemo, useState} from "react"
 import withPageable from "../../shared/Pageable"
 import Input from "../../inputs/input/Input";
 import {FormContext} from "../../inputs/form/Form";
 import {v4} from "uuid";
+import loader from "ts-loader";
+import Pageable from "../../shared/Pageable";
 
 function TableRenderer(properties: TableRenderer.Attributes) {
 
@@ -16,6 +18,7 @@ function TableRenderer(properties: TableRenderer.Attributes) {
         children,
         window,
         load,
+        loader,
         limit,
         size,
         selectable,
@@ -30,29 +33,33 @@ function TableRenderer(properties: TableRenderer.Attributes) {
 
     let state = value
 
-    let filters: React.ReactElement[] = []
-    let headerChildren: React.ReactElement[] = []
-    let consumers: React.ReactElement[] = []
-    let footers: React.ReactElement[] = []
+    const [filters, headerChildren, consumers, footers] = useMemo(() => {
+        let filters: React.ReactElement[] = []
+        let headerChildren: React.ReactElement[] = []
+        let consumers: React.ReactElement[] = []
+        let footers: React.ReactElement[] = []
 
-    if (children instanceof Array) {
-        let filter = children.find(child => child.type === Table.Filter)
-        if (filter) {
-            filters = filter.props.children
-        }
-        const header = children.find(child => child.type === Table.Head)
-        if (header) {
-            headerChildren = header.props.children instanceof Array ? header.props.children : [header.props.children]
-        }
+        if (children instanceof Array) {
+            let filter = children.find(child => child.type === Table.Filter)
+            if (filter) {
+                filters = filter.props.children
+            }
+            const header = children.find(child => child.type === Table.Head)
+            if (header) {
+                headerChildren = header.props.children instanceof Array ? header.props.children : [header.props.children]
+            }
 
-        const body = children.find(child => child.type === Table.Body)
-        consumers = body.props.children instanceof Array ? body.props.children : [body.props.children]
+            const body = children.find(child => child.type === Table.Body)
+            consumers = body.props.children instanceof Array ? body.props.children : [body.props.children]
 
-        const footer = children.find(child => child.type === Table.Footer)
-        if (footer) {
-            footers = footer.props.children instanceof Array ? footer.props.children : [footer.props.children]
+            const footer = children.find(child => child.type === Table.Footer)
+            if (footer) {
+                footers = footer.props.children instanceof Array ? footer.props.children : [footer.props.children]
+            }
         }
-    }
+        return [filters, headerChildren, consumers, footers]
+    }, [children]);
+
 
     const formContext = useContext(FormContext)
 
@@ -117,7 +124,6 @@ function TableRenderer(properties: TableRenderer.Attributes) {
     useLayoutEffect(() => {
         setColumns(generateColumnData())
         setFilterData(generateFilterData())
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [headerChildren.length])
 
     function getBodyCell(row: any, index: number, rowIndex: number, property: string) {
@@ -173,8 +179,7 @@ function TableRenderer(properties: TableRenderer.Attributes) {
     const onSearch = () => {
         let queries = filterData.map(item => ({property: item.property, value: item.value}));
         let sort = columns.map(column => ({property: column.property, value: column.sort}))
-        load({index: index, limit: limit, filter: queries, sort: sort}, () => {
-        })
+        load({index: index, limit: limit, filter: queries, sort: sort}, () => {})
     }
 
     const onConfigClick = () => {
@@ -273,6 +278,12 @@ function TableRenderer(properties: TableRenderer.Attributes) {
 */
     }
 
+    useEffect(() => {
+        loader.listener = () => {
+            onSearch()
+        }
+    }, [loader, columns, filterData]);
+
     return (
         <table className={className} {...rest}>
             {
@@ -349,7 +360,7 @@ namespace Table {
         autoload?: boolean
         onRowClick?: any
         dynamicWidth? : boolean
-        loader: any
+        loader: Pageable.Loader
         limit?: number
         children: React.ReactElement[]
         value?: any[]
@@ -441,6 +452,7 @@ namespace TableRenderer {
         children: React.ReactElement
         window: any[]
         load: any
+        loader : Pageable.Loader
         index: number
         limit: number
         size: number

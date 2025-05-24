@@ -67,6 +67,7 @@ function withPageable(Component : any, parameters : withPageable.Attributes)  {
                 limit={limit}
                 window={window}
                 load={load}
+                loader={loader}
                 skipPrevious={skipPrevious}
                 arrowLeft={arrowLeft}
                 arrowRight={arrowRight}
