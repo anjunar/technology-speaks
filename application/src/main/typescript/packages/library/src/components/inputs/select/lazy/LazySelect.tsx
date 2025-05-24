@@ -57,9 +57,11 @@ function LazySelectRenderer(properties: LazySelectRenderer.Attributes) {
     const searchDeferred = useDeferredValue(search);
 
     useLayoutEffect(() => {
-        load({index, limit, name : searchDeferred}, () => {
-            setOpen(true)
-        })
+        if (searchDeferred.length > 0) {
+            load({index, limit, name : searchDeferred}, () => {
+                setOpen(true)
+            })
+        }
     }, [searchDeferred]);
 
     const onInputClickListener: React.MouseEventHandler<HTMLDivElement> = event => {

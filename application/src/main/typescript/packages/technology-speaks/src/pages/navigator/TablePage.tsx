@@ -19,16 +19,14 @@ function TablePage(properties: TableView.Attributes) {
 
     const url = "service" + atob(queryParams.link || "")
 
-    const body = atob(queryParams.body || "")
-
     const loader = useMemo(() => {
         return new class extends Loader {
             async onLoad(query: Query, callback: Callback) {
                 const urlBuilder = new URL(url, window.location.origin)
                 let searchParams = urlBuilder.searchParams;
 
-                searchParams.append("index", query.index.toString())
-                searchParams.append("limit", query.limit.toString())
+                searchParams.set("index", query.index.toString())
+                searchParams.set("limit", query.limit.toString())
 
                 if (search) {
                     Object.entries(search.$descriptors.properties)
@@ -97,7 +95,7 @@ function TablePage(properties: TableView.Attributes) {
         let linkModel = Object.values(row.$links as LinkContainerObject).find((link) => link.rel === "read")
 
         if (linkModel) {
-            navigate(`/navigator/form?link=${btoa(linkModel.url)}&body=${btoa(JSON.stringify(JSONSerializer(linkModel.body)))}`)
+            navigate(`/navigator/form?link=${btoa(linkModel.url)}`)
         }
     }
 
@@ -110,8 +108,6 @@ function TablePage(properties: TableView.Attributes) {
         <div>
             <div>
                 {url}
-                <br/>
-                {body}
                 <br/>
                 {Object.values(links).map(link => (
                     <Link

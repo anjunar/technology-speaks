@@ -3,6 +3,7 @@ package com.anjunar.technologyspeaks.control
 import com.anjunar.technologyspeaks.media.Media
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.technologyspeaks.jpa.{PostgresIndex, PostgresIndices}
 import jakarta.persistence.*
 import jakarta.validation.constraints.{NotBlank, NotNull, Past, Size}
 
@@ -11,7 +12,11 @@ import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
 
-@Entity 
+@Entity
+@PostgresIndices(Array(
+  new PostgresIndex(name = "user_idx_firstName", columnList = "firstName", using = "GIN"),
+  new PostgresIndex(name = "user_idx_lastName", columnList = "lastName", using = "GIN")
+))
 class UserInfo extends AbstractEntity {
 
   @OneToOne(mappedBy = "info")

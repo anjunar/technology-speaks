@@ -14,7 +14,8 @@ public enum NodeType {
     FLOAT("float"),
     DOUBLE("double"),
     BOOLEAN("boolean"),
-    STRING("string");
+    STRING("string"),
+    FUNCTION("function");
 
     private final String value;
 

@@ -11,4 +11,7 @@ class JsonNode {
   @BeanProperty
   var nodeType : NodeType = uninitialized
 
+  @BeanProperty
+  var description : String = uninitialized
+
 }

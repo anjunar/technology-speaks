@@ -10,11 +10,11 @@ import java.util.{Objects, UUID}
 import scala.collection.mutable
 
 
-class GenericManyToOneProvider[E] extends PredicateProvider[UUID, E] {
-  override def build(context : Context[UUID, E]): Unit = {
+class GenericManyToOneProvider[E] extends PredicateProvider[IdProvider, E] {
+  override def build(context : Context[IdProvider, E]): Unit = {
     val Context(value, entityManager, builder, predicates, root, query, selection, property, name, parameters) = context
 
     if (Objects.nonNull(value)) 
-      predicates.addOne(builder.equal(root.get(property.name).get("id"), value))
+      predicates.addOne(builder.equal(root.get(property.name).get("id"), value.id))
   }
 }

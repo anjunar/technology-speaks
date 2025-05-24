@@ -13,10 +13,10 @@ import scala.compiletime.uninitialized
 
 class PostTableSearch extends AbstractSearch {
 
-  @Descriptor(title = "User", writeable = true, widget = "lazy-select", schemaType = classOf[User])
+  @Descriptor(title = "User", writeable = true, widget = "lazy-select")
   @RestPredicate(classOf[GenericManyToOneProvider[?]])
   @QueryParam("user")
   @BeanProperty
-  var user: UUID = uninitialized
+  var user: User = uninitialized
 
 }

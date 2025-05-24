@@ -25,7 +25,7 @@ class DocumentService {
   def createChunks(text: String): String = {
     val message = new ChatMessage
     message.role = ChatRole.USER
-    message.content = "Teile den folgenden Text in thematisch zusammengehörende Abschnitte auf. Jeder Abschnitt soll ein eigenes Thema enthalten.Gib die Abschnitte als JSON-Liste zurück mit : 'title' und 'content' : " + text
+    message.content = "Teile den folgenden Text in thematisch zusammengehörende Abschnitte auf. Jeder Abschnitt soll ein eigenes Thema enthalten und den original Text wiedergeben. Gib die Abschnitte als JSON-Liste zurück mit : 'title' und 'content' : " + text
 
     val titleNode = new JsonNode
     titleNode.nodeType = NodeType.STRING
@@ -56,7 +56,12 @@ class DocumentService {
     request.input = text
     request.model = "Llama3.2"
 
-    service.generateEmbeddings(request).embeddings.head
+    normalize(service.generateEmbeddings(request).embeddings.head)
+  }
+
+  def normalize(vec: Array[Float]): Array[Float] = {
+    val norm = math.sqrt(vec.map(x => x * x).sum).toFloat
+    vec.map(_ / norm)
   }
 
   def findTop5Embeddings(vector: Array[Float]): java.util.List[Chunk] = {
@@ -86,6 +91,35 @@ class DocumentService {
         .toList
   }
 
+  def findTop5Documents(vector: Array[Float]): java.util.List[Document] = {
+    val cb = entityManager.getCriteriaBuilder
+    val query = cb.createTupleQuery()
+    val root = query.from(classOf[Document])
+    val join = root.join("chunks")
+
+    val distanceExpr = cb.avg(cb.function(
+      "cosine_distance",
+      classOf[java.lang.Double],
+      join.get("embedding"),
+      cb.parameter(classOf[Array[java.lang.Float]], "embedding")
+    ))
+
+    query.multiselect(root, distanceExpr)
+      .orderBy(cb.asc(distanceExpr))
+      .groupBy(root)
+
+    entityManager.createQuery(query)
+      .setParameter("embedding", vector)
+      .setMaxResults(5)
+      .getResultStream
+      .map(entity => {
+        val document = entity.get(0, classOf[Document])
+        document.score = entity.get(1, classOf[Double])
+        document
+      })
+      .toList
+  }
+
   def update(document: Document): Unit = {
 
     val text = toText(document.editor.json)
@@ -112,7 +146,7 @@ class DocumentService {
     document.chunks.addAll(chunks)
   }
 
-  private def toText(root: Node): String = root match {
+  def toText(root: Node): String = root match {
     case node : Table => ""
     case node : ContainerNode => node.children.stream().map(node => toText(node)).collect(Collectors.joining("\n"))
     case node : TextNode => node.value

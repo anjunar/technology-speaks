@@ -15,6 +15,7 @@ class LoggingRequestFilter extends ClientRequestFilter {
     val entity = requestContext.getEntity
 
     val mapper = new ObjectMapper()
+      .setSerializationInclusion(com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY)
 
     println(mapper.writeValueAsString(entity))
 

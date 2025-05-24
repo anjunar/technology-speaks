@@ -25,6 +25,4 @@ public @interface Descriptor {
 
     boolean hidden() default false;
 
-    Class<?> schemaType() default Void.class;
-
 }

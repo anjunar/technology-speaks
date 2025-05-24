@@ -12,8 +12,6 @@ function FormPage(properties: FormView.Attributes) {
 
     let url = atob(queryParams.link || "")
 
-    let body = atob(queryParams.body || "")
-
     const domain = useForm(properties.form);
 
     function generateLinks() {
@@ -24,7 +22,7 @@ function FormPage(properties: FormView.Attributes) {
                     <Link
                         style={{margin: "5px"}}
                         key={link.rel}
-                        value={`/navigator/${link.linkType}?link=${btoa(link.url)}&body=${btoa(JSON.stringify(JSONSerializer(link.body)))}`}
+                        value={`/navigator/${link.linkType}?link=${btoa(link.url)}`}
                     >
                         {link.title}
                     </Link>
@@ -149,8 +147,6 @@ function FormPage(properties: FormView.Attributes) {
     return (
         <div>
             {url}
-            <br/>
-            {body}
             <br/>
             {links1}
             <SchemaForm value={domain} onSubmit={onSubmit}>

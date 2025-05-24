@@ -30,7 +30,10 @@ import scala.jdk.CollectionConverters.*
 class DocumentTableResource extends SchemaBuilderContext {
 
   @Inject
-  var service : DocumentService = uninitialized
+  var documentService : DocumentService = uninitialized
+
+  @Inject
+  var jpaSearch: JPASearch = uninitialized
 
   @GET
   @Produces(Array("application/json"))
@@ -39,11 +42,17 @@ class DocumentTableResource extends SchemaBuilderContext {
   @LinkDescription(value = "Documents", linkType = LinkType.TABLE)
   def list(@BeanParam search : DocumentTableSearch): QueryTable[DocumentTableSearch, Document] = {
 
-    val entities: util.List[Document] = if (Strings.isNullOrEmpty(search.text)) {
-      Lists.newArrayList()
-    } else {
-      searchWithAI(search)
-    }
+    val context = jpaSearch.searchContext(search)
+    val tuples = jpaSearch.entities(search.index, search.limit, classOf[Document], context)
+    val entities = tuples.stream().map(tuple => {
+      val document = tuple.get(0, classOf[Document])
+      if (tuple.getElements.size() > 1) {
+        val distance = tuple.get(1, classOf[Double])
+        document.score = distance
+      }
+      document
+    }).toList
+    val count = jpaSearch.count(classOf[Document], context)
 
     forLinks(classOf[QueryTable[DocumentTableSearch, Document]], (instance, link) => {
       linkTo(methodOn(classOf[DocumentFormResource]).create)
@@ -57,33 +66,7 @@ class DocumentTableResource extends SchemaBuilderContext {
       })
     })
 
-    new QueryTable[DocumentTableSearch, Document](new DocumentTableSearch(), entities, entities.size())
+    new QueryTable[DocumentTableSearch, Document](new DocumentTableSearch(), entities, count)
   }
 
-  private def searchWithAI(search: DocumentTableSearch) = {
-    val embeddings = service.createEmbeddings(search.text)
-    val chunks = service.findTop5Embeddings(embeddings)
-
-    val docStatsMap: Map[Document, DocStats] = chunks.asScala
-      .groupBy(_.document)
-      .view
-      .mapValues { chunkList =>
-        val count = chunkList.size
-        val totalDist = chunkList.map(_.distance).sum
-        DocStats(chunkList.head.document, count, totalDist)
-      }.toMap
-
-    def score(docStat: DocStats): Double =
-      docStat.count / (1.0 + docStat.avgDistance)
-
-    val entities: util.List[Document] = docStatsMap.values
-      .toList
-      .sortBy(ds => -score(ds))
-      .map { stat =>
-        stat.document.score = score(stat)
-        stat.document
-      }
-      .asJava
-    entities
-  }
 }

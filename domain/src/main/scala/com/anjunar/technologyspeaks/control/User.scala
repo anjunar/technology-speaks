@@ -2,7 +2,7 @@ package com.anjunar.technologyspeaks.control
 
 import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
 import com.anjunar.technologyspeaks.jpa
-import com.anjunar.technologyspeaks.jpa.{RepositoryContext, Save}
+import com.anjunar.technologyspeaks.jpa.{PostgresIndex, PostgresIndices, RepositoryContext, Save}
 import com.anjunar.technologyspeaks.openstreetmap.geocoding.GeoService
 import com.anjunar.technologyspeaks.openstreetmap.geocoding2.MapBoxService
 import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityUser}
@@ -24,6 +24,9 @@ import org.hibernate.annotations
 
 
 @Entity
+@PostgresIndices(Array(
+  new PostgresIndex(name = "user_idx_nickName", columnList = "nickName", using = "GIN")
+))
 class User extends Identity with OwnerProvider with SecurityUser {
 
   @Size(min = 3, max = 80)

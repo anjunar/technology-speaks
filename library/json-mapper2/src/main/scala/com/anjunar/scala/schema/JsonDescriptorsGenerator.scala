@@ -67,16 +67,7 @@ object JsonDescriptorsGenerator {
 
         val converter = property.findAnnotation(classOf[Converter])
 
-        val descriptorAnnotation = property.findAnnotation(classOf[Descriptor])
-        val propertyType = if (descriptorAnnotation == null || descriptorAnnotation.schemaType() == classOf[Void]) {
-          property.propertyType
-        } else {
-          if (classOf[util.Collection[?]].isAssignableFrom(property.propertyType.raw)) {
-            TypeResolver.resolve(Helper.mapOf(descriptorAnnotation.schemaType()).getType)
-          } else {
-            TypeResolver.resolve(descriptorAnnotation.schemaType())
-          }
-        }
+        val propertyType = property.propertyType
 
         if (converter == null) {
           findAnalyzer(propertyType) match
