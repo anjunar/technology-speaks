@@ -6,9 +6,11 @@ import com.anjunar.technologyspeaks.control.EMail
 object EMailSchema {
 
   def static(builder: EntitySchemaBuilder[EMail]): EntitySchemaBuilder[EMail] = {
-    builder.property("value", property => property
-      .withWriteable(true)
-    )
+    builder
+      .property("id")
+      .property("value", property => property
+        .withWriteable(true)
+      )
   }
 
 
