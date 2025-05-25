@@ -24,13 +24,11 @@ class UserInfo extends AbstractEntity {
   var user : User = uninitialized
 
   @Size(min = 3, max = 80)
-  @NotBlank 
   @BeanProperty
   @Descriptor(title = "Vorname", naming = true)
   var firstName : String = uninitialized
   
   @Size(min = 3, max = 80)
-  @NotBlank
   @BeanProperty
   @Descriptor(title = "Nachname", naming = true)
   var lastName : String = uninitialized
@@ -41,7 +39,6 @@ class UserInfo extends AbstractEntity {
   var image : Media = uninitialized
   
   @Past
-  @NotNull
   @BeanProperty
   @Descriptor(title = "Geburtsdatum")
   var birthDate: LocalDate = uninitialized

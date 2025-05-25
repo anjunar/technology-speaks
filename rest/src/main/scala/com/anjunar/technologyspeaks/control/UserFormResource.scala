@@ -44,7 +44,7 @@ class UserFormResource extends SchemaBuilderContext {
     val user = new User
 
     forLinks(classOf[User], (user, link) => {
-      linkTo(methodOn(classOf[UserFormResource]).update(user))
+      linkTo(methodOn(classOf[UserFormResource]).save(user))
         .build(link.addLink)
       linkTo(methodOn(classOf[UserFormResource]).delete(user.id))
         .build(link.addLink)

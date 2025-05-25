@@ -549,7 +549,7 @@ export class MinLength implements Validator {
 
     validate(value: any) {
         if (typeof value === "string") {
-            return value.length > this.min
+            return value.length === 0 || value.length > this.min
         }
         return false
     }

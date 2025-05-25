@@ -16,25 +16,21 @@ class Address extends AbstractEntity {
   @BeanProperty
   var user : User = uninitialized
 
-  @NotBlank
   @Size(min = 3, max = 80)
   @BeanProperty
   @Descriptor(title = "Straße", naming = true)
   var street : String = uninitialized
 
-  @NotBlank
   @Size(min = 0, max = 10)
   @BeanProperty
   @Descriptor(title = "Hausnummer", naming = true)
   var number : String = uninitialized
 
-  @NotBlank
   @Pattern(regexp = "^\\d{5,5}$")
   @BeanProperty
   @Descriptor(title = "Postleitzahl")
   var zipCode : String = uninitialized
 
-  @NotBlank
   @Size(min = 3, max = 80)
   @BeanProperty
   @Descriptor(title = "Land")

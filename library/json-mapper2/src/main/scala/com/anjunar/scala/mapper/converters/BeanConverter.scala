@@ -10,6 +10,7 @@ import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.google.common.reflect.TypeToken
 import com.typesafe.scalalogging.Logger
+import jakarta.persistence.OneToMany
 import jakarta.validation.ConstraintViolation
 
 import java.lang.reflect.Type
@@ -199,7 +200,8 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
               val jpaConverter = property.findAnnotation(classOf[Converter])
 
               if (jpaConverter == null) {
-                converter.toJava(currentNode.get, property.propertyType, Context(context, property.name, context.noValidation, descriptor.schemaBuilder, context))
+                val newContext = Context(context, property.name, context.noValidation, descriptor.schemaBuilder, context)
+                converter.toJava(currentNode.get, property.propertyType, newContext)
               } else {
                 val jpaConverterInstance = jpaConverter.value().getConstructor().newInstance()
                 jpaConverterInstance.toJava(currentNode.get.value)
@@ -235,6 +237,19 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
             } else {
               context.violations.addAll(violations)
             }
+
+            val oneToMany = property.findAnnotation(classOf[OneToMany])
+            if (oneToMany != null && oneToMany.mappedBy().nonEmpty) {
+              value match {
+                case collection : util.Collection[AnyRef] =>
+                  collection.forEach(element => {
+                    val beanModel = BeanIntrospector.createWithType(element.getClass)
+                    val mappedByProperty = beanModel.findProperty(oneToMany.mappedBy())
+                    mappedByProperty.set(element, entity)
+                  })
+              }
+            }
+
           }
         }
       }

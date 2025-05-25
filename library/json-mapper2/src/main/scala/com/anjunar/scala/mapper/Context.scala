@@ -7,6 +7,7 @@ import jakarta.validation.{ConstraintViolation, Validator}
 
 import java.util
 import scala.collection.mutable
+import scala.compiletime.uninitialized
 
 case class Context(parent : Context,
                    name : String,

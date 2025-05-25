@@ -20,9 +20,6 @@ export default class User extends Identity {
     emails : EMail[] = []
 
     @Basic()
-    password : string = ""
-
-    @Basic()
     info : UserInfo
 
     @Basic()

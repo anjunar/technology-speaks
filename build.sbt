@@ -25,6 +25,7 @@ lazy val jsonMapper2 = (project in file("library/json-mapper2"))
     libraryDependencies ++= Seq(
       "jakarta.validation" % "jakarta.validation-api" % "3.1.1",
       "jakarta.enterprise" % "jakarta.enterprise.cdi-api" % "4.1.0",
+      "jakarta.persistence" % "jakarta.persistence-api" % "3.2.0",
       "jakarta.ws.rs" % "jakarta.ws.rs-api" % "4.0.0",
       "com.fasterxml.jackson.core" % "jackson-annotations" % "2.19.0",
       "org.apache.commons" % "commons-lang3" % "3.17.0",
@@ -72,6 +73,7 @@ lazy val application = (project in file("application"))
       "jakarta.enterprise" % "jakarta.enterprise.cdi-api",
       "jakarta.platform" % "jakarta.jakartaee-api",
       "jakarta.validation" % "jakarta.validation-api",
+      "jakarta.persistence" % "jakarta.persistence-api",
       "jakarta.ws.rs" % "jakarta.ws.rs-api",
       "net.bytebuddy" % "byte-buddy",
       "org.apache.commons" % "commons-lang3",

@@ -17,15 +17,16 @@ class EMail extends AbstractEntity {
 
   @Email
   @NotBlank
-  @BeanProperty
   @Descriptor(title = "Email", naming = true, widget = "email")
   @Column(unique = true)
+  @BeanProperty
   var value: String = uninitialized
 
   @BeanProperty
   var handle: Array[Byte] = uninitialized
 
   @ManyToOne(optional = false)
+  @BeanProperty
   var user : User = uninitialized
 
   @BeanProperty

@@ -7,10 +7,10 @@ export default class UserInfo extends AbstractEntity {
     $type = "UserInfo"
 
     @Basic()
-    firstName : string = ""
+    firstName : string
 
     @Basic()
-    lastName : string = ""
+    lastName : string
 
     @Basic({
         default : null
