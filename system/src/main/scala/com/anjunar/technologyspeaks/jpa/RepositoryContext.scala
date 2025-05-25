@@ -51,7 +51,6 @@ trait RepositoryContext[E](clazz: Class[E]) {
     entityManager.createQuery(qlString, classOf[Long])
   }
 
-
   def entityManager: EntityManager = {
     entityManagers.get()
   }

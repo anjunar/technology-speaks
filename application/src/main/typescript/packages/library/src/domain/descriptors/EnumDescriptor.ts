@@ -2,10 +2,10 @@ import NodeDescriptor from "./NodeDescriptor";
 import Basic from "../../mapper/annotations/Basic";
 import Entity from "../../mapper/annotations/Entity";
 
-@Entity("enumDescriptor")
+@Entity("EnumDescriptor")
 export default class EnumDescriptor extends NodeDescriptor {
 
-    $type = "enumDescriptor"
+    $type = "EnumDescriptor"
 
     @Basic()
     enums : string[]

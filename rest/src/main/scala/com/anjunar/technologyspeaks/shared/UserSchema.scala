@@ -52,7 +52,7 @@ object UserSchema {
       .property("id")
       .property("nickName")
       .property("info", property => property
-        .withManaged(name => manage(loaded, isOwnedOrAdmin, view, name), (id, link) => {
+        .withManaged(name => ManagedProperty.manage(loaded, isOwnedOrAdmin, view, name), (id, link) => {
           linkTo(methodOn(classOf[ManagedPropertyFormResource]).read(id))
             .withRel("secured")
             .build(link.addLink)
@@ -77,7 +77,7 @@ object UserSchema {
         )
         .property("deleted")
         .property("emails", property => property
-          .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
+          .withManaged(name => ManagedProperty.manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
             linkTo(methodOn(classOf[ManagedPropertyFormResource]).read(id))
               .withRel("secured")
               .build(link.addLink)
@@ -89,7 +89,7 @@ object UserSchema {
         )
         .property("info", property => property
           .withWriteable(isOwnedOrAdmin)
-          .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
+          .withManaged(name => ManagedProperty.manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
             linkTo(methodOn(classOf[ManagedPropertyFormResource]).read(id))
               .withRel("secured")
               .build(link.addLink)
@@ -98,7 +98,7 @@ object UserSchema {
         )
         .property("address", property => property
           .withWriteable(isOwnedOrAdmin)
-          .withManaged(name => manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
+          .withManaged(name => ManagedProperty.manage(currentUser, isOwnedOrAdmin, view, name), (id, link) => {
             linkTo(methodOn(classOf[ManagedPropertyFormResource]).read(id))
               .withRel("secured")
               .build(link.addLink)
@@ -106,31 +106,6 @@ object UserSchema {
           .forType(classOf[Address], AddressSchema.dynamic(_, loaded.address))
         )
 
-  }
-
-  private def manage(currentUser: User, isOwnedOrAdmin: Boolean, view: EntityView, name: String) : (Boolean, UUID) = {
-    val managedProperty = view.properties
-      .stream()
-      .filter(property => property.value == name)
-      .findFirst()
-      .orElseGet(() => {
-        val property = new ManagedProperty()
-        property.value = name
-        property.view = view
-        property.persist()
-        view.properties.add(property)
-        property
-      })
-
-    if (isOwnedOrAdmin) {
-      (true, managedProperty.id)
-    } else {
-      if (managedProperty.visibleForAll) {
-        (true, null)
-      } else {
-        (managedProperty.users.contains(currentUser) || managedProperty.groups.stream().anyMatch(group => group.users.contains(currentUser)), null)
-      }
-    }
   }
 
 }

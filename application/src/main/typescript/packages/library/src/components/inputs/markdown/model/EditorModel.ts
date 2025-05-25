@@ -3,10 +3,10 @@ import {AbstractEntity} from "../../../../domain/container";
 import EditorFile from "./EditorFile";
 import {Root} from "mdast";
 
-@Entity("editor")
+@Entity("Editor")
 export default class EditorModel extends AbstractEntity {
 
-    $type = "editor"
+    $type = "Editor"
 
     @Basic()
     files: EditorFile[] = []

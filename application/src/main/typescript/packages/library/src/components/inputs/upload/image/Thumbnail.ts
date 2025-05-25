@@ -2,10 +2,10 @@ import Entity from "../../../../mapper/annotations/Entity";
 import AbstractEntity from "../../../../domain/container/AbstractEntity";
 import Basic from "../../../../mapper/annotations/Basic";
 
-@Entity("thumbnail")
+@Entity("Thumbnail")
 export default class Thumbnail extends AbstractEntity {
 
-    $type = "thumbnail"
+    $type = "Thumbnail"
 
     @Basic()
     name : string

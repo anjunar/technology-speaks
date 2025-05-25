@@ -1,9 +1,9 @@
 import {AbstractEntity, Basic, Entity} from "react-ui-simplicity";
 
-@Entity("chunk")
+@Entity("Chunk")
 export default class Chunk extends AbstractEntity {
 
-    $type = "chunk"
+    $type = "Chunk"
 
     @Basic()
     title : string

@@ -91,17 +91,21 @@ object User extends RepositoryContext[User](classOf[User]) {
 
   object View extends RepositoryContext[View](classOf[View]) {
     def findByUser(user : User) : View = {
-      try {
-        User.View.query("select v from UserView v where v.user = :user")
-          .setParameter("user", user)
-          .getSingleResult
-      } catch {
-        case e : NoResultException => {
-          val view = new View()
-          view.user = user
-          view.persist()
-          view
+      if (user.isPersistent) {
+        try {
+          User.View.query("select v from UserView v where v.user = :user")
+            .setParameter("user", user)
+            .getSingleResult
+        } catch {
+          case e: NoResultException => {
+            val view = new View()
+            view.user = user
+            view.persist()
+            view
+          }
         }
+      } else {
+        null
       }
     }
   }

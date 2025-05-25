@@ -4,10 +4,10 @@ import type LinkContainerObject from "./LinkContainerObject";
 import ActiveObject from "./ActiveObject";
 import LinksObject from "./LinksObject";
 
-@Entity("table")
+@Entity("Table")
 export default class TableObject<R> extends ActiveObject implements LinksObject {
 
-    $type = "table"
+    $type = "Table"
 
     @Basic()
     rows : R[]

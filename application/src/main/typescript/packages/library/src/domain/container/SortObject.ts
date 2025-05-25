@@ -2,10 +2,10 @@ import {Entity} from "../../mapper";
 import ActiveObject from "./ActiveObject";
 import Basic from "../../mapper/annotations/Basic";
 
-@Entity("sort")
+@Entity("Sort")
 export default class SortObject extends ActiveObject {
 
-    $type = "sort"
+    $type = "Sort"
 
     @Basic()
     property : string

@@ -1,10 +1,10 @@
 import User from "./control/User";
 import {ActiveObject, Basic, Entity} from "react-ui-simplicity";
 
-@Entity("application")
+@Entity("Application")
 export default class Application extends ActiveObject {
 
-    $type = "application"
+    $type = "Application"
 
     @Basic()
     user: User

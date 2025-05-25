@@ -22,17 +22,12 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
   val log = Logger[BeanConverter]
 
-  def lowercaseFirstChar(s: String): String = {
-    if (s.isEmpty) s
-    else s.head.toLower + s.tail
-  }
-
   override def toJson(instance: Any, aType: ResolvedClass, context: Context): JsonNode = {
 
     val jsonTypeInfo = aType.findAnnotation(classOf[JsonTypeInfo])
 
     val properties = new mutable.LinkedHashMap[String, JsonNode]
-    properties.put(if jsonTypeInfo == null then "$type" else jsonTypeInfo.property(), JsonString(lowercaseFirstChar(instance.getClass.getSimpleName)))
+    properties.put(if jsonTypeInfo == null then "$type" else jsonTypeInfo.property(), JsonString(instance.getClass.getSimpleName))
     val jsonObject = JsonObject(properties)
 
     val links = new mutable.LinkedHashMap[String, JsonNode]
@@ -167,7 +162,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
       val beanModel = if (jsonSubTypes == null) BeanIntrospector.create(aType) else
         BeanIntrospector.createWithType(
-          jsonSubTypes.value().find(subType => lowercaseFirstChar(subType.value().getSimpleName) == jsonObject.value(if jsonTypeInfo == null then "$type" else jsonTypeInfo.property()).value).get.value()
+          jsonSubTypes.value().find(subType => subType.value().getSimpleName == jsonObject.value(if jsonTypeInfo == null then "$type" else jsonTypeInfo.property()).value).get.value()
         )
 
       val entity = context.loader.load(jsonObject, beanModel.underlying, Array())

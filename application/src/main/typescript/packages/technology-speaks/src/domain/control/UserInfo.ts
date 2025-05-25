@@ -1,10 +1,10 @@
 import {LocalDate} from "@js-joda/core";
 import {AbstractEntity, Basic, Entity, Media} from "react-ui-simplicity";
 
-@Entity("userInfo")
+@Entity("UserInfo")
 export default class UserInfo extends AbstractEntity {
 
-    $type = "userInfo"
+    $type = "UserInfo"
 
     @Basic()
     firstName : string = ""

@@ -1,9 +1,9 @@
 import {ActiveObject, Basic, Entity} from "react-ui-simplicity";
 
-@Entity("geoPoint")
+@Entity("GeoPoint")
 export default class GeoPoint extends ActiveObject {
 
-    $type = "geoPoint"
+    $type = "GeoPoint"
 
     @Basic()
     x : number

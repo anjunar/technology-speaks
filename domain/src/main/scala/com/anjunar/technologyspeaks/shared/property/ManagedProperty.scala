@@ -10,6 +10,7 @@ import jakarta.persistence.{Column, Entity, ManyToMany, ManyToOne}
 import jakarta.validation.constraints.Size
 
 import java.util
+import java.util.UUID
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
@@ -43,4 +44,35 @@ class ManagedProperty extends AbstractEntity with OwnerProvider {
   override def owner: SecurityUser = view.user
 }
 
-object ManagedProperty extends RepositoryContext[ManagedProperty](classOf[ManagedProperty])
+object ManagedProperty extends RepositoryContext[ManagedProperty](classOf[ManagedProperty]) {
+
+  def manage(currentUser: User, isOwnedOrAdmin: Boolean, view: EntityView, name: String): (Boolean, UUID) = {
+    if (view == null) {
+      return (true, null)
+    }
+    val managedProperty = view.properties
+      .stream()
+      .filter(property => property.value == name)
+      .findFirst()
+      .orElseGet(() => {
+        val property = new ManagedProperty()
+        property.value = name
+        property.view = view
+        property.persist()
+        view.properties.add(property)
+        property
+      })
+
+    if (isOwnedOrAdmin) {
+      (true, managedProperty.id)
+    } else {
+      if (managedProperty.visibleForAll) {
+        (true, null)
+      } else {
+        (managedProperty.users.contains(currentUser) || managedProperty.groups.stream().anyMatch(group => group.users.contains(currentUser)), null)
+      }
+    }
+  }
+
+
+}

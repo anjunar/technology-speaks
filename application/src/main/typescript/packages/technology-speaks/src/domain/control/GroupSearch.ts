@@ -1,9 +1,9 @@
 import {AbstractSearch, Basic, Entity} from "react-ui-simplicity";
 
-@Entity("groupTableSearch")
+@Entity("GroupTableSearch")
 export default class GroupSearch extends AbstractSearch {
 
-    $type = "groupTableSearch"
+    $type = "GroupTableSearch"
 
     @Basic()
     name : string

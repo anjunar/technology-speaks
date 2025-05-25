@@ -2,10 +2,10 @@ import Entity from "../../mapper/annotations/Entity";
 import Basic from "../../mapper/annotations/Basic";
 import ActiveObject from "./ActiveObject";
 
-@Entity("link")
+@Entity("Link")
 export default class LinkObject {
 
-    $type = "link"
+    $type = "Link"
 
     @Basic()
     url : string

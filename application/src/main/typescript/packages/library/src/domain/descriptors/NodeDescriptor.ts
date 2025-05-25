@@ -3,10 +3,10 @@ import type LinkContainerObject from "../container/LinkContainerObject";
 import MappedSuperclass from "../../mapper/annotations/MappedSuperclass";
 import ValidatorContainer from "./validators/ValidatorContainer";
 
-@MappedSuperclass("nodeDescriptor")
+@MappedSuperclass("NodeDescriptor")
 export default class NodeDescriptor {
 
-    $type = "nodeDescriptor"
+    $type = "NodeDescriptor"
 
     @Basic()
     type : string

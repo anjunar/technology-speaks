@@ -1,9 +1,9 @@
 import {Basic, Entity, AbstractEntity} from "react-ui-simplicity";
 
-@Entity("role")
+@Entity("Role")
 export default class Role extends AbstractEntity {
 
-    $type = "role"
+    $type = "Role"
 
     @Basic()
     name : string

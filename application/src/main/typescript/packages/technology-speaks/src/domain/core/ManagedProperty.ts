@@ -1,10 +1,10 @@
 import {AbstractEntity, Basic, Entity} from "react-ui-simplicity";
 import Group from "../control/Group";
 
-@Entity("managedProperty")
+@Entity("ManagedProperty")
 export default class ManagedProperty extends AbstractEntity {
 
-    $type = "managedProperty"
+    $type = "ManagedProperty"
 
     @Basic()
     visibleForAll : boolean

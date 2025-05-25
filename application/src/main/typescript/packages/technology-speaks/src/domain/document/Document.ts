@@ -2,10 +2,10 @@ import {AbstractEntity, Basic, Entity, MarkDown, RootNode} from "react-ui-simpli
 import User from "../control/User";
 import {EditorModel} from "react-ui-simplicity";
 
-@Entity("document")
+@Entity("Document")
 export default class Document extends AbstractEntity {
 
-    $type = "document"
+    $type = "Document"
 
     @Basic()
     score : number

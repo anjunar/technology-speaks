@@ -1,10 +1,10 @@
 import {AbstractSearch, Basic, Entity} from "react-ui-simplicity";
 import {LocalDate} from "@js-joda/core";
 
-@Entity("userTableSearch")
+@Entity("UserTableSearch")
 export default class UserSearch extends AbstractSearch {
 
-    $type = "userTableSearch"
+    $type = "UserTableSearch"
 
     @Basic()
     email : string

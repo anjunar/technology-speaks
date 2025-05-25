@@ -1,10 +1,10 @@
 import {Basic, Entity} from "react-ui-simplicity";
 import {AbstractSearch} from "react-ui-simplicity";
 
-@Entity("documentTableSearch")
+@Entity("DocumentTableSearch")
 export default class DocumentSearch extends AbstractSearch {
 
-    $type = "documentTableSearch"
+    $type = "DocumentTableSearch"
 
     @Basic()
     text : string

@@ -62,6 +62,8 @@ trait EntityContext {
     }
   }
 
+  def isPersistent: Boolean = entityManager.contains(this)
+
   def entityManager: EntityManager = {
     CDI.current().select(classOf[EntityManager]).get()
   }

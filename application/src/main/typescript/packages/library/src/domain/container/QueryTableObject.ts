@@ -4,10 +4,10 @@ import type LinkContainerObject from "./LinkContainerObject";
 import ActiveObject from "./ActiveObject";
 import LinksObject from "./LinksObject";
 
-@Entity("queryTable")
+@Entity("QueryTable")
 export default class QueryTableObject<S, R> extends ActiveObject implements LinksObject {
 
-    $type = "queryTable"
+    $type = "QueryTable"
 
     @Basic()
     rows : R[]

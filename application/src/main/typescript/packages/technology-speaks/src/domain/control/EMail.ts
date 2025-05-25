@@ -1,9 +1,9 @@
 import {Basic, Entity, AbstractEntity} from "react-ui-simplicity";
 
-@Entity("eMail")
+@Entity("EMail")
 export default class EMail extends AbstractEntity {
 
-    $type = "eMail"
+    $type = "EMail"
 
     @Basic()
     value : string
