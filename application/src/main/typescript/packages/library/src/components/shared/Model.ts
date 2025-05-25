@@ -548,6 +548,9 @@ export class MinLength implements Validator {
     }
 
     validate(value: any) {
+        if (value === undefined) {
+            return true
+        }
         if (typeof value === "string") {
             return value.length === 0 || value.length > this.min
         }
@@ -567,6 +570,9 @@ export class MaxLength implements Validator {
     }
 
     validate(value: any) {
+        if (value === undefined) {
+            return true
+        }
         if (typeof value === "string") {
             return value.length < this.max
         }
