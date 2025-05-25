@@ -10,7 +10,7 @@ import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.google.common.reflect.TypeToken
 import com.typesafe.scalalogging.Logger
-import jakarta.persistence.OneToMany
+import jakarta.persistence.{ManyToMany, OneToMany, OneToOne}
 import jakarta.validation.ConstraintViolation
 
 import java.lang.reflect.Type
@@ -196,7 +196,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
             val converter = registry.find(property.propertyType)
             val currentNode = jsonObject.value.get(property.name)
 
-            val value = if currentNode.isDefined then {
+            val propertyValue = if currentNode.isDefined then {
               val jpaConverter = property.findAnnotation(classOf[Converter])
 
               if (jpaConverter == null) {
@@ -220,11 +220,11 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
             val violations : util.Set[ConstraintViolation[Any]] = if (context.noValidation) {
               new util.HashSet[ConstraintViolation[Any]]()
             } else {
-              context.validator.validateValue(aType.raw.asInstanceOf[Class[Any]], property.name, value)
+              context.validator.validateValue(aType.raw.asInstanceOf[Class[Any]], property.name, propertyValue)
             }
 
             if (violations.isEmpty) {
-              value match
+              propertyValue match
                 case collection: util.Collection[Any] =>
                   val underlyingCollection = property.get(entity).asInstanceOf[util.Collection[Any]]
                   underlyingCollection.clear()
@@ -233,20 +233,48 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
                   val underlyingMap = property.get(entity).asInstanceOf[util.Map[Any, Any]]
                   underlyingMap.clear()
                   underlyingMap.putAll(map)
-                case _ => property.set(entity, value)
+                case _ => property.set(entity, propertyValue)
             } else {
               context.violations.addAll(violations)
             }
 
+            val oneToOne = property.findAnnotation(classOf[OneToOne])
+            if (oneToOne != null && oneToOne.mappedBy().nonEmpty) {
+              val beanModel = BeanIntrospector.createWithType(propertyValue.getClass)
+              val mappedByProperty = beanModel.findProperty(oneToOne.mappedBy())
+              mappedByProperty.set(propertyValue.asInstanceOf[AnyRef], entity)
+            }
+
             val oneToMany = property.findAnnotation(classOf[OneToMany])
             if (oneToMany != null && oneToMany.mappedBy().nonEmpty) {
-              value match {
+              propertyValue match {
                 case collection : util.Collection[AnyRef] =>
                   collection.forEach(element => {
                     val beanModel = BeanIntrospector.createWithType(element.getClass)
                     val mappedByProperty = beanModel.findProperty(oneToMany.mappedBy())
                     mappedByProperty.set(element, entity)
                   })
+              }
+            }
+
+            val manyToMany = property.findAnnotation(classOf[ManyToMany])
+            if (manyToMany != null && manyToMany.mappedBy().nonEmpty) {
+              propertyValue match {
+                case collection: util.Collection[AnyRef] =>
+                  collection.forEach { element =>
+                    val beanModel = BeanIntrospector.createWithType(element.getClass)
+                    val inverseCollectionProp = beanModel.findProperty(manyToMany.mappedBy())
+                    val inverseCollectionValue = inverseCollectionProp.get(element) match {
+                      case null =>
+                        val newList = new util.ArrayList[AnyRef]()
+                        inverseCollectionProp.set(element, newList)
+                        newList
+                      case existing: util.Collection[AnyRef] => existing
+                    }
+                    if (!inverseCollectionValue.contains(entity)) {
+                      inverseCollectionValue.add(entity)
+                    }
+                  }
               }
             }
 
