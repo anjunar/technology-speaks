@@ -10,7 +10,7 @@ import java.time.LocalDate
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
-class UserTableSearch extends AbstractSearch {
+class UserSearch extends AbstractSearch {
 
   @Descriptor(title = "Email", writeable = true)
   @RestPredicate(classOf[GenericNameProvider[?]])

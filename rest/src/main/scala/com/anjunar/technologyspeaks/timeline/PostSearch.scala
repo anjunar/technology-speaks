@@ -11,7 +11,7 @@ import java.util.UUID
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
-class PostTableSearch extends AbstractSearch {
+class PostSearch extends AbstractSearch {
 
   @Descriptor(title = "User", writeable = true, widget = "lazy-select")
   @RestPredicate(classOf[GenericManyToOneProvider[?]])

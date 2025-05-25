@@ -1,10 +1,10 @@
 import {AbstractSearch, Basic, Entity} from "react-ui-simplicity";
 import User from "../control/User";
 
-@Entity("PostTableSearch")
+@Entity("PostSearch")
 export default class PostSearch extends AbstractSearch {
 
-    $type = "PostTableSearch"
+    $type = "PostSearch"
 
     @Basic()
     user : User

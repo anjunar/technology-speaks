@@ -30,12 +30,29 @@ import scala.compiletime.uninitialized
   var jpaSearch: JPASearch = uninitialized
 
   @GET
+  @Path("search")
+  @Produces(Array("application/json"))
+  @JsonSchema(classOf[RoleSearchSchema])
+  @RolesAllowed(Array("Guest", "User", "Administrator"))
+  @LinkDescription(value = "Roles", linkType = LinkType.TABLE)
+  def search(@BeanParam search: RoleSearch): RoleSearch = {
+
+    forLinks(classOf[RoleSearch], (instance, link) => {
+      linkTo(methodOn(classOf[RoleTableResource]).list(search))
+        .build(link.addLink)
+    })
+
+    new RoleSearch
+  }
+
+
+  @GET
   @Produces(Array("application/json"))
   @Consumes(Array("application/json"))
   @JsonSchema(classOf[RoleTableSchema])
   @RolesAllowed(Array("Guest", "User", "Administrator"))
   @LinkDescription(value = "Roles", linkType = LinkType.TABLE)
-  def list(@BeanParam search: RoleTableSearch): QueryTable[RoleTableSearch, Role] = {
+  def list(@BeanParam search: RoleSearch): Table[Role] = {
     val context = jpaSearch.searchContext(search)
     val tuples = jpaSearch.entities(search.index, search.limit, classOf[Role], context)
     val entities = tuples.stream().map(tuple => tuple.get(0, classOf[Role])).toList
@@ -53,6 +70,6 @@ import scala.compiletime.uninitialized
       })
     })
 
-    new QueryTable[RoleTableSearch, Role](new RoleTableSearch, entities, count)
+    new Table[Role](entities, count)
   }
 }

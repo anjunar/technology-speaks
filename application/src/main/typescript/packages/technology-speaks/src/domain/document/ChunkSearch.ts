@@ -1,10 +1,10 @@
 import {AbstractSearch, Basic, Entity} from "react-ui-simplicity";
 import Document from "./Document"
 
-@Entity("chunkTableSearch")
+@Entity("ChunkSearch")
 export default class ChunkSearch extends AbstractSearch {
 
-    $type = "chunkTableSearch"
+    $type = "ChunkSearch"
 
     @Basic()
     document : Document

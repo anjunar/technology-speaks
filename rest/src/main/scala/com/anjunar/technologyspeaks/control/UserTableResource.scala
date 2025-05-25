@@ -35,11 +35,28 @@ class UserTableResource extends SchemaBuilderContext {
   var jpaSearch: JPASearch = uninitialized
 
   @GET
+  @Path("search")
+  @Produces(Array("application/json"))
+  @JsonSchema(classOf[UserSearchSchema])
+  @RolesAllowed(Array("User", "Administrator"))
+  @LinkDescription(value = "Benutzer", linkType = LinkType.TABLE)
+  def search(@BeanParam search: UserSearch): UserSearch = {
+
+    forLinks(classOf[UserSearch], (instance, link) => {
+      linkTo(methodOn(classOf[UserTableResource]).list(search))
+        .build(link.addLink)
+    })
+
+    new UserSearch
+  }
+
+
+  @GET
   @Produces(Array("application/json"))
   @JsonSchema(classOf[UserTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Benutzer", linkType = LinkType.TABLE)
-  def list(@BeanParam search: UserTableSearch): QueryTable[UserTableSearch, User] = {
+  def list(@BeanParam search: UserSearch): Table[User] = {
     val context = jpaSearch.searchContext(search)
     val tuples = jpaSearch.entities(search.index, search.limit, classOf[User], context)
     val entities = tuples.stream().map(tuple => {
@@ -67,6 +84,6 @@ class UserTableResource extends SchemaBuilderContext {
       })
     })
 
-    new QueryTable[UserTableSearch, User](new UserTableSearch,entities, count)
+    new Table[User](entities, count)
   }
 }

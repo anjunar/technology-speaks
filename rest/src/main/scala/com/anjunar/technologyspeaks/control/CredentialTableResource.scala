@@ -35,14 +35,30 @@ class CredentialTableResource extends SchemaBuilderContext {
   var jpaSearch: JPASearch = uninitialized
 
   @GET
+  @Path("search")
+  @Produces(Array("application/json"))
+  @JsonSchema(classOf[CredentialSearchSchema])
+  @RolesAllowed(Array("User", "Administrator"))
+  @LinkDescription(value = "Credentials", linkType = LinkType.TABLE)
+  def search(@BeanParam search : CredentialSearch) : CredentialSearch = {
+
+    forLinks(classOf[CredentialSearch], (instance, links) => {
+      linkTo(methodOn(classOf[CredentialTableResource]).list(search))
+        .build(links.addLink)
+    })
+
+    new CredentialSearch
+  }
+
+  @GET
   @Produces(Array("application/json"))
   @JsonSchema(classOf[CredentialTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Credentials", linkType = LinkType.TABLE)
-  def list(@BeanParam search: CredentialTableSearch): QueryTable[CredentialTableSearch, Credential] = {
+  def list(@BeanParam search: CredentialSearch): Table[Credential] = {
     val user = User.current()
 
-    val context = jpaSearch.searchContext[CredentialTableSearch, Credential](search, (context: Context[CredentialTableSearch, Credential]) => {
+    val context = jpaSearch.searchContext[CredentialSearch, Credential](search, (context: Context[CredentialSearch, Credential]) => {
       context.predicates.addOne(context.builder.equal(context.root.get("email").get("user"), user))
     })
 
@@ -57,7 +73,7 @@ class CredentialTableResource extends SchemaBuilderContext {
       })
     })
 
-    new QueryTable[CredentialTableSearch, Credential](new CredentialTableSearch, entities, count)
+    new Table[Credential](entities, count)
   }
 
 

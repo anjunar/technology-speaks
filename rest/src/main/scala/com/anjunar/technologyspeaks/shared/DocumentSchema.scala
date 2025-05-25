@@ -7,6 +7,12 @@ import com.anjunar.technologyspeaks.shared.editor.{Editor, Root}
 
 object DocumentSchema {
 
+  def staticCompact(builder: EntitySchemaBuilder[Document]): EntitySchemaBuilder[Document] = {
+    builder
+      .property("id")
+      .property("title")
+  }
+
   def static(builder: EntitySchemaBuilder[Document]): EntitySchemaBuilder[Document] = {
     builder
       .property("id")

@@ -4,7 +4,7 @@ import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
 import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.control.*
-import com.anjunar.technologyspeaks.document.{DocumentTableResource, DocumentTableSchema}
+import com.anjunar.technologyspeaks.document.{DocumentTableResource, DocumentSearchSchema}
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.security.*
@@ -57,27 +57,27 @@ class ApplicationFormResource extends SchemaBuilderContext {
             .withRel("profile")
             .build(link.addLink)
 
-          linkTo(methodOn(classOf[UserTableResource]).list(null))
+          linkTo(methodOn(classOf[UserTableResource]).search(null))
             .withRel("users")
             .build(link.addLink)
 
-          linkTo(methodOn(classOf[RoleTableResource]).list(null))
+          linkTo(methodOn(classOf[RoleTableResource]).search(null))
             .withRel("roles")
             .build(link.addLink)
 
-          linkTo(methodOn(classOf[GroupTableResource]).list(null))
+          linkTo(methodOn(classOf[GroupTableResource]).search(null))
             .withRel("groups")
             .build(link.addLink)
 
-          linkTo(methodOn(classOf[CredentialTableResource]).list(null))
+          linkTo(methodOn(classOf[CredentialTableResource]).search(null))
             .withRel("devices")
             .build(link.addLink)
 
-          linkTo(methodOn(classOf[PostTableResource]).list(null))
+          linkTo(methodOn(classOf[PostTableResource]).search(null))
             .withRel("timeline")
             .build(link.addLink)
 
-          linkTo(methodOn(classOf[DocumentTableResource]).list(null))
+          linkTo(methodOn(classOf[DocumentTableResource]).search(null))
             .withRel("documents")
             .build(link.addLink)
 

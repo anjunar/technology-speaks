@@ -15,9 +15,9 @@ function TablePage(properties: TableView.Attributes) {
 
     const [links, setLinks] = useState<LinkContainerObject>({})
 
-    const [search, setSearch] = useState<AbstractSearch>(null)
+    const [search, setSearch] = useState<AbstractSearch>(properties.search)
 
-    const url = "service" + atob(queryParams.link || "")
+    const url = "service" + search.$links["list"].url
 
     const loader = useMemo(() => {
         return new class extends Loader {
@@ -78,11 +78,8 @@ function TablePage(properties: TableView.Attributes) {
                 let response = await fetch(urlBuilder.toString())
 
                 if (response.ok) {
-                    let [mapped, size, links, schema, search2] = mapTable(await response.json());
+                    let [mapped, size, links, schema] = mapTable(await response.json());
                     setLinks(links || {})
-                    if (search === null) {
-                        setSearch(search2)
-                    }
                     callback(mapped, size, schema)
                 } else {
                     process(response)
@@ -119,9 +116,7 @@ function TablePage(properties: TableView.Attributes) {
                     </Link>
                 ))}
             </div>
-            {
-                search && <Search value={search} submit={onSearchSubmit}/>
-            }
+            <Search value={search} submit={onSearchSubmit}/>
             <div style={{overflow: "auto", width: "100%"}}>
                 <SchemaTable loader={loader} onRowClick={(row: any) => onRowClick(row)}/>
             </div>
@@ -132,6 +127,7 @@ function TablePage(properties: TableView.Attributes) {
 namespace TableView {
     export interface Attributes {
         queryParams: QueryParams
+        search : AbstractSearch
     }
 }
 

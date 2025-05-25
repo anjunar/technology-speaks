@@ -60,11 +60,15 @@ function InputContainer(properties: InputContainer.Attributes) {
 
     const onFocusHandler = () => {
         let inputElement = inputContainer.current.querySelector("input");
-        if (! inputElement.disabled) {
-            setFocus(true)
-            if (inputElement) {
-                inputElement.focus()
+        if (inputElement) {
+            if (! inputElement.disabled) {
+                setFocus(true)
+                if (inputElement) {
+                    inputElement.focus()
+                }
             }
+        } else {
+            setFocus(true)
         }
     }
 

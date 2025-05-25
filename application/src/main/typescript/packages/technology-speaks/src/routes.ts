@@ -145,7 +145,30 @@ export const routes: Router.Route[] = [
                     },
                     {
                         path: "/table",
-                        component: TablePage
+                        component: TablePage,
+                        loader: {
+                            async search(path, query) {
+                                let element = query["link"]
+
+                                let link
+                                if (element) {
+                                    link = atob(element)
+                                } else {
+                                    link = ""
+                                }
+
+                                let response = await fetch("/service" + link)
+
+                                process(response)
+
+                                if (response.ok) {
+                                    return mapForm(await response.json(), true)
+                                }
+
+                                throw new Error(response.status.toString())
+
+                            }
+                        }
                     }
                 ]
             },

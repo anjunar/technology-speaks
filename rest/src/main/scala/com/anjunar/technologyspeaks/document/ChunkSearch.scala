@@ -10,7 +10,7 @@ import java.util.UUID
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
-class ChunkTableSearch extends AbstractSearch {
+class ChunkSearch extends AbstractSearch {
 
   @Descriptor(title = "Document", writeable = true)
   @RestPredicate(classOf[GenericManyToOneProvider[?]])

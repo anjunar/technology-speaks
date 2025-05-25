@@ -1,9 +1,9 @@
 import {AbstractSearch, Basic, Entity} from "react-ui-simplicity";
 
-@Entity("RoleTableSearch")
+@Entity("RoleSearch")
 export default class RoleSearch extends AbstractSearch {
 
-    $type = "RoleTableSearch"
+    $type = "RoleSearch"
 
     @Basic()
     name : string

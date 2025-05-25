@@ -8,7 +8,7 @@ import jakarta.ws.rs.{DefaultValue, QueryParam}
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
-class DocumentTableSearch extends AbstractSearch {
+class DocumentSearch extends AbstractSearch {
 
   @BeanProperty
   @QueryParam("text")

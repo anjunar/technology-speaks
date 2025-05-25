@@ -3,7 +3,7 @@ package com.anjunar.technologyspeaks.control
 import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.{EntityJSONSchema, EntitySchemaBuilder, SchemaBuilder}
 import com.anjunar.technologyspeaks.control.{Credential, EMail, Role, RoleTableResource, User, UserFormResource}
-import com.anjunar.technologyspeaks.document.ChunkTableSearch
+import com.anjunar.technologyspeaks.document.ChunkSearch
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.jaxrs.types.Table
 import com.anjunar.technologyspeaks.shared.{CredentialSchema, RoleSchema, UserSchema}
@@ -15,21 +15,6 @@ class CredentialTableSchema extends EntityJSONSchema[Table[Credential]] {
     val builder = new SchemaBuilder(true)
 
     builder.forType(javaType, (builder: EntitySchemaBuilder[Table[Credential]]) => builder
-      .property("search", property => property
-        .forType(classOf[CredentialTableSearch], (builder: EntitySchemaBuilder[CredentialTableSearch]) => builder
-          .property("sort")
-          .property("index")
-          .property("limit")
-          .property("displayName")
-          .property("roles", property => property
-            .forType(classOf[Role], RoleSchema.static)
-            .withLinks(links => {
-              linkTo(methodOn(classOf[RoleTableResource]).list(null))
-                .build(links.addLink)
-            })
-          )
-        )
-      )
       .property("rows", property => property
         .withTitle("Credentials")
         .forType(classOf[Credential], builder => CredentialSchema.static(builder))

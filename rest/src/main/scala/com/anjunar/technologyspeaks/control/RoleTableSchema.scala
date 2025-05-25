@@ -10,20 +10,11 @@ import java.lang.annotation.Annotation
 import java.lang.reflect.Type
 
 
-class RoleTableSchema extends EntityJSONSchema[QueryTable[RoleTableSearch, Role]] {
-  override def build(root: QueryTable[RoleTableSearch, Role], javaType: Type): SchemaBuilder = {
+class RoleTableSchema extends EntityJSONSchema[Table[Role]] {
+  override def build(root: Table[Role], javaType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder(true)
 
-    builder.forType(javaType, (builder: EntitySchemaBuilder[QueryTable[RoleTableSearch, Role]]) => builder
-      .property("search", property => property
-        .forType(classOf[RoleTableSearch], (builder: EntitySchemaBuilder[RoleTableSearch]) => builder
-          .property("sort")
-          .property("index")
-          .property("limit")
-          .property("name")
-          .property("description")
-        )
-      )
+    builder.forType(javaType, (builder: EntitySchemaBuilder[Table[Role]]) => builder
       .property("rows", property => property
         .withTitle("Roles")
         .forType(classOf[Role], builder => RoleSchema.static(builder))

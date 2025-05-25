@@ -11,23 +11,11 @@ import java.lang.annotation.Annotation
 import java.lang.reflect.Type
 
 
-class UserTableSchema extends EntityJSONSchema[QueryTable[UserTableSearch, User]] {
-  override def  build(root: QueryTable[UserTableSearch, User], javaType: Type): SchemaBuilder = {
+class UserTableSchema extends EntityJSONSchema[Table[User]] {
+  override def  build(root: Table[User], javaType: Type): SchemaBuilder = {
     val builder = new SchemaBuilder(true)
 
-    builder.forType(javaType, (builder: EntitySchemaBuilder[QueryTable[UserTableSearch, User]]) => builder
-      .property("search", property => property
-        .forType(classOf[UserTableSearch], (builder: EntitySchemaBuilder[UserTableSearch]) => builder
-          .property("sort")
-          .property("index")
-          .property("limit")
-          .property("nickName")
-          .property("firstName")
-          .property("lastName")
-          .property("email")
-          .property("birthDate")
-        )
-      )
+    builder.forType(javaType, (builder: EntitySchemaBuilder[Table[User]]) => builder
       .property("rows", property => property
         .withTitle("Users")
         .forType(classOf[User], builder => UserSchema.static(builder))

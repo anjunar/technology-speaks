@@ -12,7 +12,7 @@ import java.util.UUID
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
-class CredentialTableSearch extends AbstractSearch {
+class CredentialSearch extends AbstractSearch {
 
   @Descriptor(title = "Display Name", writeable = true)
   @RestPredicate(classOf[GenericNameProvider[?]])

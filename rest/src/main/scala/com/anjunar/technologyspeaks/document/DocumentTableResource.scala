@@ -36,11 +36,27 @@ class DocumentTableResource extends SchemaBuilderContext {
   var jpaSearch: JPASearch = uninitialized
 
   @GET
+  @Path("search")
+  @Produces(Array("application/json"))
+  @JsonSchema(classOf[DocumentSearchSchema])
+  @RolesAllowed(Array("User", "Administrator"))
+  @LinkDescription(value = "Documents", linkType = LinkType.TABLE)
+  def search(@BeanParam search: DocumentSearch): DocumentSearch = {
+
+    forLinks(classOf[DocumentSearch], (instance, link) => {
+      linkTo(methodOn(classOf[DocumentTableResource]).list(search))
+        .build(link.addLink)
+    })
+
+    new DocumentSearch
+  }
+
+  @GET
   @Produces(Array("application/json"))
   @JsonSchema(classOf[DocumentTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Documents", linkType = LinkType.TABLE)
-  def list(@BeanParam search : DocumentTableSearch): QueryTable[DocumentTableSearch, Document] = {
+  def list(@BeanParam search : DocumentSearch): Table[Document] = {
 
     val context = jpaSearch.searchContext(search)
     val tuples = jpaSearch.entities(search.index, search.limit, classOf[Document], context)
@@ -54,7 +70,7 @@ class DocumentTableResource extends SchemaBuilderContext {
     }).toList
     val count = jpaSearch.count(classOf[Document], context)
 
-    forLinks(classOf[QueryTable[DocumentTableSearch, Document]], (instance, link) => {
+    forLinks(classOf[Table[Document]], (instance, link) => {
       linkTo(methodOn(classOf[DocumentFormResource]).create)
         .build(link.addLink)
     })
@@ -66,7 +82,7 @@ class DocumentTableResource extends SchemaBuilderContext {
       })
     })
 
-    new QueryTable[DocumentTableSearch, Document](new DocumentTableSearch(), entities, count)
+    new Table[Document](entities, count)
   }
 
 }
