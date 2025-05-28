@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { MarkDownContext } from "../../MarkDown";
+import { MarkDownContext } from "../../MarkDownEditor";
 import {HeadingCommand} from "../../commands/SelectCommand";
 
 function FormatSelect(props: FormatSelect.Attributes) {

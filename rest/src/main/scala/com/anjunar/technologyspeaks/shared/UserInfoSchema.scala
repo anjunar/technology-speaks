@@ -8,6 +8,7 @@ object UserInfoSchema {
 
   def static(builder: EntitySchemaBuilder[UserInfo]): EntitySchemaBuilder[UserInfo] = {
     builder
+      .property("id")
       .property("firstName")
       .property("lastName")
   }

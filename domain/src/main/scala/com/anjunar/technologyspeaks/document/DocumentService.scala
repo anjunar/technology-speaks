@@ -1,8 +1,8 @@
 package com.anjunar.technologyspeaks.document
 
 import com.anjunar.technologyspeaks.document.json.ChunkNode
-import com.anjunar.technologyspeaks.olama.json.{JsonArray, JsonNode, JsonObject, NodeType}
 import com.anjunar.technologyspeaks.olama.*
+import com.anjunar.technologyspeaks.olama.json.{JsonArray, JsonNode, JsonObject, NodeType}
 import com.anjunar.technologyspeaks.shared.editor.*
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.enterprise.context.ApplicationScoped
@@ -22,10 +22,28 @@ class DocumentService {
   @Inject
   var entityManager: EntityManager = uninitialized
 
+  def createDescription(text: String): String = {
+    val message = new ChatMessage
+    message.role = ChatRole.USER
+    message.content = "Schreibe mir eine kurze Zusammenfassung vom Text und gib den JSON-String zurück: " + text
+
+    val node = new JsonNode
+    node.nodeType = NodeType.STRING
+
+    val request = new ChatRequest
+    request.model = "Llama3.2"
+    request.format = node
+    request.messages.add(message)
+
+    val response = service.chat(request)
+
+    response.message.content
+  }
+
   def createChunks(text: String): String = {
     val message = new ChatMessage
     message.role = ChatRole.USER
-    message.content = "Teile den folgenden Text in thematisch zusammengehörende Abschnitte auf. Jeder Abschnitt soll ein eigenes Thema enthalten und den original Text wiedergeben. Gib die Abschnitte als JSON-Liste zurück mit : 'title' und 'content' : " + text
+    message.content = "Teile den folgenden Text in thematisch zusammengehörende Abschnitte auf für semantische Suche. Jeder Abschnitt soll ein eigenes Thema enthalten. Gib die Abschnitte als JSON-Liste zurück mit : 'title' und 'content' : " + text
 
     val titleNode = new JsonNode
     titleNode.nodeType = NodeType.STRING
@@ -83,12 +101,12 @@ class DocumentService {
       .setParameter("embedding", vector)
       .setMaxResults(5)
       .getResultStream
-        .map(entity => {
-          val chunk = entity.get(0, classOf[Chunk])
-          chunk.distance = entity.get(1, classOf[Double])
-          chunk
-        })
-        .toList
+      .map(entity => {
+        val chunk = entity.get(0, classOf[Chunk])
+        chunk.distance = entity.get(1, classOf[Double])
+        chunk
+      })
+      .toList
   }
 
   def findTop5Documents(vector: Array[Float]): java.util.List[Document] = {
@@ -144,12 +162,14 @@ class DocumentService {
     document.chunks.forEach(chunk => chunk.delete())
     document.chunks.clear()
     document.chunks.addAll(chunks)
+
+    document.description = createDescription(text)
   }
 
   def toText(root: Node): String = root match {
-    case node : Table => ""
-    case node : ContainerNode => node.children.stream().map(node => toText(node)).collect(Collectors.joining("\n"))
-    case node : TextNode => node.value
+    case node: Table => ""
+    case node: ContainerNode => node.children.stream().map(node => toText(node)).collect(Collectors.joining("\n"))
+    case node: TextNode => node.value
     case _ => ""
   }
 

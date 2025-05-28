@@ -10,7 +10,7 @@ import {JustifyCommand} from "../commands/JustifyCommand";
 import ActionButton from "./toolbar/ActionButton";
 import {AbstractProvider} from "../blocks/shared/AbstractProvider";
 import {EditorContext} from "../contexts/EditorState";
-import MarkDown, {MarkDownContext} from "../../markdown/MarkDown";
+import MarkDownEditor, {MarkDownContext} from "../../markdown/MarkDownEditor";
 
 const colors = [
     /*

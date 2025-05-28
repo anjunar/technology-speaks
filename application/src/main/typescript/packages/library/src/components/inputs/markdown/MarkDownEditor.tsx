@@ -1,9 +1,8 @@
-import "./MarkDown.css"
+import "./MarkDownEditor.css"
 import React, {CSSProperties, RefObject, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react"
 import Toolbar from "./ui/Toolbar";
 import Footer from "./ui/Footer";
-import {createImagePlugin, encodeBase64, findNodesByRange, reMarkFactoryForHTML, reMarkFactoryForMarkDown} from "./parser/ReMarkFactory";
-import type {Root} from 'mdast';
+import {encodeBase64, findNodesByRange, reMarkFactoryForHTML, reMarkFactoryForMarkDown} from "./parser/ReMarkFactory";
 import {Node} from 'unist';
 import {useInput} from "../../../hooks";
 import {Model} from "../../shared";
@@ -11,15 +10,13 @@ import EditorModel from "./model/EditorModel";
 import EditorFile from "./model/EditorFile";
 
 
-export const MarkDownContext = React.createContext<MarkDown.Context>(null)
+export const MarkDownContext = React.createContext<MarkDownEditor.Context>(null)
 
-function MarkDown(properties: MarkDown.Attributes) {
+function MarkDownEditor(properties: MarkDownEditor.Attributes) {
 
     const {style, value, standalone, name, onModel, onChange} = properties
 
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
-
-    const viewRef = useRef<HTMLDivElement>(null);
 
     const [page, setPage] = useState(0)
 
@@ -85,15 +82,6 @@ function MarkDown(properties: MarkDown.Attributes) {
 
     useEffect(() => {
         if (state?.ast) {
-            reMarkForHTML.run(state.ast)
-                .then((tree: any) => reMarkForHTML
-                    .stringify(tree)
-                )
-                .then(html => viewRef.current.innerHTML = html)
-        }
-    }, [state]);
-    useEffect(() => {
-        if (state?.ast) {
             let markDown: string = reMarkForMarkDown.stringify(state.ast);
 
             if (markDown !== text) {
@@ -135,14 +123,13 @@ function MarkDown(properties: MarkDown.Attributes) {
                         state?.files?.map(file => <img key={file.name} title={file.name} src={encodeBase64(file.type, file.subType, file.data)} style={{height: "32px"}} onClick={() => onStoreClick(file)}/>)
                     }
                 </div>
-                <div ref={viewRef} className={"view"}></div>
                 <Footer page={page} onPage={(value) => setPage(value)}/>
             </MarkDownContext.Provider>
         </div>
     )
 }
 
-namespace MarkDown {
+namespace MarkDownEditor {
     export interface Attributes {
         style?: CSSProperties
         name: string
@@ -161,4 +148,4 @@ namespace MarkDown {
     }
 }
 
-export default MarkDown
+export default MarkDownEditor

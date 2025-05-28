@@ -5,6 +5,7 @@ import {v4} from "uuid";
 import Route = Router.Route;
 import QueryParams = Router.QueryParams;
 import PathParams = Router.PathParams;
+import {useIsMobile} from "../../../hooks/UseIsMobile";
 
 const scrollAreaCache = new Map<string, number>()
 
@@ -14,7 +15,9 @@ function Router(properties: Router.Attributes) {
 
     const [state, setState] = useState(<div></div>)
 
-    let systemContextHolder = useContext(SystemContext);
+    const isMobile = useIsMobile();
+
+    const systemContextHolder = useContext(SystemContext);
 
     const {routes, windows}: { routes: Route[], windows : [WindowRef[], Dispatch<SetStateAction<WindowRef[]>>] } = systemContextHolder
 
@@ -145,8 +148,16 @@ function Router(properties: Router.Attributes) {
                                     }, {})
 
 
+                                    if (! (component instanceof Function)) {
+                                        if (isMobile) {
+                                            component = component.mobile
+                                        } else {
+                                            component = component.desktop
+                                        }
+                                    }
+
                                     setState(
-                                        React.createElement(component, {
+                                        React.createElement(component as FunctionComponent<any>, {
                                             pathParams: pathParameters,
                                             queryParams: queryParameters,
                                             key : v4(),
@@ -162,8 +173,16 @@ function Router(properties: Router.Attributes) {
                                     console.error(response)
                                 })
                         } else {
+                            if (! (component instanceof Function)) {
+                                if (isMobile) {
+                                    component = component.mobile
+                                } else {
+                                    component = component.desktop
+                                }
+                            }
+
                             setState(
-                                React.createElement(component, {
+                                React.createElement(component as FunctionComponent<any>, {
                                     pathParams: pathParameters,
                                     queryParams: queryParameters
                                 })
@@ -240,9 +259,14 @@ namespace Router {
     export interface Route {
         path  : string
         subRouter? : boolean
-        component? : FunctionComponent<any>
+        component? : FunctionComponent<any> | MultiComponent
         children? : Route[]
         loader? : Loader
+    }
+
+    export interface MultiComponent {
+        mobile : FunctionComponent<any>
+        desktop : FunctionComponent<any>
     }
 
 }

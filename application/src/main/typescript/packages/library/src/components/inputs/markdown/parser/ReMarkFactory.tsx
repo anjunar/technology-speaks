@@ -1,4 +1,3 @@
-import MarkDown from "../MarkDown";
 import {Plugin, unified} from "unified";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
@@ -8,7 +7,7 @@ import rehypePrism from 'rehype-prism-plus'
 import remarkGfm from 'remark-gfm'
 import {visit} from 'unist-util-visit';
 import type {Element} from 'hast';
-import { Node } from 'unist';
+import {Node} from 'unist';
 import EditorModel from "../model/EditorModel";
 
 export const encodeBase64 = (type: string, subType: string, data: string) => {
@@ -35,7 +34,7 @@ export function createImagePlugin(model: EditorModel): Plugin {
     };
 }
 
-export function reMarkFactoryForHTML(model : EditorModel) {
+export function reMarkFactoryForHTML(model: EditorModel) {
     return unified()
         .use(remarkParse)
         .use(remarkRehype)
@@ -46,7 +45,7 @@ export function reMarkFactoryForHTML(model : EditorModel) {
 
 }
 
-export function reMarkFactoryForMarkDown(model : EditorModel) {
+export function reMarkFactoryForMarkDown(model: EditorModel) {
     return unified()
         .use(remarkParse)
         .use(remarkRehype)

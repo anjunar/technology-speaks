@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useRef, useState} from "react"
-import {MarkDownContext} from "../../MarkDown";
+import {MarkDownContext} from "../../MarkDownEditor";
 import EditorFile from "../../model/EditorFile";
 
 function decodeBase64(result: string) {

@@ -22,7 +22,7 @@ import {ListProvider} from "../../inputs/wysiwyg/blocks/list/ListProvider";
 import {ImageProvider} from "../../inputs/wysiwyg/blocks/image/ImageProvider";
 import {TableProvider} from "../../inputs/wysiwyg/blocks/table/TableProvider";
 import {CodeProvider} from "../../inputs/wysiwyg/blocks/code/CodeProvider";
-import {MarkDown} from "../../inputs/markdown";
+import {MarkDownEditor} from "../../inputs/markdown";
 
 function SchemaFactory(properties: SchemaFactory.Attributes) {
 
@@ -88,7 +88,7 @@ function SchemaFactory(properties: SchemaFactory.Attributes) {
         }
         case "editor" : {
             return (
-                <MarkDown name={name} style={{height: "800px"}}/>
+                <MarkDownEditor name={name} style={{height: "800px"}}/>
             )
         }
         case "image":

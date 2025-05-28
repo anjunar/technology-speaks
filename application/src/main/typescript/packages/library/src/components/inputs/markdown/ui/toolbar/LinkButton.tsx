@@ -5,7 +5,7 @@ import Header = Window.Header;
 import Content = Window.Content;
 import {InputContainer} from "../../../container";
 import Footer = Window.Footer;
-import {MarkDownContext} from "../../MarkDown";
+import {MarkDownContext} from "../../MarkDownEditor";
 import {Input} from "../../../input";
 
 function LinkButton(properties: LinkButton.Attributes) {
@@ -20,7 +20,7 @@ function LinkButton(properties: LinkButton.Attributes) {
 
     const [name, setName] = useState("")
 
-    const [disabled, setDisabled] = useState(true)
+    const [disabled, setDisabled] = useState(false)
 
     function onSave() {
         let textArea = textAreaRef.current;
@@ -39,12 +39,6 @@ function LinkButton(properties: LinkButton.Attributes) {
         setInput("")
         setName("")
     }
-
-    useEffect(() => {
-        if (cursor !== null) {
-            setDisabled(cursor.length > 0)
-        }
-    }, [cursor]);
 
     return (
         <div>

@@ -1,0 +1,9 @@
+.search-page {
+    padding: 24px;
+    display: flex;
+    gap: 24px;
+
+    .selected {
+        color: var(--color-highlight);
+    }
+}

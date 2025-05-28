@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useState} from "react"
 import {AbstractActionCommand} from "../../commands/ActionCommand";
-import {MarkDownContext} from "../../MarkDown";
+import {MarkDownContext} from "../../MarkDownEditor";
 
 function ActionButton(properties: ActionButton.Attributes) {
 

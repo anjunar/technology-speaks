@@ -1,0 +1,8 @@
+.search-page {
+    padding: 24px;
+    gap: 24px;
+
+    .selected {
+        color: var(--color-highlight);
+    }
+}

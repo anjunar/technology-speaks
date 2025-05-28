@@ -1,7 +1,6 @@
 .toolbar {
 
     background-color: var(--color-background-secondary);
-    border-bottom: 1px solid var(--color-background-primary);
     z-index: 9999;
 
     .layout {

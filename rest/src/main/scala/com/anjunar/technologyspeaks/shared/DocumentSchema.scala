@@ -18,6 +18,9 @@ object DocumentSchema {
       .property("id")
       .property("score")
       .property("title")
+      .property("description")
+      .property("created")
+      .property("modified")
       .property("user", property => property
         .forType(classOf[User], UserSchema.staticCompact)
       )
@@ -36,6 +39,9 @@ object DocumentSchema {
         .withTitle("Title")
         .withWriteable(true)
       )
+      .property("description")
+      .property("created")
+      .property("modified")
       .property("user", property => property
         .forType(classOf[User], builder => UserSchema.dynamicCompact(builder, loaded.user))
       )

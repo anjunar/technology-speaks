@@ -1,56 +1,45 @@
-.markdown-editor {
-    display: flex;
-    flex-direction: column;
+.mark-down-view {
+    height: 100%;
+    white-space: pre-wrap;
+    overflow: auto;
+    line-height: 28px;
 
-    .content {
-        outline: 0;
-        flex: 1;
-        height: 50%;
+    table {
+        width: 100%;
+        border-spacing: 0;
+        table-layout: auto;
     }
 
-    .view {
-        flex: 1;
-        height: 50%;
-        white-space: pre-wrap;
-        overflow: auto;
+    table > thead > tr > th {
+        text-align: left;
+        height: 48px;
+        vertical-align: middle;
+        min-width: 20px;
+        white-space: nowrap;
+        padding-right: 5px;
+    }
 
-        table {
-            width: 100%;
-            border-spacing: 0;
-            table-layout: auto;
-        }
+    table > tbody > tr > td {
+        height: 48px;
+        vertical-align: middle;
+        min-width: 20px;
+        white-space: nowrap;
+        padding-right: 5px;
+    }
 
-        table > thead > tr > th {
-            text-align: left;
-            height: 48px;
-            vertical-align: middle;
-            min-width: 20px;
-            white-space: nowrap;
-            padding-right: 5px;
-        }
-
-        table > tbody > tr > td {
-            height: 48px;
-            vertical-align: middle;
-            min-width: 20px;
-            white-space: nowrap;
-            padding-right: 5px;
-        }
-
-        table > tbody > tr > td {
-            border-top: 1px solid var(--color-background-secondary);
-        }
+    table > tbody > tr > td {
+        border-top: 1px solid var(--color-background-secondary);
+    }
 
 
-        table.hover tbody tr:hover {
-            background-color: var(--color-selected);
-            color: var(--color-background-primary);
-        }
+    table.hover tbody tr:hover {
+        background-color: var(--color-selected);
+        color: var(--color-background-primary);
+    }
 
-        table td:first-of-type,
-        table th:first-of-type {
-            padding-left: 12px;
-        }
+    table td:first-of-type,
+    table th:first-of-type {
+        padding-left: 12px;
     }
 }
 

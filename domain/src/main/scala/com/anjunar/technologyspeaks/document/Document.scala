@@ -7,7 +7,7 @@ import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.SecurityUser
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.anjunar.technologyspeaks.shared.editor.{Editor, Root}
-import jakarta.persistence.{CascadeType, Column, Entity, ManyToOne, OneToMany, OneToOne, Transient}
+import jakarta.persistence.{CascadeType, Column, Entity, Lob, ManyToOne, OneToMany, OneToOne, Transient}
 import jakarta.validation.constraints.Size
 import org.hibernate.`type`.SqlTypes
 import org.hibernate.annotations.JdbcTypeCode
@@ -23,6 +23,11 @@ class Document extends AbstractEntity with OwnerProvider {
   @Descriptor(title = "Title")
   @BeanProperty
   var title : String = uninitialized
+
+  @Lob
+  @Descriptor(title = "Description")
+  @BeanProperty
+  var description : String = uninitialized
 
   @Descriptor(title = "User")
   @ManyToOne(optional = false)

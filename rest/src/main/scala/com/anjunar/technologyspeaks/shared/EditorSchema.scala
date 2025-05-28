@@ -9,9 +9,11 @@ object EditorSchema {
 
   def static(builder: EntitySchemaBuilder[Editor]): EntitySchemaBuilder[Editor] = {
     builder
+      .property("id")
       .property("files", property => property
         .withWriteable(true)
         .forType(classOf[File], (builder : EntitySchemaBuilder[File]) => builder
+          .property("id")
           .property("name", property => property
             .withWriteable(true)
           )

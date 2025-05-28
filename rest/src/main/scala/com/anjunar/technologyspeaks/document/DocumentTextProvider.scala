@@ -24,7 +24,7 @@ class DocumentTextProvider extends PredicateProvider[String, Document ]{
       val subquery = query.subquery(classOf[java.lang.Double])
       val chunkRoot = subquery.from(classOf[Chunk])
 
-      val distanceExpr = builder.min(builder.function(
+      val distanceExpr = builder.avg(builder.function(
         "cosine_distance",
         classOf[lang.Double],
         chunkRoot.get("embedding"),

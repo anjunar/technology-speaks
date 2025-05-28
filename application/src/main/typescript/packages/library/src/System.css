@@ -1,64 +1,71 @@
 @import "./reset.css";
-@import "./colors.css";
 
 html[data-theme="light"] {
+    /* 🎨 Helle Neutraltöne – Basis */
+    --color-neutral-100: #ffffff;    /* Haupt-Hintergrund */
+    --color-neutral-200: #f5f5f5;    /* Sekundärer Hintergrund */
+    --color-neutral-300: #e0e0e0;    /* Inputs, Ränder */
+    --color-neutral-400: #cccccc;    /* Borders, deaktivierte Flächen */
+    --color-neutral-500: #999999;    /* Labels, deaktivierte Texte */
+    --color-neutral-700: #4d4d4d;    /* Fließtext */
+    --color-neutral-800: #2b2b2b;    /* Überschriften */
+    --color-neutral-900: #121212;    /* Tiefer Textkontrast */
+
+    /* 🟢 Olivgrün – Hauptakzent */
+    --color-olive-500: #87c440;      /* Hauptakzent, z. B. Buttons, Links */
+    --color-olive-400: #a4ff4f;      /* Hover oder leuchtende Effekte */
+    --color-olive-200: #d6fcb0;      /* zarter Hintergrund oder Sektionen */
+
+    /* 🔶 Semantische Farben */
+    --color-warning: #f57c00;        /* Warnungen – kräftiges Orange */
+    --color-error: #d32f2f;          /* Fehler – klares Rot */
+    --color-info: #0288d1;           /* Info – reines Blau */
+    --color-accent-purple: #9c27b0;  /* Leichter KI-/Inspirationston */
+    --color-highlight: #fff9c4;      /* Markierungen im Text */
+
+    /* 🖋 Verwendung */
     --color-text: var(--color-neutral-800);
-    --color-background-primary: var(--color-neutral-200);
-    --color-background-secondary: var(--color-neutral-400);
-    --color-background-tertiary: var(--color-neutral-300);
-    --color-warning : var(--color-orange-700);
-    --color-error: var(--color-red-700);
-    --color-selected: var(--color-purple-700);
-    
-    --color-theme-amber : var(--color-amber-700);
-    --color-theme-blue : var(--color-blue-700);
-    --color-theme-cyan : var(--color-cyan-700);
-    --color-theme-emerald : var(--color-emerald-700);
-    --color-theme-fuchsia : var(--color-fuchsia-700);
-    --color-theme-green : var(--color-green-700);
-    --color-theme-indigo : var(--color-indigo-700);
-    --color-theme-lime : var(--color-lime-700);
-    --color-theme-orange : var(--color-orange-700);
-    --color-theme-pink : var(--color-pink-700);
-    --color-theme-purple : var(--color-purple-700);
-    --color-theme-red : var(--color-red-700);
-    --color-theme-rose : var(--color-rose-700);
-    --color-theme-sky : var(--color-sky-700);
-    --color-theme-slate : var(--color-slate-700);
-    --color-theme-teal : var(--color-teal-700);
-    --color-theme-violet : var(--color-violet-700);
-    --color-theme-yellow : var(--color-yellow-700);
-    --color-theme-zinc : var(--color-zinc-700);
+    --color-background-primary: var(--color-neutral-100);
+    --color-background-secondary: var(--color-neutral-300);
+    --color-background-tertiary: var(--color-neutral-400);
+    --color-surface-muted: var(--color-neutral-400);
+
+    --color-selected: var(--color-olive-500);
+    --color-reflective: var(--color-olive-200);
 }
 
 html[data-theme="dark"] {
+    /* 🎨 Grundfarben – neutrale Basis */
+    --color-neutral-900: #0e0e0e;   /* tiefstes Schwarz – für Haupt-Hintergrund */
+    --color-neutral-800: #1b1e20;   /* primärer Hintergrund */
+    --color-neutral-700: #2a2e35;   /* sekundärer Hintergrund */
+    --color-neutral-600: #3a3f45;   /* Border, Schattenflächen */
+    --color-neutral-500: #5c6268;   /* deaktivierte Texte, Icons */
+    --color-neutral-300: #a0a0a0;   /* Labels */
+    --color-neutral-200: #e0e0e0;   /* Fließtext */
+    --color-neutral-100: #f5f5f5;   /* Kontrastflächen */
+
+    /* 🟢 Olivgrün – dein markanter Akzent */
+    --color-olive-500: #a4ff4f;     /* Hauptakzent für Titles, Highlights */
+    --color-olive-600: #89cc40;     /* Hover oder aktive Tabs */
+    --color-olive-300: #c0ff80;     /* Sekundärer Akzent */
+
+    /* 🔶 Semantische Farben */
+    --color-warning: #ffb74d;       /* Warnungen – Orange */
+    --color-error: #ef5350;         /* Fehler – Rot */
+    --color-info: #7ec9f5;          /* Info – sanftes Blau */
+    --color-accent-purple: #c792ea; /* Zarter KI- oder Inspirationsakzent */
+    --color-highlight: #fff3b0;     /* Markierungen im Text oder Quotes */
+
+    /* 🖋 Semantische Verwendungen */
     --color-text: var(--color-neutral-200);
     --color-background-primary: var(--color-neutral-800);
-    --color-background-secondary: var(--color-neutral-700);
-    --color-background-tertiary: var(--color-neutral-900);
-    --color-warning : var(--color-orange-500);
-    --color-error: var(--color-red-500);
-    --color-selected: var(--color-purple-500);
+    --color-background-secondary: var(--color-neutral-600);
+    --color-background-tertiary: var(--color-neutral-700);
+    --color-surface-muted: var(--color-neutral-600);
 
-    --color-theme-amber : var(--color-amber-500);
-    --color-theme-blue : var(--color-blue-500);
-    --color-theme-cyan : var(--color-cyan-500);
-    --color-theme-emerald : var(--color-emerald-500);
-    --color-theme-fuchsia : var(--color-fuchsia-500);
-    --color-theme-green : var(--color-green-500);
-    --color-theme-indigo : var(--color-indigo-500);
-    --color-theme-lime : var(--color-lime-500);
-    --color-theme-orange : var(--color-orange-500);
-    --color-theme-pink : var(--color-pink-500);
-    --color-theme-purple : var(--color-purple-500);
-    --color-theme-red : var(--color-red-500);
-    --color-theme-rose : var(--color-rose-500);
-    --color-theme-sky : var(--color-sky-500);
-    --color-theme-slate : var(--color-slate-500);
-    --color-theme-teal : var(--color-teal-500);
-    --color-theme-violet : var(--color-violet-500);
-    --color-theme-yellow : var(--color-yellow-500);
-    --color-theme-zinc : var(--color-zinc-500);
+    --color-selected: var(--color-olive-500);
+    --color-reflective: var(--color-olive-600);
 }
 
 html {

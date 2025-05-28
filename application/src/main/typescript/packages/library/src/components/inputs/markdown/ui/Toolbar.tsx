@@ -10,7 +10,7 @@ import {BlockQuoteCommand, CodeCommand, HorizontalLineCommand, ListActionCommand
 import {HeadingCommand} from "../commands/SelectCommand";
 import ImageButton from "./toolbar/ImageButton";
 import LinkButton from "./toolbar/LinkButton";
-import {MarkDownContext} from "../MarkDown";
+import {MarkDownContext} from "../MarkDownEditor";
 
 function Toolbar(properties: Toolbar.Attributes) {
 
