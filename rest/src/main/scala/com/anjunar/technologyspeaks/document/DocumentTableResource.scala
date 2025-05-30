@@ -62,7 +62,7 @@ class DocumentTableResource extends SchemaBuilderContext {
     val entities = jpaSearch.entities(search.index, search.limit, classOf[Document], context)
     val count = jpaSearch.count(classOf[Document], context)
 
-    forLinks(classOf[Table[Document]], (instance, link) => {
+    forLinks(classOf[TupleTable[Document]], (instance, link) => {
       linkTo(methodOn(classOf[DocumentFormResource]).create)
         .build(link.addLink)
     })
