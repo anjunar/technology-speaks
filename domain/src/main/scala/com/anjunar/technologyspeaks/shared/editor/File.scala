@@ -4,11 +4,13 @@ import com.anjunar.technologyspeaks.media.FileDiskUtils
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import jakarta.persistence.{Entity, PostLoad, PostPersist, PostRemove, PostUpdate, Transient}
 import org.apache.commons.io.{FileUtils, IOUtils}
+import org.hibernate.envers.Audited
 
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
 @Entity
+@Audited
 class File extends AbstractEntity {
 
   @BeanProperty

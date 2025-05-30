@@ -132,7 +132,7 @@ function MarkDownEditor(properties: MarkDownEditor.Attributes) {
 namespace MarkDownEditor {
     export interface Attributes {
         style?: CSSProperties
-        name: string
+        name?: string
         standalone?: boolean
         value?: EditorModel
         onChange?: (value: EditorModel) => void

@@ -1,6 +1,8 @@
 package com.anjunar.technologyspeaks.shared.editor
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
+import org.hibernate.`type`.descriptor.WrapperOptions
 import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.hibernate.usertype.UserType
 import org.postgresql.util.PGobject
@@ -11,6 +13,7 @@ import java.util.Objects
 class RootType extends UserType[Root] {
 
   private val objectMapper = new ObjectMapper()
+    .setSerializationInclusion(Include.NON_EMPTY)
     .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
@@ -22,19 +25,19 @@ class RootType extends UserType[Root] {
 
   override def hashCode(x: Root): Int = Objects.hashCode(x)
 
-  override def nullSafeGet(rs: ResultSet, position: Int, session: SharedSessionContractImplementor, owner: Any): Root = {
+  override def nullSafeGet(rs: ResultSet, position: Int, options: WrapperOptions): Root = {
     val json = rs.getString(position)
     if (json == null) null
     else objectMapper.readValue(json, classOf[Root])
   }
 
-  override def nullSafeSet(st: PreparedStatement, value: Root, index: Int, session: SharedSessionContractImplementor): Unit = {
-    if (value == null) st.setNull(index, Types.OTHER)
+  override def nullSafeSet(st: PreparedStatement, value: Root, position: Int, options: WrapperOptions): Unit = {
+    if (value == null) st.setNull(position, Types.OTHER)
     else {
       val pgObject = new PGobject()
       pgObject.setType("jsonb")
       pgObject.setValue(objectMapper.writeValueAsString(value))
-      st.setObject(index, pgObject)
+      st.setObject(position, pgObject)
     }
   }
 

@@ -10,6 +10,7 @@ import org.hibernate.annotations.JdbcTypeCode
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 import org.hibernate.annotations
+import org.hibernate.envers.Audited
 
 
 @Entity

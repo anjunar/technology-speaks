@@ -10,9 +10,9 @@ import ConfirmationPage from "./pages/security/ConfirmationPage";
 import {UAParser} from "ua-parser-js";
 import WebAuthnLogin from "./domain/security/WebAuthnLogin";
 import LogoutPage from "./pages/security/LogoutPage";
-import SearchPageDesktop from "./pages/documents/search/SearchPage.desktop";
-import SearchPageMobile from "./pages/documents/search/SearchPage.mobile";
+import SearchPage from "./pages/documents/search/SearchPage";
 import DocumentFormPage from "./pages/documents/document/DocumentFormPage";
+import DocumentViewPage from "./pages/documents/document/DocumentViewPage";
 
 export const routes: Router.Route[] = [
     {
@@ -55,10 +55,26 @@ export const routes: Router.Route[] = [
                 children : [
                     {
                         path : "/search",
-                        component : {
-                            desktop : SearchPageDesktop,
-                            mobile : SearchPageMobile,
-                        }
+                        component : SearchPage,
+                        children : [
+                            {
+                                path : "/{id}",
+                                component : DocumentViewPage,
+                                loader : {
+                                    async form(pathParams, queryParams) {
+                                        let response = await fetch(`/service/documents/document/${pathParams.id}`)
+
+                                        process(response)
+
+                                        if (response.ok) {
+                                            return mapForm(await response.json(), true)
+                                        }
+
+                                        throw new Error(response.status.toString())
+                                    }
+                                }
+                            }
+                        ]
                     },
                     {
                         path : "/document/{id}",

@@ -12,6 +12,7 @@ import com.google.common.reflect.TypeToken
 import com.typesafe.scalalogging.Logger
 import jakarta.persistence.{ManyToMany, OneToMany, OneToOne}
 import jakarta.validation.ConstraintViolation
+import org.hibernate.Hibernate
 
 import java.lang.reflect.Type
 import java.util
@@ -28,7 +29,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
     val jsonTypeInfo = aType.findAnnotation(classOf[JsonTypeInfo])
 
     val properties = new mutable.LinkedHashMap[String, JsonNode]
-    properties.put(if jsonTypeInfo == null then "$type" else jsonTypeInfo.property(), JsonString(instance.getClass.getSimpleName))
+    properties.put(if jsonTypeInfo == null then "$type" else jsonTypeInfo.property(), JsonString(Hibernate.unproxy(instance).getClass.getSimpleName))
     val jsonObject = JsonObject(properties)
 
     val links = new mutable.LinkedHashMap[String, JsonNode]

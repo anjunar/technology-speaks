@@ -2,7 +2,7 @@
     padding: 24px;
     gap: 24px;
 
-    .selected {
+    .selected:hover {
         color: var(--color-highlight);
     }
 }

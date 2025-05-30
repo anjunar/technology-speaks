@@ -59,8 +59,14 @@ class DocumentFormResource extends SchemaBuilderContext {
 
       val chunkSearch = new ChunkSearch
       chunkSearch.document = document
-
       linkTo(methodOn(classOf[ChunkTableResource]).search(chunkSearch))
+        .withRel("chunks")
+        .build(link.addLink)
+
+      val revisionSearch = new RevisionSearch
+      revisionSearch.document = document
+      linkTo(methodOn(classOf[RevisionsTableResource]).search(revisionSearch))
+        .withRel("revisions")
         .build(link.addLink)
 
       linkTo(methodOn(classOf[DocumentTableResource]).list(null))

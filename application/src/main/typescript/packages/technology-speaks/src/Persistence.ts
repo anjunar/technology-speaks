@@ -22,6 +22,7 @@ import PostSearch from "./domain/timeline/PostSearch";
 import UserSearch from "./domain/control/UserSearch";
 import GroupSearch from "./domain/control/GroupSearch";
 import ChunkSearch from "./domain/document/ChunkSearch";
+import RevisionSearch from "./domain/document/RevisionSearch";
 
 export function init() {
     registerEntity(Application)
@@ -51,5 +52,6 @@ export function init() {
     registerEntity(DocumentSearch)
     registerEntity(Chunk)
     registerEntity(ChunkSearch)
+    registerEntity(RevisionSearch)
 }
 

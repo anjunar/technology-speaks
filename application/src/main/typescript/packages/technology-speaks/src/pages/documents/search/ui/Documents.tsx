@@ -5,7 +5,7 @@ import {process} from "../../../../App";
 
 function Documents(properties: Documents.Attributes) {
 
-    const {text, onSelect, selected, style} = properties
+    const {text, style, onSelect} = properties
 
     const loader = new class extends Pageable.Loader {
         async onLoad(query: Pageable.Query, callback: Pageable.Callback) {
@@ -22,7 +22,6 @@ function Documents(properties: Documents.Attributes) {
             if (response.ok) {
                 let [mapped, size] = mapTable(await response.json());
                 callback(mapped, size)
-                onSelect(mapped[0] as Document)
             } else {
                 process(response)
             }
@@ -35,7 +34,7 @@ function Documents(properties: Documents.Attributes) {
                 <List.Item>
                     {
                         ({row} : {row : Document}) => (
-                            <div onClick={() => onSelect(row)} className={selected.id === row.id ? "selected" : ""}>
+                            <div className={"selected"} onClick={() => onSelect(row)}>
                                 <div style={{display : "flex", alignItems : "baseline", justifyContent : "space-between", gap : "12px"}}>
                                     <h2 style={{color : "var(--color-selected)"}}>{row.title}</h2>
                                     <small>{row.user.nickName}: {format(row.created, "dd.MM.yyyy HH:mm")}</small>
@@ -54,7 +53,6 @@ namespace Documents {
     export interface Attributes {
         text : string
         onSelect : (document : Document) => void
-        selected : Document
         style? : CSSProperties
     }
 }

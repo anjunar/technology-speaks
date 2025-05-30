@@ -6,12 +6,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id
 import jakarta.persistence.{CascadeType, Column, Convert, Entity, OneToMany, OneToOne}
 import org.hibernate.annotations.Type
+import org.hibernate.envers.Audited
 
 import java.util
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
 @Entity
+@Audited
 class Editor extends AbstractEntity {
 
   @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true)

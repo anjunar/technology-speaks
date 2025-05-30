@@ -29,7 +29,8 @@ lazy val jsonMapper2 = (project in file("library/json-mapper2"))
       "jakarta.ws.rs" % "jakarta.ws.rs-api" % "4.0.0",
       "com.fasterxml.jackson.core" % "jackson-annotations" % "2.19.0",
       "org.apache.commons" % "commons-lang3" % "3.17.0",
-      "org.apache.commons" % "commons-text" % "1.13.1"
+      "org.apache.commons" % "commons-text" % "1.13.1",
+      "org.hibernate.orm" % "hibernate-core" % "7.0.0.Beta5"
     )
   )
 
