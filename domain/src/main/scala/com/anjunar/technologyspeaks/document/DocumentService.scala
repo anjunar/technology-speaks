@@ -109,35 +109,6 @@ class DocumentService {
       .toList
   }
 
-  def findTop5Documents(vector: Array[Float]): java.util.List[Document] = {
-    val cb = entityManager.getCriteriaBuilder
-    val query = cb.createTupleQuery()
-    val root = query.from(classOf[Document])
-    val join = root.join("chunks")
-
-    val distanceExpr = cb.avg(cb.function(
-      "cosine_distance",
-      classOf[java.lang.Double],
-      join.get("embedding"),
-      cb.parameter(classOf[Array[java.lang.Float]], "embedding")
-    ))
-
-    query.multiselect(root, distanceExpr)
-      .orderBy(cb.asc(distanceExpr))
-      .groupBy(root)
-
-    entityManager.createQuery(query)
-      .setParameter("embedding", vector)
-      .setMaxResults(5)
-      .getResultStream
-      .map(entity => {
-        val document = entity.get(0, classOf[Document])
-        document.score = entity.get(1, classOf[Double])
-        document
-      })
-      .toList
-  }
-
   def update(document: Document): Unit = {
 
     val text = toText(document.editor.json)

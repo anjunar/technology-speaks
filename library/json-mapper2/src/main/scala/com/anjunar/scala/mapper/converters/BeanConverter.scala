@@ -1,34 +1,59 @@
 package com.anjunar.scala.mapper.converters
 
-import com.anjunar.scala.mapper.annotations.{Converter, Filter, IgnoreFilter, JacksonJsonConverter}
+import com.anjunar.scala.mapper.annotations.{Converter, Filter, IgnoreFilter}
 import com.anjunar.scala.mapper.intermediate.model.{JsonNode, JsonObject, JsonString}
 import com.anjunar.scala.mapper.{Context, ConverterRegistry}
-import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, LinkContext, PropertyBuilder, SchemaBuilder}
-import com.anjunar.scala.schema.model.{Link, Links, NodeDescriptor}
+import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, LinkContext, PrimitiveSchemaBuilder, SchemaBuilder}
+import com.anjunar.scala.schema.model.{Link, NodeDescriptor}
 import com.anjunar.scala.universe.introspector.{BeanIntrospector, BeanProperty}
 import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.google.common.reflect.TypeToken
 import com.typesafe.scalalogging.Logger
-import jakarta.persistence.{ManyToMany, OneToMany, OneToOne}
+import jakarta.persistence.{ManyToMany, OneToMany, OneToOne, Tuple}
 import jakarta.validation.ConstraintViolation
+import net.bytebuddy.matcher.PrimitiveTypeMatcher
 import org.hibernate.Hibernate
 
-import java.lang.reflect.Type
 import java.util
 import scala.collection.mutable
-import scala.jdk.CollectionConverters.*
-
 
 class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRef])) {
 
   val log = Logger[BeanConverter]
 
-  override def toJson(instance: Any, aType: ResolvedClass, context: Context): JsonNode = {
+  override def toJson(outerInstance: Any, resolvedClass: ResolvedClass, context: Context): JsonNode = {
+
+    val properties = new mutable.LinkedHashMap[String, JsonNode]
+
+    var aType : ResolvedClass = resolvedClass
+    var instance : Any = outerInstance
+    var schema = context.schema
+
+
+    instance match {
+      case tuple: Tuple =>
+        schema = context.schema.tupleMapping.schemaBuilder
+        val elements = tuple.getElements
+        elements.forEach(element => {
+            val javaType = element.getJavaType
+            val alias = element.getAlias
+
+            if (alias != null && alias.nonEmpty) {
+              val clazz = TypeResolver.resolve(javaType)
+              val value = tuple.get(alias)
+              properties.put(alias, context.registry.find(clazz).toJson(value, clazz, context))
+            } else {
+              aType = TypeResolver.resolve(javaType)
+              val value = tuple.get(alias)
+              instance = value
+            }
+          })
+      case _ => {}
+    }
 
     val jsonTypeInfo = aType.findAnnotation(classOf[JsonTypeInfo])
 
-    val properties = new mutable.LinkedHashMap[String, JsonNode]
     properties.put(if jsonTypeInfo == null then "$type" else jsonTypeInfo.property(), JsonString(Hibernate.unproxy(instance).getClass.getSimpleName))
     val jsonObject = JsonObject(properties)
 
@@ -38,8 +63,6 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
     val resolvedType = TypeToken.of(aType.underlying).resolveType(instance.getClass).getType
 
     val beanModel = BeanIntrospector.createWithType(resolvedType)
-
-    val schema = context.schema
 
     var typeMapping = schema.findInstanceMapping(instance.asInstanceOf[AnyRef])
 
@@ -62,7 +85,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
     val ignoreFilter = instance.getClass.getAnnotation(classOf[IgnoreFilter])
 
-    val beanProperties = if (context.parent != null && ! context.parent.filter.isEmpty) {
+    val beanProperties = if (context.parent != null && !context.parent.filter.isEmpty) {
       beanModel.properties.filter(property => context.parent.filter.contains(property.name))
     } else {
       beanModel.properties
@@ -98,7 +121,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
     val registry = context.registry
 
     val linkFactories = schema.findLinksByClass(TypeResolver.rawType(resolvedType)) ++ schema.findLinksByInstance(instance)
-    
+
     linkFactories.foreach(linkFactory => {
       generateLinks(linkFactory, instance, context, links, registry)
     })
@@ -108,7 +131,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
     jsonObject
   }
 
-  private def proceed(instance: Any, context: Context, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, propertySchema : SchemaBuilder) = {
+  private def proceed(instance: Any, context: Context, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, propertySchema: SchemaBuilder) = {
     val registry = context.registry
     val converter = registry.find(property.propertyType)
     val value = property.get(instance.asInstanceOf[AnyRef])
@@ -120,13 +143,13 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
       case _ => processProperty(context, properties, property, converter, value, propertySchema)
   }
 
-  private def generateLinks(linkFactory : (Any, LinkContext) => Unit, instance: Any, context: Context, links: mutable.LinkedHashMap[String, JsonNode], registry: ConverterRegistry): Unit = {
+  private def generateLinks(linkFactory: (Any, LinkContext) => Unit, instance: Any, context: Context, links: mutable.LinkedHashMap[String, JsonNode], registry: ConverterRegistry): Unit = {
     val linksResult = new mutable.HashMap[String, Link]()
 
     linkFactory(instance, (name: String, link: Link) => linksResult.put(name, link))
 
     for (link <- linksResult) {
-      if (! context.links.contains(link._2)) {
+      if (!context.links.contains(link._2)) {
         context.links.addOne(link._2)
         val converter = registry.find(TypeResolver.resolve(classOf[Link]))
         val node = converter.toJson(link._2, TypeResolver.resolve(classOf[Link]), Context(context, link._1, context.noValidation, context.schema, context))
@@ -136,13 +159,13 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
     }
   }
 
-  private def processProperty(context: Context, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, converter: AbstractConverter, value: Any, propertySchema : SchemaBuilder) = value match
-    case collection : util.Collection[?] => if ! collection.isEmpty then addProperty(context, properties, property, converter, value, propertySchema)
+  private def processProperty(context: Context, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, converter: AbstractConverter, value: Any, propertySchema: SchemaBuilder) = value match
+    case collection: util.Collection[?] => if !collection.isEmpty then addProperty(context, properties, property, converter, value, propertySchema)
     case map: util.Map[?, ?] => if !map.isEmpty then addProperty(context, properties, property, converter, value, propertySchema)
     case _ => addProperty(context, properties, property, converter, value, propertySchema)
 
 
-  private def addProperty(context: Context, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, converter: AbstractConverter, value: Any, propertySchema : SchemaBuilder) = {
+  private def addProperty(context: Context, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, converter: AbstractConverter, value: Any, propertySchema: SchemaBuilder) = {
 
     val jpaConverter = property.findAnnotation(classOf[Converter])
 
@@ -177,7 +200,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
         propertyMapping = schema.findTypeMapping2(beanModel.underlying.raw)
       }
 
-      if (! (aType <:< TypeResolver.resolve(classOf[NodeDescriptor]))) {
+      if (!(aType <:< TypeResolver.resolve(classOf[NodeDescriptor]))) {
         val nodeId = propertyMapping.get("id")
 
         if (nodeId.isEmpty && beanModel.properties.exists(property => property.name == "id")) {
@@ -192,7 +215,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
         if (option.isDefined || ignoreFilter != null) {
           val descriptor = option.get
           if (descriptor.writeable) {
-            
+
             val registry = context.registry
             val converter = registry.find(property.propertyType)
             val currentNode = jsonObject.value.get(property.name)
@@ -210,15 +233,15 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
 
             } else {
               property.propertyType.raw match {
-                case aClass : Class[?] if classOf[java.lang.Boolean].isAssignableFrom(aClass) => false
-                case aClass : Class[?] if classOf[util.Set[?]].isAssignableFrom(aClass) => new util.HashSet[AnyRef]()
-                case aClass : Class[?] if classOf[util.List[?]].isAssignableFrom(aClass) => new util.ArrayList[AnyRef]()
-                case aClass : Class[?] if classOf[util.Map[?,?]].isAssignableFrom(aClass) => new util.HashMap[AnyRef, AnyRef]()
+                case aClass: Class[?] if classOf[java.lang.Boolean].isAssignableFrom(aClass) => false
+                case aClass: Class[?] if classOf[util.Set[?]].isAssignableFrom(aClass) => new util.HashSet[AnyRef]()
+                case aClass: Class[?] if classOf[util.List[?]].isAssignableFrom(aClass) => new util.ArrayList[AnyRef]()
+                case aClass: Class[?] if classOf[util.Map[?, ?]].isAssignableFrom(aClass) => new util.HashMap[AnyRef, AnyRef]()
                 case _ => null
               }
             }
 
-            val violations : util.Set[ConstraintViolation[Any]] = if (context.noValidation) {
+            val violations: util.Set[ConstraintViolation[Any]] = if (context.noValidation) {
               new util.HashSet[ConstraintViolation[Any]]()
             } else {
               context.validator.validateValue(aType.raw.asInstanceOf[Class[Any]], property.name, propertyValue)
@@ -249,7 +272,7 @@ class BeanConverter extends AbstractConverter(TypeResolver.resolve(classOf[AnyRe
             val oneToMany = property.findAnnotation(classOf[OneToMany])
             if (oneToMany != null && oneToMany.mappedBy().nonEmpty) {
               propertyValue match {
-                case collection : util.Collection[AnyRef] =>
+                case collection: util.Collection[AnyRef] =>
                   collection.forEach(element => {
                     val beanModel = BeanIntrospector.createWithType(element.getClass)
                     val mappedByProperty = beanModel.findProperty(oneToMany.mappedBy())

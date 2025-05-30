@@ -8,7 +8,7 @@ import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{createProxy
 import com.anjunar.technologyspeaks.jaxrs.search.jpa.JPASearch
 import com.anjunar.technologyspeaks.jaxrs.search.provider.{GenericIdProvider, GenericNameProvider, GenericSortProvider}
 import com.anjunar.technologyspeaks.jaxrs.search.{RestPredicate, RestSort}
-import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, QueryTable, Table}
+import com.anjunar.technologyspeaks.jaxrs.types.{AbstractSearch, QueryTable, Table, TupleTable}
 import com.anjunar.technologyspeaks.security.Secured
 import com.google.common.base.Strings
 import com.google.common.collect.Lists
@@ -56,18 +56,10 @@ class DocumentTableResource extends SchemaBuilderContext {
   @JsonSchema(classOf[DocumentTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Documents", linkType = LinkType.TABLE)
-  def list(@BeanParam search : DocumentSearch): Table[Document] = {
+  def list(@BeanParam search : DocumentSearch): TupleTable[Document] = {
 
     val context = jpaSearch.searchContext(search)
-    val tuples = jpaSearch.entities(search.index, search.limit, classOf[Document], context)
-    val entities = tuples.stream().map(tuple => {
-      val document = tuple.get(0, classOf[Document])
-      if (tuple.getElements.size() > 1) {
-        val distance = tuple.get(1, classOf[Double])
-        document.score = distance
-      }
-      document
-    }).toList
+    val entities = jpaSearch.entities(search.index, search.limit, classOf[Document], context)
     val count = jpaSearch.count(classOf[Document], context)
 
     forLinks(classOf[Table[Document]], (instance, link) => {
@@ -75,14 +67,15 @@ class DocumentTableResource extends SchemaBuilderContext {
         .build(link.addLink)
     })
 
-    entities.forEach(entity => {
-      forLinks(entity, classOf[Document], (row, link) => {
-        linkTo(methodOn(classOf[DocumentFormResource]).read(row.id))
+    entities.forEach(tuple => {
+      val document = tuple.get(0, classOf[Document])
+      forLinks(document, classOf[Document], (row, link) => {
+        linkTo(methodOn(classOf[DocumentFormResource]).read(document.id))
           .build(link.addLink)
       })
     })
 
-    new Table[Document](entities, count)
+    new TupleTable[Document](entities, count)
   }
 
 }

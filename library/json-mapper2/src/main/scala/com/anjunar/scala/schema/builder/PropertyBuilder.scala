@@ -173,5 +173,10 @@ class PropertyBuilder[C](val name : String, val aClass : Type, isTable : Boolean
     instance.forEach(instance => schemaBuilder.forInstance(instance, aClass, builder(instance)))
     this
   }
+  
+  def forTuple(builder: TupleSchemaBuilder => Unit) : PropertyBuilder[C] = {
+    schemaBuilder.forTuple(builder)
+    this
+  }
 
 }

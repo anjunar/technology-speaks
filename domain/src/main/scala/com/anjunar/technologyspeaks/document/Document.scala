@@ -6,17 +6,15 @@ import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.SecurityUser
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import com.anjunar.technologyspeaks.shared.editor.{Editor, Root}
-import jakarta.persistence.{CascadeType, Column, Entity, Lob, ManyToOne, OneToMany, OneToOne, Transient}
+import com.anjunar.technologyspeaks.shared.editor.Editor
+import jakarta.persistence.*
 import jakarta.validation.constraints.Size
-import org.hibernate.`type`.SqlTypes
-import org.hibernate.annotations.JdbcTypeCode
 import org.hibernate.envers.{AuditReaderFactory, Audited, NotAudited}
 
+import java.util
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
-import java.util
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 @Entity
 @Audited
@@ -25,13 +23,13 @@ class Document extends AbstractEntity with OwnerProvider {
   @Size(min = 3, max = 80)
   @Descriptor(title = "Title")
   @BeanProperty
-  var title : String = uninitialized
+  var title: String = uninitialized
 
   @Lob
   @Descriptor(title = "Description")
   @NotAudited
   @BeanProperty
-  var description : String = uninitialized
+  var description: String = uninitialized
 
   @Descriptor(title = "User")
   @ManyToOne(optional = false)
@@ -42,17 +40,12 @@ class Document extends AbstractEntity with OwnerProvider {
   @Descriptor(title = "Editor", widget = "editor")
   @OneToOne(optional = false, cascade = Array(CascadeType.ALL), orphanRemoval = true)
   @BeanProperty
-  var editor : Editor = uninitialized
-
-  @Descriptor(title = "Score")
-  @Transient
-  @BeanProperty
-  var score: Double = uninitialized
+  var editor: Editor = uninitialized
 
   @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, mappedBy = "document")
   @BeanProperty
   @NotAudited
-  val chunks : util.List[Chunk] = new util.ArrayList[Chunk]()
+  val chunks: util.List[Chunk] = new util.ArrayList[Chunk]()
 
   override def owner: SecurityUser = user
 
@@ -60,7 +53,7 @@ class Document extends AbstractEntity with OwnerProvider {
 
 object Document extends RepositoryContext[Document](classOf[Document]) {
 
-  def revisions(document : Document, index : Int, limit : Int): (Int, util.List[Document]) = {
+  def revisions(document: Document, index: Int, limit: Int): (Int, util.List[Document]) = {
     val auditReader = AuditReaderFactory.get(entityManager)
     val revisions = auditReader.getRevisions(classOf[Document], document.id)
 

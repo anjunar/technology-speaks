@@ -25,10 +25,12 @@ import QueryTableObject from "./container/QueryTableObject";
 import EditorModel from "../components/inputs/markdown/model/EditorModel";
 import EditorFile from "../components/inputs/markdown/model/EditorFile";
 import SortObject from "./container/SortObject";
+import TupleTableObject from "./container/TupleTableObject";
 
 export function init() {
 
     registerEntity(TableObject)
+    registerEntity(TupleTableObject)
     registerEntity(SortObject)
     registerEntity(QueryTableObject)
     registerEntity(RowObject)

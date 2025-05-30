@@ -5,12 +5,17 @@ import com.google.common.reflect.TypeToken
 import java.lang.reflect.Type
 import scala.collection.mutable
 import scala.compiletime.uninitialized
+import jakarta.persistence.Tuple
 
 class SchemaBuilder(var table : Boolean = false, val parent : SchemaBuilder = null) {
   
   val typeMapping = new mutable.LinkedHashMap[Type, EntitySchemaBuilder[?]]
 
   val instanceMapping = new mutable.LinkedHashMap[Any, EntitySchemaBuilder[?]]
+  
+  val primitiveMapping = new mutable.LinkedHashMap[Class[?], PrimitiveSchemaBuilder[?]]
+  
+  var tupleMapping : TupleSchemaBuilder = uninitialized
 
   def forLinks[C](aClass : Class[C], link : (C, LinkContext) => Unit) : SchemaBuilder = {
     val option = typeMapping.get(aClass)
@@ -71,6 +76,29 @@ class SchemaBuilder(var table : Boolean = false, val parent : SchemaBuilder = nu
     }
 
     this
+  }
+  
+  def forTuple[C](builder: TupleSchemaBuilder => Unit) : SchemaBuilder = {
+    tupleMapping = new TupleSchemaBuilder(this)
+    builder(tupleMapping)
+    this
+  }
+  
+  def forPrimitive[C](aClass : Class[C], builder : PrimitiveSchemaBuilder[C] => Unit) : SchemaBuilder = {
+
+    val option = primitiveMapping.get(aClass)
+
+    if (option.isDefined) {
+      val value = option.get.asInstanceOf[PrimitiveSchemaBuilder[C]]
+      builder(value)
+    } else {
+      val value = new PrimitiveSchemaBuilder[C](aClass, table, this)
+      builder(value)
+      primitiveMapping.put(aClass, value)
+    }
+
+    this
+    
   }
 
   def findTypeMapping(aClass : Type) : Map[String, PropertyBuilder[?]] = {

@@ -16,7 +16,6 @@ object DocumentSchema {
   def static(builder: EntitySchemaBuilder[Document]): EntitySchemaBuilder[Document] = {
     builder
       .property("id")
-      .property("score")
       .property("title")
       .property("description")
       .property("created")
@@ -34,7 +33,6 @@ object DocumentSchema {
 
     builder
       .property("id")
-      .property("score")
       .property("title", property => property
         .withTitle("Title")
         .withWriteable(true)
