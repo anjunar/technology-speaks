@@ -4,6 +4,7 @@ import com.anjunar.scala.schema.builder.EntitySchemaBuilder
 import com.anjunar.technologyspeaks.control.{Credential, User}
 import com.anjunar.technologyspeaks.document.Document
 import com.anjunar.technologyspeaks.shared.editor.{Editor, Root}
+import com.anjunar.technologyspeaks.shared.hashtag.HashTag
 
 object DocumentSchema {
 
@@ -20,8 +21,12 @@ object DocumentSchema {
       .property("description")
       .property("created")
       .property("modified")
+      .property("revision")
       .property("user", property => property
         .forType(classOf[User], UserSchema.staticCompact)
+      )
+      .property("hashTags", property => property
+        .forType(classOf[HashTag], HashTagSchema.static)
       )
   }
 
@@ -40,12 +45,16 @@ object DocumentSchema {
       .property("description")
       .property("created")
       .property("modified")
+      .property("revision")
       .property("user", property => property
         .forType(classOf[User], builder => UserSchema.dynamicCompact(builder, loaded.user))
       )
       .property("editor", property => property
         .withWriteable(isOwnedOrAdmin)
         .forType(classOf[Editor], EditorSchema.static)
+      )
+      .property("hashTags", property => property
+        .forType(classOf[HashTag], HashTagSchema.static)
       )
   }
 

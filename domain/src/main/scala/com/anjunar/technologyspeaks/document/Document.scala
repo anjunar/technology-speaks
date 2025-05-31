@@ -7,6 +7,7 @@ import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.SecurityUser
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.anjunar.technologyspeaks.shared.editor.Editor
+import com.anjunar.technologyspeaks.shared.hashtag.HashTag
 import jakarta.persistence.*
 import jakarta.validation.constraints.Size
 import org.hibernate.envers.{AuditReaderFactory, Audited, NotAudited}
@@ -47,8 +48,33 @@ class Document extends AbstractEntity with OwnerProvider {
   @NotAudited
   val chunks: util.List[Chunk] = new util.ArrayList[Chunk]()
 
+  @Descriptor(title = "HashTags", widget = "form-array")
+  @ManyToMany
+  @BeanProperty
+  @NotAudited
+  val hashTags : util.Set[HashTag] = new util.HashSet[HashTag]()
+  
+  @Descriptor(title = "Revision")
+  @Transient
+  @BeanProperty
+  var revision : Number = -1
+
   override def owner: SecurityUser = user
 
+  private def canEqual(other: Any): Boolean = other.isInstanceOf[Document]
+
+  override def equals(other: Any): Boolean = other match {
+    case that: Document =>
+      super.equals(that) &&
+        that.canEqual(this) &&
+        revision == that.revision
+    case _ => false
+  }
+
+  override def hashCode(): Int = {
+    val state = Seq(super.hashCode(), revision)
+    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
+  }
 }
 
 object Document extends RepositoryContext[Document](classOf[Document]) {
@@ -64,7 +90,11 @@ object Document extends RepositoryContext[Document](classOf[Document]) {
     }
 
     val pageRevisions = paginateRevisions(revisions, index, limit)
-    (revisions.size(), pageRevisions.stream.map(rev => auditReader.find(classOf[Document], document.id, rev)).toList)
+    (revisions.size(), pageRevisions.stream.map(rev => {
+      val revDocument = auditReader.find(classOf[Document], document.id, rev)
+      revDocument.revision = rev
+      revDocument
+    }).toList)
   }
 
 }

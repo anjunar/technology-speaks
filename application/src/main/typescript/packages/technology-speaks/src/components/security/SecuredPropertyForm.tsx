@@ -1,5 +1,5 @@
 import React from "react"
-import ManagedProperty from "../../domain/core/ManagedProperty";
+import ManagedProperty from "../../domain/shared/ManagedProperty";
 import {Button, FormModel, JSONSerializer, SchemaForm, SchemaInput, SchemaLazySelect, useForm} from "react-ui-simplicity";
 
 function SecuredPropertyForm(properties: SecuredPropertyForm.Attributes) {

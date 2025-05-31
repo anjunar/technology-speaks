@@ -1,9 +1,9 @@
 package com.anjunar.technologyspeaks.document
 
-import com.anjunar.technologyspeaks.document.json.ChunkNode
 import com.anjunar.technologyspeaks.olama.*
 import com.anjunar.technologyspeaks.olama.json.{JsonArray, JsonNode, JsonObject, NodeType}
 import com.anjunar.technologyspeaks.shared.editor.*
+import com.anjunar.technologyspeaks.shared.hashtag.HashTag
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -22,6 +22,40 @@ class DocumentService {
   @Inject
   var entityManager: EntityManager = uninitialized
 
+  def createHashTags(text: String): util.Set[HashTag] = {
+    val message = new ChatMessage
+    message.role = ChatRole.USER
+    message.content = "Bitte erzeuge mir HashTags für den folgenden Text und eine Beschreibung des HashTags. Gib die HashTags als JSON-Liste zurück mit : 'value' und 'description' : " + text
+
+    val valueNode = new JsonNode
+    valueNode.nodeType = NodeType.STRING
+    val descriptionNode = new JsonNode
+    descriptionNode.nodeType = NodeType.STRING
+
+    val jsonObject = new JsonObject
+    jsonObject.nodeType = NodeType.OBJECT
+    jsonObject.properties.put("value", valueNode)
+    jsonObject.properties.put("description", descriptionNode)
+
+    val jsonArray = new JsonArray
+    jsonArray.nodeType = NodeType.ARRAY
+    jsonArray.items = jsonObject
+
+    val request = new ChatRequest
+    request.model = "Llama3.2"
+    request.format = jsonArray
+    val options = new ChatOptions
+    options.temperature = 0
+    request.options = options
+    request.messages.add(message)
+
+    val response = service.chat(request)
+
+    val mapper = new ObjectMapper
+    val collectionType = mapper.getTypeFactory.constructCollectionType(classOf[util.Set[HashTag]], classOf[HashTag])
+    mapper.readValue(response.message.content, collectionType)
+  }
+
   def createDescription(text: String): String = {
     val message = new ChatMessage
     message.role = ChatRole.USER
@@ -33,6 +67,9 @@ class DocumentService {
     val request = new ChatRequest
     request.model = "Llama3.2"
     request.format = node
+    val options = new ChatOptions
+    options.temperature = 0
+    request.options = options
     request.messages.add(message)
 
     val response = service.chat(request)
@@ -40,7 +77,7 @@ class DocumentService {
     response.message.content
   }
 
-  def createChunks(text: String): String = {
+  def createChunks(text: String): util.List[Chunk] = {
     val message = new ChatMessage
     message.role = ChatRole.USER
     message.content = "Teile den folgenden Text in thematisch zusammengehörende Abschnitte auf für semantische Suche. Jeder Abschnitt soll ein eigenes Thema enthalten. Gib die Abschnitte als JSON-Liste zurück mit : 'title' und 'content' : " + text
@@ -62,11 +99,16 @@ class DocumentService {
     val request = new ChatRequest
     request.model = "Llama3.2"
     request.format = jsonArray
+    val options = new ChatOptions
+    options.temperature = 0
+    request.options = options
     request.messages.add(message)
 
     val response = service.chat(request)
 
-    response.message.content
+    val mapper = new ObjectMapper
+    val collectionType = mapper.getTypeFactory.constructCollectionType(classOf[util.List[Chunk]], classOf[Chunk])
+    mapper.readValue(response.message.content, collectionType)
   }
 
   def createEmbeddings(text: String): Array[Float] = {
@@ -113,26 +155,36 @@ class DocumentService {
 
     val text = toText(document.editor.json)
 
-    val jsonString = createChunks(text)
+    val chunks = createChunks(text)
+    chunks.forEach(chunk => {
+      chunk.embedding = createEmbeddings(chunk.title + "\n" + chunk.content)
+      chunk.document = document
+    })
 
-    val mapper = new ObjectMapper
-    val collectionType = mapper.getTypeFactory.constructCollectionType(classOf[util.List[ChunkNode]], classOf[ChunkNode])
-    val chunkNodes: util.List[ChunkNode] = mapper.readValue(jsonString, collectionType)
+    val hashTags = createHashTags(text).stream
+      .map(hashTag => {
+        val vector = createEmbeddings(hashTag.description)
 
-    val chunks = chunkNodes.stream()
-      .map(chunkNode => {
-        val chunk = new Chunk
-        chunk.title = chunkNode.title
-        chunk.content = chunkNode.content
-        chunk.embedding = createEmbeddings(chunkNode.title + "\n" + chunkNode.content)
-        chunk.document = document
-        chunk
+        val hashTagsFromDB = entityManager.createQuery("select h from HashTag h where function('similarity', h.value, :value) > 0.8 order by function('similarity', h.value, :value)", classOf[HashTag])
+          .setParameter("value", hashTag.value)
+          .getResultList
+
+        if (hashTagsFromDB.isEmpty) {
+          hashTag.embedding = vector
+          hashTag.persist()
+          hashTag
+        } else {
+          hashTagsFromDB.get(0)
+        }
       })
       .toList
 
     document.chunks.forEach(chunk => chunk.delete())
     document.chunks.clear()
     document.chunks.addAll(chunks)
+
+    document.hashTags.clear()
+    document.hashTags.addAll(hashTags)
 
     document.description = createDescription(text)
   }

@@ -2,6 +2,7 @@ package com.anjunar.technologyspeaks.jpa
 
 import jakarta.enterprise.inject.spi.CDI
 import jakarta.persistence.{Entity, EntityManager, NoResultException, TypedQuery}
+import org.hibernate.envers.AuditReaderFactory
 
 import java.util
 import java.util.UUID
@@ -12,6 +13,12 @@ trait RepositoryContext[E](clazz: Class[E]) {
 
   def find(id: Object): E = {
     entityManager.find(clazz, id)
+  }
+
+  def find(id : Object, revision : Number) : E = {
+    val revEntity = AuditReaderFactory.get(entityManager).find(clazz, id, revision)
+    val entity = entityManager.find(clazz, id)
+    revEntity
   }
 
   def reference(id: Object): E = {

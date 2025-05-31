@@ -11,7 +11,7 @@ import EMail from "./domain/control/EMail";
 import WebAuthnLogin from "./domain/security/WebAuthnLogin";
 import Credential from "./domain/control/Credential";
 import Group from "./domain/control/Group";
-import ManagedProperty from "./domain/core/ManagedProperty";
+import ManagedProperty from "./domain/shared/ManagedProperty";
 import Post from "./domain/timeline/Post";
 import Document from "./domain/document/Document";
 import DocumentSearch from "./domain/document/DocumentSearch";
@@ -23,6 +23,7 @@ import UserSearch from "./domain/control/UserSearch";
 import GroupSearch from "./domain/control/GroupSearch";
 import ChunkSearch from "./domain/document/ChunkSearch";
 import RevisionSearch from "./domain/document/RevisionSearch";
+import HashTag from "./domain/shared/HashTag";
 
 export function init() {
     registerEntity(Application)
@@ -44,6 +45,7 @@ export function init() {
     registerEntity(WebAuthnLogin)
     registerEntity(Confirmation)
     registerEntity(ManagedProperty)
+    registerEntity(HashTag)
 
     registerEntity(Post)
     registerEntity(PostSearch)

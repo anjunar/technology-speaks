@@ -14,7 +14,7 @@ object Tokenizer {
     Token("arrayStart", Pattern.compile("""^(\[)""")),
     Token("arrayEnd", Pattern.compile("""^(])""")),
     Token("string", Pattern.compile("""^"((?:\\"|[^"])*+)"""")),
-    Token("number", Pattern.compile("""^(\d[\d.e-]*)""")),
+    Token("number", Pattern.compile("""^(-?\d[\d.e-]*)""")),
     Token("boolean", Pattern.compile("""^(true|false)""")),
     Token("null", Pattern.compile("""^(null)""")),
     Token("colon", Pattern.compile("""^(:)""")),

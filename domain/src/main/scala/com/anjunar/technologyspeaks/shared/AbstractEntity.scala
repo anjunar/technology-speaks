@@ -23,9 +23,11 @@ abstract class AbstractEntity extends EntityContext with IdProvider {
   @BeanProperty
   var version: Int = uninitialized
 
+  @Descriptor(title = "Created")
   @BeanProperty
   var created: LocalDateTime = uninitialized
 
+  @Descriptor(title = "Modified")
   @BeanProperty
   var modified: LocalDateTime = uninitialized
   

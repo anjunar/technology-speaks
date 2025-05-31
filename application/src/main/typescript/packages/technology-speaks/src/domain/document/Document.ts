@@ -1,6 +1,7 @@
 import {AbstractEntity, Basic, Entity, MarkDownEditor, RootNode} from "react-ui-simplicity";
 import User from "../control/User";
 import {EditorModel} from "react-ui-simplicity";
+import HashTag from "../shared/HashTag";
 
 @Entity("Document")
 export default class Document extends AbstractEntity {
@@ -21,5 +22,11 @@ export default class Document extends AbstractEntity {
 
     @Basic()
     editor : EditorModel
+
+    @Basic()
+    revision : number
+
+    @Basic()
+    hashTags : HashTag[]
 
 }

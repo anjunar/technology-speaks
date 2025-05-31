@@ -1,7 +1,7 @@
 import React, {useState} from "react"
 import {mapForm, NodeDescriptor, useForm, Window} from "react-ui-simplicity";
 import {createPortal} from "react-dom";
-import ManagedProperty from "../../domain/core/ManagedProperty";
+import ManagedProperty from "../../domain/shared/ManagedProperty";
 import SecuredPropertyForm from "./SecuredPropertyForm";
 
 function SecuredProperty(properties: SecuredProperty.Attributes) {

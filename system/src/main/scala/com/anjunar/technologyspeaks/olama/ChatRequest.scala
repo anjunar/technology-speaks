@@ -19,6 +19,9 @@ class ChatRequest extends AbstractRequest {
 
   @BeanProperty
   var stream: Boolean = uninitialized
+  
+  @BeanProperty
+  var options : ChatOptions = uninitialized
 
   @BeanProperty
   var keepAlive: String = uninitialized
