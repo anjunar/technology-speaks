@@ -12,6 +12,9 @@ import jakarta.persistence.EntityManager
 import java.util
 import java.util.stream.Collectors
 import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
+import com.anjunar.technologyspeaks.core.*
+
 
 @ApplicationScoped
 class DocumentService {
@@ -179,7 +182,7 @@ class DocumentService {
       })
       .toList
 
-    document.chunks.forEach(chunk => chunk.delete())
+    document.chunks.foreach(chunk => chunk.delete())
     document.chunks.clear()
     document.chunks.addAll(chunks)
 

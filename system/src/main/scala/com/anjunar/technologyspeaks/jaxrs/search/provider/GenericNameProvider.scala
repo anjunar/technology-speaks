@@ -14,6 +14,6 @@ class GenericNameProvider[E] extends PredicateProvider[String, E] {
     val Context(value, entityManager, builder, predicates, root, query, selection, property, name, parameters) = context
 
     if (! Strings.isNullOrEmpty(value))
-      predicates.addOne(builder.like(builder.lower(root.get(property.name)), value.toLowerCase + "%"))
+      predicates.addOne(builder.like(builder.lower(root.get(property.name)), "%" + value.toLowerCase + "%"))
   }
 }

@@ -48,7 +48,7 @@ class DocumentFormResource extends SchemaBuilderContext {
   @JsonSchema(classOf[DocumentFormSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Read", linkType = LinkType.FORM)
-  def read(@PathParam("id") id: UUID, @QueryParam("rev") @DefaultValue("-1") revision : Int = -1): Document = {
+  def read(@PathParam("id") id: UUID, @QueryParam("rev") @DefaultValue("-1") revision : Int): Document = {
     val document = if revision == -1 then Document.find(id) else Document.find(id, revision)
 
     forLinks(classOf[Document], (instance, link) => {

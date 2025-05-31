@@ -49,6 +49,7 @@ abstract class AbstractEntity extends EntityContext with IdProvider {
   }
 
   override def hashCode(): Int = id.hashCode()
+  
 }
 
 

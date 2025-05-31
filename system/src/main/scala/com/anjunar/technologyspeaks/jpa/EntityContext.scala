@@ -9,7 +9,6 @@ import jakarta.validation.Validator
 
 import java.lang.annotation.Annotation
 import java.util
-import java.util.stream.Collectors
 
 trait EntityContext {
 
@@ -55,7 +54,7 @@ trait EntityContext {
 
         new ValidationViolation(path, violation.getMessage, violation.getRootBeanClass)
       })
-      .collect(Collectors.toList)
+      .toList
     
     if (! validationViolation.isEmpty) {
       throw new ValidationException(validationViolation)  

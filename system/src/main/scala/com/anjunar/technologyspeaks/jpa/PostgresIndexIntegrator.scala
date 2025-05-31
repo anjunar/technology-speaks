@@ -1,8 +1,10 @@
 package com.anjunar.technologyspeaks.jpa
 
-import org.hibernate.boot.Metadata
+import org.hibernate.boot.{Metadata, MetadataSources}
 import org.hibernate.boot.model.relational.SimpleAuxiliaryDatabaseObject
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder
 import org.hibernate.boot.spi.BootstrapContext
+import org.hibernate.collection.spi.CollectionSemanticsResolver
 import org.hibernate.engine.spi.SessionFactoryImplementor
 import org.hibernate.integrator.spi.Integrator
 

@@ -10,10 +10,12 @@ import com.anjunar.technologyspeaks.shared.editor.Editor
 import com.anjunar.technologyspeaks.shared.hashtag.HashTag
 import jakarta.persistence.*
 import jakarta.validation.constraints.Size
+import org.hibernate.annotations.CollectionType
 import org.hibernate.envers.{AuditReaderFactory, Audited, NotAudited}
 
 import java.util
 import scala.beans.BeanProperty
+import scala.collection.mutable
 import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
 
@@ -44,7 +46,6 @@ class Document extends AbstractEntity with OwnerProvider {
   var editor: Editor = uninitialized
 
   @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, mappedBy = "document")
-  @BeanProperty
   @NotAudited
   val chunks: util.List[Chunk] = new util.ArrayList[Chunk]()
 
@@ -75,6 +76,7 @@ class Document extends AbstractEntity with OwnerProvider {
     val state = Seq(super.hashCode(), revision)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+
 }
 
 object Document extends RepositoryContext[Document](classOf[Document]) {
