@@ -12,8 +12,6 @@ import jakarta.persistence.EntityManager
 import java.util
 import java.util.stream.Collectors
 import scala.compiletime.uninitialized
-import scala.jdk.CollectionConverters.*
-import com.anjunar.technologyspeaks.core.*
 
 
 @ApplicationScoped
