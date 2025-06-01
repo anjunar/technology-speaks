@@ -22,3 +22,12 @@ class ChatMessage {
   var images: Array[String] = uninitialized
   
 }
+
+object ChatMessage {
+  def apply(text : String) : ChatMessage = {
+    val message = new ChatMessage
+    message.content = text
+    message.role = ChatRole.USER
+    message
+  }
+}

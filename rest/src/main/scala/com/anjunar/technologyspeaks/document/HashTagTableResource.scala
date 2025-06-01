@@ -12,7 +12,7 @@ import com.anjunar.technologyspeaks.shared.hashtag.HashTag
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
-import jakarta.ws.rs.{GET, Path, Produces}
+import jakarta.ws.rs.{BeanParam, GET, Path, Produces}
 
 import scala.compiletime.uninitialized
 
@@ -30,7 +30,7 @@ class HashTagTableResource extends SchemaBuilderContext {
   @JsonSchema(classOf[HashTagSearchSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "HashTags", linkType = LinkType.TABLE)
-  def search(search : HashTagSearch) : HashTagSearch = {
+  def search(@BeanParam search : HashTagSearch) : HashTagSearch = {
 
     forLinks(classOf[HashTagSearch], (instance, link) => {
       linkTo(methodOn(classOf[HashTagTableResource]).list(search))
@@ -45,7 +45,7 @@ class HashTagTableResource extends SchemaBuilderContext {
   @JsonSchema(classOf[HashTagTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "HashTags", linkType = LinkType.TABLE)
-  def list(search : HashTagSearch) : Table[HashTag] = {
+  def list(@BeanParam search : HashTagSearch) : Table[HashTag] = {
     val context = jpaSearch.searchContext(search)
     val tuples = jpaSearch.entities(search.index, search.limit, classOf[HashTag], context)
     val entities = tuples.stream().map(tuple => tuple.get(0, classOf[HashTag])).toList

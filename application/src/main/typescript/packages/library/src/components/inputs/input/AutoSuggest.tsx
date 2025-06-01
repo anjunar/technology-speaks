@@ -1,38 +1,64 @@
 import "./AutoSuggest.css"
-import React, {CSSProperties, useState} from "react";
+import React, {CSSProperties, useRef, useState} from "react";
 import Input from "./Input";
 import {useInput} from "../../../hooks/UseInputHook";
 
 function AutoSuggest(properties : AutoSuggest.Attributes) {
 
-    const {name, children, dynamicWidth, style, autoSuggest, value, standalone} = properties
+    const {name, children, dynamicWidth, style, loader, value, standalone, onKeyUp, placeholder, onSelection} = properties
 
     const [open, setOpen] = useState(false)
 
     const [model, state, setState] = useInput(name, value, standalone, "text")
 
-    function onFocus() {
-        setOpen(true)
+    const [window, setWindow] = useState([])
+
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    function onKeyUpHandler(event : React.KeyboardEvent) {
+        onKeyUp(event)
+
+        if (state?.indexOf("#") > -1) {
+
+            loader({index : 0, limit : 10, value : state, cursorPos : inputRef.current.selectionStart}, (rows, size) => {
+                if (size === 0) {
+                    setOpen(false)
+                } else {
+                    setWindow(rows)
+                    setOpen(true)
+                }
+            })
+
+        } else {
+            setOpen(false)
+        }
     }
 
-    function onBlur() {
-        setTimeout(() => {
-            setOpen(false)
-        }, 300)
+    function onSelectionClick(value : any) {
+        setOpen(false)
+        let start = onSelection(value, inputRef.current.selectionStart);
+        inputRef.current.setSelectionRange(start, null, "forward")
+        inputRef.current.focus()
     }
 
     return (
         <div className={"auto-suggest"} style={style}>
-            <Input type={"text"} dynamicWidth={dynamicWidth}
-                   name={name} onChange={(value : any) => setState(value)}
-                   standalone={true} onKeyDown={event => event.stopPropagation()}
-                   value={state} onFocus={onFocus} onBlur={onBlur}/>
+            <input type={"text"}
+                   ref={inputRef}
+                   style={{width : "100%"}}
+                   onKeyUp={onKeyUpHandler}
+                   placeholder={placeholder}
+                   name={name}
+                   autoComplete={"off"}
+                   onChange={(value : React.ChangeEvent<HTMLInputElement>) => setState(value.target.value)}
+                   onKeyDown={event => event.stopPropagation()}
+                   value={state}/>
             {
                 open ? (
                     <div className={"overlay"}>
                         {
-                            autoSuggest.loader(state.toString()).map(item => (
-                                <div key={autoSuggest.extractor(item)} className={"item"} onClick={() => setState(autoSuggest.extractor(item))}>
+                            window.map(item => (
+                                <div key={item.id} className={"item"} onClick={() => onSelectionClick(item)}>
                                     {children(item)}
                                 </div>
                             ))
@@ -46,14 +72,29 @@ function AutoSuggest(properties : AutoSuggest.Attributes) {
 
 namespace AutoSuggest {
     export interface Attributes {
-        autoSuggest : {loader : (value : string) => any[], extractor : (value : any) => string}
+        loader(query : Query, callback : Callback) : void
         children : (element : any) => React.ReactElement
-        dynamicWidth : boolean
-        name : string
+        dynamicWidth? : boolean
+        name? : string
         standalone? : boolean
         value? : string
         style : CSSProperties
+        onKeyUp? : (event : React.KeyboardEvent) => void
+        placeholder? : string
+        onSelection : (value : any, cursorPos : number) => number
     }
+
+    export interface Query {
+        index : number
+        limit : number
+        value : string
+        cursorPos : number
+    }
+
+    export interface Callback {
+        (rows : any[], size : number) : void
+    }
+
 }
 
 export default AutoSuggest

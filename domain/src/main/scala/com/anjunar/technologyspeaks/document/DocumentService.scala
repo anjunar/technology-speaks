@@ -24,31 +24,18 @@ class DocumentService {
   var entityManager: EntityManager = uninitialized
 
   def createHashTags(text: String): util.Set[HashTag] = {
-    val message = new ChatMessage
-    message.role = ChatRole.USER
-    message.content = "Bitte erzeuge mir HashTags für den folgenden Text und eine Beschreibung des HashTags. Gib die HashTags als JSON-Liste zurück mit : 'value' und 'description' : " + text
+    val message = ChatMessage("Bitte erzeuge mir HashTags für den folgenden Text und eine Beschreibung des HashTags. Gib die HashTags als JSON-Liste zurück mit : 'value' und 'description' : " + text)
 
-    val valueNode = new JsonNode
-    valueNode.nodeType = NodeType.STRING
-    val descriptionNode = new JsonNode
-    descriptionNode.nodeType = NodeType.STRING
+    val valueNode = JsonNode(NodeType.STRING)
+    val descriptionNode = JsonNode(NodeType.STRING)
 
-    val jsonObject = new JsonObject
-    jsonObject.nodeType = NodeType.OBJECT
-    jsonObject.properties.put("value", valueNode)
-    jsonObject.properties.put("description", descriptionNode)
+    val jsonObject = JsonObject(("value", valueNode), ("description", descriptionNode))
 
-    val jsonArray = new JsonArray
-    jsonArray.nodeType = NodeType.ARRAY
-    jsonArray.items = jsonObject
+    val jsonArray = JsonArray(jsonObject)
 
-    val request = new ChatRequest
-    request.model = "Llama3.2"
-    request.format = jsonArray
-    val options = new ChatOptions
-    options.temperature = 0
-    request.options = options
-    request.messages.add(message)
+    val options = RequestOptions(0)
+
+    val request = ChatRequest(jsonArray, options, message)
 
     val response = service.chat(request)
 
@@ -58,20 +45,13 @@ class DocumentService {
   }
 
   def createDescription(text: String): String = {
-    val message = new ChatMessage
-    message.role = ChatRole.USER
-    message.content = "Schreibe mir eine kurze Zusammenfassung vom Text und gib den JSON-String zurück: " + text
+    val message = ChatMessage("Schreibe mir eine kurze Zusammenfassung vom Text und gib den JSON-String zurück: " + text)
 
-    val node = new JsonNode
-    node.nodeType = NodeType.STRING
+    val node = JsonNode(NodeType.STRING)
 
-    val request = new ChatRequest
-    request.model = "Llama3.2"
-    request.format = node
-    val options = new ChatOptions
-    options.temperature = 0
-    request.options = options
-    request.messages.add(message)
+    val options = RequestOptions(0)
+
+    val request = ChatRequest(node, options, message)
 
     val response = service.chat(request)
 
@@ -79,31 +59,18 @@ class DocumentService {
   }
 
   def createChunks(text: String): util.List[Chunk] = {
-    val message = new ChatMessage
-    message.role = ChatRole.USER
-    message.content = "Teile den folgenden Text in thematisch zusammengehörende Abschnitte auf für semantische Suche. Jeder Abschnitt soll ein eigenes Thema enthalten. Gib die Abschnitte als JSON-Liste zurück mit : 'title' und 'content' : " + text
+    val message = ChatMessage("Teile den folgenden Text in thematisch zusammengehörende Abschnitte auf für semantische Suche. Jeder Abschnitt soll ein eigenes Thema enthalten. Gib die Abschnitte als JSON-Liste zurück mit : 'title' und 'content' : " + text)
 
-    val titleNode = new JsonNode
-    titleNode.nodeType = NodeType.STRING
-    val contentNode = new JsonNode
-    contentNode.nodeType = NodeType.STRING
+    val titleNode = JsonNode(NodeType.STRING)
+    val contentNode = JsonNode(NodeType.STRING)
 
-    val jsonObject = new JsonObject
-    jsonObject.nodeType = NodeType.OBJECT
-    jsonObject.properties.put("title", titleNode)
-    jsonObject.properties.put("content", contentNode)
+    val jsonObject = JsonObject(("title", titleNode), ("content", contentNode))
 
-    val jsonArray = new JsonArray
-    jsonArray.nodeType = NodeType.ARRAY
-    jsonArray.items = jsonObject
+    val jsonArray = JsonArray(jsonObject)
 
-    val request = new ChatRequest
-    request.model = "Llama3.2"
-    request.format = jsonArray
-    val options = new ChatOptions
-    options.temperature = 0
-    request.options = options
-    request.messages.add(message)
+    val options = RequestOptions(0)
+
+    val request = ChatRequest(jsonArray, options, message)
 
     val response = service.chat(request)
 
@@ -113,9 +80,9 @@ class DocumentService {
   }
 
   def createEmbeddings(text: String): Array[Float] = {
-    val request = new EmbeddingRequest
-    request.input = text
-    request.model = "Llama3.2"
+    val options = RequestOptions(0)
+
+    val request = EmbeddingRequest(text, options)
 
     normalize(service.generateEmbeddings(request).embeddings.head)
   }
@@ -180,7 +147,7 @@ class DocumentService {
       })
       .toList
 
-    document.chunks.foreach(chunk => chunk.delete())
+    document.chunks.forEach(chunk => chunk.delete())
     document.chunks.clear()
     document.chunks.addAll(chunks)
 

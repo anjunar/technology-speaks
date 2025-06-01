@@ -1,11 +1,11 @@
 import "./Input.css"
-import React, {useCallback, useLayoutEffect, useRef} from "react"
+import React, {forwardRef, useCallback, useImperativeHandle, useLayoutEffect, useRef} from "react"
 import {AsyncValidator, Email, Max, MaxLength, Min, MinLength, Model, Pattern, Required, Validator} from "../../shared/Model"
 import {Duration, LocalDate, LocalDateTime, LocalTime, Temporal, TemporalAmount} from "@js-joda/core";
 import {format} from "../../shared/DateTimeUtils";
 import {useInput} from "../../../hooks/UseInputHook";
 
-function Input(properties: Input.Attributes) {
+export const Input = forwardRef<{ selectionStart: number }, Input.Attributes>((properties : Input.Attributes, ref) => {
 
     const {
         asyncValidators = [],
@@ -37,7 +37,13 @@ function Input(properties: Input.Attributes) {
 
     let [model, state, setState] = useInput(name, value, standalone, type);
 
-    const input = useRef(null);
+    const input = useRef<HTMLInputElement>(null);
+
+    useImperativeHandle(ref, () => ({
+        get selectionStart() : number {
+            return input.current?.selectionStart
+        }
+    }));
 
     const onInputHandler: React.ChangeEventHandler<HTMLInputElement> = useCallback((event) => {
         let target = event.target
@@ -236,7 +242,7 @@ function Input(properties: Input.Attributes) {
     )
 
 
-}
+})
 
 namespace Input {
     // @ts-ignore
@@ -252,6 +258,7 @@ namespace Input {
         subType?: string
         validators?: Validator[]
         value?: Temporal | TemporalAmount | string | number | boolean
+        ref? : React.RefObject<HTMLInputElement>
     }
 }
 

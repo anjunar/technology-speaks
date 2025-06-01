@@ -35,7 +35,7 @@ class Chunk extends AbstractEntity {
 
   @Column
   @JdbcTypeCode(SqlTypes.VECTOR)
-  @annotations.Array(length = 3072)
+  @annotations.Array(length = 3840)
   @BeanProperty
   var embedding: Array[Float] = uninitialized
 

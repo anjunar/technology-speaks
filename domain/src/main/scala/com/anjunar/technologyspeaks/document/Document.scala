@@ -47,6 +47,7 @@ class Document extends AbstractEntity with OwnerProvider {
 
   @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, mappedBy = "document")
   @NotAudited
+  @BeanProperty  
   val chunks: util.List[Chunk] = new util.ArrayList[Chunk]()
 
   @Descriptor(title = "HashTags", widget = "form-array")

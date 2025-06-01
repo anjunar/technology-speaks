@@ -1,7 +1,9 @@
 import "./HomePage.css"
 import React from "react"
 import DocumentSearch from "../../domain/document/DocumentSearch";
-import {Form, FormModel, Input, Router, useForm} from "react-ui-simplicity";
+import {AutoSuggest, Form, mapTable, Router, useForm} from "react-ui-simplicity";
+import HashTag from "../../domain/shared/HashTag";
+import {process} from "../../App"
 import navigate = Router.navigate;
 
 function HomePage(properties: HomePage.Attributes) {
@@ -16,6 +18,44 @@ function HomePage(properties: HomePage.Attributes) {
         }
     }
 
+    async function loader(query : AutoSuggest.Query, callback : AutoSuggest.Callback) {
+
+        const beforeCursor = query.value.slice(0, query.cursorPos);
+        const match = beforeCursor.match(/#(\w*)$/);
+
+        if (match) {
+            let value = match[1]
+
+            let url = `/service/documents/document/hashtags?value=${value}&index=${query.index}&limit=${query.limit}`;
+
+            const response = await fetch(url)
+
+            if (response.ok) {
+                let [rows, count] = mapTable(await response.json());
+                callback(rows, count)
+            } else {
+                process(response)
+            }
+        } else {
+            callback([], 0)
+        }
+    }
+
+
+
+    function onSelection(hashTag : HashTag, cursorPos : number) : number {
+        const text = search.text
+
+        const beforeCursor = text.slice(0, cursorPos);
+        const match = beforeCursor.match(/#(\w*)$/);
+
+        const before = text.slice(0, cursorPos - match[0].length);
+        const after = text.slice(cursorPos);
+        search.text = before + hashTag.value + ' ' + after
+
+        return before.length + hashTag.value.length + 1;
+    }
+
     return (
         <div className={"home-page"}>
             <div className={"center"}>
@@ -25,7 +65,18 @@ function HomePage(properties: HomePage.Attributes) {
                         <h1 style={{fontSize : "1em", margin : 0, padding : 0, color : "white"}}>Technology Speaks</h1>
                     </div>
                     <Form value={search} style={{marginTop : "12px", display : "flex", justifyContent : "stretch"}}>
-                        <Input name={"text"} onKeyUp={onSearch} placeholder={"Search with natural language"} style={{backgroundColor : "var(--color-background-primary)", flex : 1, width : "100%", padding : "12px"}}/>
+                        <AutoSuggest loader={loader}
+                                     name={"text"}
+                                     onKeyUp={onSearch}
+                                     placeholder={"Search with natural language"}
+                                     onSelection={onSelection}
+                                     style={{backgroundColor : "var(--color-background-primary)", flex : 1, width : "100%", padding : "12px"}}>
+                            {
+                                (row : HashTag) => (
+                                    <p>{row.value}</p>
+                                )
+                            }
+                        </AutoSuggest>
                     </Form>
                 </div>
             </div>

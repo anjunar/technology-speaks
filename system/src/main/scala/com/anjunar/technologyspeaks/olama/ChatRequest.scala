@@ -5,6 +5,7 @@ import com.anjunar.technologyspeaks.olama.json.{JsonFunction, JsonFunctionWrappe
 import java.util
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
+import scala.jdk.CollectionConverters.*
 
 class ChatRequest extends AbstractRequest {
 
@@ -21,9 +22,20 @@ class ChatRequest extends AbstractRequest {
   var stream: Boolean = uninitialized
   
   @BeanProperty
-  var options : ChatOptions = uninitialized
+  var options : RequestOptions = uninitialized
 
   @BeanProperty
   var keepAlive: String = uninitialized
 
+}
+
+object ChatRequest {
+  def apply(format : JsonNode, options : RequestOptions, messages : ChatMessage*): ChatRequest = {
+    val request = new ChatRequest
+    request.model = "gemma3"
+    request.options = options
+    request.messages.addAll(messages.asJava)
+    request.format = format
+    request
+  }
 }

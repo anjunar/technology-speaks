@@ -22,7 +22,7 @@ class ChatResource {
   def chat(@QueryParam("text") text: String): String = {
 
     val chatRequest = new ChatRequest
-    chatRequest.model = "Llama3.2"
+    chatRequest.model = "gemma3:12b"
 
     val chatMessage = new ChatMessage
     chatMessage.role = ChatRole.USER
@@ -68,7 +68,7 @@ class ChatResource {
       .get()
 
     val chatRequest2 = new ChatRequest
-    chatRequest2.model = "Llama3.2"
+    chatRequest2.model = "gemma3:12b"
 
     val chatMessageAssistant = new ChatMessage
     chatMessageAssistant.role = ChatRole.ASSISTANT

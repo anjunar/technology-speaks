@@ -15,3 +15,13 @@ class JsonNode {
   var description : String = uninitialized
 
 }
+
+object JsonNode {
+  
+  def apply(nodeType : NodeType) : JsonNode = {
+    val node = new JsonNode
+    node.nodeType = nodeType
+    node
+  }
+  
+}
