@@ -103,11 +103,11 @@ class DocumentService {
 
   def createDescription(text: String, blockingQueue: LinkedBlockingQueue[String]): String = {
     val message = ChatMessage(
-      s"""Please summarize the following text.
+      s"""Please make a short summary with the following text.
          |Keep the summary in the original language.
          |Return the summary in JSON Object format.:
          |
-         |{"summary": "Here is the brief summary in original language"}
+         |{"summary": "Here is a short summary in original language"}
          |
          |Text:
          |

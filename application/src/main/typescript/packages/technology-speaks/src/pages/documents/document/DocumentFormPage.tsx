@@ -1,26 +1,120 @@
 import "./DocumentFormPage.css"
-import React from "react"
+import React, {useEffect, useRef, useState} from "react"
 import Document from "../../../domain/document/Document";
-import {MarkDownEditor, MarkDownView, SchemaForm, SchemaInput, useForm} from "react-ui-simplicity";
+import {
+    Button,
+    JSONSerializer,
+    MarkDownEditor,
+    MarkDownView,
+    SchemaForm,
+    SchemaInput,
+    useForm, Window
+} from "react-ui-simplicity";
+import {process} from "../../../App";
+import {v4} from "uuid";
+import {createPortal} from "react-dom";
 
 function DocumentFormPage(properties: DocumentFormPage.Attributes) {
 
     const {form} = properties
 
-    let document = useForm(form);
+    const domain = useForm(form);
+
+    const [open, setOpen] = useState(false)
+
+    const [session, setSession] = useState("")
+
+    const [buffer, setBuffer] = useState("")
+
+    const scrollRef = useRef<HTMLDivElement>(null);
 
     async function onSubmit(name: string, form: any) {
+        let link = domain.$links[name];
 
+        let sessionId = v4()
+
+        setTimeout(() => {
+            setSession(sessionId)
+        }, 1000)
+
+
+        const response = await fetch("/service" + link.url, {
+            body : JSON.stringify(JSONSerializer(domain)),
+            headers: {"content-type": "application/json", "X-Session-Id": sessionId},
+            method : link.method
+        })
+
+        if (response.ok) {
+
+        } else {
+            process(response)
+        }
     }
+
+    let actions = Object.values(domain.$links)
+        .filter((link) => link.method !== "GET")
+        .map((link) => <Button key={link.rel} name={link.rel}>{link.title}</Button>)
+
+    useEffect(() => {
+        let eventSource = null
+        if (session.length > 0) {
+            setOpen(true)
+
+            eventSource = new EventSource(`/service/documents/document/progressStream?session=${session}`);
+
+            eventSource.onmessage = (e) => {
+                setBuffer((prev) => {
+                    const next = prev + e.data;
+
+                    requestAnimationFrame(() => {
+                        if (scrollRef.current) {
+                            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+                        }
+                    });
+
+                    return next;
+                });
+
+                if (e.data === "Done") {
+                    eventSource.close()
+                    setOpen(false)
+                }
+            };
+        }
+
+        return () => {
+            if (eventSource) {
+                eventSource.close()
+                setOpen(false)
+            }
+        }
+    }, [session]);
 
     return (
         <div className={"document-form-page"}>
-            <SchemaForm value={document} onSubmit={onSubmit} style={{height : "calc(100% - 48px)"}}>
+            {
+                open && createPortal((
+                    <Window centered={true} style={{width : "70%", height : "50vh"}}>
+                        <Window.Header>
+                            Server
+                        </Window.Header>
+                        <Window.Content>
+                            <div ref={scrollRef} style={{overflowY : "auto", padding : "20px", height : "calc(50vh - 48px)"}}>
+                                <p>
+                                    {buffer}
+                                </p>
+                            </div>
+                        </Window.Content>
+                    </Window>
+                ), document.getElementById("viewport"))
+            }
+            <SchemaForm value={domain} onSubmit={onSubmit} style={{display: "flex", height : "calc(100% - 70px)", flexDirection : "column"}}>
                 <SchemaInput name={"title"}/>
-                <div style={{display : "flex", height : "100%"}}>
+                <div style={{flex : 1, display : "flex", height : "100%"}}>
                     <MarkDownEditor name={"editor"} style={{flex : 1, height : "100%"}}/>
                     <MarkDownView name={"editor"} style={{flex : 1, height : "100%"}}/>
                 </div>
+                <div style={{display : "flex", justifyContent : "flex-end"}}>{ actions }</div>
             </SchemaForm>
         </div>
     )

@@ -1,11 +1,21 @@
 import "./FormPage.css"
 import React, {useEffect, useState} from "react"
-import {ActiveObject, Button, FormModel, FormSchemaFactory, JSONSerializer, Link, Router, SchemaForm, useForm} from "react-ui-simplicity";
-import QueryParams = Router.QueryParams;
-import navigate = Router.navigate;
+import {
+    ActiveObject,
+    Button,
+    FormModel,
+    FormSchemaFactory,
+    JSONSerializer,
+    Link,
+    Router,
+    SchemaForm,
+    useForm
+} from "react-ui-simplicity";
 import * as webauthnJson from "@github/webauthn-json";
 import SecuredProperty from "../../components/security/SecuredProperty";
 import {v4} from "uuid";
+import QueryParams = Router.QueryParams;
+import navigate = Router.navigate;
 
 function FormPage(properties: FormView.Attributes) {
 
@@ -22,11 +32,9 @@ function FormPage(properties: FormView.Attributes) {
             let links1 = Object.entries(domain.$links)
                 .filter(([rel, link]) => link.method === "GET" || link.linkType === "table")
                 .map(([rel, link]) => (
-                    <Link
-                        style={{margin: "5px"}}
-                        key={link.rel}
-                        value={`/navigator/${link.linkType}?link=${btoa(link.url)}`}
-                    >
+                    <Link style={{margin: "5px"}}
+                          key={link.rel}
+                          value={`/navigator/${link.linkType}?link=${btoa(link.url)}`}>
                         {link.title}
                     </Link>
                 ))
@@ -52,17 +60,17 @@ function FormPage(properties: FormView.Attributes) {
 
     let fields = Object.entries(domain.$descriptors.allProperties(domain.$type))
         .filter(([key, descriptor]) => {
-            return ! descriptor.hidden
+            return !descriptor.hidden
         })
         .map(([key, descriptor]) => (
-        <div key={key} style={{display : "flex", alignItems : "center"}}>
-            <FormSchemaFactory style={{flex : 1}} name={key}/>
-            {
-                descriptor.links?.["secured"] && <SecuredProperty descriptor={descriptor}/>
-            }
-        </div>
+            <div key={key} style={{display: "flex", alignItems: "center"}}>
+                <FormSchemaFactory style={{flex: 1}} name={key}/>
+                {
+                    descriptor.links?.["secured"] && <SecuredProperty descriptor={descriptor}/>
+                }
+            </div>
 
-    ))
+        ))
 
     async function login() {
 
@@ -86,7 +94,7 @@ function FormPage(properties: FormView.Attributes) {
             body: JSON.stringify(publicKeyCredential),
         });
 
-        if (! responseFinish.ok) {
+        if (!responseFinish.ok) {
             alert("Something went wrong")
         }
 
@@ -97,7 +105,7 @@ function FormPage(properties: FormView.Attributes) {
 
         const optionsRequest = await fetch("/service/security/register-options", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(value)
         })
 
@@ -107,13 +115,13 @@ function FormPage(properties: FormView.Attributes) {
 
         const registerRequest = await fetch("service/security/register-finish", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {"Content-Type": "application/json"},
             body: JSON.stringify(publicKeyCredential)
         });
 
         const registerJSON = await registerRequest.json()
 
-        if (! registerRequest.ok) {
+        if (!registerRequest.ok) {
             alert("Something went wrong")
         }
 
@@ -123,9 +131,11 @@ function FormPage(properties: FormView.Attributes) {
         let link = domain.$links[name];
 
         switch (link.url) {
-            case "/security/register-options" : register()
+            case "/security/register-options" :
+                register()
                 break
-            case "/security/options" : login()
+            case "/security/options" :
+                login()
                 break
             default : {
                 let value = JSONSerializer(domain);

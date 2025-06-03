@@ -7,6 +7,6 @@ export default class DocumentSearch extends AbstractSearch {
     $type = "DocumentSearch"
 
     @Basic()
-    text : string
+    text : string = ""
 
 }
