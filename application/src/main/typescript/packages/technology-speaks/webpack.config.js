@@ -2,8 +2,6 @@ import webpack from 'webpack';
 import path from 'path';
 import HtmlPlugin from 'html-webpack-plugin';
 import CopyWebpackPlugin from 'copy-webpack-plugin';
-import * as fs from "node:fs";
-import * as https from "node:https";
 
 export default (env) => {
     return {
@@ -44,13 +42,14 @@ export default (env) => {
             port: 3000,
             open: true,
             historyApiFallback: true,
-            allowedHosts: 'all',
-            host: '0.0.0.0',
+            compress: false,
             proxy: [
                 {
                     context: ['/service'],
                     target: 'http://localhost:8080',
-                },
+                    ws: true,
+                    changeOrigin: true
+                }
             ],
         },
         plugins: [

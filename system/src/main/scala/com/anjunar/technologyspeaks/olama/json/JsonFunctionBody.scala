@@ -3,9 +3,12 @@ package com.anjunar.technologyspeaks.olama.json
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
-class JsonFunctionWrapper extends JsonNode {
+class JsonFunctionBody extends JsonNode {
 
   @BeanProperty
-  var function : JsonFunction = uninitialized
+  var name : String = uninitialized
+
+  @BeanProperty
+  var parameters : JsonObject = uninitialized
 
 }

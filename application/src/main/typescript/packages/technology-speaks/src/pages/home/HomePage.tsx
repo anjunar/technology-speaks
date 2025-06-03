@@ -14,7 +14,7 @@ function HomePage(properties: HomePage.Attributes) {
 
     function onSearch(event : React.KeyboardEvent) {
         if (event.key === "Enter") {
-            navigate(`documents/search?text=${search.text}`)
+            navigate(`documents/search?text=${encodeURIComponent(search.text)}`)
         }
     }
 

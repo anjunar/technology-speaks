@@ -1,10 +1,11 @@
 import "./FormPage.css"
-import React from "react"
+import React, {useEffect, useState} from "react"
 import {ActiveObject, Button, FormModel, FormSchemaFactory, JSONSerializer, Link, Router, SchemaForm, useForm} from "react-ui-simplicity";
 import QueryParams = Router.QueryParams;
 import navigate = Router.navigate;
 import * as webauthnJson from "@github/webauthn-json";
 import SecuredProperty from "../../components/security/SecuredProperty";
+import {v4} from "uuid";
 
 function FormPage(properties: FormView.Attributes) {
 
@@ -13,6 +14,8 @@ function FormPage(properties: FormView.Attributes) {
     let url = atob(queryParams.link || "")
 
     const domain = useForm(properties.form);
+
+    const [session, setSession] = useState("")
 
     function generateLinks() {
         if (domain.$links) {
@@ -68,7 +71,7 @@ function FormPage(properties: FormView.Attributes) {
         const credentialGetOptions = await fetch('/service/security/options', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/json'
             },
             body: JSON.stringify(value),
         }).then(resp => resp.json());
@@ -127,10 +130,17 @@ function FormPage(properties: FormView.Attributes) {
             default : {
                 let value = JSONSerializer(domain);
 
+                let sessionId = v4()
+
+                setTimeout(() => {
+                    setSession(sessionId)
+                }, 1000)
+
+
                 let response = await fetch("/service" + link.url, {
                     method: link.method,
                     body: JSON.stringify(value),
-                    headers: {"content-type": "application/json"}
+                    headers: {"content-type": "application/json", "X-Session-Id": sessionId}
                 })
 
                 if (response.ok) {
@@ -143,6 +153,35 @@ function FormPage(properties: FormView.Attributes) {
         }
 
     }
+
+    useEffect(() => {
+        let eventSource = null
+        let counter = 0
+        if (session.length > 0) {
+            eventSource = new EventSource(`/service/documents/document/progressStream?session=${session}`);
+
+            eventSource.onmessage = (e) => {
+                console.log("Fortschritt:", e.data);
+
+                if (e.data === "Done") {
+                    eventSource.close()
+                }
+            };
+
+            eventSource.onopen = () => console.log("SSE-Verbindung geöffnet");
+            eventSource.onerror = (e) => {
+                console.error("SSE-Fehler", e);
+                eventSource.close()
+            }
+
+        }
+
+        return () => {
+            if (eventSource) {
+                eventSource.close()
+            }
+        }
+    }, [session]);
 
     return (
         <div>

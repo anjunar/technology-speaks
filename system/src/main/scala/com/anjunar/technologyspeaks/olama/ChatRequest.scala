@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.olama
 
-import com.anjunar.technologyspeaks.olama.json.{JsonFunction, JsonFunctionWrapper, JsonNode, JsonObject}
+import com.anjunar.technologyspeaks.olama.json.{JsonFunctionBody, JsonFunction, JsonNode, JsonObject}
 
 import java.util
 import scala.beans.BeanProperty
@@ -13,7 +13,7 @@ class ChatRequest extends AbstractRequest {
   val messages : util.List[ChatMessage] = new util.ArrayList[ChatMessage]()
 
   @BeanProperty
-  val tools : util.List[JsonFunctionWrapper] = new util.ArrayList[JsonFunctionWrapper]()
+  val tools : util.List[JsonFunction] = new util.ArrayList[JsonFunction]()
 
   @BeanProperty
   var format: JsonNode = uninitialized
@@ -30,12 +30,23 @@ class ChatRequest extends AbstractRequest {
 }
 
 object ChatRequest {
-  def apply(format : JsonNode, options : RequestOptions, messages : ChatMessage*): ChatRequest = {
+  def apply(format : JsonNode, messages : Seq[ChatMessage], tools : Seq[JsonFunction] = Seq()): ChatRequest = {
     val request = new ChatRequest
     request.model = "gemma3"
-    request.options = options
+    request.options = RequestOptions(0)
     request.messages.addAll(messages.asJava)
+    request.tools.addAll(tools.asJava)
     request.format = format
+    request.stream = true
     request
   }
+
+  def apply(messages: Seq[ChatMessage]): ChatRequest = {
+    val request = new ChatRequest
+    request.model = "gemma3"
+    request.options = RequestOptions(0)
+    request.messages.addAll(messages.asJava)
+    request
+  }
+
 }

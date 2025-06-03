@@ -4,21 +4,29 @@ import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.SchemaBuilderContext
 import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.control.User
+import com.anjunar.technologyspeaks.document.DocumentFormResource.progressMap
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.security.Secured
+import com.google.common.base.Strings
+import com.typesafe.scalalogging.Logger
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.*
+import jakarta.ws.rs.core.{MediaType, Response, StreamingOutput}
 
+import java.nio.charset.StandardCharsets
 import java.util.UUID
+import java.util.concurrent.{ConcurrentHashMap, LinkedBlockingQueue}
 import scala.compiletime.uninitialized
 
 @Path("documents/document")
 @ApplicationScoped
 @Secured
 class DocumentFormResource extends SchemaBuilderContext {
+
+  val log: Logger = Logger[DocumentFormResource]
 
   @Inject
   var service : DocumentService = uninitialized
@@ -31,7 +39,7 @@ class DocumentFormResource extends SchemaBuilderContext {
   def create: Document = {
 
     forLinks(classOf[Document], (instance, link) => {
-      linkTo(methodOn(classOf[DocumentFormResource]).save(instance))
+      linkTo(methodOn(classOf[DocumentFormResource]).save(instance, ""))
         .build(link.addLink)
     })
 
@@ -52,7 +60,7 @@ class DocumentFormResource extends SchemaBuilderContext {
     val document = if revision == -1 then Document.find(id) else Document.find(id, revision)
 
     forLinks(classOf[Document], (instance, link) => {
-      linkTo(methodOn(classOf[DocumentFormResource]).update(instance))
+      linkTo(methodOn(classOf[DocumentFormResource]).update(instance, ""))
         .build(link.addLink)
       linkTo(methodOn(classOf[DocumentFormResource]).delete(instance))
         .build(link.addLink)
@@ -84,15 +92,21 @@ class DocumentFormResource extends SchemaBuilderContext {
   @JsonSchema(classOf[DocumentFormSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Save", linkType = LinkType.FORM)
-  def save(@JsonSchema(classOf[DocumentFormSchema]) entity: Document): Document = {
+  def save(@JsonSchema(classOf[DocumentFormSchema]) entity: Document, @HeaderParam("X-Session-Id") sessionId: String): Document = {
+    val blockingQueue = new LinkedBlockingQueue[String]()
+
+    if (! Strings.isNullOrEmpty(sessionId)) {
+      progressMap.put(sessionId, blockingQueue)
+    }
+
     entity.user = User.current()
 
-    service.update(entity)
+    service.update(entity, blockingQueue)
 
     entity.persist()
 
     forLinks(classOf[Document], (instance, link) => {
-      linkTo(methodOn(classOf[DocumentFormResource]).update(instance))
+      linkTo(methodOn(classOf[DocumentFormResource]).update(instance, ""))
         .build(link.addLink)
       linkTo(methodOn(classOf[DocumentFormResource]).delete(instance))
         .build(link.addLink)
@@ -110,10 +124,17 @@ class DocumentFormResource extends SchemaBuilderContext {
   @JsonSchema(classOf[DocumentFormSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Update", linkType = LinkType.FORM)
-  def update(@JsonSchema(classOf[DocumentFormSchema]) entity: Document): Document = {
+  def update(@JsonSchema(classOf[DocumentFormSchema]) entity: Document, @HeaderParam("X-Session-Id") sessionId: String): Document = {
+
+    val blockingQueue = new LinkedBlockingQueue[String]()
+
+    if (! Strings.isNullOrEmpty(sessionId)) {
+      progressMap.put(sessionId, blockingQueue)
+    }
+
     entity.user = User.current()
 
-    service.update(entity)
+    service.update(entity, blockingQueue)
 
     entity.validate()
 
@@ -144,4 +165,37 @@ class DocumentFormResource extends SchemaBuilderContext {
 
     entity
   }
+
+  @GET
+  @Path("/progressStream")
+  @RolesAllowed(Array("User", "Administrator"))
+  @Produces(Array(MediaType.SERVER_SENT_EVENTS))
+  def progressStream(@QueryParam("session") sessionId: String): Response = {
+    val queue = progressMap.get(sessionId)
+    if (queue == null)
+      return Response.status(Response.Status.NOT_FOUND).entity("No such session").build
+
+    val stream: StreamingOutput = output => {
+      try {
+        var done = false
+        while (!done) {
+          val msg = queue.take()
+          val sseMsg = s"data: $msg\n\n"
+          output.write(sseMsg.getBytes(StandardCharsets.UTF_8))
+          output.flush()
+          if (msg == "Done") done = true
+        }
+      } catch {
+        case e: InterruptedException => log.error(e.getMessage, e)
+      } finally {
+        progressMap.remove(sessionId)
+      }
+    }
+
+    Response.ok(stream).build()
+  }
+}
+
+object DocumentFormResource {
+  val progressMap : ConcurrentHashMap[String, LinkedBlockingQueue[String]] = new ConcurrentHashMap[String, LinkedBlockingQueue[String]]()
 }

@@ -1,7 +1,8 @@
 package com.anjunar.technologyspeaks.document
 
 import com.anjunar.technologyspeaks.olama.*
-import com.anjunar.technologyspeaks.olama.json.{JsonArray, JsonNode, JsonObject, NodeType}
+import com.anjunar.technologyspeaks.olama.json.*
+import com.anjunar.technologyspeaks.semanticspeak.{SemanticSpeakService, TextRequest}
 import com.anjunar.technologyspeaks.shared.editor.*
 import com.anjunar.technologyspeaks.shared.hashtag.HashTag
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -10,21 +11,74 @@ import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 
 import java.util
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.regex.Pattern
 import java.util.stream.Collectors
+import scala.beans.BeanProperty
+import scala.collection.mutable
 import scala.compiletime.uninitialized
-
+import scala.jdk.CollectionConverters.*
 
 @ApplicationScoped
 class DocumentService {
 
   @Inject
-  var service: OLlamaService = uninitialized
+  var oLlamaService: OLlamaService = uninitialized
+
+  @Inject
+  var asyncOLlamaService: AsyncOLlamaService = uninitialized
+
+  @Inject
+  var semanticSpealService : SemanticSpeakService = uninitialized
 
   @Inject
   var entityManager: EntityManager = uninitialized
 
-  def createHashTags(text: String): util.Set[HashTag] = {
-    val message = ChatMessage("Bitte erzeuge mir HashTags für den folgenden Text und eine Beschreibung des HashTags. Gib die HashTags als JSON-Liste zurück mit : 'value' und 'description' : " + text)
+  def createSearch(text: String): String = {
+
+    val pattern = Pattern.compile("""(#\w+)""")
+
+    val matcher = pattern.matcher(text)
+
+    var renderedText = text
+
+    while (matcher.find()) {
+      val hashTagString = matcher.group(1)
+
+      val hashTag = entityManager.createQuery("select h from HashTag h where h.value = :value", classOf[HashTag])
+        .setParameter("value", hashTagString)
+        .getSingleResult
+
+      renderedText = renderedText.replace(hashTag.value, hashTag.description)
+    }
+
+    val message = ChatMessage(
+      s"""Rephrase the following sentence to make it more fluent without changing its meaning.
+         |Return only the rephrased text, no additional comments. No thematic expansions.
+         |Keep the text in the original language.
+         |
+         |Text:
+         |
+         |$renderedText""".stripMargin)
+
+    val request = ChatRequest(Seq(message))
+
+    val response = oLlamaService.chat(request)
+
+    response.message.content
+  }
+
+  def createHashTags(text: String, blockingQueue: LinkedBlockingQueue[String]): util.Set[HashTag] = {
+    val message = ChatMessage(
+      s"""Generate hashtags for the following text and a short description for each hashtag.
+         |Keep the text and short description in the original language.
+         |Return the hashtags as JSON Array in the following format:
+         |
+         |[{"value" : "#Hashtag in original language", "description" : "A short description in original language"}]
+         |
+         |Text:
+         |
+         |$text""".stripMargin)
 
     val valueNode = JsonNode(NodeType.STRING)
     val descriptionNode = JsonNode(NodeType.STRING)
@@ -33,33 +87,61 @@ class DocumentService {
 
     val jsonArray = JsonArray(jsonObject)
 
-    val options = RequestOptions(0)
+    val request = ChatRequest(jsonArray, Seq(message))
 
-    val request = ChatRequest(jsonArray, options, message)
+    var buffer = ""
 
-    val response = service.chat(request)
+    asyncOLlamaService.chat(request, line => {
+      buffer += line
+      blockingQueue.put(line)
+    })
 
     val mapper = new ObjectMapper
     val collectionType = mapper.getTypeFactory.constructCollectionType(classOf[util.Set[HashTag]], classOf[HashTag])
-    mapper.readValue(response.message.content, collectionType)
+    mapper.readValue(buffer, collectionType)
   }
 
-  def createDescription(text: String): String = {
-    val message = ChatMessage("Schreibe mir eine kurze Zusammenfassung vom Text und gib den JSON-String zurück: " + text)
+  def createDescription(text: String, blockingQueue: LinkedBlockingQueue[String]): String = {
+    val message = ChatMessage(
+      s"""Please summarize the following text.
+         |Keep the summary in the original language.
+         |Return the summary in JSON Object format.:
+         |
+         |{"summary": "Here is the brief summary in original language"}
+         |
+         |Text:
+         |
+         |$text""".stripMargin)
 
     val node = JsonNode(NodeType.STRING)
 
-    val options = RequestOptions(0)
+    val jsonObject = JsonObject(("summary", node))
 
-    val request = ChatRequest(node, options, message)
+    val request = ChatRequest(jsonObject, Seq(message))
 
-    val response = service.chat(request)
+    var buffer = ""
 
-    response.message.content
+    asyncOLlamaService.chat(request, line => {
+      buffer += line
+      blockingQueue.put(line)
+    })
+
+    val mapper = new ObjectMapper
+    mapper.readValue(buffer, classOf[DocumentService.Summary]).summary
   }
 
-  def createChunks(text: String): util.List[Chunk] = {
-    val message = ChatMessage("Teile den folgenden Text in thematisch zusammengehörende Abschnitte auf für semantische Suche. Jeder Abschnitt soll ein eigenes Thema enthalten. Gib die Abschnitte als JSON-Liste zurück mit : 'title' und 'content' : " + text)
+  def createChunks(text: String, blockingQueue: LinkedBlockingQueue[String]): util.List[Chunk] = {
+    val message = ChatMessage(
+      s"""Split the following text into thematically sections.
+         |Each section should cover a separate topic.
+         |Keep the title and the content in the original language.
+         |Return the sections as JSON Array in the following format:
+         |
+         |[{"title" : "Title in original language", "content" : "A short summary of the section in original language"}]
+         |
+         |Text:
+         |
+         |$text""".stripMargin)
 
     val titleNode = JsonNode(NodeType.STRING)
     val contentNode = JsonNode(NodeType.STRING)
@@ -68,15 +150,18 @@ class DocumentService {
 
     val jsonArray = JsonArray(jsonObject)
 
-    val options = RequestOptions(0)
+    val request = ChatRequest(jsonArray, Seq(message))
 
-    val request = ChatRequest(jsonArray, options, message)
+    var buffer = ""
 
-    val response = service.chat(request)
+    asyncOLlamaService.chat(request, line => {
+      buffer += line
+      blockingQueue.put(line)
+    })
 
     val mapper = new ObjectMapper
     val collectionType = mapper.getTypeFactory.constructCollectionType(classOf[util.List[Chunk]], classOf[Chunk])
-    mapper.readValue(response.message.content, collectionType)
+    mapper.readValue(buffer, collectionType)
   }
 
   def createEmbeddings(text: String): Array[Float] = {
@@ -84,7 +169,13 @@ class DocumentService {
 
     val request = EmbeddingRequest(text, options)
 
-    normalize(service.generateEmbeddings(request).embeddings.head)
+    normalize(oLlamaService.generateEmbeddings(request).embeddings.head)
+/*
+    val textRequest = new TextRequest
+    textRequest.texts.add(text)
+    semanticSpealService.generateEmbedding(textRequest)
+      .embeddings(0)
+*/
   }
 
   def normalize(vec: Array[Float]): Array[Float] = {
@@ -119,23 +210,30 @@ class DocumentService {
       .toList
   }
 
-  def update(document: Document): Unit = {
+  def update(document: Document, blockingQueue: LinkedBlockingQueue[String]): Unit = {
 
     val text = toText(document.editor.json)
 
-    val chunks = createChunks(text)
+    blockingQueue.put("Start Processing")
+
+    val chunks = createChunks(text, blockingQueue)
     chunks.forEach(chunk => {
       chunk.embedding = createEmbeddings(chunk.title + "\n" + chunk.content)
       chunk.document = document
+      blockingQueue.put("Chunk Embedding created")
     })
 
-    val hashTags = createHashTags(text).stream
+    blockingQueue.put("All Chunks created")
+
+    val hashTags = createHashTags(text, blockingQueue).stream
       .map(hashTag => {
         val vector = createEmbeddings(hashTag.description)
 
         val hashTagsFromDB = entityManager.createQuery("select h from HashTag h where function('similarity', h.value, :value) > 0.8 order by function('similarity', h.value, :value)", classOf[HashTag])
           .setParameter("value", hashTag.value)
           .getResultList
+
+        blockingQueue.put("Hashtag Chunk created")
 
         if (hashTagsFromDB.isEmpty) {
           hashTag.embedding = vector
@@ -147,6 +245,8 @@ class DocumentService {
       })
       .toList
 
+    blockingQueue.put("All Hashtags created")
+
     document.chunks.forEach(chunk => chunk.delete())
     document.chunks.clear()
     document.chunks.addAll(chunks)
@@ -154,7 +254,9 @@ class DocumentService {
     document.hashTags.clear()
     document.hashTags.addAll(hashTags)
 
-    document.description = createDescription(text)
+    document.description = createDescription(text, blockingQueue)
+
+    blockingQueue.put("Done")
   }
 
   def toText(root: Node): String = root match {
@@ -164,4 +266,11 @@ class DocumentService {
     case _ => ""
   }
 
+}
+
+object DocumentService {
+  class Summary {
+    @BeanProperty
+    var summary: String = uninitialized
+  }
 }

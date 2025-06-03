@@ -18,9 +18,10 @@ class JsonNode {
 
 object JsonNode {
   
-  def apply(nodeType : NodeType) : JsonNode = {
+  def apply(nodeType : NodeType, description : String = null) : JsonNode = {
     val node = new JsonNode
     node.nodeType = nodeType
+    node.description = description
     node
   }
   

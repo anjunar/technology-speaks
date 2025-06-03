@@ -18,7 +18,7 @@ object EmbeddingRequest {
     val embeddingRequest = new EmbeddingRequest
     embeddingRequest.options = options
     embeddingRequest.input = input
-    embeddingRequest.model = "gemma3"
+    embeddingRequest.model = "nomic-embed-text"
     embeddingRequest
   }
 }

@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.document
 
-import com.anjunar.technologyspeaks.olama.json.{JsonFunction, JsonFunctionWrapper, JsonNode, JsonObject, NodeType}
+import com.anjunar.technologyspeaks.olama.json.{JsonFunctionBody, JsonFunction, JsonNode, JsonObject, NodeType}
 import com.anjunar.technologyspeaks.olama.{ChatMessage, ChatRequest, ChatRole, EmbeddingRequest, OLlamaService}
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
@@ -36,12 +36,12 @@ class ChatResource {
     jsonObject.nodeType = NodeType.OBJECT
     jsonObject.properties.put("query", jsonNode)
 
-    val function = new JsonFunction
+    val function = new JsonFunctionBody
     function.name = "semantic_search_documents"
     function.description = "Performs semantic search over documents in a database and returns full original texts"
     function.parameters = jsonObject
 
-    val functionWrapper = new JsonFunctionWrapper
+    val functionWrapper = new JsonFunction
     functionWrapper.nodeType = NodeType.FUNCTION
     functionWrapper.function = function
 

@@ -49,7 +49,7 @@ class JPASearch {
       val count = Double.box(search.selection.length.toDouble)
       val score = builder.quot(sumExpr, builder.literal(count)).asInstanceOf[Expression[java.lang.Double]]
       val orders = context.sort(entityManager, builder, query, root, score, search.predicates.toBuffer)
-      entityManager.createQuery(query.multiselect(root, score.alias("score")).where(search.predicates *).orderBy(orders *))
+      entityManager.createQuery(query.select(builder.tuple(root, score.alias("score"))).where(search.predicates *).orderBy(orders *))
     }
 
     search.parameters.foreach((key, value) => typedQuery.setParameter(key, value))

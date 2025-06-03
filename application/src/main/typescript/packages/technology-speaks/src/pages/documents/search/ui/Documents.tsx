@@ -36,7 +36,10 @@ function Documents(properties: Documents.Attributes) {
                         ({row} : {row : Document}) => (
                             <div className={"selected"} onClick={() => onSelect(row)}>
                                 <div style={{display : "flex", alignItems : "baseline", justifyContent : "space-between", gap : "12px"}}>
-                                    <h2 style={{color : "var(--color-selected)"}}>{row.title}</h2>
+                                    <div style={{display : "flex", alignItems : "baseline", gap : "12px"}}>
+                                        <h2 style={{color : "var(--color-selected)"}}>{row.title}</h2>
+                                        <small>{row.score}</small>
+                                    </div>
                                     <small>{row.user.nickName}: {format(row.created, "dd.MM.yyyy HH:mm")}</small>
                                 </div>
                                 <p>{row.description}</p>

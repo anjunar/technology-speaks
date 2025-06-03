@@ -2,6 +2,7 @@ package com.anjunar.technologyspeaks.olama
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider
 import jakarta.annotation.PreDestroy
 import jakarta.enterprise.context.{ApplicationScoped, RequestScoped, SessionScoped}
@@ -19,6 +20,7 @@ class OLlamaService extends Serializable {
   private val webTarget = target.asInstanceOf[ResteasyWebTarget]
   private val resteasyJacksonProvider = new JacksonJsonProvider()
   private val mapper = new ObjectMapper()
+    .registerModule(new JavaTimeModule)
     .setSerializationInclusion(Include.NON_EMPTY)
     .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
     .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)

@@ -6,9 +6,22 @@ import scala.compiletime.uninitialized
 class JsonFunction extends JsonNode {
 
   @BeanProperty
-  var name : String = uninitialized
+  var function : JsonFunctionBody = uninitialized
 
-  @BeanProperty
-  var parameters : JsonObject = uninitialized
+}
 
+object JsonFunction {
+  
+  def apply(name : String, parameters : JsonObject, description : String = null) : JsonFunction = {
+    val body = new JsonFunctionBody
+    body.name = name
+    body.parameters = parameters
+    body.description = description
+    
+    val jsonFunction = new JsonFunction
+    jsonFunction.function = body
+    jsonFunction.nodeType = NodeType.FUNCTION
+    jsonFunction
+  }
+  
 }

@@ -29,7 +29,7 @@ class HashTag extends AbstractEntity {
 
   @Column
   @JdbcTypeCode(SqlTypes.VECTOR)
-  @annotations.Array(length = 3840)
+  @annotations.Array(length = 768)
   @BeanProperty
   var embedding: Array[Float] = uninitialized
 

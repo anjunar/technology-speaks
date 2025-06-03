@@ -13,7 +13,7 @@ function DocumentViewPage(properties: DocumentViewPage.Attributes) {
             <div className={"center-horizontal"}>
                 <div style={{maxWidth: "800px", minWidth: "360px", height: "100%"}}>
                     <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-                        <div style={{display: "flex", alignItems: "baseline"}}>
+                        <div style={{display: "flex", alignItems: "baseline", gap : "12px"}}>
                             <h1>{form.title}</h1>
                         </div>
                         <div>
@@ -27,7 +27,7 @@ function DocumentViewPage(properties: DocumentViewPage.Attributes) {
 
                     </div>
 
-                    <div style={{display : "flex", gap : "5px"}}>
+                    <div style={{display : "flex", gap : "5px", flexWrap : "wrap"}}>
                         {
                             form.hashTags.map(hashTag => (<small>{hashTag.value}</small>))
                         }
