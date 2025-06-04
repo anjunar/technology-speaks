@@ -6,9 +6,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider
 import jakarta.annotation.{PostConstruct, PreDestroy}
 import jakarta.enterprise.context.{ApplicationScoped, RequestScoped, SessionScoped}
-import jakarta.ws.rs.client.{Client, ClientBuilder}
+import jakarta.ws.rs.client.{Client, ClientBuilder, Entity}
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget
 
+import java.io.InputStream
 import scala.compiletime.uninitialized
 
 @ApplicationScoped
@@ -28,11 +29,6 @@ class OLlamaService extends Serializable {
       .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
       .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    val jacksonProvider = new JacksonJsonProvider()
-    jacksonProvider.setMapper(mapper)
-
-    client.register(jacksonProvider)
-
     val target = client.target("http://localhost:11434")
       .asInstanceOf[ResteasyWebTarget]
 
@@ -49,8 +45,31 @@ class OLlamaService extends Serializable {
   def generate(request: GenerateRequest): GenerateResponse =
     proxy.generate(request)
 
-  def chat(request: ChatRequest): ChatResponse =
-    proxy.chat(request)
+  def chat(request: ChatRequest): ChatResponse = {
+    val client = ClientBuilder.newClient
+    try {
+      val target = client.target("http://localhost:11434/api/chat")
+
+      val webTarget = target.asInstanceOf[ResteasyWebTarget]
+      val resteasyJacksonProvider = new JacksonJsonProvider()
+      val mapper = new ObjectMapper()
+        .registerModule(new JavaTimeModule)
+        .setSerializationInclusion(Include.NON_EMPTY)
+        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+      resteasyJacksonProvider.setMapper(mapper)
+      webTarget.register(resteasyJacksonProvider)
+
+      val response = target.request().post(Entity.json(request))
+      val body = response.readEntity(classOf[InputStream])
+
+      mapper.readValue(body, classOf[ChatResponse])
+
+    } finally {
+      client.close()
+    }
+  }
 
   def generateEmbeddings(request: EmbeddingRequest): EmbeddingResponse =
     proxy.generateEmbeddings(request)

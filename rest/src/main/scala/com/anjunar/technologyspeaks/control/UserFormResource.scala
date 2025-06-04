@@ -39,7 +39,7 @@ class UserFormResource extends SchemaBuilderContext {
   @Produces(Array("application/json"))
   @JsonSchema(classOf[UserFormSchema])
   @RolesAllowed(Array("Administrator"))
-  @LinkDescription(value = "Erstellen", linkType = LinkType.FORM)
+  @LinkDescription(value = "Create", linkType = LinkType.FORM)
   def create: User = {
     val user = new User
 
@@ -58,7 +58,7 @@ class UserFormResource extends SchemaBuilderContext {
   @Produces(Array("application/json"))
   @JsonSchema(classOf[UserFormSchema])
   @RolesAllowed(Array("Guest", "User", "Administrator"))
-  @LinkDescription(value = "Profil", linkType = LinkType.FORM)
+  @LinkDescription(value = "Profile", linkType = LinkType.FORM)
   def read(@PathParam("id") id: UUID): User = {
 
     val entity = User.find(id)
@@ -78,7 +78,7 @@ class UserFormResource extends SchemaBuilderContext {
   @Produces(Array("application/json"))
   @JsonSchema(classOf[UserFormSchema])
   @RolesAllowed(Array("Administrator"))
-  @LinkDescription(value = "Speichern", linkType = LinkType.FORM)
+  @LinkDescription(value = "Save", linkType = LinkType.FORM)
   def save(@JsonSchema(classOf[UserFormSchema]) entity: User): User = {
     entity.persist()
 
@@ -98,7 +98,7 @@ class UserFormResource extends SchemaBuilderContext {
   @Produces(Array("application/json"))
   @JsonSchema(classOf[UserFormSchema])
   @RolesAllowed(Array("Guest", "User", "Administrator"))
-  @LinkDescription(value = "Aktualisieren", linkType = LinkType.FORM)
+  @LinkDescription(value = "Update", linkType = LinkType.FORM)
   def update(@JsonSchema(classOf[UserFormSchema]) @SecuredOwner entity: User): User = {
     entity.validate()
 
@@ -116,7 +116,7 @@ class UserFormResource extends SchemaBuilderContext {
   @Path("/{id}")
   @DELETE
   @RolesAllowed(Array("Administrator"))
-  @LinkDescription(value = "Löschen", linkType = LinkType.FORM)
+  @LinkDescription(value = "Delete", linkType = LinkType.FORM)
   def delete(@PathParam("id") id : UUID): Response = {
 
     val entity = User.find(id)

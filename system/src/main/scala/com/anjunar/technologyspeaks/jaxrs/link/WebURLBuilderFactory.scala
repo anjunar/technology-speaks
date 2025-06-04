@@ -1,5 +1,6 @@
 package com.anjunar.technologyspeaks.jaxrs.link
 
+import com.anjunar.scala.i18n.I18nResolver
 import com.anjunar.technologyspeaks.security.IdentityContext
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.enterprise.inject.spi.CDI
@@ -22,6 +23,8 @@ object WebURLBuilderFactory {
 
   private def identity = CDI.current.select(classOf[IdentityContext]).get
 
+  private val i18nResolver : I18nResolver = CDI.current().select(classOf[I18nResolver]).get()
+
   private val proxyCache: ThreadLocal[mutable.Map[Class[?], Class[?]]] = new ThreadLocal[mutable.Map[Class[?], Class[?]]]
 
   private val objectMapper = new ObjectMapper()
@@ -32,7 +35,7 @@ object WebURLBuilderFactory {
     val invocations = interceptor.asInstanceOf[MethodInterceptor].getInvocations
     val uriBuilder = UriBuilder.fromPath("/")
     val lastInvocation = invocations.get(invocations.size() - 1)
-    new WebURLBuilder(new JaxRSInvocation(lastInvocation.getMethod, lastInvocation.getArguments, paramConverterProvider, uriBuilder, identity, objectMapper))
+    new WebURLBuilder(new JaxRSInvocation(lastInvocation.getMethod, lastInvocation.getArguments, paramConverterProvider, uriBuilder, identity, i18nResolver, objectMapper))
   }
 
   def methodOn[E](aClass: Class[E]): E = createProxy(aClass, new MethodInterceptor(null))

@@ -1,4 +1,4 @@
-package com.anjunar.technologyspeaks.i18n
+package com.anjunar.technologyspeaks.shared.i18n
 
 import java.util.Locale
 import scala.beans.BeanProperty

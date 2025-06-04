@@ -1,6 +1,7 @@
 package com.anjunar.scala.schema
 
-import com.anjunar.scala.mapper.annotations.{Converter, Descriptor}
+import com.anjunar.scala.i18n.I18nResolver
+import com.anjunar.scala.mapper.annotations.Converter
 import com.anjunar.scala.schema.analyzer.*
 import com.anjunar.scala.schema.builder.{PropertyBuilder, SchemaBuilder}
 import com.anjunar.scala.schema.model.validators.{NotBlankValidator, NotNullValidator, SizeValidator}
@@ -8,17 +9,17 @@ import com.anjunar.scala.schema.model.{CollectionDescriptor, EnumDescriptor, Nod
 import com.anjunar.scala.universe.introspector.{BeanIntrospector, BeanProperty}
 import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonValue}
-import com.google.common.reflect.{TypeParameter, TypeToken}
+import jakarta.enterprise.inject.spi.CDI
+import jakarta.persistence.Tuple
 import jakarta.validation.constraints.{NotBlank, NotNull, Size}
 
-import java.lang.reflect.Type
-import java.util
 import scala.jdk.CollectionConverters.*
-import jakarta.persistence.Tuple
 
 object JsonDescriptorsGenerator {
+  
+  def i18nResolver : I18nResolver = CDI.current().select(classOf[I18nResolver]).get()
 
-  private val analyzers : Array[AbstractAnalyzer] = Array(
+  private val analyzers: Array[AbstractAnalyzer] = Array(
     new PrimitiveAnalyser,
     new CollectionAnalyzer,
     new ArrayAnalyzer,
@@ -26,7 +27,7 @@ object JsonDescriptorsGenerator {
     new ObjectAnalyzer
   )
 
-  private def findAnalyzer(aClass : ResolvedClass) : AbstractAnalyzer = {
+  private def findAnalyzer(aClass: ResolvedClass): AbstractAnalyzer = {
     val option = analyzers.find(analyzer => analyzer.analyze(aClass))
     if (option.isDefined) {
       option.get
@@ -35,16 +36,16 @@ object JsonDescriptorsGenerator {
     }
   }
 
-  def generateObject(aClass : ResolvedClass, schema: SchemaBuilder, context : JsonDescriptorsContext) : ObjectDescriptor = {
-    
+  def generateObject(aClass: ResolvedClass, schema: SchemaBuilder, context: JsonDescriptorsContext): ObjectDescriptor = {
+
     if (aClass.raw == classOf[Tuple]) {
       val schemaBuilder = schema.tupleMapping.schemaBuilder
       val head = schemaBuilder.typeMapping.head
       val objectDescriptor = generateObject(TypeResolver.resolve(head._1), schemaBuilder, context)
-      
+
       schemaBuilder.primitiveMapping.foreach((clazz, builder) => {
         val nodeDescriptor = NodeDescriptor(
-          builder.title,
+          i18nResolver.find(builder.title),
           builder.description,
           builder.widget,
           builder.id,
@@ -57,7 +58,7 @@ object JsonDescriptorsGenerator {
 
         objectDescriptor.properties.put(builder.alias, nodeDescriptor)
       })
-      
+
       objectDescriptor
     } else {
       val beanModel = BeanIntrospector.create(aClass)
@@ -132,10 +133,10 @@ object JsonDescriptorsGenerator {
 
       descriptor
     }
-    
+
   }
 
-  private def generateValidator(property: BeanProperty, descriptor : NodeDescriptor) : Unit = {
+  private def generateValidator(property: BeanProperty, descriptor: NodeDescriptor): Unit = {
     property.annotations.foreach {
       case size: Size =>
         descriptor.validators.put("Size", SizeValidator(size.min(), size.max()))
@@ -147,9 +148,9 @@ object JsonDescriptorsGenerator {
     }
   }
 
-  private def generatePrimitive(property: BeanProperty, propertyType : Class[?], schemaDefinition: PropertyBuilder[?]) = {
+  private def generatePrimitive(property: BeanProperty, propertyType: Class[?], schemaDefinition: PropertyBuilder[?]) = {
     val nodeDescriptor = NodeDescriptor(
-      schemaDefinition.title,
+      i18nResolver.find(schemaDefinition.title),
       schemaDefinition.description,
       schemaDefinition.widget,
       schemaDefinition.id,
@@ -177,7 +178,7 @@ object JsonDescriptorsGenerator {
       }
     })
     val enumDescriptor = EnumDescriptor(
-      schemaDefinition.title,
+      i18nResolver.find(schemaDefinition.title),
       schemaDefinition.description,
       schemaDefinition.widget,
       schemaDefinition.id,
@@ -192,9 +193,9 @@ object JsonDescriptorsGenerator {
     enumDescriptor
   }
 
-  private def generateObject(property: BeanProperty, propertyType : ResolvedClass, schemaDefinition: PropertyBuilder[?], context : JsonDescriptorsContext): ObjectDescriptor = {
+  private def generateObject(property: BeanProperty, propertyType: ResolvedClass, schemaDefinition: PropertyBuilder[?], context: JsonDescriptorsContext): ObjectDescriptor = {
     val objectDescriptor = generateObject(propertyType, schemaDefinition.schemaBuilder, new JsonDescriptorsContext(context))
-    objectDescriptor.title = schemaDefinition.title
+    objectDescriptor.title = i18nResolver.find(schemaDefinition.title)
     objectDescriptor.description = schemaDefinition.description
     objectDescriptor.widget = schemaDefinition.widget
     objectDescriptor.id = schemaDefinition.id
@@ -206,7 +207,7 @@ object JsonDescriptorsGenerator {
     objectDescriptor
   }
 
-  private def generateArray(property: BeanProperty, propertyType : ResolvedClass, schemaDefinition: PropertyBuilder[?], context : JsonDescriptorsContext): CollectionDescriptor = {
+  private def generateArray(property: BeanProperty, propertyType: ResolvedClass, schemaDefinition: PropertyBuilder[?], context: JsonDescriptorsContext): CollectionDescriptor = {
     val descriptor = new CollectionDescriptor
     val collectionType = propertyType.typeArguments.head
 
@@ -214,7 +215,7 @@ object JsonDescriptorsGenerator {
 
     descriptor.items = generateObject(collectionType, schemaDefinition.schemaBuilder, new JsonDescriptorsContext(context))
     descriptor.`type` = property.propertyType.raw.getSimpleName
-    descriptor.title = schemaDefinition.title
+    descriptor.title = i18nResolver.find(schemaDefinition.title)
     descriptor.description = schemaDefinition.description
     descriptor.widget = schemaDefinition.widget
     descriptor.id = schemaDefinition.id
@@ -225,5 +226,5 @@ object JsonDescriptorsGenerator {
     generateValidator(property, descriptor)
     descriptor
   }
-  
+
 }

@@ -1,4 +1,4 @@
-package com.anjunar.technologyspeaks.i18n
+package com.anjunar.technologyspeaks.shared.i18n
 
 import com.anjunar.technologyspeaks.shared.hashtag.HashTag
 import com.fasterxml.jackson.annotation.JsonInclude.Include

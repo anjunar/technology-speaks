@@ -39,7 +39,7 @@ class UserTableResource extends SchemaBuilderContext {
   @Produces(Array("application/json"))
   @JsonSchema(classOf[UserSearchSchema])
   @RolesAllowed(Array("User", "Administrator"))
-  @LinkDescription(value = "Benutzer", linkType = LinkType.TABLE)
+  @LinkDescription(value = "Users", linkType = LinkType.TABLE)
   def search(@BeanParam search: UserSearch): UserSearch = {
 
     forLinks(classOf[UserSearch], (instance, link) => {
@@ -55,7 +55,7 @@ class UserTableResource extends SchemaBuilderContext {
   @Produces(Array("application/json"))
   @JsonSchema(classOf[UserTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
-  @LinkDescription(value = "Benutzer", linkType = LinkType.TABLE)
+  @LinkDescription(value = "Users", linkType = LinkType.TABLE)
   def list(@BeanParam search: UserSearch): Table[User] = {
     val context = jpaSearch.searchContext(search)
     val tuples = jpaSearch.entities(search.index, search.limit, classOf[User], context)

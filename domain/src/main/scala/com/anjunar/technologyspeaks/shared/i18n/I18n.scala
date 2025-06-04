@@ -1,7 +1,7 @@
-package com.anjunar.technologyspeaks.i18n
+package com.anjunar.technologyspeaks.shared.i18n
 
 import com.anjunar.technologyspeaks.jpa.{Pair, RepositoryContext}
-import com.anjunar.technologyspeaks.shared.AbstractEntity
+import com.anjunar.technologyspeaks.shared.{AbstractEntity}
 import jakarta.persistence.{Column, Entity}
 import org.hibernate.annotations.Type
 

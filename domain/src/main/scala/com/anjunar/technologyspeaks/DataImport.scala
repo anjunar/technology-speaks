@@ -3,17 +3,21 @@ package com.anjunar.technologyspeaks
 import com.anjunar.scala.mapper.annotations.Descriptor
 import com.anjunar.scala.universe.ClassPathResolver
 import com.anjunar.technologyspeaks.control.*
-import com.anjunar.technologyspeaks.i18n.{I18n, Translation}
+import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jpa.Pair
 import com.anjunar.technologyspeaks.olama.{ChatMessage, ChatRequest, OLlamaService}
+import com.anjunar.technologyspeaks.shared.i18n.{I18n, Translation}
 import com.typesafe.scalalogging.Logger
+import jakarta.annotation.Resource
 import jakarta.enterprise.context.{ApplicationScoped, Initialized}
 import jakarta.enterprise.event.Observes
+import jakarta.persistence.EntityManager
 import jakarta.servlet.ServletContext
-import jakarta.transaction.Transactional
+import jakarta.transaction.{Transactional, UserTransaction}
 
 import java.time.LocalDate
-import java.util.Objects
+import java.util.{Locale, Objects}
+import scala.compiletime.uninitialized
 
 
 @ApplicationScoped
@@ -21,8 +25,11 @@ class DataImport {
 
   val log: Logger = Logger[DataImport]
 
-  @Transactional
-  def init(@Observes @Initialized(classOf[ApplicationScoped]) init: ServletContext, oLlamaService: OLlamaService): Unit = {
+  @Resource
+  var transaction: UserTransaction = uninitialized
+
+  def init(@Observes @Initialized(classOf[ApplicationScoped]) init: ServletContext, oLlamaService: OLlamaService, entityManager : EntityManager): Unit = {
+    transaction.begin()
     var administrator = Role.query(Pair("name", "Administrator"))
     if (Objects.isNull(administrator)) {
       administrator = new Role
@@ -81,8 +88,13 @@ class DataImport {
       patrick.persist()
     }
 
+    transaction.commit()
+
     ClassPathResolver.findAnnotation(classOf[Descriptor])
       .foreach(resolved => {
+
+        transaction.begin()
+
         var i18n = I18n.find(resolved.annotation.title())
 
         if (i18n == null) {
@@ -94,31 +106,64 @@ class DataImport {
         I18n.languages.filter(locale => i18n.translations.stream().noneMatch(translation => translation.locale == locale))
           .foreach(locale => {
 
-            log.info(s"Generating translation for :${i18n.text} to ${locale.getLanguage}")
+            translateWithAI(oLlamaService, i18n, locale)
 
-            val prompt = s"""Translate the following English text into ${locale.getLanguage}.
-                            |
-                            |Important:
-                            |- Preserve all placeholders and formatting symbols exactly as they are.
-                            |- These include: `{variable}`, `%d`, `%s`, `\n`, `\t`, `:`, `"..."`, etc.
-                            |- Do not translate anything inside curly braces `{}`, percent signs `%`, or other code-like tokens.
-                            |- Keep the overall tone and meaning accurate and natural.
-                            |
-                            |Text:
-                            |${i18n.text}""".stripMargin
-
-            val response = oLlamaService.chat(ChatRequest(Seq(ChatMessage(prompt))))
-
-            val translation = new Translation
-            translation.locale = locale
-            translation.text = response.message.content
-
-            i18n.translations.add(translation)
           })
+
+        entityManager.flush()
+        transaction.commit()
+
+      })
+
+    ClassPathResolver.findAnnotation(classOf[LinkDescription])
+      .foreach(resolved => {
+
+        transaction.begin()
+
+        var i18n = I18n.find(resolved.annotation.value())
+
+        if (i18n == null) {
+          i18n = new I18n
+          i18n.text = resolved.annotation.value()
+          i18n.persist()
+        }
+
+        I18n.languages.filter(locale => i18n.translations.stream().noneMatch(translation => translation.locale == locale))
+          .foreach(locale => {
+
+            translateWithAI(oLlamaService, i18n, locale)
+
+          })
+
+        entityManager.flush()
+        transaction.commit()
 
       })
 
 
+  }
 
+  private def translateWithAI(oLlamaService: OLlamaService, i18n: I18n, locale: Locale) = {
+    log.info(s"Generating translation for :${i18n.text} to ${locale.getLanguage}")
+
+    val prompt =
+      s"""Translate the following English text into ${locale.getLanguage}.
+         |
+         |Important:
+         |- Preserve all placeholders and formatting symbols exactly as they are.
+         |- These include: `{variable}`, `%d`, `%s`, `\n`, `\t`, `:`, `"..."`, etc.
+         |- Do not translate anything inside curly braces `{}`, percent signs `%`, or other code-like tokens.
+         |- Keep the overall tone and meaning accurate and natural.
+         |
+         |Text:
+         |${i18n.text}""".stripMargin
+
+    val response = oLlamaService.chat(ChatRequest(Seq(ChatMessage(prompt))))
+
+    val translation = new Translation
+    translation.locale = locale
+    translation.text = response.message.content.trim
+
+    i18n.translations.add(translation)
   }
 }

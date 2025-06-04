@@ -26,7 +26,7 @@ class ConfirmationFormResource extends SchemaBuilderContext {
   @GET
   @Produces(Array("application/json"))
   @JsonSchema(classOf[ConfirmationFormSchema])
-  @LinkDescription(value = "Bestätigung", linkType = LinkType.FORM)
+  @LinkDescription(value = "Confirmation", linkType = LinkType.FORM)
   def create: Confirmation = {
 
   forLinks(classOf[Confirmation], (instance, link) => {
@@ -52,7 +52,7 @@ class ConfirmationFormResource extends SchemaBuilderContext {
   @Produces(Array("application/json"))
   @Consumes(Array("application/json"))
   @JsonSchema(classOf[ConfirmationReturnSchema])
-  @LinkDescription(value = "Bestätigung", linkType = LinkType.FORM)
+  @LinkDescription(value = "Confirmation", linkType = LinkType.FORM)
   def confirm(@JsonSchema(classOf[ConfirmationFormSchema]) confirmation: Confirmation): User = {
     val current = User.current()
     
@@ -77,7 +77,7 @@ class ConfirmationFormResource extends SchemaBuilderContext {
   @PUT
   @Produces(Array("application/json"))
   @JsonSchema(classOf[ConfirmationReturnSchema])
-  @LinkDescription(value = "Neuer Code", linkType = LinkType.ACTION)
+  @LinkDescription(value = "New Code", linkType = LinkType.ACTION)
   def reSend(@QueryParam("email") value : String): User = {
     val user = User.current()
 

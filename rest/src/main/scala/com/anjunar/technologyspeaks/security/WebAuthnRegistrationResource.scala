@@ -10,9 +10,10 @@ import com.anjunar.technologyspeaks.jpa.Pair
 import com.yubico.webauthn.*
 import com.yubico.webauthn.data.*
 import com.yubico.webauthn.exception.RegistrationFailedException
+import jakarta.annotation.Resource
 import jakarta.enterprise.context.SessionScoped
 import jakarta.inject.Inject
-import jakarta.transaction.{Synchronization, Transaction, TransactionManager}
+import jakarta.transaction.{Synchronization, Transaction, TransactionManager, TransactionSynchronizationRegistry}
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.{MediaType, Response}
 import org.slf4j.LoggerFactory
@@ -36,8 +37,8 @@ class WebAuthnRegistrationResource extends Serializable with SchemaBuilderContex
   @Inject
   var webAuthnService: WebAuthnService = uninitialized
 
-  @Inject
-  var transaction : TransactionManager = uninitialized
+  @Resource
+  var transaction : TransactionSynchronizationRegistry = uninitialized
 
   @Inject
   var mailService : MailService = uninitialized
@@ -177,7 +178,7 @@ class WebAuthnRegistrationResource extends Serializable with SchemaBuilderContex
       token.transports = result.getKeyId.getTransports.get().asScala.mkString(",")
 
 
-      transaction.getTransaction.registerSynchronization(new Synchronization {
+      transaction.registerInterposedSynchronization(new Synchronization {
         override def beforeCompletion(): Unit = {}
 
         override def afterCompletion(status: Int): Unit = {

@@ -1,5 +1,6 @@
 package com.anjunar.technologyspeaks.jaxrs.link
 
+import com.anjunar.scala.i18n.I18nResolver
 import com.anjunar.scala.mapper.annotations.SecuredOwner
 import com.anjunar.scala.schema.model.{Link, LinkType}
 import com.anjunar.scala.universe.TypeResolver
@@ -27,6 +28,7 @@ class JaxRSInvocation(private val method: ResolvedMethod,
                       private val converterProvider: ParamConverterProvider,
                       private val uriBuilder: UriBuilder,
                       private val identityManager: IdentityContext,
+                      private val i18nResolver : I18nResolver,
                       private val objectMapper: ObjectMapper) {
 
   private var rel: String = method.name
@@ -129,7 +131,7 @@ class JaxRSInvocation(private val method: ResolvedMethod,
     val linkDescription = method.findDeclaredAnnotation(classOf[LinkDescription])
 
     val linkType = if linkDescription == null then LinkType.OTHER else linkDescription.linkType()
-    val valueDescription = if linkDescription == null then null else linkDescription.value()
+    val valueDescription = if linkDescription == null then null else i18nResolver.find(linkDescription.value())
 
     if (Objects.nonNull(owner)) {
       if (identityManager.getPrincipal.equals(owner.owner) || identityManager.getPrincipal.hasRole("Administrator")) {
