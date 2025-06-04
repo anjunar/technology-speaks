@@ -4,6 +4,21 @@
     overflow: auto;
     line-height: 28px;
 
+    .deleted {
+        text-decoration: line-through;
+        background-color: var(--color-error);
+    }
+
+    .insert {
+        color: var(--color-background-primary);
+        background-color: var(--color-selected);
+    }
+
+    .update {
+        color: var(--color-background-primary);
+        background-color: var(--color-highlight);
+    }
+
     table {
         width: 100%;
         border-spacing: 0;

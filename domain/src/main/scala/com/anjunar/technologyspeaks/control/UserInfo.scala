@@ -25,22 +25,22 @@ class UserInfo extends AbstractEntity {
 
   @Size(min = 3, max = 80)
   @BeanProperty
-  @Descriptor(title = "Vorname", naming = true)
+  @Descriptor(title = "First Name", naming = true)
   var firstName : String = uninitialized
   
   @Size(min = 3, max = 80)
   @BeanProperty
-  @Descriptor(title = "Nachname", naming = true)
+  @Descriptor(title = "Last Name", naming = true)
   var lastName : String = uninitialized
   
   @ManyToOne(cascade = Array(CascadeType.ALL))
   @BeanProperty
-  @Descriptor(title = "Bild", widget = "image")
+  @Descriptor(title = "Picture", widget = "image")
   var image : Media = uninitialized
   
   @Past
   @BeanProperty
-  @Descriptor(title = "Geburtsdatum")
+  @Descriptor(title = "Birthdate")
   var birthDate: LocalDate = uninitialized
   
 }

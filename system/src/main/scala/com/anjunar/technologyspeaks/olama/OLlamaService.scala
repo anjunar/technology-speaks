@@ -4,43 +4,54 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.jakarta.rs.json.JacksonJsonProvider
-import jakarta.annotation.PreDestroy
+import jakarta.annotation.{PostConstruct, PreDestroy}
 import jakarta.enterprise.context.{ApplicationScoped, RequestScoped, SessionScoped}
-import jakarta.ws.rs.client.ClientBuilder
+import jakarta.ws.rs.client.{Client, ClientBuilder}
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget
+
+import scala.compiletime.uninitialized
 
 @ApplicationScoped
 class OLlamaService extends Serializable {
 
-  private val client = ClientBuilder.newClient
-  client.register(classOf[LoggingRequestFilter])
+  private var client: Client = uninitialized
+  private var webTarget: ResteasyWebTarget = uninitialized
 
-  private val target = client.target("http://localhost:11434")
+  @PostConstruct
+  def setup(): Unit = {
+    client = ClientBuilder.newClient()
+    client.register(classOf[LoggingRequestFilter])
 
-  private val webTarget = target.asInstanceOf[ResteasyWebTarget]
-  private val resteasyJacksonProvider = new JacksonJsonProvider()
-  private val mapper = new ObjectMapper()
-    .registerModule(new JavaTimeModule)
-    .setSerializationInclusion(Include.NON_EMPTY)
-    .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    val mapper = new ObjectMapper()
+      .registerModule(new JavaTimeModule)
+      .setSerializationInclusion(Include.NON_EMPTY)
+      .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
+      .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-  resteasyJacksonProvider.setMapper(mapper)
-  webTarget.register(resteasyJacksonProvider)
+    val jacksonProvider = new JacksonJsonProvider()
+    jacksonProvider.setMapper(mapper)
 
-  private val service = webTarget.proxy(classOf[OLlamaResource])
+    client.register(jacksonProvider)
+
+    val target = client.target("http://localhost:11434")
+      .asInstanceOf[ResteasyWebTarget]
+
+    webTarget = target
+  }
 
   @PreDestroy
-  def postDestroy() : Unit = {
-    client.close()
+  def shutdown(): Unit = {
+    if (client != null) client.close()
   }
-  
-  def generate(request: GenerateRequest): GenerateResponse = service.generate(request)
 
-  def chat(request: ChatRequest): ChatResponse = service.chat(request)
+  private def proxy: OLlamaResource = webTarget.proxy(classOf[OLlamaResource])
 
-  def generateEmbeddings(request: EmbeddingRequest): EmbeddingResponse = service.generateEmbeddings(request)
-  
-  def close() : Unit = webTarget.getResteasyClient.close()
+  def generate(request: GenerateRequest): GenerateResponse =
+    proxy.generate(request)
 
+  def chat(request: ChatRequest): ChatResponse =
+    proxy.chat(request)
+
+  def generateEmbeddings(request: EmbeddingRequest): EmbeddingResponse =
+    proxy.generateEmbeddings(request)
 }

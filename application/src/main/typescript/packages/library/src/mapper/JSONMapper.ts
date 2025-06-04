@@ -44,7 +44,11 @@ export function traverseObjectGraph(object : any, schema : ObjectDescriptor, bui
         }
 
         match(node)
-            .withObject(CollectionDescriptor, (array) => (value as any[]).forEach(row => { traverseObjectGraph(row, array.items as ObjectDescriptor, buildObjectGraph) }))
+            .withObject(CollectionDescriptor, (array) => (value as any[]).forEach(row => {
+                if (row instanceof Object) {
+                    traverseObjectGraph(row, array.items as ObjectDescriptor, buildObjectGraph)
+                }
+            }))
             .withObject(ObjectDescriptor, (jsonObject) => traverseObjectGraph(value, jsonObject, buildObjectGraph))
             .nonExhaustive()
     })

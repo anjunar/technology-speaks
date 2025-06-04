@@ -47,7 +47,7 @@ class User extends Identity with OwnerProvider with SecurityUser {
 
   @OneToOne(cascade = Array(CascadeType.ALL), orphanRemoval = true)
   @BeanProperty
-  @Descriptor(title = "Adresse")
+  @Descriptor(title = "Address")
   var address : Address = uninitialized
 
   @Transient

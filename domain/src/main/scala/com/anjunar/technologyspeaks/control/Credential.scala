@@ -41,7 +41,7 @@ class Credential extends AbstractEntity with SecurityCredential with OwnerProvid
   @ManyToMany
   @Size(min = 1, max = 10)
   @BeanProperty
-  @Descriptor(title = "Rollen")
+  @Descriptor(title = "Roles")
   val roles: util.Set[Role] = new util.HashSet[Role]
 
   @ManyToOne

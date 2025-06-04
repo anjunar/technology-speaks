@@ -2,9 +2,13 @@ package com.anjunar.technologyspeaks.shared.editor
 
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id
-import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
+import com.fasterxml.jackson.annotation.{JsonIgnore, JsonSubTypes, JsonTypeInfo}
 import jakarta.json.bind.annotation.JsonbTypeInfo
 import jakarta.persistence.{Entity, Inheritance, InheritanceType}
+
+import java.util.UUID
+import scala.beans.BeanProperty
+import scala.compiletime.uninitialized
 
 
 @JsonSubTypes(Array(
@@ -23,4 +27,12 @@ import jakarta.persistence.{Entity, Inheritance, InheritanceType}
   new JsonSubTypes.Type(value = classOf[Text], name = "text")
 ))
 @JsonTypeInfo(use = Id.NAME, property = "type")
-abstract class Node
+abstract class Node {
+  
+  @JsonIgnore
+  val id : UUID = UUID.randomUUID()
+  
+  @BeanProperty
+  var position : Position = uninitialized
+  
+}

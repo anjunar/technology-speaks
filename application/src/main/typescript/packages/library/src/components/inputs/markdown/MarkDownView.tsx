@@ -3,6 +3,7 @@ import React, {CSSProperties, useEffect, useMemo, useRef} from "react"
 import {reMarkFactoryForHTML} from "./parser/ReMarkFactory";
 import {useInput} from "../../../hooks";
 import EditorModel from "./model/EditorModel";
+import Change from "./model/Change";
 
 function MarkDownView(properties: MarkDownView.Attributes) {
 
@@ -16,13 +17,130 @@ function MarkDownView(properties: MarkDownView.Attributes) {
         return reMarkFactoryForHTML(state)
     }, []);
 
+    function showDiff(element: HTMLElement, changes: Change[]) {
+
+        let deletions = changes.filter(change => change.action === "delete");
+        let inserts = changes.filter(change => change.action === "insert" && change.value);
+        let updates = changes.filter(change => change.action === "update");
+        let moves = changes.filter(change => change.action === "move");
+
+        updates.forEach(aUpdate => {
+            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+            let pos = 0;
+
+            while (walker.nextNode()) {
+                const node = walker.currentNode as Text;
+                const text = node.textContent || "";
+                const len = text.length;
+
+                if (aUpdate.offset >= pos && aUpdate.offset <= (pos + len)) {
+                    let parent = node.parentElement;
+                    let insertPos = aUpdate.offset - pos;
+
+                    let before = text.slice(0, insertPos);
+                    let after = text.slice(insertPos + aUpdate.newValue.length);
+
+                    let beforeNode = document.createTextNode(before);
+                    let afterNode = document.createTextNode(after);
+
+                    parent.replaceChild(beforeNode, node);
+
+                    let spanElement = document.createElement("span");
+                    spanElement.className = "update";
+                    spanElement.textContent = aUpdate.newValue;
+
+                    beforeNode.after(spanElement, afterNode);
+
+                    break;
+                }
+
+                pos += len;
+            }
+        })
+
+        inserts.forEach(aInsert => {
+            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+            let pos = 0;
+
+            while (walker.nextNode()) {
+                const node = walker.currentNode as Text;
+                const text = node.textContent || "";
+                const len = text.length;
+
+                if (aInsert.offset >= pos && aInsert.offset <= (pos + len)) {
+                    let parent = node.parentElement;
+                    let insertPos = aInsert.offset - pos - 1;
+
+                    let before = text.slice(0, insertPos);
+                    let after = text.slice(insertPos + aInsert.value.length);
+
+                    let beforeNode = document.createTextNode(before);
+                    let afterNode = document.createTextNode(after);
+
+                    parent.replaceChild(beforeNode, node);
+
+                    let spanElement = document.createElement("span");
+                    spanElement.className = "insert";
+                    spanElement.textContent = aInsert.value;
+
+                    beforeNode.after(spanElement, afterNode);
+
+                    break;
+                }
+
+                pos += len;
+            }
+        })
+
+        deletions.forEach(aDelete => {
+
+            const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+            let pos = 0;
+
+            while (walker.nextNode()) {
+                const node = walker.currentNode as Text;
+                const text = node.textContent || "";
+                const len = text.length;
+
+                if (aDelete.offset >= pos && aDelete.offset < (pos + len)) {
+                    let parent = node.parentElement;
+
+                    let begin = text.slice(0, aDelete.offset - pos);
+                    let end = text.slice(aDelete.offset - pos)
+
+                    let textNode = document.createTextNode(begin);
+                    parent.replaceChild(textNode, node)
+
+                    let spanElement = document.createElement("span");
+                    spanElement.className = "deleted"
+                    spanElement.textContent = aDelete.value
+
+                    textNode.after(
+                        spanElement,
+                        document.createTextNode(end)
+                    )
+                }
+
+                pos += len
+            }
+
+        })
+
+    }
+
     useEffect(() => {
         if (state?.ast) {
             reMarkForHTML.run(state.ast)
                 .then((tree: any) => reMarkForHTML
                     .stringify(tree)
                 )
-                .then(html => viewRef.current.innerHTML = html)
+                .then(html => {
+                    viewRef.current.innerHTML = html
+
+                    if (state.changes) {
+                        showDiff(viewRef.current, state.changes)
+                    }
+                })
         }
     }, [state]);
 

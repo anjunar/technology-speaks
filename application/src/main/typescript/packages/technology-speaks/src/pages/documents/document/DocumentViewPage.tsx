@@ -21,7 +21,7 @@ function DocumentViewPage(properties: DocumentViewPage.Attributes) {
                                     onClick={() => navigate(`documents/document/${form.id}`)}>markdown
                             </button>
                             <button className={"material-icons"}
-                                    onClick={() => navigate(`documents/document/${form.id}`)}>history
+                                    onClick={() => navigate(`documents/document/${form.id}/revisions`)}>history
                             </button>
                         </div>
 
@@ -29,7 +29,7 @@ function DocumentViewPage(properties: DocumentViewPage.Attributes) {
 
                     <div style={{display : "flex", gap : "5px", flexWrap : "wrap"}}>
                         {
-                            form.hashTags.map(hashTag => (<small>{hashTag.value}</small>))
+                            form.hashTags?.map(hashTag => (<small>{hashTag.value}</small>))
                         }
                     </div>
 

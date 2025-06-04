@@ -40,17 +40,17 @@ class RevisionsTableResource extends SchemaBuilderContext {
   @JsonSchema(classOf[RevisionsTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Revisions", linkType = LinkType.TABLE)
-  def list(@BeanParam search: RevisionSearch): Table[Document] = {
+  def list(@BeanParam search: RevisionSearch): Table[Revision] = {
     val (count, entities) = Document.revisions(search.document, search.index, search.limit)
     
     entities.forEach(entity => {
-      forLinks(entity, classOf[Document], (instance, links) => {
-        linkTo(methodOn(classOf[DocumentFormResource]).read(instance.id, entity.revision.intValue()))
+      forLinks(entity, classOf[Revision], (instance, links) => {
+        linkTo(methodOn(classOf[DocumentFormResource]).read(instance.id, entity.revision, true))
           .build(links.addLink)
       })
     })
     
-    new Table[Document](entities, count)
+    new Table[Revision](entities, count)
   }
 
 }

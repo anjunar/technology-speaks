@@ -14,6 +14,7 @@ lazy val scalaUniverse2 = (project in file("library/scala-universe2"))
   .settings(
     libraryDependencies ++= Seq(
       "com.google.guava" % "guava" % "33.0.0-jre",
+      "jakarta.enterprise" % "jakarta.enterprise.cdi-api" % "4.1.0",
       "org.scala-lang" % "scala-reflect" % "2.13.16",
       "com.typesafe.scala-logging" % "scala-logging_3" % "3.9.5"
     )
@@ -38,7 +39,9 @@ lazy val system = (project in file("system"))
   .dependsOn(jsonMapper2)
   .settings(
     libraryDependencies ++= Seq(
+      "com.github.gumtreediff" % "core" % "3.0.0",
       "com.google.guava" % "guava" % "33.0.0-jre",
+      "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
       "com.pgvector" % "pgvector" % "0.1.6",
       "com.yubico" % "webauthn-server-core" % "2.7.0",
       "commons-io" % "commons-io" % "2.16.0",
@@ -69,8 +72,13 @@ lazy val rest = (project in file("rest"))
 lazy val application = (project in file("application"))
   .dependsOn(rest)
   .settings(
-    ss = excludeDependencies ++= Seq(
+    excludeDependencies ++= Seq(
       "commons-io" % "commons-io",
+      "com.fasterxml.jackson.core" % "jackson-databind",
+      "com.fasterxml.jackson.core" % "jackson-core",
+      "com.fasterxml.jackson.core" % "jackson-annotations",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310",
       "jakarta.enterprise" % "jakarta.enterprise.cdi-api",
       "jakarta.platform" % "jakarta.jakartaee-api",
       "jakarta.validation" % "jakarta.validation-api",

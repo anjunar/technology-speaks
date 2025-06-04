@@ -26,7 +26,7 @@ class Role extends AbstractEntity with SecurityRole {
   @Size(min = 3, max = 80)
   @NotBlank
   @BeanProperty
-  @Descriptor(title = "Beschreibung")
+  @Descriptor(title = "Description")
   var description: String = uninitialized
 
 }

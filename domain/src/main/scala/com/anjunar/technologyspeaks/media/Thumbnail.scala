@@ -18,16 +18,16 @@ class Thumbnail extends AbstractEntity {
   var name: String = uninitialized
 
   @BeanProperty
-  @Descriptor(title = "Typ")
+  @Descriptor(title = "Type")
   var `type`: String = uninitialized
 
   @BeanProperty
-  @Descriptor(title = "Subtyp")
+  @Descriptor(title = "Subtype")
   var subType: String = uninitialized
 
   @Transient
   @BeanProperty
-  @Descriptor(title = "Daten")
+  @Descriptor(title = "Data")
   var data: Array[Byte] = uninitialized
 
   @PostLoad

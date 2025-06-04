@@ -26,6 +26,7 @@ import EditorModel from "../components/inputs/markdown/model/EditorModel";
 import EditorFile from "../components/inputs/markdown/model/EditorFile";
 import SortObject from "./container/SortObject";
 import TupleTableObject from "./container/TupleTableObject";
+import Change from "../components/inputs/markdown/model/Change";
 
 export function init() {
 
@@ -52,6 +53,7 @@ export function init() {
 
     registerEntity(EditorModel)
     registerEntity(EditorFile)
+    registerEntity(Change)
 
     registerConverter(Date, new DateConverter())
     registerConverter(LocalDateTime, new LocalDateTimeConverter())

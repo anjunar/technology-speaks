@@ -1,9 +1,7 @@
 package com.anjunar.technologyspeaks.shared
 
 import com.anjunar.scala.schema.builder.EntitySchemaBuilder
-import com.anjunar.technologyspeaks.control.GeoPoint
 import com.anjunar.technologyspeaks.shared.editor.*
-import org.hibernate.cache.spi.support.AbstractReadWriteAccess.Item
 
 object EditorSchema {
 
@@ -12,7 +10,7 @@ object EditorSchema {
       .property("id")
       .property("files", property => property
         .withWriteable(true)
-        .forType(classOf[File], (builder : EntitySchemaBuilder[File]) => builder
+        .forType(classOf[File], (builder: EntitySchemaBuilder[File]) => builder
           .property("id")
           .property("name", property => property
             .withWriteable(true)
@@ -31,6 +29,16 @@ object EditorSchema {
       .property("json", property => property
         .withWidget("editor")
         .withWriteable(true)
+      )
+      .property("changes", property => property
+        .forType(classOf[Change], (builder: EntitySchemaBuilder[Change]) => builder
+          .property("action")
+          .property("nodeType")
+          .property("oldValue")
+          .property("newValue")
+          .property("value")
+          .property("offset")
+        )
       )
   }
 

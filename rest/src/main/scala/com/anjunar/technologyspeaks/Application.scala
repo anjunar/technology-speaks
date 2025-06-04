@@ -9,7 +9,7 @@ import scala.beans.BeanProperty
 class Application(_user: User) {
 
   @BeanProperty
-  @Descriptor(title = "Benutzer")
+  @Descriptor(title = "User")
   val user: User = _user
 
   def this() = this(null)

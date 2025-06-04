@@ -6,8 +6,10 @@ import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.SecurityUser
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import com.anjunar.technologyspeaks.shared.editor.Editor
+import com.anjunar.technologyspeaks.shared.editor.{ASTDiffUtil, Change, Editor}
 import com.anjunar.technologyspeaks.shared.hashtag.HashTag
+import com.github.gumtreediff.actions.{ChawatheScriptGenerator, EditScriptGenerator, InsertDeleteChawatheScriptGenerator}
+import com.github.gumtreediff.matchers.Matchers
 import jakarta.persistence.*
 import jakarta.validation.constraints.Size
 import org.hibernate.annotations.CollectionType
@@ -82,7 +84,7 @@ class Document extends AbstractEntity with OwnerProvider {
 
 object Document extends RepositoryContext[Document](classOf[Document]) {
 
-  def revisions(document: Document, index: Int, limit: Int): (Int, util.List[Document]) = {
+  def revisions(document: Document, index: Int, limit: Int): (Int, util.List[Revision]) = {
     val auditReader = AuditReaderFactory.get(entityManager)
     val revisions = auditReader.getRevisions(classOf[Document], document.id)
 
@@ -95,8 +97,26 @@ object Document extends RepositoryContext[Document](classOf[Document]) {
     val pageRevisions = paginateRevisions(revisions, index, limit)
     (revisions.size(), pageRevisions.stream.map(rev => {
       val revDocument = auditReader.find(classOf[Document], document.id, rev)
-      revDocument.revision = rev
-      revDocument
+      val revision = new Revision
+      revision.id = revDocument.id
+      revision.revision = rev.intValue()
+      revision.title = revDocument.title
+
+      val oldContext = ASTDiffUtil.buildTreeContext(revDocument.editor.json)
+      val newContext = ASTDiffUtil.buildTreeContext(document.editor.json)
+
+      val matcher = Matchers.getInstance().getMatcher.`match`(oldContext.getRoot, newContext.getRoot)
+
+      val editScript = new ChawatheScriptGenerator().computeActions(matcher)
+
+      val actions = editScript.asList()
+
+      val changes = Change.extractChanges(actions)
+      
+      revision.editor = document.editor
+      revision.editor.changes.addAll(changes)
+      
+      revision
     }).toList)
   }
 

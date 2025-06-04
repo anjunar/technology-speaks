@@ -24,6 +24,7 @@ import GroupSearch from "./domain/control/GroupSearch";
 import ChunkSearch from "./domain/document/ChunkSearch";
 import RevisionSearch from "./domain/document/RevisionSearch";
 import HashTag from "./domain/shared/HashTag";
+import Revision from "./domain/document/Revision";
 
 export function init() {
     registerEntity(Application)
@@ -55,5 +56,6 @@ export function init() {
     registerEntity(Chunk)
     registerEntity(ChunkSearch)
     registerEntity(RevisionSearch)
+    registerEntity(Revision)
 }
 

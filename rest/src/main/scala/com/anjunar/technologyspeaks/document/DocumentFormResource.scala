@@ -8,6 +8,9 @@ import com.anjunar.technologyspeaks.document.DocumentFormResource.progressMap
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.security.Secured
+import com.anjunar.technologyspeaks.shared.editor.{ASTDiffUtil, Change}
+import com.github.gumtreediff.actions.ChawatheScriptGenerator
+import com.github.gumtreediff.matchers.Matchers
 import com.google.common.base.Strings
 import com.typesafe.scalalogging.Logger
 import jakarta.annotation.security.RolesAllowed
@@ -56,8 +59,32 @@ class DocumentFormResource extends SchemaBuilderContext {
   @JsonSchema(classOf[DocumentFormSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Read", linkType = LinkType.FORM)
-  def read(@PathParam("id") id: UUID, @QueryParam("rev") @DefaultValue("-1") revision : Int): Document = {
-    val document = if revision == -1 then Document.find(id) else Document.find(id, revision)
+  def read(@PathParam("id") id: UUID, @QueryParam("rev") @DefaultValue("-1") revision : Int, @QueryParam("viewRev") viewRev : Boolean): Document = {
+    val document = if (revision == -1) {
+      Document.find(id)
+    } else {
+      val revDocument = Document.find(id, revision)
+
+      if (viewRev) {
+        revDocument
+      } else {
+        val document = Document.find(id)
+
+        val oldContext = ASTDiffUtil.buildTreeContext(revDocument.editor.json)
+        val newContext = ASTDiffUtil.buildTreeContext(document.editor.json)
+
+        val matcher = Matchers.getInstance().getMatcher.`match`(oldContext.getRoot, newContext.getRoot)
+
+        val editScript = new ChawatheScriptGenerator().computeActions(matcher)
+
+        val actions = editScript.asList()
+
+        val changes = Change.extractChanges(actions)
+
+        document.editor.changes.addAll(changes)
+        document
+      }
+    }
 
     forLinks(classOf[Document], (instance, link) => {
       linkTo(methodOn(classOf[DocumentFormResource]).update(instance, ""))

@@ -2,6 +2,7 @@ import {Basic, Entity} from "../../../../mapper";
 import {AbstractEntity} from "../../../../domain/container";
 import EditorFile from "./EditorFile";
 import {Root} from "mdast";
+import Change from "./Change";
 
 @Entity("Editor")
 export default class EditorModel extends AbstractEntity {
@@ -12,6 +13,9 @@ export default class EditorModel extends AbstractEntity {
     files: EditorFile[] = []
 
     ast: Root
+
+    @Basic()
+    changes : Change[]
 
     @Basic()
     get json() {

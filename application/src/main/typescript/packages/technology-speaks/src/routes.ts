@@ -13,6 +13,7 @@ import LogoutPage from "./pages/security/LogoutPage";
 import SearchPage from "./pages/documents/search/SearchPage";
 import DocumentFormPage from "./pages/documents/document/DocumentFormPage";
 import DocumentViewPage from "./pages/documents/document/DocumentViewPage";
+import RevisionsTablePage from "./pages/documents/document/revisisions/RevisionsTablePage";
 
 export const routes: Router.Route[] = [
     {
@@ -62,7 +63,7 @@ export const routes: Router.Route[] = [
                                 component : DocumentViewPage,
                                 loader : {
                                     async form(pathParams, queryParams) {
-                                        let response = await fetch(`/service/documents/document/${pathParams.id}`)
+                                        let response = await fetch(`/service/documents/document/${pathParams.id}?rev=${queryParams["rev"] || -1}&viewRev=${queryParams["viewRev"] || false}`)
 
                                         process(response)
 
@@ -91,7 +92,13 @@ export const routes: Router.Route[] = [
 
                                 throw new Error(response.status.toString())
                             }
-                        }
+                        },
+                        children : [
+                            {
+                                path: "/revisions",
+                                component : RevisionsTablePage
+                            }
+                        ]
                     }
                 ]
             },
