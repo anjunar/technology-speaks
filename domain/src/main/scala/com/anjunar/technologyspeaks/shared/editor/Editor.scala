@@ -16,10 +16,12 @@ import scala.compiletime.uninitialized
 @Audited
 class Editor extends AbstractEntity {
 
+  @Descriptor(title = "Files")
   @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true)
   @BeanProperty
   val files : util.List[File] = new util.ArrayList[File]()
 
+  @Descriptor(title = "Editor")
   @Column(columnDefinition = "jsonb")
   @Type(classOf[RootType])
   @Converter(classOf[RootConverter])

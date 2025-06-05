@@ -1,5 +1,6 @@
 package com.anjunar.technologyspeaks.shared.editor
 
+import com.anjunar.scala.mapper.annotations.Descriptor
 import com.github.gumtreediff.actions.model.{Action, Delete, Insert, Move, Update}
 import com.github.gumtreediff.tree.Tree
 import difflib.Delta.TYPE
@@ -15,21 +16,27 @@ import scala.collection.mutable.ListBuffer
 
 case class Change(
 
+  @Descriptor(title = "Action")                 
   @BeanProperty
   action : String,
 
+  @Descriptor(title = "Type")
   @BeanProperty
   nodeType : String,
 
+  @Descriptor(title = "Old Value")
   @BeanProperty
   oldValue : String = null,
 
+  @Descriptor(title = "New Value")
   @BeanProperty
   newValue : String = null,
 
+  @Descriptor(title = "Value")
   @BeanProperty
   value : String = null,
 
+  @Descriptor(title = "Offset")
   @BeanProperty
   offset : Int
 
