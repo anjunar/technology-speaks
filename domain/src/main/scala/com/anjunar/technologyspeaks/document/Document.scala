@@ -63,12 +63,6 @@ class Document extends AbstractEntity with OwnerProvider {
   @BeanProperty
   var language : Locale = uninitialized
 
-  @Descriptor(title = "Table of Contents")
-  @ManyToOne
-  @NotAudited
-  @BeanProperty
-  var toc : Toc = uninitialized
-
   override def owner: SecurityUser = user
 
 }

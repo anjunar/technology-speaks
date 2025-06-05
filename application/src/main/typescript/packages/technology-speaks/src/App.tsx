@@ -1,9 +1,9 @@
 import "./App.css"
 
-import React, {useEffect, useLayoutEffect, useState} from "react"
+import React, {useEffect, useState} from "react"
 import {Drawer, Link, Router, ToolBar, useMatchMedia, Viewport} from "react-ui-simplicity";
-import navigate = Router.navigate;
 import Application from "./domain/Application";
+import navigate = Router.navigate;
 import onLink = Link.onLink;
 
 export function process(response: Response) {
@@ -33,7 +33,7 @@ function App(properties: AppContent.Attributes) {
     }
 
     useEffect(() => {
-        setOpen(! mediaQuery)
+        setOpen(!mediaQuery)
     }, []);
 
     return (
@@ -45,7 +45,7 @@ function App(properties: AppContent.Attributes) {
                     </button>
                 </div>
                 <div slot={"right"}>
-                    <div style={{display : "flex", gap : "5px", justifyContent : "flex-end", alignItems : "center"}}>
+                    <div style={{display: "flex", gap: "5px", justifyContent: "flex-end", alignItems: "center"}}>
                         {
                             onLink(application.$links, "login", (link) => (
                                 <Link value={link.url}>
@@ -81,7 +81,46 @@ function App(properties: AppContent.Attributes) {
             </ToolBar>
             <Drawer.Container>
                 <Drawer open={open}>
-                    <h1>Content</h1>
+                    <div style={{padding: "24px"}}>
+                        <ul>
+                            {
+                                onLink(application.$links, "login", (link) => (
+                                    <li>
+                                        <Link value={link.url}>
+                                            <div style={{display: "flex", gap: "12px", alignItems: "center"}}>
+                                                <span className="material-icons">login</span>
+                                                <span>{link.title}</span>
+                                            </div>
+                                        </Link>
+                                    </li>
+                                ))
+                            }
+                            {
+                                onLink(application.$links, "register", (link) => (
+                                    <li>
+                                        <Link value={link.url}>
+                                            <div style={{display: "flex", gap: "12px", alignItems: "center"}}>
+                                                <span className="material-icons">app_registration</span>
+                                                <div>{link.title}</div>
+                                            </div>
+                                        </Link>
+                                    </li>
+                                ))
+                            }
+                            {
+                                onLink(application.$links, "documents", (link) => (
+                                    <li>
+                                        <Link key={link.url} value={link.url}>
+                                            <div style={{display: "flex", gap: "12px", alignItems: "center"}}>
+                                                <span className="material-icons">menu_book</span>
+                                                <div>{link.title}</div>
+                                            </div>
+                                        </Link>
+                                    </li>
+                                ))
+                            }
+                        </ul>
+                    </div>
                 </Drawer>
                 <Drawer.Content onClick={onLinkClick}>
                     <Viewport>
@@ -95,7 +134,7 @@ function App(properties: AppContent.Attributes) {
 
 namespace AppContent {
     export interface Attributes {
-        application : Application
+        application: Application
     }
 }
 

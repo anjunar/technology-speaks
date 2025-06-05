@@ -223,7 +223,7 @@ class DocumentService {
 
     val text = toText(document.editor.json)
 
-    blockingQueue.put("Start Processing")
+    blockingQueue.put("Start Processing\n")
 
     document.language = createLanguageDetection(text)
 
@@ -231,10 +231,9 @@ class DocumentService {
     chunks.forEach(chunk => {
       chunk.embedding = createEmbeddings(chunk.title + "\n" + chunk.content)
       chunk.document = document
-      blockingQueue.put("Chunk Embedding created")
     })
 
-    blockingQueue.put("All Chunks created")
+    blockingQueue.put("All Chunks created\n")
 
     val hashTags = createHashTags(text, blockingQueue).stream
       .map(hashTag => {
@@ -243,8 +242,6 @@ class DocumentService {
         val hashTagsFromDB = entityManager.createQuery("select h from HashTag h where function('similarity', h.value, :value) > 0.8 order by function('similarity', h.value, :value)", classOf[HashTag])
           .setParameter("value", hashTag.value)
           .getResultList
-
-        blockingQueue.put("Hashtag Chunk created")
 
         if (hashTagsFromDB.isEmpty) {
           hashTag.embedding = vector
@@ -256,7 +253,7 @@ class DocumentService {
       })
       .toList
 
-    blockingQueue.put("All Hashtags created")
+    blockingQueue.put("All Hashtags created\n")
 
     document.chunks.forEach(chunk => chunk.delete())
     document.chunks.clear()

@@ -6,3 +6,11 @@
         color: var(--color-highlight);
     }
 }
+
+@media (max-width: 1300px) {
+    .search-page {
+        .search-box {
+            width: 100%
+        }
+    }
+}

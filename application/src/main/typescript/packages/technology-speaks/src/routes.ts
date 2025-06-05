@@ -55,7 +55,37 @@ export const routes: Router.Route[] = [
                 children: [
                     {
                         path: "/search",
-                        component: DocumentSearchPage
+                        component: DocumentSearchPage,
+                        loader: {
+                            async search(pathParams, queryParams) {
+                                let response = await fetch(`/service/documents/search`)
+
+                                process(response)
+
+                                if (response.ok) {
+                                    return mapForm(await response.json(), true)
+                                }
+
+                                throw new Error(response.status.toString())
+                            }
+                        }
+                    },
+                    {
+                        path: "/document",
+                        component : DocumentFormPage,
+                        loader: {
+                            async form(pathParams, queryParams) {
+                                let response = await fetch(`/service/documents/document`)
+
+                                process(response)
+
+                                if (response.ok) {
+                                    return mapForm(await response.json(), true)
+                                }
+
+                                throw new Error(response.status.toString())
+                            }
+                        }
                     },
                     {
                         path: "/document/{id}",
