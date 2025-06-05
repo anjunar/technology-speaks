@@ -9,7 +9,7 @@ import ConfirmationPage from "./pages/security/ConfirmationPage";
 import {UAParser} from "ua-parser-js";
 import WebAuthnLogin from "./domain/security/WebAuthnLogin";
 import LogoutPage from "./pages/security/LogoutPage";
-import SearchPage from "./pages/documents/search/SearchPage";
+import DocumentSearchPage from "./pages/documents/search/DocumentSearchPage";
 import DocumentFormPage from "./pages/documents/document/DocumentFormPage";
 import DocumentViewPage from "./pages/documents/document/DocumentViewPage";
 import RevisionsTablePage from "./pages/documents/document/revisisions/RevisionsTablePage";
@@ -55,31 +55,12 @@ export const routes: Router.Route[] = [
                 children: [
                     {
                         path: "/search",
-                        component: SearchPage,
-                        children: [
-                            {
-                                path: "/{id}",
-                                component: DocumentViewPage,
-                                loader: {
-                                    async form(pathParams, queryParams) {
-                                        let response = await fetch(`/service/documents/document/${pathParams.id}`)
-
-                                        process(response)
-
-                                        if (response.ok) {
-                                            return mapForm(await response.json(), true)
-                                        }
-
-                                        throw new Error(response.status.toString())
-                                    }
-                                }
-                            }
-                        ]
+                        component: DocumentSearchPage
                     },
                     {
                         path: "/document/{id}",
                         dynamic: (path, query) => {
-                            if (query["edit"]) {
+                            if (query["edit"] === "true") {
                                 return DocumentFormPage
                             } else {
                                 return DocumentViewPage
