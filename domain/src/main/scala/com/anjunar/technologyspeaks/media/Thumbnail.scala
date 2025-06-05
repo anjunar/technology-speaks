@@ -25,34 +25,11 @@ class Thumbnail extends AbstractEntity {
   @Descriptor(title = "Subtype")
   var subType: String = uninitialized
 
-  @Transient
+  @Lob
   @BeanProperty
   @Descriptor(title = "Data")
   var data: Array[Byte] = uninitialized
 
-  @PostLoad
-  def postLoad(): Unit = {
-    val file = FileDiskUtils.workingFile(id)
-    data = IOUtils.toByteArray(file.toURI)
-  }
-
-  @PostPersist
-  def postPersist(): Unit = {
-    val file = FileDiskUtils.workingFile(id)
-    FileUtils.writeByteArrayToFile(file, data)
-  }
-
-  @PostUpdate
-  def postUpdate(): Unit = {
-    val file = FileDiskUtils.workingFile(id)
-    FileUtils.writeByteArrayToFile(file, data)
-  }
-
-  @PostRemove
-  def postRemove(): Unit = {
-    val file = FileDiskUtils.workingFile(id)
-    file.delete()
-  }
 }
 
 
