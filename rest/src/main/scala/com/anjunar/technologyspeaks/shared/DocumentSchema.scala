@@ -21,7 +21,7 @@ object DocumentSchema {
       .property("description")
       .property("created")
       .property("modified")
-      .property("revision")
+      .property("language")
       .property("user", property => property
         .forType(classOf[User], UserSchema.staticCompact)
       )
@@ -45,7 +45,7 @@ object DocumentSchema {
       .property("description")
       .property("created")
       .property("modified")
-      .property("revision")
+      .property("language")
       .property("user", property => property
         .forType(classOf[User], builder => UserSchema.dynamicCompact(builder, loaded.user))
       )

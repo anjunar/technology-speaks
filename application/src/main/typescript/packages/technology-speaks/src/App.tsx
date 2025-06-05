@@ -44,20 +44,6 @@ function App(properties: AppContent.Attributes) {
                         menu
                     </button>
                 </div>
-                <div slot={"middle"}>
-                    <div style={{display : "flex", gap : "5px", justifyContent : "center"}}>
-                        {
-                            onLink(application.$links, "documents", (link) => (
-                                <Link value={link.url}>
-                                    <div style={{display : "flex", alignItems : "center", gap : "5px"}}>
-                                        <span className="material-icons">search</span>
-                                        <span>Search</span>
-                                    </div>
-                                </Link>
-                            ))
-                        }
-                    </div>
-                </div>
                 <div slot={"right"}>
                     <div style={{display : "flex", gap : "5px", justifyContent : "flex-end", alignItems : "center"}}>
                         {

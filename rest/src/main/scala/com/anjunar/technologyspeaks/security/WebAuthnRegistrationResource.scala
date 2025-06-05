@@ -84,7 +84,7 @@ class WebAuthnRegistrationResource extends Serializable with SchemaBuilderContex
         .builder
         .user(findExistingUser(userRequest.username, userRequest.displayName).orElseGet(() => {
 
-          val email = EMail.query(Pair("value", userRequest.username))
+          val email = EMail.query(("value", userRequest.username))
 
           val userHandle = if (email == null || email.handle == null) {
             val userHandle = new Array[Byte](64)
@@ -120,7 +120,7 @@ class WebAuthnRegistrationResource extends Serializable with SchemaBuilderContex
           .build()
       )
 
-      val guest = Role.query(Pair("name", "Guest"))
+      val guest = Role.query(("name", "Guest"))
 
       var user = User.findByEmail(request.getUser.getName)
       val token = if (user == null) {

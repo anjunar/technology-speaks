@@ -32,16 +32,16 @@ trait RepositoryContext[E](clazz: Class[E]) {
     entityManager.createQuery(query.select(root)).getResultList
   }
 
-  def query(parameters: Pair*): E = {
+  def query(parameters: (key : String, value : String)*): E = {
     val entityAnnotation: Entity = clazz.getAnnotation(classOf[Entity])
     var entityName: String = entityAnnotation.name()
     if (entityName == null || entityName.isEmpty) {
       entityName = clazz.getSimpleName
     }
-    val sqlParams: String = parameters.map(o => s"e.${o.getKey} = :${o.getKey}").mkString(" and ")
+    val sqlParams: String = parameters.map(o => s"e.${o.key} = :${o.key}").mkString(" and ")
     val typedQuery: TypedQuery[E] = entityManager.createQuery(s"select e from $entityName e where $sqlParams", clazz)
     for (entry <- parameters) {
-      typedQuery.setParameter(entry.getKey, entry.getValue)
+      typedQuery.setParameter(entry.key, entry.value)
     }
     try {
       typedQuery.getSingleResult

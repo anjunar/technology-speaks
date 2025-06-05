@@ -79,9 +79,10 @@ function List(properties: List.Attributes) {
 }
 
 namespace List {
+
     export interface Attributes {
         onRowClick?: any
-        loader: any
+        loader: withPageable.Loader
         limit?: number
         children: React.ReactNode
         value?: any

@@ -1,4 +1,4 @@
-import React, {MouseEventHandler, useLayoutEffect, useState} from "react"
+import React, {MouseEventHandler, useEffect, useLayoutEffect, useState} from "react"
 
 function withPageable(Component : any, parameters : withPageable.Attributes)  {
 
@@ -9,6 +9,8 @@ function withPageable(Component : any, parameters : withPageable.Attributes)  {
         const [window, setWindow] = useState([])
         const [index, setIndex] = useState(0)
         const [size, setSize] = useState(0)
+
+        const [loading, setLoading] = useState(true)
 
         const skipPrevious = () => {
             let newIndex = 0
@@ -53,11 +55,13 @@ function withPageable(Component : any, parameters : withPageable.Attributes)  {
 
         useLayoutEffect(() => {
             if (autoload) {
-                load({index : index, limit : limit}, () => {})
+                load({index : index, limit : limit}, () => {setLoading(false)})
             }
-
-            // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [])
+
+        if (loading) {
+            return <div className={"center"}><h2>Loading...</h2></div>
+        }
 
         return (
             <Component

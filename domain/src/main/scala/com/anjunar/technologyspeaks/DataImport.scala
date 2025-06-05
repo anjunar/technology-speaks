@@ -30,21 +30,21 @@ class DataImport {
 
   def init(@Observes @Initialized(classOf[ApplicationScoped]) init: ServletContext, oLlamaService: OLlamaService, entityManager : EntityManager): Unit = {
     transaction.begin()
-    var administrator = Role.query(Pair("name", "Administrator"))
+    var administrator = Role.query(("name", "Administrator"))
     if (Objects.isNull(administrator)) {
       administrator = new Role
       administrator.name = "Administrator"
       administrator.description = "Administrator"
       administrator.persist()
     }
-    var user = Role.query(Pair("name", "User"))
+    var user = Role.query(("name", "User"))
     if (Objects.isNull(user)) {
       user = new Role
       user.name = "User"
       user.description = "Benutzer"
       user.persist()
     }
-    var guest = Role.query(Pair("name", "Guest"))
+    var guest = Role.query(("name", "Guest"))
     if (Objects.isNull(guest)) {
       guest = new Role
       guest.name = "Guest"

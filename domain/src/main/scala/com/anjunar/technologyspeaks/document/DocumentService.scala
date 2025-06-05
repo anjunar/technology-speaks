@@ -2,7 +2,7 @@ package com.anjunar.technologyspeaks.document
 
 import com.anjunar.technologyspeaks.olama.*
 import com.anjunar.technologyspeaks.olama.json.*
-import com.anjunar.technologyspeaks.semanticspeak.{SemanticSpeakService, TextRequest}
+import com.anjunar.technologyspeaks.semanticspeak.SemanticSpeakService
 import com.anjunar.technologyspeaks.shared.editor.*
 import com.anjunar.technologyspeaks.shared.hashtag.HashTag
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -11,13 +11,12 @@ import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
 
 import java.util
+import java.util.Locale
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 import scala.beans.BeanProperty
-import scala.collection.mutable
 import scala.compiletime.uninitialized
-import scala.jdk.CollectionConverters.*
 
 @ApplicationScoped
 class DocumentService {
@@ -29,10 +28,20 @@ class DocumentService {
   var asyncOLlamaService: AsyncOLlamaService = uninitialized
 
   @Inject
-  var semanticSpealService : SemanticSpeakService = uninitialized
+  var semanticSpealService: SemanticSpeakService = uninitialized
 
   @Inject
   var entityManager: EntityManager = uninitialized
+
+  def createLanguageDetection(text: String): Locale = {
+
+    val response = oLlamaService.chat(ChatRequest(Seq(
+      ChatMessage("You are a language detection assistant. Only respond with the ISO 639-1 language code (e.g., 'en', 'de', 'fr') of the input text. Do not provide any explanations or additional content.", ChatRole.SYSTEM),
+      ChatMessage(text)
+    )))
+
+    Locale.forLanguageTag(response.message.content)
+  }
 
   def createSearch(text: String): String = {
 
@@ -170,12 +179,12 @@ class DocumentService {
     val request = EmbeddingRequest(text, options)
 
     normalize(oLlamaService.generateEmbeddings(request).embeddings.head)
-/*
-    val textRequest = new TextRequest
-    textRequest.texts.add(text)
-    semanticSpealService.generateEmbedding(textRequest)
-      .embeddings(0)
-*/
+    /*
+        val textRequest = new TextRequest
+        textRequest.texts.add(text)
+        semanticSpealService.generateEmbedding(textRequest)
+          .embeddings(0)
+    */
   }
 
   def normalize(vec: Array[Float]): Array[Float] = {
@@ -215,6 +224,8 @@ class DocumentService {
     val text = toText(document.editor.json)
 
     blockingQueue.put("Start Processing")
+
+    document.language = createLanguageDetection(text)
 
     val chunks = createChunks(text, blockingQueue)
     chunks.forEach(chunk => {

@@ -21,12 +21,12 @@ function DocumentViewPage(properties: DocumentViewPage.Attributes) {
                         <div style={{display : "flex", gap : "12px"}}>
                             {
                                 onLink(form.$links, "read", link => (
-                                    <Link className={"material-icons"} value={link.url}>markdown</Link>
+                                    <Link key={link.rel} className={"material-icons"} value={link.url}>markdown</Link>
                                 ))
                             }
                             {
                                 onLink(form.$links, "revisions", link => (
-                                    <Link className={"material-icons"} value={link.url}>history</Link>
+                                    <Link key={link.rel} className={"material-icons"} value={link.url}>history</Link>
                                 ))
                             }
                         </div>
@@ -34,7 +34,7 @@ function DocumentViewPage(properties: DocumentViewPage.Attributes) {
 
                     <div style={{display: "flex", gap: "5px", flexWrap: "wrap"}}>
                         {
-                            form.hashTags?.map(hashTag => (<small>{hashTag.value}</small>))
+                            form.hashTags?.map(hashTag => (<small key={hashTag.value}>{hashTag.value}</small>))
                         }
                     </div>
 

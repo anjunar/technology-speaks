@@ -7,8 +7,8 @@ Global / semanticdbEnabled := true
 ThisBuild / scalaVersion := "3.7.0"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
-ThisBuild / javacOptions ++= Seq("--release", "17")
-ThisBuild / scalacOptions ++= Seq("-release", "17")
+ThisBuild / javacOptions ++= Seq("--release", "24")
+ThisBuild / scalacOptions ++= Seq("-release", "24")
 
 lazy val scalaUniverse2 = (project in file("library/scala-universe2"))
   .settings(

@@ -16,6 +16,7 @@ import org.hibernate.annotations.CollectionType
 import org.hibernate.envers.{AuditReaderFactory, Audited, NotAudited}
 
 import java.util
+import java.util.Locale
 import scala.beans.BeanProperty
 import scala.collection.mutable
 import scala.compiletime.uninitialized
@@ -58,27 +59,17 @@ class Document extends AbstractEntity with OwnerProvider {
   @NotAudited
   val hashTags : util.Set[HashTag] = new util.HashSet[HashTag]()
   
-  @Descriptor(title = "Revision")
-  @Transient
+  @Descriptor(title = "Language")
   @BeanProperty
-  var revision : Number = -1
+  var language : Locale = uninitialized
+
+  @Descriptor(title = "Table of Contents")
+  @ManyToOne
+  @NotAudited
+  @BeanProperty
+  var toc : Toc = uninitialized
 
   override def owner: SecurityUser = user
-
-  private def canEqual(other: Any): Boolean = other.isInstanceOf[Document]
-
-  override def equals(other: Any): Boolean = other match {
-    case that: Document =>
-      super.equals(that) &&
-        that.canEqual(this) &&
-        revision == that.revision
-    case _ => false
-  }
-
-  override def hashCode(): Int = {
-    val state = Seq(super.hashCode(), revision)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
 
 }
 
