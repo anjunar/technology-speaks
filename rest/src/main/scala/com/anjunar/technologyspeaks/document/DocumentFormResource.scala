@@ -59,34 +59,12 @@ class DocumentFormResource extends SchemaBuilderContext {
   @JsonSchema(classOf[DocumentFormSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Read", linkType = LinkType.FORM)
-  def read(@PathParam("id") id: UUID, @QueryParam("rev") @DefaultValue("-1") revision : Int, @QueryParam("viewRev") viewRev : Boolean): Document = {
-    val document = if (revision == -1) {
-      Document.find(id)
-    } else {
-      val revDocument = Document.find(id, revision)
-
-      if (viewRev) {
-        revDocument
-      } else {
-        val document = Document.find(id)
-
-        val oldContext = ASTDiffUtil.buildTreeContext(revDocument.editor.json)
-        val newContext = ASTDiffUtil.buildTreeContext(document.editor.json)
-
-        val matcher = Matchers.getInstance().getMatcher.`match`(oldContext.getRoot, newContext.getRoot)
-
-        val editScript = new ChawatheScriptGenerator().computeActions(matcher)
-
-        val actions = editScript.asList()
-
-        val changes = Change.extractChanges(actions)
-
-        document.editor.changes.addAll(changes)
-        document
-      }
-    }
+  def read(@PathParam("id") id: UUID, @QueryParam("edit") edit : Boolean): Document = {
+    val document = Document.find(id)
 
     forLinks(classOf[Document], (instance, link) => {
+      linkTo(methodOn(classOf[DocumentFormResource]).read(instance.id, true))
+        .build(link.addLink)
       linkTo(methodOn(classOf[DocumentFormResource]).update(instance, ""))
         .build(link.addLink)
       linkTo(methodOn(classOf[DocumentFormResource]).delete(instance))
@@ -108,10 +86,43 @@ class DocumentFormResource extends SchemaBuilderContext {
         .withRedirect
         .build(link.addLink)
     })
+    
+    document
+  }
 
+  @GET
+  @Path("{id}/revisions/revision/{rev}/compare")
+  @Produces(Array("application/json"))
+  @JsonSchema(classOf[DocumentFormSchema])
+  @RolesAllowed(Array("User", "Administrator"))
+  @LinkDescription(value = "Compare", linkType = LinkType.FORM)
+  def compareRevision(@PathParam("id") id: UUID, @PathParam("rev") revision: Int): Document = {
+    val document = Document.find(id)
+    val revDocument = Document.find(id, revision)
+
+    val oldContext = ASTDiffUtil.buildTreeContext(revDocument.editor.json)
+    val newContext = ASTDiffUtil.buildTreeContext(document.editor.json)
+
+    val matcher = Matchers.getInstance().getMatcher.`match`(oldContext.getRoot, newContext.getRoot)
+
+    val editScript = new ChawatheScriptGenerator().computeActions(matcher)
+
+    val actions = editScript.asList()
+
+    val changes = Change.extractChanges(actions)
+
+    document.editor.changes.addAll(changes)
 
     document
   }
+
+  @GET
+  @Path("{id}/revisions/revision/{rev}/view")
+  @Produces(Array("application/json"))
+  @JsonSchema(classOf[DocumentFormSchema])
+  @RolesAllowed(Array("User", "Administrator"))
+  @LinkDescription(value = "View", linkType = LinkType.FORM)
+  def viewRevision(@PathParam("id") id: UUID, @PathParam("rev") revision: Int): Document = Document.find(id, revision)
 
   @POST
   @Consumes(Array("application/json"))

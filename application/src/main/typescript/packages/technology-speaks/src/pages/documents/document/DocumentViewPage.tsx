@@ -1,8 +1,10 @@
 import "./DocumentViewPage.css"
 import React from "react"
 import Document from "../../../domain/document/Document";
-import {MarkDownView, Router} from "react-ui-simplicity";
+import {Link, MarkDownView, Router} from "react-ui-simplicity";
 import navigate = Router.navigate;
+import onLink = Link.onLink;
+import link from "react-ui-simplicity/src/components/navigation/link/Link";
 
 function DocumentViewPage(properties: DocumentViewPage.Attributes) {
 
@@ -13,21 +15,24 @@ function DocumentViewPage(properties: DocumentViewPage.Attributes) {
             <div className={"center-horizontal"}>
                 <div style={{maxWidth: "800px", minWidth: "360px", height: "100%"}}>
                     <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-                        <div style={{display: "flex", alignItems: "baseline", gap : "12px"}}>
+                        <div style={{display: "flex", alignItems: "baseline", gap: "12px"}}>
                             <h1>{form.title}</h1>
                         </div>
-                        <div>
-                            <button className={"material-icons"}
-                                    onClick={() => navigate(`documents/document/${form.id}`)}>markdown
-                            </button>
-                            <button className={"material-icons"}
-                                    onClick={() => navigate(`documents/document/${form.id}/revisions`)}>history
-                            </button>
+                        <div style={{display : "flex", gap : "12px"}}>
+                            {
+                                onLink(form.$links, "read", link => (
+                                    <Link className={"material-icons"} value={link.url}>markdown</Link>
+                                ))
+                            }
+                            {
+                                onLink(form.$links, "revisions", link => (
+                                    <Link className={"material-icons"} value={link.url}>history</Link>
+                                ))
+                            }
                         </div>
-
                     </div>
 
-                    <div style={{display : "flex", gap : "5px", flexWrap : "wrap"}}>
+                    <div style={{display: "flex", gap: "5px", flexWrap: "wrap"}}>
                         {
                             form.hashTags?.map(hashTag => (<small>{hashTag.value}</small>))
                         }

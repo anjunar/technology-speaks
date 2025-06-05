@@ -1,9 +1,10 @@
 import React from 'react';
-import {mapTable, Router, Table} from "react-ui-simplicity";
+import {Link, mapTable, Router, Table} from "react-ui-simplicity";
 import Revision from "../../../../domain/document/Revision";
 import SchemaTable from "react-ui-simplicity/src/components/meta/table/SchemaTable";
 import {process} from "../../../../App";
 import navigate = Router.navigate;
+import onLink = Link.onLink;
 
 export function RevisionsTablePage(properties: RevisionsTablePage.Attributes) {
 
@@ -54,9 +55,17 @@ export function RevisionsTablePage(properties: RevisionsTablePage.Attributes) {
                         </Table.Body.Cell>
                         <Table.Body.Cell>
                             {({row, index}: { row: Revision, index: number }) => (
-                                <div>
-                                    <button onClick={() => navigate(`documents/search/${row.id}?rev=${row.revision}&viewRev=true`)}>View</button>
-                                    <button onClick={() => navigate(`documents/search/${row.id}?rev=${row.revision}`)}>Compare</button>
+                                <div style={{display : "flex", gap : "12px"}}>
+                                    {
+                                        onLink(row.$links, "viewRevision", link => (
+                                            <Link value={link.url}>{link.title}</Link>
+                                        ))
+                                    }
+                                    {
+                                        onLink(row.$links, "compareRevision", link => (
+                                            <Link value={link.url}>{link.title}</Link>
+                                        ))
+                                    }
                                 </div>
                             )}
                         </Table.Body.Cell>

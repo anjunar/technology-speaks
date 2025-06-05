@@ -128,6 +128,10 @@ function Router(properties: Router.Attributes) {
                     let pathParameters: PathParams = resolvePathParams(regex, pathname, option);
                     let queryParameters: QueryParams = resolveQueryParameters()
                     let component = route.component
+                    if (! component) {
+                        component = route.dynamic(pathParameters, queryParameters)
+                    }
+
 
                     if (component) {
                         let loader = route.loader
@@ -147,12 +151,13 @@ function Router(properties: Router.Attributes) {
                                         return prev
                                     }, {})
 
-
-                                    if (! (component instanceof Function)) {
-                                        if (isMobile) {
-                                            component = component.mobile
-                                        } else {
-                                            component = component.desktop
+                                    if (component) {
+                                        if (! (component instanceof Function)) {
+                                            if (isMobile) {
+                                                component = component.mobile
+                                            } else {
+                                                component = component.desktop
+                                            }
                                         }
                                     }
 
@@ -173,11 +178,13 @@ function Router(properties: Router.Attributes) {
                                     console.error(response)
                                 })
                         } else {
-                            if (! (component instanceof Function)) {
-                                if (isMobile) {
-                                    component = component.mobile
-                                } else {
-                                    component = component.desktop
+                            if (component) {
+                                if (! (component instanceof Function)) {
+                                    if (isMobile) {
+                                        component = component.mobile
+                                    } else {
+                                        component = component.desktop
+                                    }
                                 }
                             }
 
@@ -260,6 +267,7 @@ namespace Router {
         path  : string
         subRouter? : boolean
         component? : FunctionComponent<any> | MultiComponent
+        dynamic? : (path : PathParams, query : QueryParams) => FunctionComponent<any> | MultiComponent
         children? : Route[]
         loader? : Loader
     }

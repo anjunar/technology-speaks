@@ -45,7 +45,10 @@ class RevisionsTableResource extends SchemaBuilderContext {
     
     entities.forEach(entity => {
       forLinks(entity, classOf[Revision], (instance, links) => {
-        linkTo(methodOn(classOf[DocumentFormResource]).read(instance.id, entity.revision, true))
+        linkTo(methodOn(classOf[DocumentFormResource]).viewRevision(instance.id, entity.revision))
+          .build(links.addLink)
+        
+        linkTo(methodOn(classOf[DocumentFormResource]).compareRevision(instance.id, entity.revision))
           .build(links.addLink)
       })
     })

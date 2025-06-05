@@ -7,7 +7,7 @@ import Router from "../router/Router";
 
 function Link(properties : Link.Attributes) {
 
-    const {data, value, children, ...rest} = properties
+    const {data, value, children, className, style} = properties
 
     const baseUrl = process.env.PUBLIC_URL
     let href = (baseUrl + value).replace("//", "/");
@@ -35,10 +35,10 @@ function Link(properties : Link.Attributes) {
 
     return (
         <a
+            style={style}
             href={href}
             onClick={onClick}
-            {...rest}
-            className={activeState ? "active" : ""}>
+            className={className + (activeState ? " active" : "")}>
             {children}
         </a>
     )

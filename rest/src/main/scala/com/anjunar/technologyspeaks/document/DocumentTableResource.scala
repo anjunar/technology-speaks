@@ -71,7 +71,7 @@ class DocumentTableResource extends SchemaBuilderContext {
     entities.forEach(tuple => {
       val document = tuple.get(0, classOf[Document])
       forLinks(document, classOf[Document], (row, link) => {
-        linkTo(methodOn(classOf[DocumentFormResource]).read(document.id, -1, false))
+        linkTo(methodOn(classOf[DocumentFormResource]).read(document.id, false))
           .build(link.addLink)
       })
     })

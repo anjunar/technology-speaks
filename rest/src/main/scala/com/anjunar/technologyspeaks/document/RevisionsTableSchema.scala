@@ -14,6 +14,7 @@ class RevisionsTableSchema extends EntityJSONSchema[Table[Revision]] {
     builder.forType(javaType, (builder: EntitySchemaBuilder[Table[Revision]]) => builder
       .property("rows", property => property
         .withTitle("Documents")
+        .forInstance(root.rows, classOf[Revision], entity => builder => RevisionSchema.static(builder))
         .forType(classOf[Revision], builder => RevisionSchema.static(builder))
       )
       .property("size")

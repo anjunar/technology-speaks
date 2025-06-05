@@ -1,8 +1,7 @@
 import {mapForm, Router} from "react-ui-simplicity";
-import App from "./App";
+import App, {process} from "./App";
 import FormPage from "./pages/navigator/FormPage";
 import TablePage from "./pages/navigator/TablePage";
-import {process} from "./App"
 import HomePage from "./pages/home/HomePage";
 import LoginPage from "./pages/security/LoginPage";
 import RegisterPage from "./pages/security/RegisterPage";
@@ -20,7 +19,7 @@ export const routes: Router.Route[] = [
         path: "/",
         subRouter: true,
         component: App,
-        loader : {
+        loader: {
             async application(pathParams, queryParams) {
                 let response = await fetch("/service")
 
@@ -33,11 +32,11 @@ export const routes: Router.Route[] = [
                 throw new Error(response.status.toString())
             }
         },
-        children : [
+        children: [
             {
-                path : "/",
-                component : HomePage,
-                loader : {
+                path: "/",
+                component: HomePage,
+                loader: {
                     async search(pathParams, queryParams) {
                         let response = await fetch("/service/documents/search")
 
@@ -52,18 +51,18 @@ export const routes: Router.Route[] = [
                 }
             },
             {
-                path : "/documents",
-                children : [
+                path: "/documents",
+                children: [
                     {
-                        path : "/search",
-                        component : SearchPage,
-                        children : [
+                        path: "/search",
+                        component: SearchPage,
+                        children: [
                             {
-                                path : "/{id}",
-                                component : DocumentViewPage,
-                                loader : {
+                                path: "/{id}",
+                                component: DocumentViewPage,
+                                loader: {
                                     async form(pathParams, queryParams) {
-                                        let response = await fetch(`/service/documents/document/${pathParams.id}?rev=${queryParams["rev"] || -1}&viewRev=${queryParams["viewRev"] || false}`)
+                                        let response = await fetch(`/service/documents/document/${pathParams.id}`)
 
                                         process(response)
 
@@ -78,11 +77,17 @@ export const routes: Router.Route[] = [
                         ]
                     },
                     {
-                        path : "/document/{id}",
-                        component : DocumentFormPage,
-                        loader : {
+                        path: "/document/{id}",
+                        dynamic: (path, query) => {
+                            if (query["edit"]) {
+                                return DocumentFormPage
+                            } else {
+                                return DocumentViewPage
+                            }
+                        },
+                        loader: {
                             async form(pathParams, queryParams) {
-                                let response = await fetch(`/service/documents/document/${pathParams.id}`)
+                                let response = await fetch(`/service/documents/document/${pathParams.id}?edit=${queryParams["edit"]}`)
 
                                 process(response)
 
@@ -93,22 +98,59 @@ export const routes: Router.Route[] = [
                                 throw new Error(response.status.toString())
                             }
                         },
-                        children : [
+                        children: [
                             {
                                 path: "/revisions",
-                                component : RevisionsTablePage
+                                children: [
+                                    {
+                                        path: "/search",
+                                        component: RevisionsTablePage
+                                    },
+                                    {
+                                        path: "/revision/{rev}/view",
+                                        component: DocumentViewPage,
+                                        loader: {
+                                            async form(pathParams, queryParams) {
+                                                let response = await fetch(`/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/view`)
+
+                                                process(response)
+
+                                                if (response.ok) {
+                                                    return mapForm(await response.json(), true)
+                                                }
+
+                                                throw new Error(response.status.toString())
+                                            }
+                                        }
+                                    }, {
+                                        path: "/revision/{rev}/compare",
+                                        component: DocumentViewPage,
+                                        loader: {
+                                            async form(pathParams, queryParams) {
+                                                let response = await fetch(`/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/compare`)
+
+                                                process(response)
+
+                                                if (response.ok) {
+                                                    return mapForm(await response.json(), true)
+                                                }
+
+                                                throw new Error(response.status.toString())
+                                            }
+                                        }
+                                    }]
                             }
                         ]
                     }
                 ]
             },
             {
-                path : "/security",
-                children : [
+                path: "/security",
+                children: [
                     {
-                        path : "/login",
-                        component : LoginPage,
-                        loader : {
+                        path: "/login",
+                        component: LoginPage,
+                        loader: {
                             async login(pathParams, queryParams) {
                                 let response = await fetch("/service/security/login")
 
@@ -123,18 +165,18 @@ export const routes: Router.Route[] = [
                         }
                     },
                     {
-                        path : "/register",
-                        component : RegisterPage,
-                        loader : {
+                        path: "/register",
+                        component: RegisterPage,
+                        loader: {
                             async register(pathParams, queryParams) {
                                 let response = await fetch("/service/security/register")
 
                                 process(response)
 
                                 if (response.ok) {
-                                    let activeObject : WebAuthnLogin = mapForm(await response.json(), true);
+                                    let activeObject: WebAuthnLogin = mapForm(await response.json(), true);
 
-                                    const { browser, cpu, os, device } = UAParser(navigator.userAgent);
+                                    const {browser, cpu, os, device} = UAParser(navigator.userAgent);
                                     activeObject.displayName = `${browser.name} on ${os.name} ${os.version} ${device.type ? device.type.substring(0, 1).toUpperCase() + device.type.substring(1) : "Desktop"}`
 
 
@@ -146,10 +188,10 @@ export const routes: Router.Route[] = [
                         }
                     },
                     {
-                        path : "/confirm",
-                        component : ConfirmationPage,
-                        loader : {
-                            async form (pathParams, queryParams) {
+                        path: "/confirm",
+                        component: ConfirmationPage,
+                        loader: {
+                            async form(pathParams, queryParams) {
                                 let response = await fetch("/service/security/confirm")
 
                                 process(response)
@@ -163,9 +205,9 @@ export const routes: Router.Route[] = [
                         }
                     },
                     {
-                        path : "/logout",
-                        component : LogoutPage,
-                        loader : {
+                        path: "/logout",
+                        component: LogoutPage,
+                        loader: {
                             async credential(pathParams, queryParams) {
                                 let response = await fetch("/service/security/logout")
 
