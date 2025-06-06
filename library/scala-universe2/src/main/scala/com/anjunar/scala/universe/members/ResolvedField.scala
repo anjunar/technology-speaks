@@ -23,4 +23,5 @@ class ResolvedField(override val underlying: Field, owner : ResolvedClass) exten
   
   override lazy val annotations: Array[Annotation] = declaredAnnotations ++ hidden.flatMap(field => field.declaredAnnotations)
   
+  override def toString = s"ResolvedField($name, $fieldType)"
 }

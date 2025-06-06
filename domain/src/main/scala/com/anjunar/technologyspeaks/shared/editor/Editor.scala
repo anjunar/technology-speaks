@@ -32,5 +32,6 @@ class Editor extends AbstractEntity {
   @Descriptor(title = "Changes")
   @BeanProperty
   val changes: util.List[Change] = new util.ArrayList[Change]()
-
+  
+  override def toString = s"Editor($json)"
 }

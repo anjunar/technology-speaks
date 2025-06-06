@@ -32,5 +32,6 @@ class HashTag extends AbstractEntity {
   @annotations.Array(length = 768)
   @BeanProperty
   var embedding: Array[Float] = uninitialized
-
+  
+  override def toString = s"HashTag($value, $description)"
 }

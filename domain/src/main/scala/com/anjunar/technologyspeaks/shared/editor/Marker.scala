@@ -13,5 +13,6 @@ class Marker {
 
   @BeanProperty
   var offset: Int = uninitialized
-
+  
+  override def toString = s"Marker($column, $line, $offset)"
 }

@@ -21,4 +21,5 @@ class TextNode extends Node {
   
   override def hashCode(): Int = if value == null then 0 else value.hashCode
   
+  override def toString = s"TextNode($value, ${super.toString})"
 }

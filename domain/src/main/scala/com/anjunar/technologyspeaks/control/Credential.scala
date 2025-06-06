@@ -63,6 +63,7 @@ class Credential extends AbstractEntity with SecurityCredential with OwnerProvid
     oneTimeToken = new ByteArray(bytes).getBase64
   }
   
+  override def toString = s"Credential($displayName, $signCount, $transports)"
 }
 
 object Credential extends RepositoryContext[Credential](classOf[Credential]) {

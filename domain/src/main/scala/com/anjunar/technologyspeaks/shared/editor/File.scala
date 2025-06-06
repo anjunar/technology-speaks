@@ -31,4 +31,5 @@ class File extends AbstractEntity {
   @BeanProperty
   var data : Array[Byte] = uninitialized
   
+  override def toString = s"File(${`type`}, $subType, $name)"
 }

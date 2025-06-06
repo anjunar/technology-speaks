@@ -29,4 +29,5 @@ class ResolvedMethod(override val underlying : Method, owner : ResolvedClass) ex
   
   override lazy val annotations: Array[Annotation] = declaredAnnotations ++ overrides.flatMap(method => method.declaredAnnotations)
   
+  override def toString = s"ResolvedMethod($name, $returnType, ${parameters.mkString(", ")})"
 }

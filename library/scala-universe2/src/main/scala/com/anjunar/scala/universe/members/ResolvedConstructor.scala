@@ -12,5 +12,6 @@ class ResolvedConstructor(override val underlying : Constructor[?], owner : Reso
   override lazy val annotations: Array[Annotation] = underlying.getDeclaredAnnotations
   
   def newInstance(args : Any*) = underlying.newInstance(args*)
-  
+
+  override def toString = s"ResolvedConstructor(${parameters.mkString(", ")})"
 }

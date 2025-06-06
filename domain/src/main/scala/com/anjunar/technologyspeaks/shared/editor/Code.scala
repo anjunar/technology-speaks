@@ -24,4 +24,6 @@ class Code extends TextNode {
     val state = Seq(super.hashCode(), lang)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+  
+  override def toString = s"Code($lang, ${super.toString})"
 }

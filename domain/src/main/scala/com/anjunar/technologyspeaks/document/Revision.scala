@@ -25,5 +25,6 @@ class Revision {
   @Descriptor(title = "Editor")
   @BeanProperty
   var editor : Editor = uninitialized
-
+  
+  override def toString = s"Revision($revision, $title)"
 }

@@ -42,6 +42,6 @@ class Chunk extends AbstractEntity {
   @ManyToOne(optional = false)
   @BeanProperty
   var document: Document = uninitialized
-
-
+  
+  override def toString = s"Chunk($title, $content)"
 }

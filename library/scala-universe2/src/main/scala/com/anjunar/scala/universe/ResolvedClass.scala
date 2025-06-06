@@ -105,5 +105,5 @@ class ResolvedClass(val underlying : Type) extends Annotated {
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
 
 
-  override def toString = name
+  override def toString = s"ResolvedClass($name)"
 }

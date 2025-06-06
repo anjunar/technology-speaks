@@ -32,7 +32,8 @@ class EMail extends AbstractEntity {
   @BeanProperty
   @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, mappedBy = "email")  
   val credentials : util.Set[Credential] = new util.HashSet[Credential]()
-
+  
+  override def toString = s"EMail($value)"
 }
 
 object EMail extends RepositoryContext[EMail](classOf[EMail])

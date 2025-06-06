@@ -28,7 +28,8 @@ class Role extends AbstractEntity with SecurityRole {
   @BeanProperty
   @Descriptor(title = "Description")
   var description: String = uninitialized
-
+  
+  override def toString = s"Role($name, $description)"
 }
 
 object Role extends RepositoryContext[Role](classOf[Role])

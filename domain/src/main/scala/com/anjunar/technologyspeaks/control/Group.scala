@@ -37,7 +37,8 @@ class Group extends AbstractEntity with OwnerProvider {
   val users : util.Set[User] = new util.HashSet[User]()
 
   override def owner : SecurityUser = user
-
+  
+  override def toString = s"Group($name, $description)"
 }
 
 object Group extends RepositoryContext[Group](classOf[Group])

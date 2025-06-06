@@ -24,6 +24,7 @@ class I18n extends AbstractEntity {
   @BeanProperty
   val translations: util.Set[Translation] = new util.HashSet[Translation]()
   
+  override def toString = s"I18n($text)"
 } 
 
 object I18n extends RepositoryContext[I18n](classOf[I18n]) {

@@ -68,7 +68,8 @@ class User extends Identity with OwnerProvider with SecurityUser {
       address.point = point
     }
   }
-
+  
+  override def toString = s"User($nickName, $score)"
 }
 
 object User extends RepositoryContext[User](classOf[User]) {
@@ -88,7 +89,10 @@ object User extends RepositoryContext[User](classOf[User]) {
   }
 
   @Entity(name = "UserView")
-  class View extends EntityView {}
+  class View extends EntityView {
+    
+    override def toString = s"View()"
+  }
 
   object View extends RepositoryContext[View](classOf[View]) {
     def findByUser(user : User) : View = {

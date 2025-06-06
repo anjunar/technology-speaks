@@ -42,6 +42,8 @@ class ManagedProperty extends AbstractEntity with OwnerProvider {
   val users : util.Set[User] = new util.HashSet[User]()
 
   override def owner: SecurityUser = view.user
+  
+  override def toString = s"ManagedProperty($value, $visibleForAll)"
 }
 
 object ManagedProperty extends RepositoryContext[ManagedProperty](classOf[ManagedProperty]) {

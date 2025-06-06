@@ -4,6 +4,7 @@ import jakarta.persistence.{CascadeType, Entity, OneToMany}
 
 import java.util
 import scala.beans.BeanProperty
+import scala.jdk.CollectionConverters.*
 
 class ContainerNode extends Node {
 
@@ -23,5 +24,7 @@ class ContainerNode extends Node {
     val state = Seq(children)
     state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
   }
+
+  override def toString = s"${children.asScala.mkString(", ")}, ${super.toString}"
 
 }

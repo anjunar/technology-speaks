@@ -17,5 +17,6 @@ class GeoPoint {
   @BeanProperty
   @Descriptor(title = "Lat")
   var y : Double = uninitialized
-
+  
+  override def toString = s"GeoPoint($x, $y)"
 }

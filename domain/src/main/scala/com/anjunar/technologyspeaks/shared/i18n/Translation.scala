@@ -15,5 +15,6 @@ class Translation {
   @Descriptor(title = "Language", writeable = true, naming = true)
   @BeanProperty
   var locale : Locale = uninitialized
-
+  
+  override def toString = s"Translation($text, $locale)"
 }

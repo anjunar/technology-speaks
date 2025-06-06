@@ -43,4 +43,5 @@ class UserInfo extends AbstractEntity {
   @Descriptor(title = "Birthdate")
   var birthDate: LocalDate = uninitialized
   
+  override def toString = s"UserInfo($firstName, $lastName, $birthDate)"
 }

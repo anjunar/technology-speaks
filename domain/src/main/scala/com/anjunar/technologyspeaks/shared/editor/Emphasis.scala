@@ -2,4 +2,12 @@ package com.anjunar.technologyspeaks.shared.editor
 
 import jakarta.persistence.Entity
 
-class Emphasis extends ContainerNode
+import scala.jdk.CollectionConverters.*
+
+class Emphasis extends ContainerNode {
+
+  override def toString = s"Emphasis(${super.toString})"
+  
+}
+
+

@@ -35,4 +35,5 @@ abstract class Node {
   @BeanProperty
   var position : Position = uninitialized
   
+  override def toString = position.toString
 }

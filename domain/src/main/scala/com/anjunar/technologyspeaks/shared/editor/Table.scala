@@ -10,4 +10,5 @@ class Table extends ContainerNode {
   @BeanProperty
   var align : String = uninitialized
 
+  override def toString = s"Table($align, ${super.toString})"
 }

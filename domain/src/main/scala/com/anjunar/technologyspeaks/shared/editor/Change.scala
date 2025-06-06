@@ -16,7 +16,7 @@ import scala.collection.mutable.ListBuffer
 
 case class Change(
 
-  @Descriptor(title = "Action")                 
+  @Descriptor(title = "Action")
   @BeanProperty
   action : String,
 
@@ -77,5 +77,5 @@ object Change {
         List(Change("move", mov.getNode.getType.name, value = mov.getNode.getLabel, offset = mov.getNode.getParent.getPos))
     }.asJava
   }
-  
+
 }

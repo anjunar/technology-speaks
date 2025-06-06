@@ -64,7 +64,8 @@ class Document extends AbstractEntity with OwnerProvider {
   var language : Locale = uninitialized
 
   override def owner: SecurityUser = user
-
+  
+  override def toString = s"Document($title, $description, $language)"
 }
 
 object Document extends RepositoryContext[Document](classOf[Document]) {

@@ -41,6 +41,8 @@ class Address extends AbstractEntity {
   @Descriptor(title = "Lat and Lan")
   var point : GeoPoint = uninitialized
 
+
+  override def toString = s"Address($street, $number, $zipCode, $country)"
 }
 
 object Address extends RepositoryContext[Address](classOf[Address])

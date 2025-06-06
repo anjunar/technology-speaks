@@ -19,4 +19,6 @@ class ResolvedParameter(val underlying : Parameter, owner : ResolvedExecutable) 
     case method : ResolvedMethod => declaredAnnotations ++ method.overrides.flatMap(method => method.parameters(owner.parameters.indexOf(this)).declaredAnnotations)
     case _ => Array()
 
+
+  override def toString = s"ResolvedParameter($name, $parameterType)"
 }
