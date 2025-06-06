@@ -42,14 +42,6 @@ function SchemaTable(properties: SchemaTable.Attributes) {
         return [filters, headerChildren, consumers, footers]
     }, [children]);
 
-    function toArray(schema: ObjectDescriptor): any[] {
-        if (schema) {
-            return Object.entries((schema.properties.rows as CollectionDescriptor).items.properties || {})
-        } else {
-            return []
-        }
-    }
-
     const tableLoader = new (class extends SchemaTable.Loader {
         onLoad(query: any, callback: any) {
             loader.onLoad(query, (rows, size, loadedSchema) => {
@@ -162,7 +154,7 @@ function SchemaTable(properties: SchemaTable.Attributes) {
                 <Table.Head>
                     {
                         headers.map(element => (
-                            <Table.Head.Cell sortable={false}>{element}</Table.Head.Cell>
+                            <Table.Head.Cell property={element.props["property"]} sortable={sortable.indexOf(((schema?.properties.rows) as CollectionDescriptor)?.items.properties[element.props["property"]].type) > -1}>{element}</Table.Head.Cell>
                         ))
                     }
                 </Table.Head>
@@ -219,8 +211,8 @@ namespace SchemaTable {
     export interface Query {
         index: number
         limit: number
-        filter: any
-        sort: any
+        filter: {property : string, value : any}
+        sort: {property : string, value : "asc" | "desc" | "none" }[]
     }
 
     export interface Callback {

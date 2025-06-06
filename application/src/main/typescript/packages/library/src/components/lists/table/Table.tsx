@@ -178,8 +178,8 @@ function TableRenderer(properties: TableRenderer.Attributes) {
     }
 
     const onSearch = () => {
-        let queries = filterData.map(item => ({property: item.property, value: item.value}));
-        let sort = columns.map(column => ({property: column.property, value: column.sort}))
+        let queries = filterData.map(item => ({property: item.property, value: item.value})).filter(item => item.value) as any[];
+        let sort = columns.map(column => ({property: column.property, value: column.sort})).filter(column => column.value)
         load({index: index, limit: limit, filter: queries, sort: sort}, () => {})
     }
 

@@ -11,7 +11,19 @@ export function I18nTablePage(properties: I18nTablePage.Attributes) {
 
     const loader = new class extends SchemaTable.Loader {
         async onLoad(query: SchemaTable.Query, callback: SchemaTable.Callback) {
-            const response = await fetch(`/service/shared/i18ns?index=${query.index}&limit=${query.limit}`)
+            const urlBuilder = new URL("/service/shared/i18ns", window.location.origin)
+            let searchParams = urlBuilder.searchParams;
+
+            searchParams.set("index", query.index.toString())
+            searchParams.set("limit", query.limit.toString())
+
+            for (const sort of query.sort || []) {
+                if (sort.value !== "none") {
+                    searchParams.append("sort", `${sort.property}:${sort.value}`)
+                }
+            }
+
+            const response = await fetch(urlBuilder.toString(),)
             if (response.ok) {
                 const [rows, size, links, schema] = mapTable(await response.json())
                 callback(rows, size, schema)
@@ -37,10 +49,10 @@ export function I18nTablePage(properties: I18nTablePage.Attributes) {
                 </SchemaTable.Head>
                 <SchemaTable.Body>
                     <SchemaTable.Body.Cell>
-                        {({row, index}: { row: I18n, index: number }) => <div>{row.text}</div>}
+                        {({row, index}: { row: I18n, index: number }) => <div key={row.id}>{row.text}</div>}
                     </SchemaTable.Body.Cell>
                     <SchemaTable.Body.Cell>
-                        {({row, index}: { row: I18n, index: number }) => <div>{row.translations.map(translation => translation.locale + ":" + translation.text ).join("\n")}</div>}
+                        {({row, index}: { row: I18n, index: number }) => <div key={row.id}>{row.translations.map(translation => translation.locale + ":" + translation.text ).join("\n")}</div>}
                     </SchemaTable.Body.Cell>
                 </SchemaTable.Body>
             </SchemaTable>
