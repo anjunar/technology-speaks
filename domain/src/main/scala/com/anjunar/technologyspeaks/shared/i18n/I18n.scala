@@ -1,7 +1,8 @@
 package com.anjunar.technologyspeaks.shared.i18n
 
+import com.anjunar.scala.mapper.annotations.Descriptor
 import com.anjunar.technologyspeaks.jpa.{Pair, RepositoryContext}
-import com.anjunar.technologyspeaks.shared.{AbstractEntity}
+import com.anjunar.technologyspeaks.shared.AbstractEntity
 import jakarta.persistence.{Column, Entity}
 import org.hibernate.annotations.Type
 
@@ -13,9 +14,11 @@ import scala.compiletime.uninitialized
 @Entity
 class I18n extends AbstractEntity {
 
+  @Descriptor(title = "Text", writeable = true, naming = true)
   @BeanProperty
   var text: String = uninitialized
 
+  @Descriptor(title = "Translations", writeable = true)
   @Column(columnDefinition = "jsonb")
   @Type(classOf[TranslationType])
   @BeanProperty

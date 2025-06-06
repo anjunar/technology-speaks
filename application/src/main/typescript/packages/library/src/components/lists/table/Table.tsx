@@ -6,6 +6,7 @@ import {FormContext} from "../../inputs/form/Form";
 import {v4} from "uuid";
 import loader from "ts-loader";
 import Pageable from "../../shared/Pageable";
+import SchemaTable from "../../meta/table/SchemaTable";
 
 function TableRenderer(properties: TableRenderer.Attributes) {
 
@@ -33,7 +34,7 @@ function TableRenderer(properties: TableRenderer.Attributes) {
 
     let state = value
 
-    const [filters, headerChildren, consumers, footers] = useMemo(() => {
+    const [filterCells, headerCells, bodyCells, footerCells] = useMemo(() => {
         let filters: React.ReactElement[] = []
         let headerChildren: React.ReactElement[] = []
         let consumers: React.ReactElement[] = []
@@ -91,7 +92,7 @@ function TableRenderer(properties: TableRenderer.Attributes) {
     }
 
     function generateColumnData() {
-        return headerChildren.map((child: React.ReactElement, index) => {
+        return headerCells.map((child: React.ReactElement, index) => {
             return {
                 index: index,
                 // @ts-ignore
@@ -105,7 +106,7 @@ function TableRenderer(properties: TableRenderer.Attributes) {
     }
 
     function generateFilterData() {
-        return headerChildren.map((child, index) => {
+        return headerCells.map((child, index) => {
 
             return {
                 index: index,
@@ -124,10 +125,10 @@ function TableRenderer(properties: TableRenderer.Attributes) {
     useLayoutEffect(() => {
         setColumns(generateColumnData())
         setFilterData(generateFilterData())
-    }, [headerChildren.length])
+    }, [headerCells.length])
 
     function getBodyCell(row: any, index: number, rowIndex: number, property: string) {
-        let consumer = consumers[index]
+        let consumer = bodyCells[index]
         return (
             <Table.Body.CellProvider key={property} row={row} index={rowIndex}>
                 {consumer}
@@ -309,7 +310,7 @@ function TableRenderer(properties: TableRenderer.Attributes) {
             </tbody>
             <tfoot>
             <tr>
-                <td colSpan={columns.length - 1}>
+                <td colSpan={columns.length}>
                     {
                         (limit > -1) && (<div style={{display: "flex", alignItems: "center", height: "50px"}}>
                             <button onClick={skipPrevious} className="material-icons">
@@ -337,9 +338,9 @@ function TableRenderer(properties: TableRenderer.Attributes) {
                     }
                 </td>
                 {
-                    footers.length > 0 && (
+                    footerCells.length > 0 && (
                         <td style={{verticalAlign: "middle"}}>
-                            {footers}
+                            {footerCells}
                         </td>
                     )
                 }
@@ -362,7 +363,7 @@ namespace Table {
         dynamicWidth? : boolean
         loader: Pageable.Loader
         limit?: number
-        children: React.ReactElement[]
+        children: React.ReactNode
         value?: any[]
         onChange?: (value: any[]) => void
         selectable?: boolean
@@ -429,7 +430,7 @@ namespace Table {
         }
     }
 
-    export function Footer({children} : { children : React.ReactElement}) {
+    export function Footer({children} : { children : React.ReactNode}) {
         return (
             <div>
                 {children}
@@ -438,7 +439,7 @@ namespace Table {
     }
 
     export namespace Footer {
-        export function Cell({ children }  : { children : React.ReactElement}) {
+        export function Cell({ children }  : { children : React.ReactNode}) {
             return <div>{children}</div>
         }
     }

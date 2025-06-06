@@ -13,6 +13,11 @@ import DocumentSearchPage from "./pages/documents/search/DocumentSearchPage";
 import DocumentFormPage from "./pages/documents/document/DocumentFormPage";
 import DocumentViewPage from "./pages/documents/document/DocumentViewPage";
 import RevisionsTablePage from "./pages/documents/document/revisisions/RevisionsTablePage";
+import DocumentSearch from "./domain/document/DocumentSearch";
+import I18nTablePage from "./pages/shared/i18n/I18nTablePage";
+import I18nFormPage from "./pages/shared/i18n/I18nFormPage";
+import QueryParams = Router.QueryParams;
+import PathParams = Router.PathParams;
 
 export const routes: Router.Route[] = [
     {
@@ -63,7 +68,9 @@ export const routes: Router.Route[] = [
                                 process(response)
 
                                 if (response.ok) {
-                                    return mapForm(await response.json(), true)
+                                    let form = mapForm<DocumentSearch>(await response.json(), true);
+                                    form.text = decodeURIComponent(queryParams["text"])
+                                    return form
                                 }
 
                                 throw new Error(response.status.toString())
@@ -231,6 +238,38 @@ export const routes: Router.Route[] = [
                                 throw new Error(response.status.toString())
                             }
                         }
+                    }
+                ]
+            },
+            {
+                path : "/shared",
+                children : [
+                    {
+                        path: "/i18ns",
+                        children: [
+                            {
+                                path : "/search",
+                                component : I18nTablePage
+                            },
+                            {
+                                path : "/i18n/{id}",
+                                component : I18nFormPage,
+                                loader : {
+                                    async form(path : PathParams, query : QueryParams) {
+                                        let response = await fetch(`/service/shared/i18ns/i18n/${path["id"]}`)
+
+                                        process(response)
+
+                                        if (response.ok) {
+                                            return mapForm(await response.json(), true)
+                                        }
+
+                                        throw new Error(response.status.toString())
+                                    }
+                                }
+                            }
+                        ]
+
                     }
                 ]
             },

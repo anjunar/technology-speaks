@@ -1,6 +1,5 @@
-import React, {CSSProperties, useMemo, useState} from "react"
+import React, {createContext, CSSProperties, useContext, useMemo, useState} from "react"
 import Table from "../../lists/table/Table"
-import SchemaFactory from "./SchemaFactory";
 import Image from "../../inputs/upload/image/Image";
 import ObjectDescriptor from "../../../domain/descriptors/ObjectDescriptor";
 import NodeDescriptor from "../../../domain/descriptors/NodeDescriptor";
@@ -12,9 +11,36 @@ const sortable = ["String", "Double", "Float", "Integer", "Long", "LocalDate", "
 
 function SchemaTable(properties: SchemaTable.Attributes) {
 
-    const {loader, onRowClick, selectable, name, style} = properties
+    const {loader, onRowClick, selectable, name, style, children, limit} = properties
 
-    const [schema, setSchema] = useState(null)
+    const [schema, setSchema] = useState<ObjectDescriptor>(null)
+
+    const [filters, headers, bodies, footers] = useMemo(() => {
+        let filters: React.ReactElement[] = []
+        let headerChildren: React.ReactElement[] = []
+        let consumers: React.ReactElement[] = []
+        let footers: React.ReactElement[] = []
+
+        if (children instanceof Array) {
+            let filter = children.find(child => child.type === SchemaTable.Filter)
+            if (filter) {
+                filters = filter.props.children
+            }
+            const header = children.find(child => child.type === SchemaTable.Head)
+            if (header) {
+                headerChildren = header.props.children instanceof Array ? header.props.children : [header.props.children]
+            }
+
+            const body = children.find(child => child.type === SchemaTable.Body)
+            consumers = body.props.children instanceof Array ? body.props.children : [body.props.children]
+
+            const footer = children.find(child => child.type === SchemaTable.Footer)
+            if (footer) {
+                footers = footer.props.children instanceof Array ? footer.props.children : [footer.props.children]
+            }
+        }
+        return [filters, headerChildren, consumers, footers]
+    }, [children]);
 
     function toArray(schema: ObjectDescriptor): any[] {
         if (schema) {
@@ -69,7 +95,7 @@ function SchemaTable(properties: SchemaTable.Attributes) {
                     )
                     .join(" ")
             } else {
-                return ""
+                return "no Renderer"
             }
         }
 
@@ -117,40 +143,65 @@ function SchemaTable(properties: SchemaTable.Attributes) {
     }
 
     return (
-        <Table className={"table"} loader={tableLoader} onRowClick={onRowClick} selectable={selectable} name={name} style={style}>
-            <Table.Filter>
-                {toArray(schema).map(([key, value]: [key: string, value: NodeDescriptor & Validable]) => (
-                    <Table.Filter.Cell key={key}>
-                        {({data}) => <SchemaFactory schema={value} value={data.value}
-                                                    onChange={(event: any) => data.change(event.target.value)}/>}
-                    </Table.Filter.Cell>
-                ))}
-            </Table.Filter>
-            <Table.Head>
-                {toArray(schema).map(([key, value]) => (
-                        <Table.Head.Cell key={key} property={key} sortable={sortable.indexOf(value.type) > -1}>
-                        {value.title}
-                    </Table.Head.Cell>
-                ))}
-            </Table.Head>
-            <Table.Body>
-                {toArray(schema).map(([key, value]) => (
-                    <Table.Body.Cell key={key}>
-                        {({row, index}) => <div>{renderCellContent(row, key, value)}</div>}
-                    </Table.Body.Cell>
-                ))}
-            </Table.Body>
-        </Table>
+        <SchemaTable.SchemaContext.Provider value={schema}>
+            <Table className={"table"} loader={tableLoader} onRowClick={onRowClick} selectable={selectable} name={name} limit={limit}
+                   style={style}>
+                <Table.Filter>
+                    {
+                        filters.map(element => (
+                            <Table.Filter.Cell>
+                                {({row, index, data}: { row: any, index: number, data : any }) => (
+                                    <SchemaTable.Filter.FilterCellProvider row={row} index={index} data={data}>
+                                        {element}
+                                    </SchemaTable.Filter.FilterCellProvider>
+                                )}
+                            </Table.Filter.Cell>
+                        ))
+                    }
+                </Table.Filter>
+                <Table.Head>
+                    {
+                        headers.map(element => (
+                            <Table.Head.Cell sortable={false}>{element}</Table.Head.Cell>
+                        ))
+                    }
+                </Table.Head>
+                <Table.Body>
+                    {
+                        bodies.map(element => (
+                            <Table.Body.Cell>
+                                {({row, index}: { row: any, index: number }) => (
+                                    <SchemaTable.Body.CellProvider row={row} index={index}>
+                                        {element}
+                                    </SchemaTable.Body.CellProvider>
+                                )}
+                            </Table.Body.Cell>
+                        ))
+                    }
+                </Table.Body>
+                <Table.Footer>
+                    {
+                        footers.map(element => (
+                            <Table.Footer.Cell>{element}</Table.Footer.Cell>
+                        ))
+                    }
+                </Table.Footer>
+            </Table>
+        </SchemaTable.SchemaContext.Provider>
     )
 }
 
 namespace SchemaTable {
+    export const SchemaContext = React.createContext<ObjectDescriptor>(null);
+
     export interface Attributes {
         loader: Loader
-        onRowClick?: any
+        onRowClick?: (row : any) => void
         selectable?: boolean
         name?: string
-        style? : CSSProperties
+        limit? : number
+        style?: CSSProperties
+        children?: React.ReactNode
     }
 
     export abstract class Loader {
@@ -168,13 +219,94 @@ namespace SchemaTable {
     export interface Query {
         index: number
         limit: number
-        filter : any
-        sort : any
+        filter: any
+        sort: any
     }
 
     export interface Callback {
         (rows: any[], size: number, schema: ObjectDescriptor): void
     }
+
+    export function Filter({children}: { children: React.ReactElement[] }) {
+        return (
+            <Table.Filter>{children}</Table.Filter>
+        )
+    }
+
+    export namespace Filter {
+        export const FilterContext = createContext(null);
+
+        export const Cell = FilterContext.Consumer
+
+        export function FilterCellProvider({row, index, data, children}: {
+            row: any,
+            index: number,
+            data: any,
+            children: React.ReactElement
+        }) {
+            return (
+                <FilterContext.Provider value={{row, index, data}}>
+                    <div>{children}</div>
+                </FilterContext.Provider>
+            )
+        }
+    }
+
+    export function Head({children}: { children: React.ReactNode }) {
+        return (
+            <Table.Head>{children}</Table.Head>
+        )
+    }
+
+    export namespace Head {
+        export function Cell({property}: { property: string }) {
+
+            const context = useContext(SchemaTable.SchemaContext)
+
+            return (
+                <Table.Head.Cell sortable={false}>
+                    {((context.properties.rows) as CollectionDescriptor).items.properties[property].title}
+                </Table.Head.Cell>
+            )
+        }
+    }
+
+    export function Body({children}: { children: React.ReactNode }) {
+        return (
+            <Table.Body>{children}</Table.Body>
+        )
+    }
+
+    export namespace Body {
+        export const TableContext = createContext<{ row: any, index: number }>(null);
+
+        export const Cell = TableContext.Consumer
+
+        export function CellProvider({row, index, children}: {
+            row: any,
+            index: number,
+            children: React.ReactElement
+        }) {
+            return (
+                <TableContext.Provider value={{row, index}}>
+                    {children}
+                </TableContext.Provider>
+            )
+        }
+    }
+
+    export function Footer({children}: { children: React.ReactElement }) {
+        return (
+            <Table.Footer>{children}</Table.Footer>
+        )
+    }
+
+    export namespace Footer {
+        export function Cell({children}: { children: React.ReactElement }) {
+            return <div>{children}</div>
+        }
+    }
+
 }
 
 export default SchemaTable

@@ -1,7 +1,5 @@
 import scala.sys.process.*
 
-lazy val redeploy = taskKey[Unit]("Redeploys the WAR file into Wildfly")
-
 Global / semanticdbEnabled := true
 
 ThisBuild / scalaVersion := "3.7.0"
@@ -139,15 +137,5 @@ lazy val application = (project in file("application"))
       }
 
       jarOutput
-    },
-    Compile / redeploy := {
-      val base = baseDirectory.value
-      val cliPath = "D:\\Development\\wildfly-preview-36.0.0.Final\\bin\\jboss-cli.bat"
-
-      val command = Seq(cliPath, "--connect", "--command=/deployment=webapp.war:redeploy")
-      val exitCode = Process(command, base).!
-
-      if (exitCode != 0) sys.error(s"JBoss CLI failed with exit code $exitCode")
-    },
-    Compile / redeploy := (Compile / redeploy).dependsOn(Compile / packageBin).value
+    }
 )

@@ -1,6 +1,7 @@
 import "./DocumentSearchPage.css"
 import React, {useState} from "react"
 import {
+    Button,
     format,
     Link,
     LinkContainerObject,
@@ -34,11 +35,9 @@ function DocumentSearchPage(properties: SearchPageMobile.Attributes) {
             searchParams.set("index", query.index.toString())
             searchParams.set("limit", query.limit.toString())
 
-            if (queryParams["text"]) {
-                searchParams.set("text", queryParams["text"])
+            if (search.text) {
+                searchParams.set("text", search.text)
                 searchParams.set("sort", "score:asc")
-            } else {
-                searchParams.set("sort", "title:asc")
             }
 
             const response = await fetch(urlBuilder.toString())
@@ -51,6 +50,10 @@ function DocumentSearchPage(properties: SearchPageMobile.Attributes) {
                 process(response)
             }
         }
+    }
+
+    function onSubmit(name: string, form: any) {
+        loader.fire()
     }
 
     return (
@@ -93,8 +96,11 @@ function DocumentSearchPage(properties: SearchPageMobile.Attributes) {
                                     ))
                                 }
                             </div>
-                            <SchemaForm value={search} onSubmit={null}>
+                            <SchemaForm value={search} onSubmit={onSubmit}>
                                 <SchemaInput name={"text"}/>
+                                <div style={{display : "flex", justifyContent : "flex-end"}}>
+                                    <Button name={"search"}>Search</Button>
+                                </div>
                             </SchemaForm>
                         </div>
                     </div>

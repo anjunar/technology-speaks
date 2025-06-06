@@ -48,16 +48,12 @@ function App(properties: AppContent.Attributes) {
                     <div style={{display: "flex", gap: "5px", justifyContent: "flex-end", alignItems: "center"}}>
                         {
                             onLink(application.$links, "login", (link) => (
-                                <Link value={link.url}>
-                                    <span className="material-icons">login</span>
-                                </Link>
+                                <Link value={link.url} icon={"login"}/>
                             ))
                         }
                         {
                             onLink(application.$links, "register", (link) => (
-                                <Link value={link.url}>
-                                    <span className="material-icons">app_registration</span>
-                                </Link>
+                                <Link value={link.url} icon={"app_registration"}/>
                             ))
                         }
 
@@ -71,9 +67,7 @@ function App(properties: AppContent.Attributes) {
 
                         {
                             onLink(application.$links, "logout", (link) => (
-                                <Link value={link.url}>
-                                    <span className="material-icons">logout</span>
-                                </Link>
+                                <Link value={link.url} icon={"logout"}/>
                             ))
                         }
                     </div>
@@ -86,11 +80,8 @@ function App(properties: AppContent.Attributes) {
                             {
                                 onLink(application.$links, "login", (link) => (
                                     <li>
-                                        <Link value={link.url}>
-                                            <div style={{display: "flex", gap: "12px", alignItems: "center"}}>
-                                                <span className="material-icons">login</span>
-                                                <span>{link.title}</span>
-                                            </div>
+                                        <Link key={link.url} value={link.url} icon={"login"}>
+                                            {link.title}
                                         </Link>
                                     </li>
                                 ))
@@ -98,11 +89,8 @@ function App(properties: AppContent.Attributes) {
                             {
                                 onLink(application.$links, "register", (link) => (
                                     <li>
-                                        <Link value={link.url}>
-                                            <div style={{display: "flex", gap: "12px", alignItems: "center"}}>
-                                                <span className="material-icons">app_registration</span>
-                                                <div>{link.title}</div>
-                                            </div>
+                                        <Link key={link.url} value={link.url} icon={"app_registration"}>
+                                            {link.title}
                                         </Link>
                                     </li>
                                 ))
@@ -110,11 +98,17 @@ function App(properties: AppContent.Attributes) {
                             {
                                 onLink(application.$links, "documents", (link) => (
                                     <li>
-                                        <Link key={link.url} value={link.url}>
-                                            <div style={{display: "flex", gap: "12px", alignItems: "center"}}>
-                                                <span className="material-icons">menu_book</span>
-                                                <div>{link.title}</div>
-                                            </div>
+                                        <Link key={link.url} value={link.url} icon={"menu_book"}>
+                                            {link.title}
+                                        </Link>
+                                    </li>
+                                ))
+                            }
+                            {
+                                onLink(application.$links, "translations", (link) => (
+                                    <li>
+                                        <Link key={link.url} value={link.url} icon={"language_international"}>
+                                            {link.title}
                                         </Link>
                                     </li>
                                 ))

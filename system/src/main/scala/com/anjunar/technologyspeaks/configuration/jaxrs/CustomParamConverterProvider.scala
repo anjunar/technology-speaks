@@ -1,9 +1,13 @@
 package com.anjunar.technologyspeaks.configuration.jaxrs
 
+import com.anjunar.scala.mapper.annotations.SecuredOwner
 import com.anjunar.technologyspeaks.configuration.jaxrs.converter.*
-import com.anjunar.technologyspeaks.jaxrs.types.{DateDuration, DateTimeDuration, IdProvider, LongIntervall}
+import com.anjunar.technologyspeaks.jaxrs.types.{DateDuration, DateTimeDuration, IdProvider, LongIntervall, OwnerProvider}
+import com.anjunar.technologyspeaks.security.IdentityContext
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
+import jakarta.ws.rs.WebApplicationException
+import jakarta.ws.rs.core.Response.Status
 import jakarta.ws.rs.ext.{ParamConverter, ParamConverterProvider, Provider}
 
 import java.lang.annotation.Annotation
@@ -19,6 +23,9 @@ class CustomParamConverterProvider extends ParamConverterProvider {
 
   @Inject
   var entityManager: EntityManager = uninitialized
+
+  @Inject
+  var identityContext : IdentityContext = uninitialized
   
   override def getConverter[T](rawType: Class[T], genericType: Type, annotations: Array[Annotation]): ParamConverter[T] = {
 
@@ -26,7 +33,17 @@ class CustomParamConverterProvider extends ParamConverterProvider {
       return new ParamConverter[T] {
         override def fromString(value: String): T = {
           val id = UUID.fromString(value)
-          entityManager.find(rawType, id)
+          val entity = entityManager.find(rawType, id)
+
+          val securedOwner = annotations.find(annotation => annotation.annotationType() == classOf[SecuredOwner])
+          if (securedOwner.isDefined) {
+            val ownerProvider = entity.asInstanceOf[OwnerProvider]
+            if (ownerProvider.owner != identityContext.getPrincipal) {
+              throw new WebApplicationException(Status.FORBIDDEN)
+            }
+          }
+
+          entity
         }
 
         override def toString(value: T): String = {
@@ -34,20 +51,6 @@ class CustomParamConverterProvider extends ParamConverterProvider {
         }
       }
     }
-
-/*
-    if (classOf[util.List[?]].isAssignableFrom(rawType)) {
-      return new ParamConverter[util.List[T]] {
-        override def fromString(value: String): util.List[T] = {
-          null.asInstanceOf[util.List[T]]
-        }
-
-        override def toString(value: util.List[T]): String = {
-          ""
-        }
-      }.asInstanceOf[ParamConverter[T]]
-    }
-*/
 
     if (rawType == classOf[Locale]) return new LocalParamConverter().asInstanceOf[ParamConverter[T]]
     if (rawType == classOf[DateTimeDuration]) return new DateTimeDurationConverter().asInstanceOf[ParamConverter[T]]

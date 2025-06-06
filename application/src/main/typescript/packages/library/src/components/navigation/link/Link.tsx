@@ -7,7 +7,7 @@ import Router from "../router/Router";
 
 function Link(properties : Link.Attributes) {
 
-    const {data, value, children, className, style} = properties
+    const {data, value, children, className, style, icon} = properties
 
     const baseUrl = process.env.PUBLIC_URL
     let href = (baseUrl + value).replace("//", "/");
@@ -39,7 +39,14 @@ function Link(properties : Link.Attributes) {
             href={href}
             onClick={onClick}
             className={className + (activeState ? " active" : "")}>
-            {children}
+            <div style={{display: "flex", gap: "12px", alignItems: "center"}}>
+                {
+                    icon && <span className="material-icons">{icon}</span>
+                }
+                {
+                    children && <span>{children}</span>
+                }
+            </div>
         </a>
     )
 }
@@ -49,7 +56,8 @@ namespace Link {
     export interface Attributes {
         data?: any
         value: string
-        children: ReactNode
+        icon? : string
+        children?: ReactNode
         style? : CSSProperties
         className? : string
     }

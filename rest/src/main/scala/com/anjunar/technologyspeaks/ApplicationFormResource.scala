@@ -4,10 +4,11 @@ import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
 import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.control.*
-import com.anjunar.technologyspeaks.document.{DocumentTableResource, DocumentSearchSchema}
+import com.anjunar.technologyspeaks.document.{DocumentSearchSchema, DocumentTableResource}
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.security.*
+import com.anjunar.technologyspeaks.shared.i18n.I18nTableResource
 import com.anjunar.technologyspeaks.timeline.PostTableResource
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.core.{Context, SecurityContext}
@@ -80,6 +81,11 @@ class ApplicationFormResource extends SchemaBuilderContext {
           linkTo(methodOn(classOf[DocumentTableResource]).search(null))
             .withRel("documents")
             .build(link.addLink)
+
+          linkTo(methodOn(classOf[I18nTableResource]).search(null))
+            .withRel("translations")
+            .build(link.addLink)
+
 
         } else {
           linkTo(methodOn(classOf[ConfirmationFormResource]).create)

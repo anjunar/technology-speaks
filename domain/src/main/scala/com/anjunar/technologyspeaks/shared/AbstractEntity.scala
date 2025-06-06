@@ -16,7 +16,7 @@ abstract class AbstractEntity extends EntityContext with IdProvider {
   @Id
   @Column(name = "id", unique = true, nullable = false)
   @BeanProperty
-  @Descriptor(title = "Id", id = true)
+  @Descriptor(title = "Id", id = true, hidden = true)
   val id: UUID = UUID.randomUUID()
 
   @Version

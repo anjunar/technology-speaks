@@ -2,10 +2,10 @@ import "./DocumentFormPage.css"
 import React, {useEffect, useRef, useState} from "react"
 import Document from "../../../domain/document/Document";
 import {
-    Button,
+    Button, FormModel,
     JSONSerializer,
     MarkDownEditor,
-    MarkDownView,
+    MarkDownView, Router,
     SchemaForm,
     SchemaInput,
     useForm, Window
@@ -13,6 +13,7 @@ import {
 import {process} from "../../../App";
 import {v4} from "uuid";
 import {createPortal} from "react-dom";
+import navigate = Router.navigate;
 
 function DocumentFormPage(properties: DocumentFormPage.Attributes) {
 
@@ -28,7 +29,7 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
 
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    async function onSubmit(name: string, form: any) {
+    async function onSubmit(name: string, form: FormModel) {
         let link = domain.$links[name];
 
         let sessionId = v4()
@@ -45,9 +46,14 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
         })
 
         if (response.ok) {
-
+            navigate("/documents/search")
         } else {
-            process(response)
+            if (response.status === 403) {
+                process(response)
+            } else {
+                let errors = await response.json()
+                form.setErrors(errors)
+            }
         }
     }
 
@@ -99,7 +105,7 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
                             Server
                         </Window.Header>
                         <Window.Content>
-                            <div ref={scrollRef} style={{overflowY : "auto", padding : "20px", height : "calc(50vh - 48px)"}}>
+                            <div ref={scrollRef} style={{overflowY : "auto", padding : "20px", height : "calc(50vh - 90px)"}}>
                                 <p>
                                     {buffer}
                                 </p>

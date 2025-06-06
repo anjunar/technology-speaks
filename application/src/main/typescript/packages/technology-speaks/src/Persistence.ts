@@ -25,6 +25,9 @@ import ChunkSearch from "./domain/document/ChunkSearch";
 import RevisionSearch from "./domain/document/RevisionSearch";
 import HashTag from "./domain/shared/HashTag";
 import Revision from "./domain/document/Revision";
+import I18n from "./domain/shared/i18n/I18n";
+import I18nSearch from "./domain/shared/i18n/I18nSearch";
+import Translation from "./domain/shared/i18n/Translation";
 
 export function init() {
     registerEntity(Application)
@@ -57,5 +60,9 @@ export function init() {
     registerEntity(ChunkSearch)
     registerEntity(RevisionSearch)
     registerEntity(Revision)
+
+    registerEntity(I18n)
+    registerEntity(I18nSearch)
+    registerEntity(Translation)
 }
 
