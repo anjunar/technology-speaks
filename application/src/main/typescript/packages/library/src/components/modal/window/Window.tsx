@@ -1,5 +1,5 @@
 import "./Window.css"
-import React, {CSSProperties, useContext, useEffect, useRef} from "react"
+import React, {CSSProperties, useContext, useEffect, useLayoutEffect, useRef} from "react"
 import {SystemContext, WindowRef} from "../../../System";
 
 function Window(properties: Window.Attributes) {
@@ -320,7 +320,7 @@ function Window(properties: Window.Attributes) {
         footerTemplate = <footer>{footer}</footer>
     }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
 
         const windowRef = new WindowRef(taskName)
 

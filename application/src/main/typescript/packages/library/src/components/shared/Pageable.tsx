@@ -1,4 +1,4 @@
-import React, {MouseEventHandler, useEffect, useState} from "react"
+import React, {MouseEventHandler, useEffect, useLayoutEffect, useState} from "react"
 
 function withPageable(Component : any, parameters : withPageable.Attributes)  {
 
@@ -55,7 +55,7 @@ function withPageable(Component : any, parameters : withPageable.Attributes)  {
             throw new Error("Loader is missing")
         }
 
-        useEffect(() => {
+        useLayoutEffect(() => {
             if (autoload) {
                 load({index : index, limit : limit}, () => {setLoading(false)})
             }

@@ -1,5 +1,5 @@
 import "./SubForm.css"
-import React, {CSSProperties, useContext, useEffect, useMemo} from "react"
+import React, {CSSProperties, useContext, useLayoutEffect, useMemo} from "react"
 import {FormContext} from "./Form"
 import {ArrayModel, FormModel} from "../../shared/Model";
 
@@ -14,7 +14,7 @@ function SubForm(properties : SubForm.Attributes) {
         return new FormModel(name, subValue instanceof Array ? subValue[index] : subValue)
     }, [])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
 
         if (context instanceof ArrayModel) {
             context.registerData(form)

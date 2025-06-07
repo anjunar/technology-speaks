@@ -1,5 +1,5 @@
 import "./LazySelect.css"
-import React, {createContext, CSSProperties, useDeferredValue, useEffect, useRef, useState} from "react"
+import React, {createContext, CSSProperties, useDeferredValue, useEffect, useLayoutEffect, useRef, useState} from "react"
 import {Max, Min, Validator} from "../../../shared/Model"
 import withPageable from "../../../shared/Pageable"
 import {useInput} from "../../../../hooks/UseInputHook";
@@ -56,7 +56,7 @@ function LazySelectRenderer(properties: LazySelectRenderer.Attributes) {
 
     const searchDeferred = useDeferredValue(search);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (searchDeferred.length > 0) {
             load({index, limit, name : searchDeferred}, () => {
                 setOpen(true)
@@ -147,7 +147,7 @@ function LazySelectRenderer(properties: LazySelectRenderer.Attributes) {
         */
     }, [open])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
 
         if (! state && multiSelect) {
             model.oldValue = JSON.stringify([])
@@ -197,7 +197,7 @@ function LazySelectRenderer(properties: LazySelectRenderer.Attributes) {
 
     }, [])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (onModel) {
             onModel(model)
         }

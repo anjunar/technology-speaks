@@ -1,5 +1,5 @@
 import "./Select.css"
-import React, {useCallback, useEffect, useRef} from "react"
+import React, {useCallback, useLayoutEffect, useRef} from "react"
 import {Model, Required, Validator} from "../../shared/Model"
 import {useInput} from "../../../hooks/UseInputHook";
 
@@ -39,7 +39,7 @@ function Select(properties: Select.Attributes) {
 
     }, [])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         let selectElement = selectRef.current
         selectElement.value = state
 
@@ -66,7 +66,7 @@ function Select(properties: Select.Attributes) {
 
     }, [])
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (onModel) {
             onModel(model)
         }

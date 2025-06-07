@@ -92,7 +92,7 @@ function System(properties : System.Attributes) {
 
         window.fetch = new Proxy(window.fetch, {
             apply(target: (input: (RequestInfo | URL), init?: RequestInit) => Promise<Response>, thisArg: any, argArray: any[]): any {
-                setLoading([...loading, argArray])
+                setLoading(prev => [...prev, argArray])
 
                 let init = argArray[1] || {}
                 // argArray[1] = Object.assign(init, {signal: AbortSignal.timeout(12000)})

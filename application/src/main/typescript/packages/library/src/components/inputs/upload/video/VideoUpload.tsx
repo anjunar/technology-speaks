@@ -1,5 +1,5 @@
 import "./VideoUpload.css"
-import React, {Fragment, useContext, useEffect, useMemo, useRef, useState} from "react"
+import React, {Fragment, useContext, useLayoutEffect, useMemo, useRef, useState} from "react"
 import {FormModel, Model} from "../../../shared/Model"
 import {FormContext} from "../../form/Form"
 
@@ -80,7 +80,7 @@ function VideoUpload(properties: VideoUpload.Attributes) {
         }
     }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (context) {
             context.registerInput(model)
         }

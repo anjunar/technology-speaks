@@ -1,5 +1,5 @@
 import "./ImageUpload.css"
-import React, {CSSProperties, useDeferredValue, useEffect, useMemo, useRef, useState} from "react"
+import React, {CSSProperties, useDeferredValue, useLayoutEffect, useMemo, useRef, useState} from "react"
 import Caption from "./caption/Caption"
 import Media from "./Media";
 import Thumbnail from "./Thumbnail";
@@ -162,7 +162,7 @@ function ImageUpload(properties: ImageUpload.Attributes) {
         }
     }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         doCropping()
     }, [positionDeferred])
 

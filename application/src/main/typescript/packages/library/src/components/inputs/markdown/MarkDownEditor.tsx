@@ -1,5 +1,5 @@
 import "./MarkDownEditor.css"
-import React, {CSSProperties, RefObject, useEffect, useMemo, useRef, useState} from "react"
+import React, {CSSProperties, RefObject, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react"
 import Toolbar from "./ui/Toolbar";
 import Footer from "./ui/Footer";
 import {encodeBase64, findNodesByRange, reMarkFactoryForHTML, reMarkFactoryForMarkDown} from "./parser/ReMarkFactory";
@@ -103,7 +103,7 @@ function MarkDownEditor(properties: MarkDownEditor.Attributes) {
         }
     }, []);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (onModel) {
             onModel(model)
         }

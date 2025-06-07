@@ -1,5 +1,5 @@
 import "./Form.css"
-import React, {createContext, CSSProperties, useCallback, useEffect, useMemo} from "react"
+import React, {createContext, CSSProperties, useCallback, useLayoutEffect, useMemo} from "react"
 import {AsyncValidator, Error, FormModel, Validator} from "../../shared/Model";
 import {debounce} from "../../shared/Utils";
 
@@ -49,7 +49,7 @@ function Form(properties: Form.Attributes) {
         buttons.delete(button)
     }, []);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
 
         let callbacks = debounce((validate: boolean) => {
             if (validate) {

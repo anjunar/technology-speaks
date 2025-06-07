@@ -1,4 +1,4 @@
-import React, {useEffect} from "react"
+import React, {useLayoutEffect} from "react"
 import Table from "./Table"
 import Pageable from "../../shared/Pageable";
 import Input from "../../inputs/input/Input";
@@ -43,7 +43,7 @@ function Configuration(properties : Configuration.Attributes) {
         setColumns(newColumns)
     }
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         loader.fire()
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [columns])
