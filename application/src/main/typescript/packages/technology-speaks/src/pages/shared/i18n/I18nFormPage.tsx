@@ -13,7 +13,7 @@ import {
 import SubForm from "react-ui-simplicity/src/components/inputs/form/SubForm";
 import Translation from "../../../domain/shared/i18n/Translation";
 import {v4} from "uuid";
-import {process} from "../../../App";
+import {process} from "../../../Root";
 import navigate = Router.navigate;
 
 export function I18NFormPage(properties: I18NFormPage.Attributes) {

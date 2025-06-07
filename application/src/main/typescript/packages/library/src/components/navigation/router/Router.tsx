@@ -17,15 +17,13 @@ function Router(properties: Router.Attributes) {
 
     const isMobile = useIsMobile();
 
-    const systemContextHolder = useContext(SystemContext);
-
-    const {routes, windows}: { routes: Route[], windows : [WindowRef[], Dispatch<SetStateAction<WindowRef[]>>] } = systemContextHolder
+    const {path, search, routes, windows, darkMode} = useContext(SystemContext);
 
     const [childRoutes, setChildRoutes] = useState([])
 
     const scrollArea = useRef<HTMLDivElement>(null);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
 
         function flattenRoutes(routes: Route[], parentPath: string = ''): Router.RouteWithPath[] {
             return routes.reduce((previous: Router.RouteWithPath[], current: Route) => {
@@ -48,7 +46,7 @@ function Router(properties: Router.Attributes) {
         ));
 
         const resolveQueryParameters = (): QueryParams => {
-            let segments = window.location.search
+            let segments = search
                 .slice(1)
                 .split("&")
                 .filter(str => str.length > 0)
@@ -98,8 +96,7 @@ function Router(properties: Router.Attributes) {
 
             const baseUrl = process.env.PUBLIC_URL
 
-            const pathname = window.location.pathname.replace(baseUrl, "/").replace("//", "/");
-            const search = window.location.search;
+            const pathname = path.replace(baseUrl, "/").replace("//", "/");
 
             const option = regexRoutes.find(([regex, route]) => regex.test(pathname));
 
@@ -118,7 +115,7 @@ function Router(properties: Router.Attributes) {
                     oldSearch = search
 
                     const queryParams = new Map<string, string>();
-                    const querySegments = window.location.search.split('&').slice(1);
+                    const querySegments = search.split('&').slice(1);
                     querySegments.forEach(segment => {
                         const [key, value] = segment.split('=');
                         queryParams.set(key, value);
@@ -205,20 +202,7 @@ function Router(properties: Router.Attributes) {
 
         setChildRoutes(loadComponent())
 
-        const handlePopstate = (event : PopStateEvent) => {
-            setChildRoutes(loadComponent(event.state))
-        }
-
-        scrollArea.current.addEventListener("scroll", () => {
-            scrollAreaCache.set(window.location.href, scrollArea.current.scrollTop)
-        })
-
-        window.addEventListener("popstate", handlePopstate)
-
-        return () => {
-            window.removeEventListener("popstate", handlePopstate)
-        }
-    }, [routes])
+    }, [path, search])
 
     useEffect(() => {
         let scrollTop = scrollAreaCache.get(window.location.href);
@@ -227,8 +211,20 @@ function Router(properties: Router.Attributes) {
         }
     }, [state]);
 
+    useEffect(() => {
+        let listener = () => {
+            scrollAreaCache.set(window.location.href, scrollArea.current.scrollTop)
+        };
+
+        scrollArea.current.addEventListener("scroll", listener)
+
+        return () => {
+            scrollArea.current?.removeEventListener("scroll", listener)
+        }
+    }, []);
+
     function getContextHolder() {
-        return new SystemContextHolder(childRoutes, windows, systemContextHolder.darkMode);
+        return new SystemContextHolder(path, search, childRoutes, windows, darkMode);
     }
 
     return (

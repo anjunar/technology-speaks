@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowImportingTsExtensions" : true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "target": "ES6",
@@ -18,5 +19,5 @@
     "sourceMap": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src"]
+  "include": ["src", "server.ts"]
 }

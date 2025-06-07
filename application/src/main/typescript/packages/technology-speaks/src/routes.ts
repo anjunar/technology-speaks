@@ -1,5 +1,5 @@
 import {mapForm, mapTable, Router} from "react-ui-simplicity";
-import App, {process} from "./App";
+import Root, {process} from "./Root";
 import FormPage from "./pages/navigator/FormPage";
 import TablePage from "./pages/navigator/TablePage";
 import HomePage from "./pages/home/HomePage";
@@ -23,7 +23,7 @@ export const routes: Router.Route[] = [
     {
         path: "/",
         subRouter: true,
-        component: App,
+        component: Root,
         loader: {
             async application(pathParams, queryParams) {
                 let response = await fetch("/service")

@@ -29,13 +29,23 @@ export class WindowRef {
 
 export class SystemContextHolder {
 
+    path : string
+
+    search : string
+
     routes: Router.Route[]
 
     windows: [WindowRef[], Dispatch<SetStateAction<WindowRef[]>>]
 
     darkMode : boolean
 
-    constructor(routes: Router.Route[], windows: [WindowRef[], Dispatch<SetStateAction<WindowRef[]>>], darkMode : boolean) {
+    constructor(path : string = "",
+                search : string = "",
+                routes: Router.Route[] = [],
+                windows: [WindowRef[], Dispatch<SetStateAction<WindowRef[]>>] = null,
+                darkMode : boolean = false) {
+        this.path = path
+        this.search = search
         this.routes = routes
         this.windows = windows
         this.darkMode = darkMode
@@ -43,11 +53,11 @@ export class SystemContextHolder {
 
 }
 
-export const SystemContext = createContext(new SystemContextHolder([], null, false))
+export const SystemContext = createContext(new SystemContextHolder())
 
 function System(properties : System.Attributes) {
 
-    const {routes} = properties
+    const {path, search, routes} = properties
 
     const [loading, setLoading] = useState([])
 
@@ -124,7 +134,7 @@ function System(properties : System.Attributes) {
 
     return (
         <div className={"system"}>
-            <SystemContext.Provider value={new SystemContextHolder(routes, [windows, setWindows], darkMode)}>
+            <SystemContext.Provider value={new SystemContextHolder(path, search, routes, [windows, setWindows], darkMode)}>
                 <div style={{position: "absolute", zIndex: 9999, top: 0, left: 0, height: "4px", width: "100%"}}>
                     {
                         loading.length > 0 && <Progress/>
@@ -156,6 +166,8 @@ function System(properties : System.Attributes) {
 namespace System {
     export interface Attributes {
 
+        search : string
+        path : string
         routes : Router.Route[]
 
     }

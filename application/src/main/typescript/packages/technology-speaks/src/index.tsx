@@ -1,15 +1,10 @@
-import './index.css';
-import React, {StrictMode} from 'react';
-import ReactDOM from 'react-dom/client';
-import {System} from "react-ui-simplicity";
-import {routes} from "./routes";
-import {init} from "./Persistence"
+import React from 'react';
+import { hydrateRoot } from 'react-dom/client';
+import { App } from './App';
 
-init()
+const { path, search } = (window as any).__INITIAL_DATA__ || {
+    path: window.location.pathname,
+    search: window.location.search,
+};
 
-const root = ReactDOM.createRoot(document.getElementById('root'))
-
-root.render(
-    <System routes={routes}/>
-);
-
+hydrateRoot(document.getElementById('root')!, <App initialPath={path} initialSearch={search} />);
