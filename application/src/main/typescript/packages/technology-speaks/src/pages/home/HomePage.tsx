@@ -3,7 +3,7 @@ import React from "react"
 import DocumentSearch from "../../domain/document/DocumentSearch";
 import {AutoSuggest, Form, mapTable, Router, useForm} from "react-ui-simplicity";
 import HashTag from "../../domain/shared/HashTag";
-import {process} from "../../Root"
+import {process} from "../Root"
 import navigate = Router.navigate;
 
 function HomePage(properties: HomePage.Attributes) {

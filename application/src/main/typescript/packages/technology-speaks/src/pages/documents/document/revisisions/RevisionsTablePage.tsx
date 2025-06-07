@@ -2,7 +2,7 @@ import React from 'react';
 import {Link, mapTable, Router, Table} from "react-ui-simplicity";
 import Revision from "../../../../domain/document/Revision";
 import SchemaTable from "react-ui-simplicity/src/components/meta/table/SchemaTable";
-import {process} from "../../../../Root";
+import {process} from "../../../Root";
 import navigate = Router.navigate;
 import onLink = Link.onLink;
 

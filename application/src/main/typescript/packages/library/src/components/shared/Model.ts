@@ -78,24 +78,24 @@ function cloneDeep(object : any) : any {
 
 export class Model {
 
-    readonly id = v4()
+    id = v4()
 
-    readonly name: string
-    readonly valueHolder : any
-    readonly type : string
+    name: string
+    valueHolder : any
+    type : string
 
-    readonly errors: Error[] = []
+    errors: Error[] = []
 
-    readonly callbacks: ((validate: boolean) => void)[] = []
+    callbacks: ((validate: boolean) => void)[] = []
 
-    readonly validators: Validator[] = []
-    readonly asyncValidators: AsyncValidator[] = []
+    validators: Validator[] = []
+    asyncValidators: AsyncValidator[] = []
 
     oldValue : string | Node
 
     asyncValidate: () => void
 
-    readonly parentCallback = (validate: boolean) => {
+    parentCallback = (validate: boolean) => {
         for (const callback of this.callbacks) {
             callback(validate)
         }
@@ -243,7 +243,7 @@ export class Model {
 
 export class ArrayModel extends Model {
 
-    readonly data: FormModel[] = []
+    data: FormModel[] = []
 
     constructor(name: string, value: string) {
         super(name, value, "array");
@@ -266,10 +266,10 @@ export class ArrayModel extends Model {
 
 export class FormModel extends Model {
 
-    readonly children: (FormModel | ArrayModel)[] = []
-    readonly inputs: Model[] = []
-    readonly registerButtons : ((button : HTMLButtonElement) => void)[] = []
-    readonly removeButtons : ((button : HTMLButtonElement) => void)[] = []
+    children: (FormModel | ArrayModel)[] = []
+    inputs: Model[] = []
+    registerButtons : ((button : HTMLButtonElement) => void)[] = []
+    removeButtons : ((button : HTMLButtonElement) => void)[] = []
 
     constructor(name: string = "default", value: any) {
         super(name, {[name] : value}, "form");

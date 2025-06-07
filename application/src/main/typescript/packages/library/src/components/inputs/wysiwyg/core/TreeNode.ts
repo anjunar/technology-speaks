@@ -84,7 +84,7 @@ export abstract class AbstractNode extends AbstractEntity {
 @MappedSuperclass("abstractContainerNode")
 export abstract class AbstractContainerNode<C extends AbstractNode> extends AbstractNode {
 
-    readonly abstract children: C[]
+    abstract children: C[]
 
     @Basic()
     justify: string
@@ -119,7 +119,7 @@ export class RootNode extends AbstractContainerNode<AbstractNode> {
     $type = "RootNode"
 
     @Basic()
-    readonly children: AbstractNode[];
+    children: AbstractNode[];
 
     constructor(children: AbstractNode[] = []) {
         super(children);

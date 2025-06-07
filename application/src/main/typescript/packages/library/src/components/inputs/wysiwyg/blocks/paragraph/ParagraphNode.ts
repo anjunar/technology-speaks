@@ -8,7 +8,7 @@ export class ParagraphNode extends AbstractContainerNode<TextNode> {
     $type = "ParagraphNode"
 
     @Basic()
-    readonly children: TextNode[];
+    children: TextNode[];
 
     constructor(children: TextNode[] = []) {
         super(children);

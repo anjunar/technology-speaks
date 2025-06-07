@@ -8,19 +8,9 @@ import Progress from "./components/indicators/progress/Progress";
 
 init()
 
-declare global {
-    interface String {
-        stripMargin(): string;
-    }
-}
-
-String.prototype.stripMargin = function (): string {
-    return this.replaceAll(/.*\|/g, "")
-};
-
 export class WindowRef {
 
-    readonly name: string
+    name: string
 
     constructor(name: string) {
         this.name = name;

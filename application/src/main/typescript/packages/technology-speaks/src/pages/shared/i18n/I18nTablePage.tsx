@@ -11,7 +11,7 @@ import {
     SchemaTable, TableObject,
     useForm
 } from "react-ui-simplicity";
-import {process} from "../../../Root";
+import {process} from "../../Root";
 import I18n from "../../../domain/shared/i18n/I18n";
 import navigate = Router.navigate;
 import onLink = Link.onLink;

@@ -13,7 +13,7 @@ export class CodeNode extends AbstractContainerNode<TokenLineNode> {
     @Basic()
     text: string = ""
 
-    readonly children: TokenLineNode[]
+    children: TokenLineNode[]
 
     constructor(text: string) {
         super([]);

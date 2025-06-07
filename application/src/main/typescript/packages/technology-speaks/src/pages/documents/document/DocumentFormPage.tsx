@@ -13,7 +13,7 @@ import {
     useForm,
     Window
 } from "react-ui-simplicity";
-import {process} from "../../../Root";
+import {process} from "../../Root";
 import {createPortal} from "react-dom";
 import navigate = Router.navigate;
 

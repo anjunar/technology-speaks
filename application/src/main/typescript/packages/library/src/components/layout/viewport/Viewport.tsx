@@ -17,7 +17,7 @@ function Viewport(properties: Viewport.Attributes) {
 
 export class Service {
 
-    readonly viewPort: React.MutableRefObject<HTMLDivElement>
+    viewPort: React.MutableRefObject<HTMLDivElement>
 
     constructor(viewPort: React.MutableRefObject<HTMLDivElement>) {
         this.viewPort = viewPort

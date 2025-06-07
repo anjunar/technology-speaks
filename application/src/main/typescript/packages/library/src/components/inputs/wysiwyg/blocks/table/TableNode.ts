@@ -8,7 +8,7 @@ export class TableCellNode extends AbstractContainerNode<AbstractNode> {
     $type = "TableCellNode"
 
     @Basic()
-    readonly children: AbstractNode[];
+    children: AbstractNode[];
 
     constructor(children: AbstractNode[] = []) {
         super(children);
@@ -21,7 +21,7 @@ export class TableRowNode extends AbstractContainerNode<TableCellNode> {
     $type = "TableRowNode"
 
     @Basic()
-    readonly children: TableCellNode[];
+    children: TableCellNode[];
 
     constructor(children: TableCellNode[] = []) {
         super(children);
@@ -40,7 +40,7 @@ export class TableNode extends AbstractContainerNode<TableRowNode> {
     cols : number = 2
 
     @Basic()
-    readonly children: TableRowNode[];
+    children: TableRowNode[];
 
     constructor(children: TableRowNode[] = []) {
         super(children);

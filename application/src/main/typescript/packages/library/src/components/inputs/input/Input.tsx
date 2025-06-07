@@ -1,5 +1,5 @@
 import "./Input.css"
-import React, {forwardRef, useCallback, useImperativeHandle, useLayoutEffect, useRef} from "react"
+import React, {forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState} from "react"
 import {AsyncValidator, Email, Max, MaxLength, Min, MinLength, Model, Pattern, Required, Validator} from "../../shared/Model"
 import {Duration, LocalDate, LocalDateTime, LocalTime, Temporal, TemporalAmount} from "@js-joda/core";
 import {format} from "../../shared/DateTimeUtils";
@@ -36,6 +36,24 @@ export const Input = forwardRef<{ selectionStart: number }, Input.Attributes>((p
     } = properties
 
     let [model, state, setState] = useInput(name, value, standalone, type);
+
+    const [hasFocus, setHasFocus] = useState(false);
+
+    useEffect(() => {
+        const checkFocus = () => {
+            setHasFocus(document.activeElement === input.current);
+        };
+
+        checkFocus();
+
+        window.addEventListener('focus', checkFocus, true);
+        window.addEventListener('blur', checkFocus, true);
+
+        return () => {
+            window.removeEventListener('focus', checkFocus, true);
+            window.removeEventListener('blur', checkFocus, true);
+        };
+    }, []);
 
     const input = useRef<HTMLInputElement>(null);
 
@@ -227,7 +245,7 @@ export const Input = forwardRef<{ selectionStart: number }, Input.Attributes>((p
         <input
             autoComplete={autoComplete}
             checked={typeof state === "boolean" ? state : false}
-            className={`input${typeof state === "boolean" ? state ? " checked" : " unchecked" : ""}${model.dirty ? " dirty" : " pristine"}${model.valid ? " valid" : " error"}${document.activeElement === input.current ? " focus" : " blur"}`}
+            className={`input${typeof state === "boolean" ? state ? " checked" : " unchecked" : ""}${model.dirty ? " dirty" : " pristine"}${model.valid ? " valid" : " error"}${true ? " focus" : " blur"}`}
             disabled={disabled}
             name={name}
             onBlur={onBlur}

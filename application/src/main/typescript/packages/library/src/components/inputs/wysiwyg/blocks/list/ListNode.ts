@@ -8,7 +8,7 @@ export class ListNode extends AbstractContainerNode<ItemNode> {
     $type = "ListNode"
 
     @Basic()
-    readonly children: ItemNode[];
+    children: ItemNode[];
 
     constructor(children: ItemNode[] = []) {
         super(children);
@@ -21,7 +21,7 @@ export class ItemNode extends AbstractContainerNode<AbstractNode> {
     $type = "ItemNode"
 
     @Basic()
-    readonly children: AbstractNode[];
+    children: AbstractNode[];
 
     constructor(children: AbstractNode[] = []) {
         super(children);

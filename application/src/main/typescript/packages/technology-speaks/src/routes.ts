@@ -1,5 +1,5 @@
 import {mapForm, mapTable, Router} from "react-ui-simplicity";
-import Root, {process} from "./Root";
+import Root, {process} from "./pages/Root";
 import FormPage from "./pages/navigator/FormPage";
 import TablePage from "./pages/navigator/TablePage";
 import HomePage from "./pages/home/HomePage";
@@ -26,12 +26,12 @@ export const routes: Router.Route[] = [
         component: Root,
         loader: {
             async application(pathParams, queryParams) {
-                let response = await fetch("/service")
+                let response = await fetch("http://localhost:3000/service")
 
                 process(response)
 
                 if (response.ok) {
-                    return mapForm(await response.json(), true)
+                    return mapForm(await response.json(), false)
                 }
 
                 throw new Error(response.status.toString())
@@ -43,7 +43,7 @@ export const routes: Router.Route[] = [
                 component: HomePage,
                 loader: {
                     async search(pathParams, queryParams) {
-                        let response = await fetch("/service/documents/search")
+                        let response = await fetch("http://localhost:3000/service/documents/search")
 
                         process(response)
 
@@ -63,7 +63,7 @@ export const routes: Router.Route[] = [
                         component: DocumentSearchPage,
                         loader: {
                             async table(path : PathParams, query : QueryParams) {
-                                const urlBuilder = new URL("/service/documents", window.location.origin)
+                                const urlBuilder = new URL("/service/documents", "http://localhost:3000")
                                 const searchParams = urlBuilder.searchParams;
 
                                 searchParams.set("index", "0")
@@ -85,7 +85,7 @@ export const routes: Router.Route[] = [
                                 throw new Error(response.status.toString())
                             },
                             async search(pathParams, queryParams) {
-                                let response = await fetch(`/service/documents/search`)
+                                let response = await fetch(`http://localhost:3000/service/documents/search`)
 
                                 process(response)
 
@@ -104,7 +104,7 @@ export const routes: Router.Route[] = [
                         component : DocumentFormPage,
                         loader: {
                             async form(pathParams, queryParams) {
-                                let response = await fetch(`/service/documents/document`)
+                                let response = await fetch(`http://localhost:3000/service/documents/document`)
 
                                 process(response)
 
@@ -127,7 +127,7 @@ export const routes: Router.Route[] = [
                         },
                         loader: {
                             async form(pathParams, queryParams) {
-                                let response = await fetch(`/service/documents/document/${pathParams.id}?edit=${queryParams["edit"]}`)
+                                let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}?edit=${queryParams["edit"]}`)
 
                                 process(response)
 
@@ -151,7 +151,7 @@ export const routes: Router.Route[] = [
                                         component: DocumentViewPage,
                                         loader: {
                                             async form(pathParams, queryParams) {
-                                                let response = await fetch(`/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/view`)
+                                                let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/view`)
 
                                                 process(response)
 
@@ -167,7 +167,7 @@ export const routes: Router.Route[] = [
                                         component: DocumentViewPage,
                                         loader: {
                                             async form(pathParams, queryParams) {
-                                                let response = await fetch(`/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/compare`)
+                                                let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/compare`)
 
                                                 process(response)
 
@@ -192,7 +192,7 @@ export const routes: Router.Route[] = [
                         component: LoginPage,
                         loader: {
                             async login(pathParams, queryParams) {
-                                let response = await fetch("/service/security/login")
+                                let response = await fetch("http://localhost:3000/service/security/login")
 
                                 process(response)
 
@@ -209,7 +209,7 @@ export const routes: Router.Route[] = [
                         component: RegisterPage,
                         loader: {
                             async register(pathParams, queryParams) {
-                                let response = await fetch("/service/security/register")
+                                let response = await fetch("http://localhost:3000/service/security/register")
 
                                 process(response)
 
@@ -232,7 +232,7 @@ export const routes: Router.Route[] = [
                         component: ConfirmationPage,
                         loader: {
                             async form(pathParams, queryParams) {
-                                let response = await fetch("/service/security/confirm")
+                                let response = await fetch("http://localhost:3000/service/security/confirm")
 
                                 process(response)
 
@@ -249,7 +249,7 @@ export const routes: Router.Route[] = [
                         component: LogoutPage,
                         loader: {
                             async credential(pathParams, queryParams) {
-                                let response = await fetch("/service/security/logout")
+                                let response = await fetch("http://localhost:3000/service/security/logout")
 
                                 process(response)
 
@@ -274,7 +274,7 @@ export const routes: Router.Route[] = [
                                 component : I18nTablePage,
                                 loader : {
                                     async table(path : PathParams, query : QueryParams) {
-                                        let response = await fetch(`/service/shared/i18ns?index=0&limit=10`)
+                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns?index=0&limit=10`)
 
                                         process(response)
 
@@ -285,7 +285,7 @@ export const routes: Router.Route[] = [
                                         throw new Error(response.status.toString())
                                     },
                                     async search(path : PathParams, query : QueryParams) {
-                                        let response = await fetch(`/service/shared/i18ns/search`)
+                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns/search`)
 
                                         process(response)
 
@@ -302,7 +302,7 @@ export const routes: Router.Route[] = [
                                 component : I18nFormPage,
                                 loader : {
                                     async form(path : PathParams, query : QueryParams) {
-                                        let response = await fetch(`/service/shared/i18ns/i18n/${path["id"]}`)
+                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns/i18n/${path["id"]}`)
 
                                         process(response)
 
@@ -336,7 +336,7 @@ export const routes: Router.Route[] = [
                                     link = ""
                                 }
 
-                                let response = await fetch("/service" + link)
+                                let response = await fetch("http://localhost:3000/service" + link)
 
                                 process(response)
 
@@ -363,7 +363,7 @@ export const routes: Router.Route[] = [
                                     link = ""
                                 }
 
-                                let response = await fetch("/service" + link)
+                                let response = await fetch("http://localhost:3000/service" + link)
 
                                 process(response)
 

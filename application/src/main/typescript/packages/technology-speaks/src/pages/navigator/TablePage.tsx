@@ -1,7 +1,7 @@
 import "./TablePage.css"
 import React, {useMemo, useState} from "react"
 import {AbstractEntity, AbstractSearch, ActiveObject, DateDuration, JSONSerializer, Link, LinkContainerObject, mapTable, match, Router, SchemaTable} from "react-ui-simplicity";
-import {process} from "../../Root"
+import {process} from "../Root"
 import Search from "./Search";
 import Loader = SchemaTable.Loader;
 import Query = SchemaTable.Query;

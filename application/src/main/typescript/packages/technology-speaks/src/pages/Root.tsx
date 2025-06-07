@@ -2,7 +2,7 @@ import "./Root.css"
 
 import React, {useEffect, useState} from "react"
 import {Drawer, Link, Router, ToolBar, useMatchMedia, Viewport} from "react-ui-simplicity";
-import Application from "./domain/Application";
+import Application from "../domain/Application";
 import navigate = Router.navigate;
 import onLink = Link.onLink;
 

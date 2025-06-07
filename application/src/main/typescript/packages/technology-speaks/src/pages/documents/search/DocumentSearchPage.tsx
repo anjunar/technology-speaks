@@ -13,7 +13,7 @@ import {
     SchemaInput,
     useForm
 } from "react-ui-simplicity";
-import {process} from "../../../Root";
+import {process} from "../../Root";
 import Document from "../../../domain/document/Document";
 import navigate = Router.navigate;
 import DocumentSearch from "../../../domain/document/DocumentSearch";

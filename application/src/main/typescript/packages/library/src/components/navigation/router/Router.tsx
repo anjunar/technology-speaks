@@ -15,16 +15,13 @@ function Router(properties: Router.Attributes) {
 
     const [state, setState] = useState(<div></div>)
 
-    const isMobile = useIsMobile();
-
     const {path, search, routes, windows, darkMode} = useContext(SystemContext);
 
     const [childRoutes, setChildRoutes] = useState([])
 
     const scrollArea = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-
+    function processUrlChange() {
         function flattenRoutes(routes: Route[], parentPath: string = ''): Router.RouteWithPath[] {
             return routes.reduce((previous: Router.RouteWithPath[], current: Route) => {
                 const currentPath = `${parentPath}${current.path}`.replace(/\/\//g, '/');
@@ -88,15 +85,13 @@ function Router(properties: Router.Attributes) {
             return pathParams;
         }
 
-        let oldRoute : string = null
-        let oldComponent : any = null
-        let oldSearch : string = null
+        let oldRoute: string = null
+        let oldComponent: any = null
+        let oldSearch: string = null
 
-        const loadComponent = (state? : any) => {
+        const loadComponent = (callback: (value : any[]) => void) => {
 
-            const baseUrl = process.env.PUBLIC_URL
-
-            const pathname = path.replace(baseUrl, "/").replace("//", "/");
+            const pathname = path.replace("//", "/");
 
             const option = regexRoutes.find(([regex, route]) => regex.test(pathname));
 
@@ -106,7 +101,7 @@ function Router(properties: Router.Attributes) {
             } else {
                 const [regex, route] = option;
 
-                if (oldRoute === route.path && oldComponent === route.component && (oldSearch === search || route.subRouter) && ! state) {
+                if (oldRoute === route.path && oldComponent === route.component && (oldSearch === search || route.subRouter)) {
                     oldSearch = search
                     return route.children
                 } else {
@@ -124,10 +119,9 @@ function Router(properties: Router.Attributes) {
                     let pathParameters: PathParams = resolvePathParams(regex, pathname, option);
                     let queryParameters: QueryParams = resolveQueryParameters()
                     let component = route.component
-                    if (! component) {
+                    if (!component) {
                         component = route.dynamic(pathParameters, queryParameters)
                     }
-
 
                     if (component) {
                         let loader = route.loader
@@ -147,21 +141,11 @@ function Router(properties: Router.Attributes) {
                                         return prev
                                     }, {})
 
-                                    if (component) {
-                                        if (! (component instanceof Function)) {
-                                            if (isMobile) {
-                                                component = component.mobile
-                                            } else {
-                                                component = component.desktop
-                                            }
-                                        }
-                                    }
-
                                     setState(
                                         React.createElement(component as FunctionComponent<any>, {
                                             pathParams: pathParameters,
                                             queryParams: queryParameters,
-                                            key : v4(),
+                                            // key: v4(),
                                             ...data
                                         })
                                     )
@@ -169,38 +153,33 @@ function Router(properties: Router.Attributes) {
                                     if (onRoute) {
                                         onRoute(false)
                                     }
+                                    callback(route.children)
                                 })
                                 .catch((response) => {
                                     console.error(response)
                                 })
                         } else {
-                            if (component) {
-                                if (! (component instanceof Function)) {
-                                    if (isMobile) {
-                                        component = component.mobile
-                                    } else {
-                                        component = component.desktop
-                                    }
-                                }
-                            }
-
                             setState(
                                 React.createElement(component as FunctionComponent<any>, {
                                     pathParams: pathParameters,
                                     queryParams: queryParameters
                                 })
                             )
+                            callback(route.children)
                         }
                     }
-
-                    return route.children
                 }
 
             }
 
         }
 
-        setChildRoutes(loadComponent())
+        loadComponent(route => setChildRoutes(route))
+
+    }
+
+    useEffect(() => {
+        processUrlChange();
 
     }, [path, search])
 
@@ -225,6 +204,10 @@ function Router(properties: Router.Attributes) {
 
     function getContextHolder() {
         return new SystemContextHolder(path, search, childRoutes, windows, darkMode);
+    }
+
+    if (typeof window === "undefined") {
+        processUrlChange();
     }
 
     return (

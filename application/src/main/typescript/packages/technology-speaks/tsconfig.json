@@ -1,11 +1,10 @@
 {
   "compilerOptions": {
-    "allowImportingTsExtensions" : true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "target": "ES6",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
+    "target": "ES5",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "lib": ["dom", "dom.iterable", "esnext"],
     "noImplicitAny": false,
     "resolveJsonModule": true,
@@ -19,5 +18,7 @@
     "sourceMap": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src", "server.ts"]
+  "include": ["src",
+    "server.tsx"
+  ]
 }

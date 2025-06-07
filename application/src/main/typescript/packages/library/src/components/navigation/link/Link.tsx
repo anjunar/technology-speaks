@@ -9,8 +9,7 @@ function Link(properties : Link.Attributes) {
 
     const {data, value, children, className, style, icon} = properties
 
-    const baseUrl = process.env.PUBLIC_URL
-    let href = (baseUrl + value).replace("//", "/");
+    let href = value.replace("//", "/");
 
     const [activeState, setActiveState] = useState(false)
 
