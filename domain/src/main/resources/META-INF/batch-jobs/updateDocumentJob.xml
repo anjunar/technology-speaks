@@ -1,0 +1,9 @@
+<job id="updateDocumentJob" xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="1.0">
+    <properties>
+        <property name="documentId" value="#{jobParameters['documentId']}" />
+        <property name="sessionId" value="#{jobParameters['sessionId']}" />
+    </properties>
+    <step id="step1">
+        <batchlet ref="updateDocumentJob"/>
+    </step>
+</job>

@@ -12,7 +12,7 @@ import jakarta.persistence.EntityManager
 
 import java.util
 import java.util.Locale
-import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.BlockingQueue
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 import scala.beans.BeanProperty
@@ -77,7 +77,7 @@ class DocumentService {
     response.message.content
   }
 
-  def createHashTags(text: String, blockingQueue: LinkedBlockingQueue[String]): util.Set[HashTag] = {
+  def createHashTags(text: String, blockingQueue: BlockingQueue[String]): util.Set[HashTag] = {
     val message = ChatMessage(
       s"""Generate hashtags for the following text and a short description for each hashtag.
          |Keep the text and short description in the original language.
@@ -110,7 +110,7 @@ class DocumentService {
     mapper.readValue(buffer, collectionType)
   }
 
-  def createDescription(text: String, blockingQueue: LinkedBlockingQueue[String]): String = {
+  def createDescription(text: String, blockingQueue: BlockingQueue[String]): String = {
     val message = ChatMessage(
       s"""Please make a very short summary with the following text.
          |Keep the summary in the original language.
@@ -139,7 +139,7 @@ class DocumentService {
     mapper.readValue(buffer, classOf[DocumentService.Summary]).summary
   }
 
-  def createChunks(text: String, blockingQueue: LinkedBlockingQueue[String]): util.List[Chunk] = {
+  def createChunks(text: String, blockingQueue: BlockingQueue[String]): util.List[Chunk] = {
     val message = ChatMessage(
       s"""Split the following text into thematically sections.
          |Each section should cover a separate topic.
@@ -219,7 +219,7 @@ class DocumentService {
       .toList
   }
 
-  def update(document: Document, blockingQueue: LinkedBlockingQueue[String]): Unit = {
+  def update(document: Document, blockingQueue: BlockingQueue[String]): Unit = {
 
     val text = toText(document.editor.json)
 
