@@ -26,12 +26,11 @@ function Router(properties: Router.Attributes) {
     const scrollArea = useRef<HTMLDivElement>(null);
 
     useLayoutEffect(() => {
-        type RouteWithPath = [string, Route];
 
-        function flattenRoutes(routes: Route[], parentPath: string = ''): RouteWithPath[] {
-            return routes.reduce((previous: RouteWithPath[], current: Route) => {
+        function flattenRoutes(routes: Route[], parentPath: string = ''): Router.RouteWithPath[] {
+            return routes.reduce((previous: Router.RouteWithPath[], current: Route) => {
                 const currentPath = `${parentPath}${current.path}`.replace(/\/\//g, '/');
-                const currentRouteWithPath: RouteWithPath = [currentPath, current];
+                const currentRouteWithPath: Router.RouteWithPath = [currentPath, current];
                 const childrenRoutes = current.children
                     ? flattenRoutes(current.children, currentPath)
                     : [];
@@ -242,6 +241,8 @@ function Router(properties: Router.Attributes) {
 }
 
 namespace Router {
+    export type RouteWithPath = [string, Route];
+
     export interface Attributes {
         onRoute?: (loading: boolean) => void
     }
