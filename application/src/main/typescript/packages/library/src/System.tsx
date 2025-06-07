@@ -103,9 +103,11 @@ function System(properties : System.Attributes) {
                 promise
                     .then(() => {
                         setTimeout(() => {
-                            let indexOf = loading.indexOf(argArray)
-                            loading.splice(indexOf)
-                            setLoading([...loading])
+                            setLoading(prev => {
+                                let indexOf = prev.indexOf(argArray)
+                                prev.splice(indexOf)
+                                return [...prev]
+                            })
                         }, 1000)
                     })
                     .catch((response: any) => {

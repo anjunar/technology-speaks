@@ -1,5 +1,5 @@
 import "./Link.css"
-import React, {CSSProperties, ReactNode, useLayoutEffect, useState} from "react"
+import React, {CSSProperties, ReactNode, useEffect, useState} from "react"
 import RestLink from "../../../domain/container/LinkObject";
 import LinkContainerObject from "../../../domain/container/LinkContainerObject";
 import LinksObject from "../../../domain/container/LinksObject";
@@ -19,7 +19,7 @@ function Link(properties : Link.Attributes) {
         Router.navigate(href)
     }
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         let listener = () => {
             setActiveState(window.location.pathname === href)
         }

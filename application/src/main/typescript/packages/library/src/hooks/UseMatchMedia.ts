@@ -1,4 +1,4 @@
-import {useLayoutEffect, useState} from "react";
+import {useEffect, useState} from "react";
 
 export function useMatchMedia(value : string) {
 
@@ -7,7 +7,7 @@ export function useMatchMedia(value : string) {
         return mediaQuery.matches
     })
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         let listener = (event : MediaQueryListEvent) =>  setMatches(event.matches);
 
         window.matchMedia(value).addEventListener("change", listener)

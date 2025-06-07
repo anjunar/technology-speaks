@@ -12,7 +12,7 @@ import scala.compiletime.uninitialized
 
 class I18nSearch extends AbstractSearch {
   
-  @Descriptor(title = "Text")
+  @Descriptor(title = "Text", writeable = true)
   @QueryParam("text")
   @RestPredicate(value = classOf[GenericSimilarityProvider[?]], property = "text")
   @BeanProperty

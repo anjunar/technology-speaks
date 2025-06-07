@@ -6,7 +6,7 @@ import {
     Link,
     LinkContainerObject,
     List,
-    mapTable,
+    mapTable, ObjectDescriptor,
     Pageable,
     Router,
     SchemaForm,
@@ -21,9 +21,7 @@ import onLink = Link.onLink;
 
 function DocumentSearchPage(properties: SearchPageMobile.Attributes) {
 
-    const {queryParams} = properties
-
-    const [links, setLinks] = useState<LinkContainerObject>(null)
+    const {queryParams, table : [rows, count, links, schema]} = properties
 
     let search = useForm(properties.search);
 
@@ -45,7 +43,6 @@ function DocumentSearchPage(properties: SearchPageMobile.Attributes) {
             if (response.ok) {
                 let [mapped, size, links] = mapTable(await response.json());
                 callback(mapped, size)
-                setLinks(links)
             } else {
                 process(response)
             }
@@ -60,7 +57,7 @@ function DocumentSearchPage(properties: SearchPageMobile.Attributes) {
         <div className={"search-page"}>
             <div className={"center-horizontal"}>
                 <div style={{display: "flex", flexWrap: "wrap-reverse", gap: "24px", alignItems: "baseline"}}>
-                    <List loader={loader} style={{minWidth: "360px", maxWidth: "800px", width: "100%"}}>
+                    <List autoload={false} loader={loader} style={{minWidth: "360px", maxWidth: "800px", width: "100%"}} initialData={() => [rows, count]}>
                         <List.Item>
                             {
                                 ({row}: { row: Document }) => (
@@ -99,7 +96,11 @@ function DocumentSearchPage(properties: SearchPageMobile.Attributes) {
                             <SchemaForm value={search} onSubmit={onSubmit}>
                                 <SchemaInput name={"text"}/>
                                 <div style={{display : "flex", justifyContent : "flex-end"}}>
-                                    <Button name={"search"}>Search</Button>
+                                    {
+                                        onLink(links, "search", (link) => (
+                                            <Button name={"search"}>{link.title}</Button>
+                                        ))
+                                    }
                                 </div>
                             </SchemaForm>
                         </div>
@@ -114,6 +115,7 @@ namespace SearchPageMobile {
     export interface Attributes {
         queryParams: Router.QueryParams
         search : DocumentSearch
+        table : [Document[], number, LinkContainerObject, ObjectDescriptor]
     }
 }
 

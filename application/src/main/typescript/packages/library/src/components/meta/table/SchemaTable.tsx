@@ -6,14 +6,15 @@ import NodeDescriptor from "../../../domain/descriptors/NodeDescriptor";
 import CollectionDescriptor from "../../../domain/descriptors/CollectionDescriptor";
 import {Temporal, TemporalAccessor, TemporalAmount} from "@js-joda/core";
 import Validable from "../../../domain/descriptors/Validable";
+import {LinkContainerObject} from "../../../domain/container";
 
 const sortable = ["String", "Double", "Float", "Integer", "Long", "LocalDate", "LocalDateTime", "Instant", "Boolean"]
 
 function SchemaTable(properties: SchemaTable.Attributes) {
 
-    const {loader, onRowClick, selectable, name, style, children, limit} = properties
+    const {loader, onRowClick, selectable, name, style, children, limit, initialData} = properties
 
-    const [schema, setSchema] = useState<ObjectDescriptor>(null)
+    const [rows, count, schema] = initialData()
 
     const [filters, headers, bodies, footers] = useMemo(() => {
         let filters: React.ReactElement[] = []
@@ -45,6 +46,7 @@ function SchemaTable(properties: SchemaTable.Attributes) {
     const tableLoader = new (class extends SchemaTable.Loader {
         onLoad(query: any, callback: any) {
             loader.onLoad(query, (rows, size, loadedSchema) => {
+/*
                     if (schema && loadedSchema) {
                         if (JSON.stringify(schema) !== JSON.stringify(loadedSchema)) {
                             setSchema(loadedSchema)
@@ -52,6 +54,7 @@ function SchemaTable(properties: SchemaTable.Attributes) {
                     } else {
                         setSchema(loadedSchema)
                     }
+*/
                     callback(rows, size)
                 }
             )
@@ -136,7 +139,14 @@ function SchemaTable(properties: SchemaTable.Attributes) {
 
     return (
         <SchemaTable.SchemaContext.Provider value={schema}>
-            <Table className={"table"} loader={tableLoader} onRowClick={onRowClick} selectable={selectable} name={name} limit={limit}
+            <Table className={"table"}
+                   loader={tableLoader}
+                   initialData={() => [rows, count]}
+                   onRowClick={onRowClick}
+                   selectable={selectable}
+                   autoload={false}
+                   name={name}
+                   limit={limit}
                    style={style}>
                 <Table.Filter>
                     {
@@ -188,6 +198,7 @@ namespace SchemaTable {
 
     export interface Attributes {
         loader: Loader
+        initialData? : () => [any[], number, ObjectDescriptor]
         onRowClick?: (row : any) => void
         selectable?: boolean
         name?: string

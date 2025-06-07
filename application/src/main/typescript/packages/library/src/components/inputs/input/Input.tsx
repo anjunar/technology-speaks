@@ -1,5 +1,5 @@
 import "./Input.css"
-import React, {forwardRef, useCallback, useImperativeHandle, useLayoutEffect, useRef} from "react"
+import React, {forwardRef, useCallback, useImperativeHandle, useEffect, useRef} from "react"
 import {AsyncValidator, Email, Max, MaxLength, Min, MinLength, Model, Pattern, Required, Validator} from "../../shared/Model"
 import {Duration, LocalDate, LocalDateTime, LocalTime, Temporal, TemporalAmount} from "@js-joda/core";
 import {format} from "../../shared/DateTimeUtils";
@@ -62,7 +62,7 @@ export const Input = forwardRef<{ selectionStart: number }, Input.Attributes>((p
 
     }, [])
 
-    useLayoutEffect(() => {
+    useEffect(() => {
 
         if (required) {
             model.addValidator(new Required())
@@ -163,7 +163,7 @@ export const Input = forwardRef<{ selectionStart: number }, Input.Attributes>((p
 
     }, [])
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (onModel) {
             onModel(model)
         }

@@ -1,12 +1,10 @@
 import "./Table.css"
-import React, {createContext, CSSProperties, useContext, useEffect, useLayoutEffect, useMemo, useState} from "react"
+import React, {createContext, CSSProperties, useContext, useEffect, useMemo, useState} from "react"
 import withPageable from "../../shared/Pageable"
+import Pageable from "../../shared/Pageable"
 import Input from "../../inputs/input/Input";
 import {FormContext} from "../../inputs/form/Form";
 import {v4} from "uuid";
-import loader from "ts-loader";
-import Pageable from "../../shared/Pageable";
-import SchemaTable from "../../meta/table/SchemaTable";
 
 function TableRenderer(properties: TableRenderer.Attributes) {
 
@@ -122,7 +120,7 @@ function TableRenderer(properties: TableRenderer.Attributes) {
     }
 
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         setColumns(generateColumnData())
         setFilterData(generateFilterData())
     }, [headerCells.length])
@@ -166,7 +164,7 @@ function TableRenderer(properties: TableRenderer.Attributes) {
 
                 {
                     selectable ? (
-                        <td key={"select"} style={{width: "12px", verticalAlign : "middle"}}>
+                        <td key={"select"} style={{width: "12px", verticalAlign: "middle"}}>
                             <Input type={"checkbox"} value={getValue()} onChange={onChangeHandler} standalone={true}/>
                         </td>
                     ) : ""
@@ -178,9 +176,16 @@ function TableRenderer(properties: TableRenderer.Attributes) {
     }
 
     const onSearch = () => {
-        let queries = filterData.map(item => ({property: item.property, value: item.value})).filter(item => item.value) as any[];
-        let sort = columns.map(column => ({property: column.property, value: column.sort})).filter(column => column.value)
-        load({index: index, limit: limit, filter: queries, sort: sort}, () => {})
+        let queries = filterData.map(item => ({
+            property: item.property,
+            value: item.value
+        })).filter(item => item.value) as any[];
+        let sort = columns.map(column => ({
+            property: column.property,
+            value: column.sort
+        })).filter(column => column.value)
+        load({index: index, limit: limit, filter: queries, sort: sort}, () => {
+        })
     }
 
     const onConfigClick = () => {
@@ -249,34 +254,34 @@ function TableRenderer(properties: TableRenderer.Attributes) {
     }
 
     const portal = () => {
-/*
-        let service = appContext.service?.viewPort.current
-        if (service) {
-            return open
-                ? createPortal(
-                    <Window resizable={false} centered>
-                        <WindowHeader>
-                            <div style={{display: "flex", width: "100%"}}>
-                                <div style={{flex: 1}}>Table Configuration</div>
-                                <button
-                                    type="button"
-                                    className="material-icons"
-                                    onClick={() => setOpen(false)}
-                                >
-                                    close
-                                </button>
-                            </div>
-                        </WindowHeader>
-                        <Content>
-                            <Configuration columns={columns} setColumns={setColumns} filters={filters}
-                                           filterData={filterData} onSearch={onSearch}/>
-                        </Content>
-                    </Window>,
-                    service
-                )
-                : ""
-        }
-*/
+        /*
+                let service = appContext.service?.viewPort.current
+                if (service) {
+                    return open
+                        ? createPortal(
+                            <Window resizable={false} centered>
+                                <WindowHeader>
+                                    <div style={{display: "flex", width: "100%"}}>
+                                        <div style={{flex: 1}}>Table Configuration</div>
+                                        <button
+                                            type="button"
+                                            className="material-icons"
+                                            onClick={() => setOpen(false)}
+                                        >
+                                            close
+                                        </button>
+                                    </div>
+                                </WindowHeader>
+                                <Content>
+                                    <Configuration columns={columns} setColumns={setColumns} filters={filters}
+                                                   filterData={filterData} onSearch={onSearch}/>
+                                </Content>
+                            </Window>,
+                            service
+                        )
+                        : ""
+                }
+        */
     }
 
     useEffect(() => {
@@ -360,8 +365,9 @@ namespace Table {
         className?: string
         autoload?: boolean
         onRowClick?: any
-        dynamicWidth? : boolean
+        dynamicWidth?: boolean
         loader: Pageable.Loader
+        initialData?: () => [any[], number]
         limit?: number
         children: React.ReactNode
         value?: any[]
@@ -372,7 +378,7 @@ namespace Table {
         style?: CSSProperties
     }
 
-    export function Filter({children} : { children : React.ReactElement[]}) {
+    export function Filter({children}: { children: React.ReactElement[] }) {
         return (
             <div>
                 {children}
@@ -385,16 +391,21 @@ namespace Table {
 
         export const Cell = FilterContext.Consumer
 
-        export function FilterCellProvider({ row, index, data, children }  : { row : any, index : number, data : any, children : React.ReactElement}) {
+        export function FilterCellProvider({row, index, data, children}: {
+            row: any,
+            index: number,
+            data: any,
+            children: React.ReactElement
+        }) {
             return (
-                <FilterContext.Provider value={{ row, index, data }}>
+                <FilterContext.Provider value={{row, index, data}}>
                     <div>{children}</div>
                 </FilterContext.Provider>
             )
         }
     }
 
-    export function Head({ children } : { children : React.ReactNode}) {
+    export function Head({children}: { children: React.ReactNode }) {
         return (
             <thead>
             <tr>{children}</tr>
@@ -403,12 +414,16 @@ namespace Table {
     }
 
     export namespace Head {
-        export function Cell({ children, property, sortable  } : { children : React.ReactNode, property? : string, sortable : boolean}) {
+        export function Cell({children, property, sortable}: {
+            children: React.ReactNode,
+            property?: string,
+            sortable: boolean
+        }) {
             return <div>{children}</div>
         }
     }
 
-    export function Body({ children } : { children : React.ReactNode}) {
+    export function Body({children}: { children: React.ReactNode }) {
         return (
             <tbody>
             <tr>{children}</tr>
@@ -417,20 +432,24 @@ namespace Table {
     }
 
     export namespace Body {
-        export const TableContext = createContext<{row : any, index : number}>(null);
+        export const TableContext = createContext<{ row: any, index: number }>(null);
 
         export const Cell = TableContext.Consumer
 
-        export function CellProvider({ row, index, children }  : { row : any, index : number, children : React.ReactElement}) {
+        export function CellProvider({row, index, children}: {
+            row: any,
+            index: number,
+            children: React.ReactElement
+        }) {
             return (
-                <TableContext.Provider value={{ row, index }}>
+                <TableContext.Provider value={{row, index}}>
                     <td>{children}</td>
                 </TableContext.Provider>
             )
         }
     }
 
-    export function Footer({children} : { children : React.ReactNode}) {
+    export function Footer({children}: { children: React.ReactNode }) {
         return (
             <div>
                 {children}
@@ -439,7 +458,7 @@ namespace Table {
     }
 
     export namespace Footer {
-        export function Cell({ children }  : { children : React.ReactNode}) {
+        export function Cell({children}: { children: React.ReactNode }) {
             return <div>{children}</div>
         }
     }
@@ -453,7 +472,8 @@ namespace TableRenderer {
         children: React.ReactElement
         window: any[]
         load: any
-        loader : Pageable.Loader
+        loader: Pageable.Loader
+        initialData?: () => [any[], number]
         index: number
         limit: number
         size: number

@@ -1,4 +1,4 @@
-import React, {CSSProperties, useContext, useLayoutEffect, useMemo, useState} from "react"
+import React, {CSSProperties, useContext, useEffect, useMemo, useState} from "react"
 import {FormContext} from "./Form"
 import {ArrayModel, FormModel, Max, Min} from "../../shared";
 
@@ -23,7 +23,7 @@ function FormArray(properties : FormArray.Attributes) {
         }
     }
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         form.validate()
 
         for (const callback of form.callbacks) {
@@ -32,7 +32,7 @@ function FormArray(properties : FormArray.Attributes) {
         }
     }, [form?.value?.length])
 
-    useLayoutEffect(() => {
+    useEffect(() => {
 
         context.registerChildren(form)
 

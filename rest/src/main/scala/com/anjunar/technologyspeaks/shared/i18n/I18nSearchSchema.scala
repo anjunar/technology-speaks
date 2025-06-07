@@ -12,6 +12,7 @@ class I18nSearchSchema extends EntityJSONSchema[I18nSearch] {
       .property("sort")
       .property("index")
       .property("limit")
+      .property("text")
     )
 
   }

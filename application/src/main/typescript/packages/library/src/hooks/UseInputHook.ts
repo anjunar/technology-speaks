@@ -1,5 +1,5 @@
 import {FormModel, Model} from "../components/shared/Model";
-import {useContext, useLayoutEffect, useMemo} from "react";
+import {useContext, useEffect, useMemo} from "react";
 import {FormContext} from "../components/inputs/form/Form";
 
 export function useInput<E>(name : string = "default", value : E, standalone? : boolean, type? : string) : [Model, E, (value : E) => void] {
@@ -28,13 +28,13 @@ export function useInput<E>(name : string = "default", value : E, standalone? : 
         model.fireCallbacks(true)
     }
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (standalone) {
             model.value = value
         }
     }, [value]);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (context) {
             context.registerInput(model)
         }

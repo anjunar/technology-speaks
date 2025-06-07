@@ -49,26 +49,28 @@ export function I18NFormPage(properties: I18NFormPage.Attributes) {
 
     return (
         <div className={"i18n-form-page"}>
-            <SchemaForm value={domain} onSubmit={onSubmit}>
-                <SchemaInput name={"text"}/>
-                <SchemaFormArray name={"translations"}>
-                    {({elements, form}: { elements: Translation[], form: any }) =>
-                        elements?.map((element, index) => (
-                            <SubForm key={element.locale} index={index}>
-                                <div style={{display : "flex", width : "100%"}}>
-                                    <SchemaInput name={"locale"}/>
-                                    <SchemaInput name={"text"} style={{flex : 1}}/>
-                                    <button type={"button"} className={"material-icons"}
-                                            onClick={() => elements.splice(elements.indexOf(element), 1)}>
-                                        delete
-                                    </button>
-                                </div>
-                            </SubForm>
-                        ))
-                    }
-                </SchemaFormArray>
-                <div style={{display : "flex", justifyContent : "flex-end"}}>{ actions }</div>
-            </SchemaForm>
+            <div className={"center-horizontal"} style={{width : "100%", height : "100%"}}>
+                <SchemaForm value={domain} onSubmit={onSubmit} style={{minWidth : "360px", maxWidth : "800px", width : "100%"}}>
+                    <SchemaInput name={"text"}/>
+                    <SchemaFormArray name={"translations"}>
+                        {({elements, form}: { elements: Translation[], form: any }) =>
+                            elements?.map((element, index) => (
+                                <SubForm key={element.locale} index={index}>
+                                    <div style={{display : "flex", width : "100%"}}>
+                                        <SchemaInput name={"locale"}/>
+                                        <SchemaInput name={"text"} style={{flex : 1}}/>
+                                        <button type={"button"} className={"material-icons"}
+                                                onClick={() => elements.splice(elements.indexOf(element), 1)}>
+                                            delete
+                                        </button>
+                                    </div>
+                                </SubForm>
+                            ))
+                        }
+                    </SchemaFormArray>
+                    <div style={{display : "flex", justifyContent : "flex-end"}}>{ actions }</div>
+                </SchemaForm>
+            </div>
         </div>
     )
 }

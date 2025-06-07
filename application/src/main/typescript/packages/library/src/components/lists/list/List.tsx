@@ -83,6 +83,8 @@ namespace List {
     export interface Attributes {
         onRowClick?: any
         loader: withPageable.Loader
+        initialData? : () => [any[], number]
+        autoload?: boolean
         limit?: number
         children: React.ReactNode
         value?: any
@@ -115,7 +117,9 @@ namespace ListRenderer {
         className: string
         children: React.ReactNode
         window: any[]
+        autoload?: boolean
         load: any
+        initialData? : () => [any[], number]
         index: number
         limit: number
         size: number

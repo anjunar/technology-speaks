@@ -1,16 +1,18 @@
-import React, {MouseEventHandler, useEffect, useLayoutEffect, useState} from "react"
+import React, {MouseEventHandler, useEffect, useState} from "react"
 
 function withPageable(Component : any, parameters : withPageable.Attributes)  {
 
-    const {autoload = true, value, children, limit = 5, onRowClick, onChange, loader, ...rest} = parameters
+    const {autoload = true, value, children, limit = 5, onRowClick, onChange, loader, initialData, ...rest} = parameters
 
     return function Pageable() {
 
-        const [window, setWindow] = useState([])
-        const [index, setIndex] = useState(0)
-        const [size, setSize] = useState(0)
+        const [rows, count] = initialData ? initialData() : [[], 0]
 
-        const [loading, setLoading] = useState(true)
+        const [window, setWindow] = useState(rows)
+        const [index, setIndex] = useState(0)
+        const [size, setSize] = useState(count)
+
+        const [loading, setLoading] = useState(autoload)
 
         const skipPrevious = () => {
             let newIndex = 0
@@ -53,7 +55,7 @@ function withPageable(Component : any, parameters : withPageable.Attributes)  {
             throw new Error("Loader is missing")
         }
 
-        useLayoutEffect(() => {
+        useEffect(() => {
             if (autoload) {
                 load({index : index, limit : limit}, () => {setLoading(false)})
             }
@@ -72,6 +74,7 @@ function withPageable(Component : any, parameters : withPageable.Attributes)  {
                 window={window}
                 load={load}
                 loader={loader}
+                initialData={initialData}
                 skipPrevious={skipPrevious}
                 arrowLeft={arrowLeft}
                 arrowRight={arrowRight}
@@ -91,6 +94,7 @@ namespace withPageable {
         autoload? : boolean
         onRowClick? : MouseEventHandler<HTMLDivElement>
         loader : Loader
+        initialData? : () => [any[], number]
         limit? : number
         children : React.ReactNode
         value? : any[]

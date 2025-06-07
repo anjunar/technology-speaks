@@ -1,4 +1,4 @@
-import {mapForm, Router} from "react-ui-simplicity";
+import {mapForm, mapTable, Router} from "react-ui-simplicity";
 import App, {process} from "./App";
 import FormPage from "./pages/navigator/FormPage";
 import TablePage from "./pages/navigator/TablePage";
@@ -62,6 +62,28 @@ export const routes: Router.Route[] = [
                         path: "/search",
                         component: DocumentSearchPage,
                         loader: {
+                            async table(path : PathParams, query : QueryParams) {
+                                const urlBuilder = new URL("/service/documents", window.location.origin)
+                                const searchParams = urlBuilder.searchParams;
+
+                                searchParams.set("index", "0")
+                                searchParams.set("limit", "5")
+
+                                if (query.text) {
+                                    searchParams.set("text", query.text)
+                                    searchParams.set("sort", "score:asc")
+                                }
+
+                                let response = await fetch(urlBuilder.toString())
+
+                                process(response)
+
+                                if (response.ok) {
+                                    return mapTable(await response.json(), true)
+                                }
+
+                                throw new Error(response.status.toString())
+                            },
                             async search(pathParams, queryParams) {
                                 let response = await fetch(`/service/documents/search`)
 
@@ -249,7 +271,31 @@ export const routes: Router.Route[] = [
                         children: [
                             {
                                 path : "/search",
-                                component : I18nTablePage
+                                component : I18nTablePage,
+                                loader : {
+                                    async table(path : PathParams, query : QueryParams) {
+                                        let response = await fetch(`/service/shared/i18ns?index=0&limit=10`)
+
+                                        process(response)
+
+                                        if (response.ok) {
+                                            return mapTable(await response.json(), true)
+                                        }
+
+                                        throw new Error(response.status.toString())
+                                    },
+                                    async search(path : PathParams, query : QueryParams) {
+                                        let response = await fetch(`/service/shared/i18ns/search`)
+
+                                        process(response)
+
+                                        if (response.ok) {
+                                            return mapForm(await response.json(), true)
+                                        }
+
+                                        throw new Error(response.status.toString())
+                                    }
+                                }
                             },
                             {
                                 path : "/i18n/{id}",
