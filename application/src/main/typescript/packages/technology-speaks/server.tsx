@@ -33,10 +33,14 @@ app.use(
 );
 
 app.get('*', (req, res) => {
+
+
+
     const appHtml = renderToString(
         <App
             initialPath={req.path.split('?')[0]}
             initialSearch={req.path.split('?')[1] || ''}
+            initialData={<div></div>}
         />
     );
     res.send(`

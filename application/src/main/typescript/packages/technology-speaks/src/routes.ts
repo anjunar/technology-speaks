@@ -70,7 +70,7 @@ export const routes: Router.Route[] = [
                                 searchParams.set("limit", "5")
 
                                 if (query.text) {
-                                    searchParams.set("text", query.text)
+                                    searchParams.set("text", query.text as string)
                                     searchParams.set("sort", "score:asc")
                                 }
 
@@ -91,7 +91,7 @@ export const routes: Router.Route[] = [
 
                                 if (response.ok) {
                                     let form = mapForm<DocumentSearch>(await response.json(), true);
-                                    form.text = decodeURIComponent(queryParams["text"])
+                                    form.text = decodeURIComponent(queryParams["text"] as string)
                                     return form
                                 }
 
@@ -117,7 +117,7 @@ export const routes: Router.Route[] = [
                         }
                     },
                     {
-                        path: "/document/{id}",
+                        path: "/document/:id",
                         dynamic: (path, query) => {
                             if (query["edit"] === "true") {
                                 return DocumentFormPage
@@ -147,7 +147,7 @@ export const routes: Router.Route[] = [
                                         component: RevisionsTablePage
                                     },
                                     {
-                                        path: "/revision/{rev}/view",
+                                        path: "/revision/:rev/view",
                                         component: DocumentViewPage,
                                         loader: {
                                             async form(pathParams, queryParams) {
@@ -163,7 +163,7 @@ export const routes: Router.Route[] = [
                                             }
                                         }
                                     }, {
-                                        path: "/revision/{rev}/compare",
+                                        path: "/revision/:rev/compare",
                                         component: DocumentViewPage,
                                         loader: {
                                             async form(pathParams, queryParams) {
@@ -298,7 +298,7 @@ export const routes: Router.Route[] = [
                                 }
                             },
                             {
-                                path : "/i18n/{id}",
+                                path : "/i18n/:id",
                                 component : I18nFormPage,
                                 loader : {
                                     async form(path : PathParams, query : QueryParams) {
@@ -331,7 +331,7 @@ export const routes: Router.Route[] = [
 
                                 let link
                                 if (element) {
-                                    link = atob(element)
+                                    link = atob(element as string)
                                 } else {
                                     link = ""
                                 }
@@ -358,7 +358,7 @@ export const routes: Router.Route[] = [
 
                                 let link
                                 if (element) {
-                                    link = atob(element)
+                                    link = atob(element as string)
                                 } else {
                                     link = ""
                                 }

@@ -29,16 +29,20 @@ export class SystemContextHolder {
 
     darkMode : boolean
 
+    data : any
+
     constructor(path : string = "",
                 search : string = "",
                 routes: Router.Route[] = [],
                 windows: [WindowRef[], Dispatch<SetStateAction<WindowRef[]>>] = null,
-                darkMode : boolean = false) {
+                darkMode : boolean = false,
+                data : any = null) {
         this.path = path
         this.search = search
         this.routes = routes
         this.windows = windows
         this.darkMode = darkMode
+        this.data = data
     }
 
 }
@@ -47,7 +51,7 @@ export const SystemContext = createContext(new SystemContextHolder())
 
 function System(properties : System.Attributes) {
 
-    const {path, search, routes} = properties
+    const {path, search, routes, data} = properties
 
     const [loading, setLoading] = useState([])
 
@@ -124,7 +128,7 @@ function System(properties : System.Attributes) {
 
     return (
         <div className={"system"}>
-            <SystemContext.Provider value={new SystemContextHolder(path, search, routes, [windows, setWindows], darkMode)}>
+            <SystemContext.Provider value={new SystemContextHolder(path, search, routes, [windows, setWindows], darkMode, data)}>
                 <div style={{position: "absolute", zIndex: 9999, top: 0, left: 0, height: "4px", width: "100%"}}>
                     {
                         loading.length > 0 && <Progress/>
@@ -159,6 +163,7 @@ namespace System {
         search : string
         path : string
         routes : Router.Route[]
+        data : any
 
     }
 }

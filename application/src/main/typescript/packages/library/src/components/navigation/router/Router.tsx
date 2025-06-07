@@ -1,11 +1,10 @@
 import "./Router.css"
-import React, {Dispatch, FunctionComponent, SetStateAction, useContext, useEffect, useLayoutEffect, useRef, useState} from "react"
-import {SystemContext, SystemContextHolder, WindowRef} from "../../../System";
-import {v4} from "uuid";
+import React, {FunctionComponent, useContext, useEffect, useRef, useState} from "react"
+import {SystemContext, SystemContextHolder} from "../../../System"
+import {match, MatchFunction} from "path-to-regexp"
 import Route = Router.Route;
 import QueryParams = Router.QueryParams;
 import PathParams = Router.PathParams;
-import {useIsMobile} from "../../../hooks/UseIsMobile";
 
 const scrollAreaCache = new Map<string, number>()
 
@@ -13,35 +12,40 @@ function Router(properties: Router.Attributes) {
 
     const {onRoute, ...rest} = properties
 
-    const [state, setState] = useState(<div></div>)
+    const {path, search, routes, windows, darkMode, data} = useContext(SystemContext)
 
-    const {path, search, routes, windows, darkMode} = useContext(SystemContext);
+    const [state, setState] = useState(data)
 
-    const [childRoutes, setChildRoutes] = useState([])
+    const [childRoutes, setChildRoutes] = useState<Route[]>([])
 
-    const scrollArea = useRef<HTMLDivElement>(null);
+    const scrollArea = useRef<HTMLDivElement>(null)
 
     function processUrlChange() {
         function flattenRoutes(routes: Route[], parentPath: string = ''): Router.RouteWithPath[] {
             return routes.reduce((previous: Router.RouteWithPath[], current: Route) => {
-                const currentPath = `${parentPath}${current.path}`.replace(/\/\//g, '/');
-                const currentRouteWithPath: Router.RouteWithPath = [currentPath, current];
+                // Pfad zusammenbauen, Doppel-Slashes entfernen
+                const currentPath = `${parentPath}${current.path}`.replace(/\/\//g, '/')
+                const currentRouteWithPath: Router.RouteWithPath = [currentPath, current]
                 const childrenRoutes = current.children
                     ? flattenRoutes(current.children, currentPath)
-                    : [];
-                return [...previous, currentRouteWithPath, ...childrenRoutes];
-
-            }, []);
+                    : []
+                return [...previous, currentRouteWithPath, ...childrenRoutes]
+            }, [])
         }
 
-        const flattened = flattenRoutes(routes);
-        const regexRoutes: [RegExp, Route][] = flattened.map(([path, route]) => (
-            [
-                route.subRouter ? new RegExp("^" + path.replace(/\{\w+}/g, '([\\w\\d-]+)') + ".*$") : new RegExp("^" + path.replace(/\{\w+}/g, '([\\w\\d-]+)') + "$"),
-                route
-            ]
-        ));
+        const flattened = flattenRoutes(routes)
 
+        // Hilfsfunktion: Ersetze {param} durch :param für path-to-regexp
+        function normalizePath(path: string): string {
+            return path.replace(/\{(\w+)\}/g, ':$1')
+        }
+
+        const matchers: [MatchFunction<object>, Route, string][] = flattened.map(([rawPath, route]) => {
+            const matcher = match(rawPath, {decode: decodeURIComponent})
+            return [matcher, route, rawPath]
+        })
+
+        // Query Parameter parsen
         const resolveQueryParameters = (): QueryParams => {
             let segments = search
                 .slice(1)
@@ -65,41 +69,27 @@ function Router(properties: Router.Attributes) {
             }, {})
         }
 
-        function resolvePathParams(regex: RegExp, pathname: string, option: [RegExp, Route]) {
-            const matcher = regex.exec(pathname);
-            const pathParams = {} as any
-
-            if (matcher) {
-                for (let index = 1; index < matcher.length; index++) {
-                    const value = matcher[index];
-                    const pathSegments = pathname.split('/');
-                    const indexOfSegment = pathSegments.indexOf(value);
-                    const indexOfRoute = regexRoutes.indexOf(option);
-                    const [actualRoute, factory] = flattened[indexOfRoute];
-                    const actualRouteSegment = actualRoute.split('/').slice(1);
-                    const key = actualRouteSegment[indexOfSegment - 1];
-                    let slice = key.slice(1, key.length - 1);
-                    pathParams[slice] = value
-                }
-            }
-            return pathParams;
-        }
-
         let oldRoute: string = null
         let oldComponent: any = null
         let oldSearch: string = null
 
-        const loadComponent = (callback: (value : any[]) => void) => {
+        const loadComponent = (callback: (value: any[]) => void) => {
+            const pathname = path.replace("//", "/")
 
-            const pathname = path.replace("//", "/");
-
-            const option = regexRoutes.find(([regex, route]) => regex.test(pathname));
+            // Suche nach erstem matcher, der passt
+            const option = matchers.find(([matcher]) => {
+                try {
+                    return matcher(pathname) !== false
+                } catch {
+                    return false
+                }
+            })
 
             if (!option) {
-                const allRoutes = flattened.map(([path]) => path).join('\n');
-                throw new Error(`No Route found for: ${pathname}\n Available Routes:\n${allRoutes}`);
+                const allRoutes = flattened.map(([p]) => p).join('\n')
+                throw new Error(`No Route found for: ${pathname}\n Available Routes:\n${allRoutes}`)
             } else {
-                const [regex, route] = option;
+                const [matcher, route, rawPath] = option
 
                 if (oldRoute === route.path && oldComponent === route.component && (oldSearch === search || route.subRouter)) {
                     oldSearch = search
@@ -109,15 +99,11 @@ function Router(properties: Router.Attributes) {
                     oldComponent = route.component
                     oldSearch = search
 
-                    const queryParams = new Map<string, string>();
-                    const querySegments = search.split('&').slice(1);
-                    querySegments.forEach(segment => {
-                        const [key, value] = segment.split('=');
-                        queryParams.set(key, value);
-                    });
+                    const matched = matcher(pathname)
+                    if (!matched) throw new Error("Matcher sollte ja passen!")
 
-                    let pathParameters: PathParams = resolvePathParams(regex, pathname, option);
-                    let queryParameters: QueryParams = resolveQueryParameters()
+                    const pathParameters: PathParams = matched.params as any
+                    const queryParameters: QueryParams = resolveQueryParameters()
                     let component = route.component
                     if (!component) {
                         component = route.dynamic(pathParameters, queryParameters)
@@ -126,15 +112,15 @@ function Router(properties: Router.Attributes) {
                     if (component) {
                         let loader = route.loader
                         if (loader) {
-
                             if (onRoute) {
                                 onRoute(true)
                             }
 
-                            let loaders = Object.entries(loader).map(([key, value]: [key: string, value: any]) => {
+                            let loaders = Object.entries(loader).map(([key, value]) => {
                                 return {name: key, value: value(pathParameters, queryParameters)}
                             })
-                            Promise.all(loaders.map(loader => loader.value))
+
+                            Promise.all(loaders.map(l => l.value))
                                 .then(response => {
                                     const data = response.reduce((prev, elem, index) => {
                                         prev[loaders[index].name] = elem
@@ -145,7 +131,6 @@ function Router(properties: Router.Attributes) {
                                         React.createElement(component as FunctionComponent<any>, {
                                             pathParams: pathParameters,
                                             queryParams: queryParameters,
-                                            // key: v4(),
                                             ...data
                                         })
                                     )
@@ -155,9 +140,7 @@ function Router(properties: Router.Attributes) {
                                     }
                                     callback(route.children)
                                 })
-                                .catch((response) => {
-                                    console.error(response)
-                                })
+                                .catch(console.error)
                         } else {
                             setState(
                                 React.createElement(component as FunctionComponent<any>, {
@@ -169,45 +152,41 @@ function Router(properties: Router.Attributes) {
                         }
                     }
                 }
-
             }
-
         }
 
         loadComponent(route => setChildRoutes(route))
-
     }
 
     useEffect(() => {
-        processUrlChange();
-
+        processUrlChange()
     }, [path, search])
 
     useEffect(() => {
-        let scrollTop = scrollAreaCache.get(window.location.href);
+        let scrollTop = scrollAreaCache.get(window.location.href)
         if (scrollTop) {
             scrollArea.current.scrollTop = scrollTop
         }
-    }, [state]);
+    }, [state])
 
     useEffect(() => {
         let listener = () => {
             scrollAreaCache.set(window.location.href, scrollArea.current.scrollTop)
-        };
+        }
 
         scrollArea.current.addEventListener("scroll", listener)
 
         return () => {
             scrollArea.current?.removeEventListener("scroll", listener)
         }
-    }, []);
+    }, [])
 
     function getContextHolder() {
-        return new SystemContextHolder(path, search, childRoutes, windows, darkMode);
+        return new SystemContextHolder(path, search, childRoutes, windows, darkMode)
     }
 
     if (typeof window === "undefined") {
-        processUrlChange();
+        processUrlChange()
     }
 
     return (
@@ -220,7 +199,7 @@ function Router(properties: Router.Attributes) {
 }
 
 namespace Router {
-    export type RouteWithPath = [string, Route];
+    export type RouteWithPath = [string, Route]
 
     export interface Attributes {
         onRoute?: (loading: boolean) => void
@@ -228,36 +207,34 @@ namespace Router {
 
     export function navigate(url: string, data?: any) {
         window.history.pushState(data, "", url)
-        window.dispatchEvent(new PopStateEvent("popstate", {state : data}))
+        window.dispatchEvent(new PopStateEvent("popstate", {state: data}))
     }
 
     export interface PathParams {
-        [key : string] : string
+        [key: string]: string
     }
 
     export interface QueryParams {
-        [key : string] : string
+        [key: string]: string | string[]
     }
 
     export interface Loader {
-        [key : string] : (path : PathParams, query : QueryParams) => Promise<any>
+        [key: string]: (path: PathParams, query: QueryParams) => Promise<any>
     }
 
     export interface Route {
-        path  : string
-        subRouter? : boolean
-        component? : FunctionComponent<any> | MultiComponent
-        dynamic? : (path : PathParams, query : QueryParams) => FunctionComponent<any> | MultiComponent
-        children? : Route[]
-        loader? : Loader
+        path: string
+        subRouter?: boolean
+        component?: FunctionComponent<any> | MultiComponent
+        dynamic?: (path: PathParams, query: QueryParams) => FunctionComponent<any> | MultiComponent
+        children?: Route[]
+        loader?: Loader
     }
 
     export interface MultiComponent {
-        mobile : FunctionComponent<any>
-        desktop : FunctionComponent<any>
+        mobile: FunctionComponent<any>
+        desktop: FunctionComponent<any>
     }
-
 }
 
 export default Router
-

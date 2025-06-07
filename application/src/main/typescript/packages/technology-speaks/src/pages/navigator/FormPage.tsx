@@ -21,7 +21,7 @@ function FormPage(properties: FormView.Attributes) {
 
     const {queryParams} = properties
 
-    let url = atob(queryParams.link || "")
+    let url = atob(queryParams.link as string || "")
 
     const domain = useForm(properties.form);
 
