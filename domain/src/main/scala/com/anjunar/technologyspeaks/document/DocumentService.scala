@@ -9,9 +9,10 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager
+import jakarta.transaction.Transactional
 
 import java.util
-import java.util.Locale
+import java.util.{Locale, UUID}
 import java.util.concurrent.BlockingQueue
 import java.util.regex.Pattern
 import java.util.stream.Collectors
@@ -219,8 +220,11 @@ class DocumentService {
       .toList
   }
 
-  def update(document: Document, blockingQueue: BlockingQueue[String]): Unit = {
+  @Transactional
+  def update(id: UUID, blockingQueue: BlockingQueue[String]): Unit = {
 
+    val document = Document.find(id)
+    
     val text = toText(document.editor.json)
 
     blockingQueue.put("Start Processing\n")

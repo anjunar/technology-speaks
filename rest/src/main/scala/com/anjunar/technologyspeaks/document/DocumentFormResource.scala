@@ -11,8 +11,10 @@ import com.anjunar.technologyspeaks.shared.editor.{ASTDiffUtil, Change}
 import com.github.gumtreediff.actions.ChawatheScriptGenerator
 import com.github.gumtreediff.matchers.Matchers
 import com.typesafe.scalalogging.Logger
+import jakarta.annotation.Resource
 import jakarta.annotation.security.RolesAllowed
 import jakarta.batch.runtime.BatchRuntime
+import jakarta.enterprise.concurrent.ManagedExecutorService
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.ws.rs.*
@@ -31,10 +33,10 @@ class DocumentFormResource extends SchemaBuilderContext {
   val log: Logger = Logger[DocumentFormResource]
 
   @Inject
-  var service : DocumentService = uninitialized
+  private var service : DocumentService = uninitialized
 
-  @Inject
-  var blockingQueue : QueueRegistry = uninitialized
+  @Resource
+  var executor: ManagedExecutorService  = uninitialized
 
   @GET
   @Produces(Array("application/json"))
@@ -194,17 +196,19 @@ class DocumentFormResource extends SchemaBuilderContext {
   @Path("/{id}/batch")
   @RolesAllowed(Array("User", "Administrator"))
   @Produces(Array(MediaType.SERVER_SENT_EVENTS))
-  def progressStream(@PathParam("id") id: UUID): Response = {
+  def progressStream(@PathParam("id") document: Document): Response = {
 
-    val sessionId = UUID.randomUUID()
-    
-    val queue = blockingQueue.getOrCreateQueue(sessionId)
+    val queue = new LinkedBlockingQueue[String]
 
-    val jobOperator = BatchRuntime.getJobOperator
-    val jobProps = new Properties()
-    jobProps.setProperty("documentId", id.toString)
-    jobProps.setProperty("sessionId", sessionId.toString)
-    val execId = jobOperator.start("updateDocumentJob", jobProps)
+    executor.runAsync(() => {
+      try {
+        service.update(document.id, queue)
+      } catch {
+        case e: Exception =>
+          queue.offer(s"Error: ${e.getMessage}")
+          queue.offer("Done")
+      }
+    })
 
     val stream: StreamingOutput = output => {
       try {
@@ -218,8 +222,6 @@ class DocumentFormResource extends SchemaBuilderContext {
         }
       } catch {
         case e: InterruptedException => log.error(e.getMessage, e)
-      } finally {
-        blockingQueue.removeQueue(id)
       }
     }
 

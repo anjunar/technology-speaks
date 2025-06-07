@@ -85,7 +85,7 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
                             Server
                         </Window.Header>
                         <Window.Content>
-                            <div ref={scrollRef} style={{overflowY: "auto", padding: "20px", height: "calc(50vh - 90px)"}}>
+                            <div ref={scrollRef} style={{overflowY: "auto", padding: "20px", height: "calc(50vh - 90px)", whiteSpace : "pre-wrap"}}>
                                 <p>
                                     {buffer}
                                 </p>
