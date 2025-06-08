@@ -72,7 +72,7 @@ export const routes: Router.Route[] = [
                                 const urlBuilder = new URL("/service/documents", "http://localhost:3000")
                                 const searchParams = urlBuilder.searchParams;
 
-                                searchParams.set("index", "0")
+                                searchParams.set("index", queryParams["index"] as string || "0")
                                 searchParams.set("limit", "5")
 
                                 if (queryParams.text) {
@@ -279,8 +279,8 @@ export const routes: Router.Route[] = [
                                 path : "/search",
                                 component : I18nTablePage,
                                 loader : {
-                                    async table(path, pathParams : PathParams, queryParms : QueryParams) {
-                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns?index=0&limit=10`)
+                                    async table(path, pathParams : PathParams, queryParams : QueryParams) {
+                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns?index=${queryParams["index"] || 0}&limit=10`)
 
                                         process(response, path)
 

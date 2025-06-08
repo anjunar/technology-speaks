@@ -1,4 +1,4 @@
-import React, {createContext, CSSProperties, useContext, useMemo, useState} from "react"
+import React, {createContext, CSSProperties, useContext, useMemo} from "react"
 import Table from "../../lists/table/Table"
 import Image from "../../inputs/upload/image/Image";
 import ObjectDescriptor from "../../../domain/descriptors/ObjectDescriptor";
@@ -6,7 +6,6 @@ import NodeDescriptor from "../../../domain/descriptors/NodeDescriptor";
 import CollectionDescriptor from "../../../domain/descriptors/CollectionDescriptor";
 import {Temporal, TemporalAccessor, TemporalAmount} from "@js-joda/core";
 import Validable from "../../../domain/descriptors/Validable";
-import {LinkContainerObject} from "../../../domain/container";
 
 const sortable = ["String", "Double", "Float", "Integer", "Long", "LocalDate", "LocalDateTime", "Instant", "Boolean"]
 
@@ -45,17 +44,17 @@ function SchemaTable(properties: SchemaTable.Attributes) {
 
     const tableLoader = new (class extends SchemaTable.Loader {
         onLoad(query: any, callback: any) {
-            loader.onLoad(query, (rows, size, loadedSchema) => {
-/*
-                    if (schema && loadedSchema) {
-                        if (JSON.stringify(schema) !== JSON.stringify(loadedSchema)) {
-                            setSchema(loadedSchema)
-                        }
-                    } else {
-                        setSchema(loadedSchema)
-                    }
-*/
-                    callback(rows, size)
+            loader.onLoad(query, (rows, index, size, loadedSchema) => {
+                    /*
+                                        if (schema && loadedSchema) {
+                                            if (JSON.stringify(schema) !== JSON.stringify(loadedSchema)) {
+                                                setSchema(loadedSchema)
+                                            }
+                                        } else {
+                                            setSchema(loadedSchema)
+                                        }
+                    */
+                    callback(rows, index, size)
                 }
             )
         }
@@ -152,7 +151,7 @@ function SchemaTable(properties: SchemaTable.Attributes) {
                     {
                         filters.map(element => (
                             <Table.Filter.Cell>
-                                {({row, index, data}: { row: any, index: number, data : any }) => (
+                                {({row, index, data}: { row: any, index: number, data: any }) => (
                                     <SchemaTable.Filter.FilterCellProvider row={row} index={index} data={data}>
                                         {element}
                                     </SchemaTable.Filter.FilterCellProvider>
@@ -164,7 +163,8 @@ function SchemaTable(properties: SchemaTable.Attributes) {
                 <Table.Head>
                     {
                         headers.map(element => (
-                            <Table.Head.Cell property={element.props["property"]} sortable={sortable.indexOf(((schema?.properties.rows) as CollectionDescriptor)?.items.properties[element.props["property"]].type) > -1}>{element}</Table.Head.Cell>
+                            <Table.Head.Cell property={element.props["property"]}
+                                             sortable={sortable.indexOf(((schema?.properties.rows) as CollectionDescriptor)?.items.properties[element.props["property"]].type) > -1}>{element}</Table.Head.Cell>
                         ))
                     }
                 </Table.Head>
@@ -198,11 +198,11 @@ namespace SchemaTable {
 
     export interface Attributes {
         loader: Loader
-        initialData? : () => [any[], number, ObjectDescriptor]
-        onRowClick?: (row : any) => void
+        initialData?: () => [any[], number, ObjectDescriptor]
+        onRowClick?: (row: any) => void
         selectable?: boolean
         name?: string
-        limit? : number
+        limit?: number
         style?: CSSProperties
         children?: React.ReactNode
     }
@@ -222,12 +222,12 @@ namespace SchemaTable {
     export interface Query {
         index: number
         limit: number
-        filter: {property : string, value : any}
-        sort: {property : string, value : "asc" | "desc" | "none" }[]
+        filter: { property: string, value: any }
+        sort: { property: string, value: "asc" | "desc" | "none" }[]
     }
 
     export interface Callback {
-        (rows: any[], size: number, schema: ObjectDescriptor): void
+        (rows: any[], index: number, size: number, schema: ObjectDescriptor): void
     }
 
     export function Filter({children}: { children: React.ReactElement[] }) {

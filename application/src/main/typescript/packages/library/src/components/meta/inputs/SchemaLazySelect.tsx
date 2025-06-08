@@ -57,7 +57,7 @@ function SchemaLazySelect(properties: SchemaLazySelect.Attributes) {
                 if (response.ok) {
                     const [table, size] = mapTable(await response.json())
 
-                    return callback(table, size)
+                    return callback(table, query.index, size)
                 }
             }
         }

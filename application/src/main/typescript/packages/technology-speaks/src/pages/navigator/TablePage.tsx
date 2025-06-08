@@ -25,8 +25,10 @@ function TablePage(properties: TableView.Attributes) {
                 const urlBuilder = new URL(url, window.location.origin)
                 let searchParams = urlBuilder.searchParams;
 
-                searchParams.set("index", query.index.toString())
+                const index = queryParams["index"] as string || query.index.toString();
+                searchParams.set("index", index)
                 searchParams.set("limit", query.limit.toString())
+                window.history.pushState({}, "", `/navigator/table?index=${query.index}`)
 
                 if (search) {
                     Object.entries(search.$descriptors.properties)
@@ -80,7 +82,7 @@ function TablePage(properties: TableView.Attributes) {
                 if (response.ok) {
                     let [mapped, size, links, schema] = mapTable(await response.json());
                     setLinks(links || {})
-                    callback(mapped, size, schema)
+                    callback(mapped, Number.parseInt(index), size, schema)
                 } else {
                     process(response)
                 }

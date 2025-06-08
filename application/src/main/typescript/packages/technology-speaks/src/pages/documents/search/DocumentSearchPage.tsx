@@ -30,8 +30,10 @@ function DocumentSearchPage(properties: SearchPageMobile.Attributes) {
             const urlBuilder = new URL("/service/documents", window.location.origin)
             const searchParams = urlBuilder.searchParams;
 
-            searchParams.set("index", query.index.toString())
+            const index = queryParams["index"] as string || query.index.toString();
+            searchParams.set("index", index)
             searchParams.set("limit", query.limit.toString())
+            window.history.pushState({}, "", `/documents/search?index=${query.index}`)
 
             if (search.text) {
                 searchParams.set("text", search.text)
@@ -42,7 +44,7 @@ function DocumentSearchPage(properties: SearchPageMobile.Attributes) {
 
             if (response.ok) {
                 let [mapped, size, links] = mapTable(await response.json());
-                callback(mapped, size)
+                callback(mapped, Number.parseInt(index), size)
             } else {
                 process(response)
             }

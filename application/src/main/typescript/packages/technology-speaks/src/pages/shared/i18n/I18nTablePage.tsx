@@ -18,7 +18,7 @@ import onLink = Link.onLink;
 
 export function I18nTablePage(properties: I18nTablePage.Attributes) {
 
-    const {search, table : [rows, count, links, schema]} = properties
+    const {queryParams, search, table : [rows, count, links, schema]} = properties
 
     const domain = useForm(search);
 
@@ -27,8 +27,10 @@ export function I18nTablePage(properties: I18nTablePage.Attributes) {
             const urlBuilder = new URL("/service/shared/i18ns", window.location.origin)
             let searchParams = urlBuilder.searchParams;
 
-            searchParams.set("index", query.index.toString())
+            let index = queryParams["index"] as string || query.index.toString();
+            searchParams.set("index", index)
             searchParams.set("limit", query.limit.toString())
+            window.history.pushState({}, "", `/shared/i18ns/search?index=${query.index}`)
 
             for (const sort of query.sort || []) {
                 if (sort.value !== "none") {
@@ -39,7 +41,7 @@ export function I18nTablePage(properties: I18nTablePage.Attributes) {
             const response = await fetch(urlBuilder.toString(),)
             if (response.ok) {
                 const [rows, size, links, schema] = mapTable(await response.json())
-                callback(rows, size, schema)
+                callback(rows, Number.parseInt(index), size, schema)
             } else {
                 process(response)
             }
@@ -97,6 +99,7 @@ export function I18nTablePage(properties: I18nTablePage.Attributes) {
 
 namespace I18nTablePage {
     export interface Attributes {
+        queryParams: Router.QueryParams
         search : I18nSearch
         table : [I18n[], number, LinkContainerObject, ObjectDescriptor]
     }

@@ -40,9 +40,10 @@ function withPageable(Component : any, parameters : withPageable.Attributes)  {
         }
 
         function load(query : withPageable.Query, callback : () => void) {
-            loader.onLoad(query, (rows, size) => {
+            loader.onLoad(query, (rows, index, size) => {
                 setSize(size)
                 setWindow(rows)
+                setIndex(index)
                 callback()
             })
         }
@@ -110,7 +111,7 @@ namespace withPageable {
     }
 
     export interface Callback {
-        (rows : any[], size : number) : void
+        (rows : any[], index : number, size : number) : void
     }
 
     export abstract class Loader {
