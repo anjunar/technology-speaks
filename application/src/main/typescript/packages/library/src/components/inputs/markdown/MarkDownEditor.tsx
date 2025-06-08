@@ -122,7 +122,7 @@ function MarkDownEditor(properties: MarkDownEditor.Attributes) {
                 }
             }}>
                 <Toolbar page={page} onPage={value => setPage(value)}/>
-                <textarea onSelect={onSelect} ref={textAreaRef} onInput={(event: any) => setText(event.target.value)} value={text} className={"content"}></textarea>
+                <textarea name={name} onSelect={onSelect} ref={textAreaRef} onInput={(event: any) => setText(event.target.value)} value={text} className={"content"}></textarea>
                 <div>
                     {
                         state?.files?.map(file => <img key={file.name} title={file.name} src={encodeBase64(file.type, file.subType, file.data)} style={{height: "32px"}} onClick={() => onStoreClick(file)}/>)
