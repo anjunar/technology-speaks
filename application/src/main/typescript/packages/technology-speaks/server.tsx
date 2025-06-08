@@ -9,6 +9,7 @@ import cookieParser from 'cookie-parser';
 import * as cheerio from 'cheerio';
 import * as path from "node:path";
 import * as fs from "node:fs";
+import {Router} from "react-ui-simplicity";
 
 function resolvePreferredLanguage(header: string): string {
     if (!header) return "en";
@@ -31,6 +32,14 @@ const app = express();
 const PORT = 3000;
 
 app.use(cookieParser());
+
+app.use(
+    '/.well-known',
+    createProxyMiddleware({
+        target: 'http://localhost:3001/.well-known',
+        changeOrigin: true,
+    })
+);
 
 app.use(
     '/static',
@@ -61,7 +70,8 @@ app.use(
     })
 );
 
-function sendToClient(path: string, search: string, res: any, data: React.ReactElement[], language: string, cookie: string, theme : string) : void {
+function sendToClient(path: string, search: string, res: any, data: [Router.Route, React.ReactElement][], language: string, cookie: string, theme : string) : void {
+
     const appHtml = renderToString(
         <App
             path={path}
@@ -90,9 +100,9 @@ app.get('*', (req, res) => {
     const language = resolvePreferredLanguage(req.headers['accept-language']);
 
     resolveComponentList(path, search, routes, host)
-        .then((component) => {
-            if (component) {
-                sendToClient(path, search, res, component, language, cookie, theme)
+        .then((components) => {
+            if (components) {
+                sendToClient(path, search, res, components, language, cookie, theme)
             } else {
                 res.status(404).send('Not found');
             }

@@ -28,7 +28,7 @@ export class SystemContextHolder {
                 public routes: Router.Route[] = [],
                 public windows: [WindowRef[], Dispatch<SetStateAction<WindowRef[]>>] = null,
                 public darkMode : boolean = false,
-                public data : any[] = [],
+                public data : [Router.Route, React.ReactElement][] = [],
                 public language : string = "en",
                 public theme : string = "light") {
     }
@@ -79,7 +79,6 @@ function System(properties : System.Attributes) {
 
         let init = argArray[1] || {}
         argArray[1] = Object.assign(init, {
-            credentials: 'include',
             // signal: AbortSignal.timeout(12000),
             headers: Object.assign(init.headers || {}, {'x-language': language, "cookie": cookies})
         })
@@ -134,7 +133,7 @@ function System(properties : System.Attributes) {
                         loading.length > 0 && <Progress/>
                     }
                 </div>
-                <Router/>
+                <Router onRoute={() => {}}/>
                 <ToolBar>
                     <div slot={"left"}>
                         <div style={{display: "flex"}} onClick={(event) => event.stopPropagation()}>
@@ -166,7 +165,7 @@ namespace System {
         cookies : string
         routes : Router.Route[]
         host : string
-        data : any[]
+        data : [Router.Route, React.ReactElement][]
         language : string
         theme : string
     }

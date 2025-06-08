@@ -1,11 +1,11 @@
 import "./Router.css"
 import React, {FunctionComponent, useContext, useEffect, useRef, useState} from "react"
 import {SystemContext, SystemContextHolder} from "../../../System"
-import {match, MatchFunction} from "path-to-regexp"
+import {match} from "path-to-regexp"
+import {useHydrated} from "../../../hooks";
 import Route = Router.Route;
 import QueryParams = Router.QueryParams;
 import PathParams = Router.PathParams;
-import {useHydrated} from "../../../hooks";
 
 const scrollAreaCache = new Map<string, number>()
 
@@ -13,19 +13,20 @@ export async function resolveComponentList(
     path: string,
     search: string,
     routes: Route[],
-    host : string
-): Promise<React.ReactElement[]> {
+    host: string,
+    findFirst = false,
+): Promise<[Route, React.ReactElement][]> {
     const queryParams = resolveQueryParameters(search)
 
-    async function walk(routes: Route[]): Promise<React.ReactElement[]> {
+    async function walk(routes: Route[]): Promise<[Route, React.ReactElement][]> {
         const flattened = flattenRoutes(routes)
 
         for (const [rawPath, route] of flattened) {
-            let pathParams : PathParams
+            let pathParams: PathParams
             if (route.subRouter && path.startsWith(rawPath)) {
                 pathParams = {}
             } else {
-                const matcher = match(rawPath, { decode: decodeURIComponent })
+                const matcher = match(rawPath, {decode: decodeURIComponent})
                 const matched = matcher(path)
                 if (!matched) continue
                 pathParams = matched.params as PathParams
@@ -34,7 +35,7 @@ export async function resolveComponentList(
             let component = route.component ?? route.dynamic?.(pathParams, queryParams)
             if (!component) return []
 
-            const props: any = { pathParams, queryParams }
+            const props: any = {pathParams, queryParams}
 
             if (route.loader) {
                 const loaderEntries = Object.entries(route.loader)
@@ -48,11 +49,11 @@ export async function resolveComponentList(
 
             const currentElement = React.createElement(component as FunctionComponent<any>, props)
 
-            const childElements = route.children
+            const childElements = ! findFirst && route.children
                 ? await walk(route.children)
                 : []
 
-            return [currentElement, ...childElements]
+            return [[route, currentElement], ...childElements]
         }
 
         return []
@@ -72,7 +73,7 @@ export function flattenRoutes(routes: Route[], parentPath: string = ''): Router.
     }, [])
 }
 
-export function resolveQueryParameters(search : string): QueryParams {
+export function resolveQueryParameters(search: string): QueryParams {
     let segments = search
         .slice(1)
         .split("&")
@@ -99,117 +100,48 @@ function Router(properties: Router.Attributes) {
 
     const {onRoute, ...rest} = properties
 
-    const {depth, path, search, routes, windows, darkMode, data, host, language, cookies, theme} = useContext(SystemContext)
-
-    const [state, setState] = useState(data[depth])
-
-    const [childRoutes, setChildRoutes] = useState<Route[]>([])
-
-    const scrollArea = useRef<HTMLDivElement>(null)
+    const {
+        depth,
+        path,
+        search,
+        routes,
+        windows,
+        darkMode,
+        data,
+        host,
+        language,
+        cookies,
+        theme
+    } = useContext(SystemContext)
 
     const hydrated = useHydrated()
 
-    function processUrlChange() {
+    const [state, setState] = useState<React.ReactElement<any>>(() => {
+        return data[depth][1]
+    })
 
-        const flattened = flattenRoutes(routes)
+    const [childRoutes, setChildRoutes] = useState<Route[]>(data[depth][0].children)
 
-        const matchers: [MatchFunction<object>, Route, string][] = flattened.map(([rawPath, route]) => {
-            const matcher = match(rawPath, {decode: decodeURIComponent})
-            return [matcher, route, rawPath]
-        })
+    const scrollArea = useRef<HTMLDivElement>(null)
 
-        let oldRoute: string = null
-        let oldComponent: any = null
-        let oldSearch: string = null
+    async function processUrlChange() {
+        if (onRoute) onRoute(true);
 
-        const loadComponent = (callback: (value: any[]) => void) => {
-            const pathname = path.replace("//", "/")
+        try {
+            const components = await resolveComponentList(path, search, routes, host, true);
 
-            const option = matchers.find(([matcher]) => {
-                try {
-                    let matcher1 = matcher(pathname);
-                    return matcher1
-                } catch {
-                    return false
-                }
-            })
+            setState(components[0][1] ?? null);
 
-            if (!option) {
-                const allRoutes = flattened.map(([p]) => p).join('\n')
-                throw new Error(`No Route found for: ${pathname}\n Available Routes:\n${allRoutes}`)
-            } else {
-                const [matcher, route, rawPath] = option
-
-                if (oldRoute === route.path && oldComponent === route.component && (oldSearch === search || route.subRouter)) {
-                    oldSearch = search
-                    return route.children
-                } else {
-                    oldRoute = route.path
-                    oldComponent = route.component
-                    oldSearch = search
-
-                    let pathParameters: PathParams
-                    if (route.subRouter && path.startsWith(rawPath)) {
-                        pathParameters = {}
-                    } else {
-                        const matched = matcher(pathname)
-                        if (!matched) throw new Error("Matcher sollte ja passen!")
-
-                        pathParameters = matched.params as any
-                    }
-                    const queryParameters: QueryParams = resolveQueryParameters(search)
-                    let component = route.component
-                    if (!component) {
-                        component = route.dynamic(pathParameters, queryParameters)
-                    }
-
-                    if (component) {
-                        let loader = route.loader
-                        if (loader) {
-                            if (onRoute) {
-                                onRoute(true)
-                            }
-
-                            let loaders = Object.entries(loader).map(([key, value]) => {
-                                return {name: key, value: value(host + rawPath, pathParameters, queryParameters)}
-                            })
-
-                            Promise.all(loaders.map(l => l.value))
-                                .then(response => {
-                                    const data = response.reduce((prev, elem, index) => {
-                                        prev[loaders[index].name] = elem
-                                        return prev
-                                    }, {})
-
-                                    setState(
-                                        React.createElement(component as FunctionComponent<any>, {
-                                            pathParams: pathParameters,
-                                            queryParams: queryParameters,
-                                            ...data
-                                        })
-                                    )
-
-                                    if (onRoute) {
-                                        onRoute(false)
-                                    }
-                                    callback(route.children)
-                                })
-                                .catch(console.error)
-                        } else {
-                            setState(
-                                React.createElement(component as FunctionComponent<any>, {
-                                    pathParams: pathParameters,
-                                    queryParams: queryParameters
-                                })
-                            )
-                            callback(route.children)
-                        }
-                    }
-                }
-            }
+            const flattened = flattenRoutes(routes);
+            const matched = flattened.find(([p]) => path.startsWith(p));
+            setChildRoutes(matched?.[1]?.children ?? []);
+        } catch (error) {
+            console.error("Fehler beim Laden der Komponenten", error);
+            setState(null);
+            setChildRoutes([]);
         }
 
-        loadComponent(route => setChildRoutes(route))
+        if (onRoute) onRoute(false);
     }
 
     useEffect(() => {
@@ -238,7 +170,7 @@ function Router(properties: Router.Attributes) {
     }, [])
 
     function getContextHolder() {
-        return new SystemContextHolder(depth + 1, path, search, host, cookies, routes,  windows, darkMode, data, language, theme)
+        return new SystemContextHolder(depth + 1, path, search, host, cookies, childRoutes, windows, darkMode, data, language, theme)
     }
 
     return (
@@ -277,7 +209,7 @@ namespace Router {
     }
 
     export interface Loader {
-        [key: string]: (path : string, pathParams: PathParams, queryParams: QueryParams) => Promise<any>
+        [key: string]: (path: string, pathParams: PathParams, queryParams: QueryParams) => Promise<any>
     }
 
     export interface Route {

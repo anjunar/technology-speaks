@@ -40,7 +40,7 @@ namespace App {
         cookies : string
         path: string
         search: string
-        data : any[]
+        data : [Router.Route, React.ReactElement][]
         theme : string
     }
 }
