@@ -32,7 +32,12 @@ function MarkDownEditor(properties: MarkDownEditor.Attributes) {
         return reMarkFactoryForMarkDown(state)
     }, []);
 
-    const [text, setText] = useState(reMarkForMarkDown.stringify(state.ast));
+    const [text, setText] = useState(() => {
+        if (state.ast) {
+            return reMarkForMarkDown.stringify(state.ast)
+        }
+        return ""
+    });
 
     const [cursor, setCursor] = useState<Node[]>(null)
 
