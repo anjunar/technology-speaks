@@ -35,7 +35,11 @@ class CDII18nResolver extends I18nResolver {
       log.warn("No translation found for: " + value)
       return value
     }
-    i18n.translations.get(Locale.forLanguageTag(request.getLocale.getLanguage))
+    var serverLanguage = request.getLocale.getLanguage
+    if (serverLanguage.isBlank) {
+      serverLanguage = request.getHeader("x-language")
+    }
+    i18n.translations.get(Locale.forLanguageTag(serverLanguage))
   }
 
 }

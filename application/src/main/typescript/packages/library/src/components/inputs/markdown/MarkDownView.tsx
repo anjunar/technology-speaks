@@ -128,24 +128,22 @@ function MarkDownView(properties: MarkDownView.Attributes) {
 
     }
 
+    const html = useMemo(() => {
+        if (!state?.ast) return "";
+        const tree = reMarkForHTML.runSync(state.ast);
+        return reMarkForHTML.stringify(tree);
+    }, [state]);
+
     useEffect(() => {
         if (state?.ast) {
-            reMarkForHTML.run(state.ast)
-                .then((tree: any) => reMarkForHTML
-                    .stringify(tree)
-                )
-                .then(html => {
-                    viewRef.current.innerHTML = html
-
-                    if (state.changes) {
-                        showDiff(viewRef.current, state.changes)
-                    }
-                })
+            if (state.changes) {
+                showDiff(viewRef.current, state.changes)
+            }
         }
     }, [state]);
 
     return (
-        <div ref={viewRef} className={"mark-down-view"} style={style}></div>
+        <div ref={viewRef} className={"mark-down-view"} style={style} dangerouslySetInnerHTML={{__html : html}}></div>
     )
 }
 

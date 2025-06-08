@@ -20,12 +20,14 @@ export function App(properties : App.Attributes) {
         return () => window.removeEventListener("popstate", onPopState);
     }, []);
 
-    return <System depth={0} routes={routes} path={path} search={search} data={properties.initialData} host={properties.host}/>;
+    return <System depth={0} routes={routes} path={path} cookies={properties.cookies} search={search} data={properties.initialData} host={properties.host} language={properties.language}/>;
 }
 
 namespace App {
     export interface Attributes {
         host : string
+        language : string
+        cookies : string
         initialPath: string
         initialSearch: string
         initialData : any[]

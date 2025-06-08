@@ -24,10 +24,6 @@ function MarkDownEditor(properties: MarkDownEditor.Attributes) {
 
     const [model, state, setState] = useInput<EditorModel>(name, value, standalone, "editor")
 
-    const [text, setText] = useState("");
-
-    const [cursor, setCursor] = useState<Node[]>(null)
-
     const reMarkForHTML = useMemo(() => {
         return reMarkFactoryForHTML(state)
     }, []);
@@ -35,6 +31,10 @@ function MarkDownEditor(properties: MarkDownEditor.Attributes) {
     const reMarkForMarkDown = useMemo(() => {
         return reMarkFactoryForMarkDown(state)
     }, []);
+
+    const [text, setText] = useState(reMarkForMarkDown.stringify(state.ast));
+
+    const [cursor, setCursor] = useState<Node[]>(null)
 
     function onStoreClick(file: EditorFile) {
         let textArea = textAreaRef.current;

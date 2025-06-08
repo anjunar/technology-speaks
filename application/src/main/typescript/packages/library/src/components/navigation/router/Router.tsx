@@ -5,6 +5,7 @@ import {match, MatchFunction} from "path-to-regexp"
 import Route = Router.Route;
 import QueryParams = Router.QueryParams;
 import PathParams = Router.PathParams;
+import {useHydrated} from "../../../hooks";
 
 const scrollAreaCache = new Map<string, number>()
 
@@ -98,13 +99,15 @@ function Router(properties: Router.Attributes) {
 
     const {onRoute, ...rest} = properties
 
-    const {depth, path, search, routes, windows, darkMode, data, host} = useContext(SystemContext)
+    const {depth, path, search, routes, windows, darkMode, data, host, language, cookies} = useContext(SystemContext)
 
     const [state, setState] = useState(data[depth])
 
     const [childRoutes, setChildRoutes] = useState<Route[]>([])
 
     const scrollArea = useRef<HTMLDivElement>(null)
+
+    const hydrated = useHydrated()
 
     function processUrlChange() {
 
@@ -210,7 +213,7 @@ function Router(properties: Router.Attributes) {
     }
 
     useEffect(() => {
-        if (data.length === 0) {
+        if (hydrated) {
             processUrlChange()
         }
     }, [path, search])
@@ -235,7 +238,7 @@ function Router(properties: Router.Attributes) {
     }, [])
 
     function getContextHolder() {
-        return new SystemContextHolder(depth + 1, path, search, host, routes,  windows, darkMode, data)
+        return new SystemContextHolder(depth + 1, path, search, host, cookies, routes,  windows, darkMode, data, language)
     }
 
     return (
@@ -255,8 +258,14 @@ namespace Router {
     }
 
     export function navigate(url: string, data?: any) {
-        window.history.pushState(data, "", url)
-        window.dispatchEvent(new PopStateEvent("popstate", {state: data}))
+        try {
+            const path = new URL("http://" + url, window.location.origin);
+            window.history.pushState(data, "", path)
+            window.dispatchEvent(new PopStateEvent("popstate", {state: data}))
+        } catch (e) {
+            window.history.pushState(data, "", url)
+            window.dispatchEvent(new PopStateEvent("popstate", {state: data}))
+        }
     }
 
     export interface PathParams {

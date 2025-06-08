@@ -18,8 +18,20 @@ async function main() {
             initialSearch={initialSearch}
             initialData={components}
             host={window.location.origin}
+            cookies={document.cookie}
+            language={window.navigator.language.split("-")[0] || "en"}
         />
-    ))
+    ),  {
+        onUncaughtError: (error, errorInfo) => {
+            console.error(errorInfo.componentStack)
+        },
+        onRecoverableError: (error, errorInfo) => {
+            console.warn(errorInfo.componentStack)
+        },
+        onCaughtError: (error, errorInfo) => {
+            console.error(errorInfo.componentStack)
+        }
+    })
 }
 
 main().catch(console.error)
