@@ -22,10 +22,6 @@ module.exports = {
                 exclude: /node_modules/,
             },
             {
-                test: /\.(tsx|ts|js|jsx)$/,
-                use: ['source-map-loader']
-            },
-            {
                 test: /\.css$/i,
                 use: ["style-loader", "css-loader"]
             },
@@ -34,5 +30,5 @@ module.exports = {
                 type: "asset",
             }
         ],
-    },
+    }
 };

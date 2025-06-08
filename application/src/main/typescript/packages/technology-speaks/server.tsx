@@ -5,6 +5,7 @@ import {App} from './src/App';
 import {createProxyMiddleware} from 'http-proxy-middleware';
 import {resolveComponentList} from "react-ui-simplicity/src/components/navigation/router/Router";
 import {routes} from "./src/routes"
+import * as path from "node:path";
 
 function resolvePreferredLanguage(header: string): string {
     if (!header) return "en";
@@ -66,12 +67,8 @@ function sendToClient<ResBody, LocalsObj>(path: string, search: string, res: any
     <html>
       <head>
         <meta charset="UTF-8" />
+        <link rel="stylesheet" href="/static/assets/style.css">
         <title>SSR React App</title>
-        <style>
-            html, body, #root {
-               height: 100%;
-            }        
-        </style>
       </head>
       <body>
         <div id="root">${appHtml}</div>

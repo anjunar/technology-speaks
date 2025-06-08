@@ -1,6 +1,7 @@
 const path = require('path');
 const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin')    ;
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
     mode: 'development',
@@ -27,7 +28,15 @@ module.exports = {
             },
             {
                 test: /\.css$/i,
-                use: ["style-loader", "css-loader"]
+                use: [
+                    {
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            emit: true,
+                        },
+                    },
+                    "css-loader"
+                ],
             },
             {
                 test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/i,
@@ -57,6 +66,8 @@ module.exports = {
                 {from: 'public/assets', to: 'assets'},
             ],
         }),
-        // new ReactRefreshWebpackPlugin()
+        new MiniCssExtractPlugin({
+            filename: 'assets/style.css',
+        })
     ]
 };
