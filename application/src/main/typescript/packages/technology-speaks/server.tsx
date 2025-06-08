@@ -53,8 +53,10 @@ app.use(
     createProxyMiddleware({
         target: 'http://localhost:3001/service',
         changeOrigin: true,
-        headers: {
-            'x-language': 'de',
+        on : {
+            proxyReq: (proxyReq, req, res) => {
+                proxyReq.setHeader('x-language', req.headers["x-language"] || "de");
+            }
         }
     })
 );

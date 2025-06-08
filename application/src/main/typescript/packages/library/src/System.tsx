@@ -79,8 +79,9 @@ function System(properties : System.Attributes) {
 
         let init = argArray[1] || {}
         argArray[1] = Object.assign(init, {
+            credentials: 'include',
             // signal: AbortSignal.timeout(12000),
-            headers: Object.assign(init.headers || {}, {'x-language': language, "Cookie": cookies})
+            headers: Object.assign(init.headers || {}, {'x-language': language, "cookie": cookies})
         })
 
 
