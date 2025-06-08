@@ -51,15 +51,10 @@ function System(properties : System.Attributes) {
 
     useLayoutEffect(() => {
         const matchMedia = window.matchMedia('(prefers-color-scheme: dark)');
-        const isDark = matchMedia.matches;
-
-        setDarkMode(isDark);
-        Cookies.set('theme', isDark ? 'dark' : 'light', { expires: 365, path: '/' });
 
         const handler = (e: MediaQueryListEvent) => {
             const newIsDark = e.matches;
             setDarkMode(newIsDark);
-            Cookies.set('theme', newIsDark ? 'dark' : 'light', { expires: 365, path: '/' });
         };
 
         matchMedia.addEventListener('change', handler);
@@ -72,8 +67,10 @@ function System(properties : System.Attributes) {
     useLayoutEffect(() => {
         if (darkMode) {
             document.documentElement.setAttribute("data-theme", "dark")
+            Cookies.set('theme', 'dark', { expires: 365, path: '/' });
         } else {
             document.documentElement.setAttribute("data-theme", "light")
+            Cookies.set('theme', 'light', { expires: 365, path: '/' });
         }
     }, [darkMode]);
 
