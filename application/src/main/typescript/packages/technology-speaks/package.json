@@ -7,7 +7,7 @@
   "scripts": {
     "build:client": "webpack --config webpack.client.config.js",
     "build:server": "webpack --config webpack.server.config.js --watch",
-    "start:dev-server": "nodemon --watch dist/server dist/server/server.js",
+    "start:dev-server": "pm2 start dist/server/server.js --watch --no-daemon --node-args=\"--inspect=9229\"",
     "start:dev-client": "webpack serve --config webpack.client.config.js",
     "dev": "concurrently \"npm run build:server\" \"npm run start:dev-server\" \"npm run start:dev-client\""
   },
@@ -19,7 +19,6 @@
     "@js-joda/core": "^5.6.5",
     "@js-joda/locale_de": "^4.15.1",
     "@mapbox/search-js-web": "^1.0.0",
-    "express": "^4.18.2",
     "highlight.js": "^11.11.1",
     "mapbox-gl": "^3.11.0",
     "prismjs": "^1.30.0",
@@ -45,9 +44,10 @@
     "concurrently": "^9.1.2",
     "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.1.2",
+    "express": "^4.18.2",
     "html-webpack-plugin": "^5.6.3",
     "http-proxy-middleware": "^3.0.5",
-    "nodemon": "^3.1.10",
+    "pm2": "^6.0.8",
     "react-refresh": "^0.17.0",
     "reflect-metadata": "^0.2.2",
     "source-map-loader": "^5.0.0",

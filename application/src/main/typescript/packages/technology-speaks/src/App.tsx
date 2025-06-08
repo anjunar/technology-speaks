@@ -1,8 +1,8 @@
 import './App.css';
 import React, {useEffect, useState} from 'react';
-import {System} from "react-ui-simplicity";
-import {routes} from "./routes";
+import {Router, System} from "react-ui-simplicity";
 import {init} from "./Persistence"
+import {routes} from "./routes";
 
 init()
 
@@ -20,13 +20,14 @@ export function App(properties : App.Attributes) {
         return () => window.removeEventListener("popstate", onPopState);
     }, []);
 
-    return <System routes={routes} path={path} search={search} data={properties.initialData}/>;
+    return <System depth={0} routes={routes} path={path} search={search} data={properties.initialData} host={properties.host}/>;
 }
 
 namespace App {
     export interface Attributes {
+        host : string
         initialPath: string
         initialSearch: string
-        initialData : any
+        initialData : any[]
     }
 }

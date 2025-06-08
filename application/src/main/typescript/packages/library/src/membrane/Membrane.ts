@@ -36,7 +36,11 @@ export function objectMembrane(object : any, callbacks : ((name : string[], valu
                     return target
                 }
 
-                if (target instanceof Node || target instanceof AbstractNode) {
+                if (typeof Node !== "undefined" && target instanceof Node) {
+                    return Reflect.get(target, p, target)
+                }
+
+                if (target instanceof AbstractNode) {
                     return Reflect.get(target, p, target)
                 }
 

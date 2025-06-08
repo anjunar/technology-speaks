@@ -1,5 +1,5 @@
 import {mapForm, mapTable, Router} from "react-ui-simplicity";
-import Root, {process} from "./pages/Root";
+import Root from "./pages/Root";
 import FormPage from "./pages/navigator/FormPage";
 import TablePage from "./pages/navigator/TablePage";
 import HomePage from "./pages/home/HomePage";
@@ -19,16 +19,22 @@ import I18nFormPage from "./pages/shared/i18n/I18nFormPage";
 import QueryParams = Router.QueryParams;
 import PathParams = Router.PathParams;
 
+export function process(response: Response, redirect : string) {
+    if (response.status === 403) {
+        throw new Router.RedirectError(`/security/login?redirect=${redirect}`)
+    }
+}
+
 export const routes: Router.Route[] = [
     {
         path: "/",
         subRouter: true,
         component: Root,
         loader: {
-            async application(pathParams, queryParams) {
+            async application(path, pathParams, queryParams) {
                 let response = await fetch("http://localhost:3000/service")
 
-                process(response)
+                process(response, path)
 
                 if (response.ok) {
                     return mapForm(await response.json(), false)
@@ -42,10 +48,10 @@ export const routes: Router.Route[] = [
                 path: "/",
                 component: HomePage,
                 loader: {
-                    async search(pathParams, queryParams) {
+                    async search(path, pathParams, queryParams) {
                         let response = await fetch("http://localhost:3000/service/documents/search")
 
-                        process(response)
+                        process(response, path)
 
                         if (response.ok) {
                             return mapForm(await response.json(), true)
@@ -62,21 +68,21 @@ export const routes: Router.Route[] = [
                         path: "/search",
                         component: DocumentSearchPage,
                         loader: {
-                            async table(path : PathParams, query : QueryParams) {
+                            async table(path, pathParams : PathParams, queryParams : QueryParams) {
                                 const urlBuilder = new URL("/service/documents", "http://localhost:3000")
                                 const searchParams = urlBuilder.searchParams;
 
                                 searchParams.set("index", "0")
                                 searchParams.set("limit", "5")
 
-                                if (query.text) {
-                                    searchParams.set("text", query.text as string)
+                                if (queryParams.text) {
+                                    searchParams.set("text", queryParams.text as string)
                                     searchParams.set("sort", "score:asc")
                                 }
 
                                 let response = await fetch(urlBuilder.toString())
 
-                                process(response)
+                                process(response, path)
 
                                 if (response.ok) {
                                     return mapTable(await response.json(), true)
@@ -84,10 +90,10 @@ export const routes: Router.Route[] = [
 
                                 throw new Error(response.status.toString())
                             },
-                            async search(pathParams, queryParams) {
+                            async search(path, pathParams, queryParams) {
                                 let response = await fetch(`http://localhost:3000/service/documents/search`)
 
-                                process(response)
+                                process(response, path)
 
                                 if (response.ok) {
                                     let form = mapForm<DocumentSearch>(await response.json(), true);
@@ -103,10 +109,10 @@ export const routes: Router.Route[] = [
                         path: "/document",
                         component : DocumentFormPage,
                         loader: {
-                            async form(pathParams, queryParams) {
+                            async form(path, pathParams, queryParams) {
                                 let response = await fetch(`http://localhost:3000/service/documents/document`)
 
-                                process(response)
+                                process(response, path)
 
                                 if (response.ok) {
                                     return mapForm(await response.json(), true)
@@ -126,10 +132,10 @@ export const routes: Router.Route[] = [
                             }
                         },
                         loader: {
-                            async form(pathParams, queryParams) {
+                            async form(path, pathParams, queryParams) {
                                 let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}?edit=${queryParams["edit"]}`)
 
-                                process(response)
+                                process(response, path)
 
                                 if (response.ok) {
                                     return mapForm(await response.json(), true)
@@ -150,10 +156,10 @@ export const routes: Router.Route[] = [
                                         path: "/revision/:rev/view",
                                         component: DocumentViewPage,
                                         loader: {
-                                            async form(pathParams, queryParams) {
+                                            async form(path, pathParams, queryParams) {
                                                 let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/view`)
 
-                                                process(response)
+                                                process(response, path)
 
                                                 if (response.ok) {
                                                     return mapForm(await response.json(), true)
@@ -166,10 +172,10 @@ export const routes: Router.Route[] = [
                                         path: "/revision/:rev/compare",
                                         component: DocumentViewPage,
                                         loader: {
-                                            async form(pathParams, queryParams) {
+                                            async form(path, pathParams, queryParams) {
                                                 let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/compare`)
 
-                                                process(response)
+                                                process(response, path)
 
                                                 if (response.ok) {
                                                     return mapForm(await response.json(), true)
@@ -191,10 +197,10 @@ export const routes: Router.Route[] = [
                         path: "/login",
                         component: LoginPage,
                         loader: {
-                            async login(pathParams, queryParams) {
+                            async login(path, pathParams, queryParams) {
                                 let response = await fetch("http://localhost:3000/service/security/login")
 
-                                process(response)
+                                process(response, path)
 
                                 if (response.ok) {
                                     return mapForm(await response.json(), true)
@@ -208,10 +214,10 @@ export const routes: Router.Route[] = [
                         path: "/register",
                         component: RegisterPage,
                         loader: {
-                            async register(pathParams, queryParams) {
+                            async register(path, pathParams, queryParams) {
                                 let response = await fetch("http://localhost:3000/service/security/register")
 
-                                process(response)
+                                process(response, path)
 
                                 if (response.ok) {
                                     let activeObject: WebAuthnLogin = mapForm(await response.json(), true);
@@ -231,10 +237,10 @@ export const routes: Router.Route[] = [
                         path: "/confirm",
                         component: ConfirmationPage,
                         loader: {
-                            async form(pathParams, queryParams) {
+                            async form(path, pathParams, queryParams) {
                                 let response = await fetch("http://localhost:3000/service/security/confirm")
 
-                                process(response)
+                                process(response, path)
 
                                 if (response.ok) {
                                     return mapForm(await response.json(), true)
@@ -248,10 +254,10 @@ export const routes: Router.Route[] = [
                         path: "/logout",
                         component: LogoutPage,
                         loader: {
-                            async credential(pathParams, queryParams) {
+                            async credential(path, pathParams, queryParams) {
                                 let response = await fetch("http://localhost:3000/service/security/logout")
 
-                                process(response)
+                                process(response, path)
 
                                 if (response.ok) {
                                     return mapForm(await response.json(), true)
@@ -273,10 +279,10 @@ export const routes: Router.Route[] = [
                                 path : "/search",
                                 component : I18nTablePage,
                                 loader : {
-                                    async table(path : PathParams, query : QueryParams) {
+                                    async table(path, pathParams : PathParams, queryParms : QueryParams) {
                                         let response = await fetch(`http://localhost:3000/service/shared/i18ns?index=0&limit=10`)
 
-                                        process(response)
+                                        process(response, path)
 
                                         if (response.ok) {
                                             return mapTable(await response.json(), true)
@@ -284,10 +290,10 @@ export const routes: Router.Route[] = [
 
                                         throw new Error(response.status.toString())
                                     },
-                                    async search(path : PathParams, query : QueryParams) {
+                                    async search(path, pathParams : PathParams, queryParams : QueryParams) {
                                         let response = await fetch(`http://localhost:3000/service/shared/i18ns/search`)
 
-                                        process(response)
+                                        process(response, path)
 
                                         if (response.ok) {
                                             return mapForm(await response.json(), true)
@@ -301,10 +307,10 @@ export const routes: Router.Route[] = [
                                 path : "/i18n/:id",
                                 component : I18nFormPage,
                                 loader : {
-                                    async form(path : PathParams, query : QueryParams) {
-                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns/i18n/${path["id"]}`)
+                                    async form(path, pathParams : PathParams, queryParams : QueryParams) {
+                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns/i18n/${pathParams["id"]}`)
 
-                                        process(response)
+                                        process(response, path)
 
                                         if (response.ok) {
                                             return mapForm(await response.json(), true)
@@ -338,7 +344,7 @@ export const routes: Router.Route[] = [
 
                                 let response = await fetch("http://localhost:3000/service" + link)
 
-                                process(response)
+                                process(response, path)
 
                                 if (response.ok) {
                                     return mapForm(await response.json(), true)
@@ -365,7 +371,7 @@ export const routes: Router.Route[] = [
 
                                 let response = await fetch("http://localhost:3000/service" + link)
 
-                                process(response)
+                                process(response, path)
 
                                 if (response.ok) {
                                     return mapForm(await response.json(), true)

@@ -19,30 +19,14 @@ export class WindowRef {
 
 export class SystemContextHolder {
 
-    path : string
-
-    search : string
-
-    routes: Router.Route[]
-
-    windows: [WindowRef[], Dispatch<SetStateAction<WindowRef[]>>]
-
-    darkMode : boolean
-
-    data : any
-
-    constructor(path : string = "",
-                search : string = "",
-                routes: Router.Route[] = [],
-                windows: [WindowRef[], Dispatch<SetStateAction<WindowRef[]>>] = null,
-                darkMode : boolean = false,
-                data : any = null) {
-        this.path = path
-        this.search = search
-        this.routes = routes
-        this.windows = windows
-        this.darkMode = darkMode
-        this.data = data
+    constructor(public depth : number = 0,
+                public path : string = "",
+                public search : string = "",
+                public host : string = "",
+                public routes: Router.Route[] = [],
+                public windows: [WindowRef[], Dispatch<SetStateAction<WindowRef[]>>] = null,
+                public darkMode : boolean = false,
+                public data : any[] = []) {
     }
 
 }
@@ -51,7 +35,7 @@ export const SystemContext = createContext(new SystemContextHolder())
 
 function System(properties : System.Attributes) {
 
-    const {path, search, routes, data} = properties
+    const {depth, path, search, routes, data, host} = properties
 
     const [loading, setLoading] = useState([])
 
@@ -128,7 +112,7 @@ function System(properties : System.Attributes) {
 
     return (
         <div className={"system"}>
-            <SystemContext.Provider value={new SystemContextHolder(path, search, routes, [windows, setWindows], darkMode, data)}>
+            <SystemContext.Provider value={new SystemContextHolder(depth, path, search, host, routes, [windows, setWindows], darkMode, data)}>
                 <div style={{position: "absolute", zIndex: 9999, top: 0, left: 0, height: "4px", width: "100%"}}>
                     {
                         loading.length > 0 && <Progress/>
@@ -160,11 +144,12 @@ function System(properties : System.Attributes) {
 namespace System {
     export interface Attributes {
 
+        depth : number
         search : string
         path : string
         routes : Router.Route[]
-        data : any
-
+        host : string
+        data : any[]
     }
 }
 
