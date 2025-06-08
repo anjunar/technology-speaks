@@ -1,5 +1,4 @@
 const path = require('path');
-const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin')    ;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 

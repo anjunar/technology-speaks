@@ -5,6 +5,7 @@ import Router from "./components/navigation/router/Router";
 import Input from "./components/inputs/input/Input";
 import ToolBar from "./components/layout/toolbar/ToolBar";
 import Progress from "./components/indicators/progress/Progress";
+import Cookies from 'js-cookie';
 
 init()
 
@@ -28,7 +29,8 @@ export class SystemContextHolder {
                 public windows: [WindowRef[], Dispatch<SetStateAction<WindowRef[]>>] = null,
                 public darkMode : boolean = false,
                 public data : any[] = [],
-                public language : string = "en") {
+                public language : string = "en",
+                public theme : string = "light") {
     }
 
 }
@@ -39,22 +41,32 @@ export const SystemContext = createContext(new SystemContextHolder())
 
 function System(properties : System.Attributes) {
 
-    const {depth, path, search, routes, data, host, language, cookies} = properties
+    const {depth, path, search, routes, data, host, language, cookies, theme} = properties
 
     const [loading, setLoading] = useState([])
 
     const [windows, setWindows] = useState<WindowRef[]>([])
 
-    const [darkMode, setDarkMode] = useState(false)
+    const [darkMode, setDarkMode] = useState(theme === "dark")
 
     useLayoutEffect(() => {
-        let matchMedia = window.matchMedia('(prefers-color-scheme: dark)');
+        const matchMedia = window.matchMedia('(prefers-color-scheme: dark)');
+        const isDark = matchMedia.matches;
 
-        if (matchMedia.matches) {
-            setDarkMode(true)
-        } else {
-            setDarkMode(false)
-        }
+        setDarkMode(isDark);
+        Cookies.set('theme', isDark ? 'dark' : 'light', { expires: 365, path: '/' });
+
+        const handler = (e: MediaQueryListEvent) => {
+            const newIsDark = e.matches;
+            setDarkMode(newIsDark);
+            Cookies.set('theme', newIsDark ? 'dark' : 'light', { expires: 365, path: '/' });
+        };
+
+        matchMedia.addEventListener('change', handler);
+
+        return () => {
+            matchMedia.removeEventListener('change', handler);
+        };
     }, []);
 
     useLayoutEffect(() => {
@@ -70,7 +82,7 @@ function System(properties : System.Attributes) {
 
         let init = argArray[1] || {}
         argArray[1] = Object.assign(init, {
-            signal: AbortSignal.timeout(12000),
+            // signal: AbortSignal.timeout(12000),
             headers: Object.assign(init.headers || {}, {'x-language': language, "Cookie": cookies})
         })
 
@@ -118,7 +130,7 @@ function System(properties : System.Attributes) {
 
     return (
         <div className={"system"}>
-            <SystemContext.Provider value={new SystemContextHolder(depth, path, search, host,cookies, routes, [windows, setWindows], darkMode, data, language)}>
+            <SystemContext.Provider value={new SystemContextHolder(depth, path, search, host,cookies, routes, [windows, setWindows], darkMode, data, language, theme)}>
                 <div style={{position: "absolute", zIndex: 9999, top: 0, left: 0, height: "4px", width: "100%"}}>
                     {
                         loading.length > 0 && <Progress/>
@@ -158,6 +170,7 @@ namespace System {
         host : string
         data : any[]
         language : string
+        theme : string
     }
 }
 

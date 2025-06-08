@@ -7,8 +7,9 @@ import {routes} from "./routes";
 init()
 
 export function App(properties : App.Attributes) {
-    const [path, setPath] = useState(properties.initialPath);
-    const [search, setSearch] = useState(properties.initialSearch);
+    const {theme, data, host, language, cookies} = properties
+    const [path, setPath] = useState(properties.path);
+    const [search, setSearch] = useState(properties.search);
 
     useEffect(() => {
         const onPopState = () => {
@@ -20,7 +21,16 @@ export function App(properties : App.Attributes) {
         return () => window.removeEventListener("popstate", onPopState);
     }, []);
 
-    return <System depth={0} routes={routes} path={path} cookies={properties.cookies} search={search} data={properties.initialData} host={properties.host} language={properties.language}/>;
+    return <System depth={0}
+                   routes={routes}
+                   path={path}
+                   cookies={cookies}
+                   search={search}
+                   data={data}
+                   host={host}
+                   language={language}
+                   theme={theme}
+    />;
 }
 
 namespace App {
@@ -28,8 +38,9 @@ namespace App {
         host : string
         language : string
         cookies : string
-        initialPath: string
-        initialSearch: string
-        initialData : any[]
+        path: string
+        search: string
+        data : any[]
+        theme : string
     }
 }

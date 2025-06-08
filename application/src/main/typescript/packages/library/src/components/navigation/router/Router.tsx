@@ -99,7 +99,7 @@ function Router(properties: Router.Attributes) {
 
     const {onRoute, ...rest} = properties
 
-    const {depth, path, search, routes, windows, darkMode, data, host, language, cookies} = useContext(SystemContext)
+    const {depth, path, search, routes, windows, darkMode, data, host, language, cookies, theme} = useContext(SystemContext)
 
     const [state, setState] = useState(data[depth])
 
@@ -238,7 +238,7 @@ function Router(properties: Router.Attributes) {
     }, [])
 
     function getContextHolder() {
-        return new SystemContextHolder(depth + 1, path, search, host, cookies, routes,  windows, darkMode, data, language)
+        return new SystemContextHolder(depth + 1, path, search, host, cookies, routes,  windows, darkMode, data, language, theme)
     }
 
     return (

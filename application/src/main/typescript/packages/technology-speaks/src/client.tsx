@@ -5,6 +5,7 @@ import {
     resolveComponentList,
 } from "react-ui-simplicity/src/components/navigation/router/Router";
 import {routes} from "./routes";
+import Cookies from "js-cookie";
 
 const initialPath = window.location.pathname
 const initialSearch = window.location.search
@@ -14,12 +15,13 @@ async function main() {
 
     hydrateRoot(document.getElementById('root'), (
         <App
-            initialPath={initialPath}
-            initialSearch={initialSearch}
-            initialData={components}
+            path={initialPath}
+            search={initialSearch}
+            data={components}
             host={window.location.origin}
             cookies={document.cookie}
             language={window.navigator.language.split("-")[0] || "en"}
+            theme={Cookies.get("theme") || "light"}
         />
     ),  {
         onUncaughtError: (error, errorInfo) => {

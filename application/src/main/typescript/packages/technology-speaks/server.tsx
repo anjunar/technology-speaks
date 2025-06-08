@@ -5,7 +5,10 @@ import {App} from './src/App';
 import {createProxyMiddleware} from 'http-proxy-middleware';
 import {resolveComponentList} from "react-ui-simplicity/src/components/navigation/router/Router";
 import {routes} from "./src/routes"
+import cookieParser from 'cookie-parser';
+import * as cheerio from 'cheerio';
 import * as path from "node:path";
+import * as fs from "node:fs";
 
 function resolvePreferredLanguage(header: string): string {
     if (!header) return "en";
@@ -21,8 +24,13 @@ function resolvePreferredLanguage(header: string): string {
     return languages[0]?.lang?.split("-")[0] || "en";
 }
 
+const indexHtmlPath = path.resolve(__dirname, 'public', 'index.html');
+const rawHtmlTemplate = fs.readFileSync(indexHtmlPath, 'utf8');
+
 const app = express();
 const PORT = 3000;
+
+app.use(cookieParser());
 
 app.use(
     '/static',
@@ -51,45 +59,38 @@ app.use(
     })
 );
 
-function sendToClient<ResBody, LocalsObj>(path: string, search: string, res: any, data: any, language: string, cookie: string) : void {
+function sendToClient(path: string, search: string, res: any, data: React.ReactElement[], language: string, cookie: string, theme : string) : void {
     const appHtml = renderToString(
         <App
-            initialPath={path}
-            initialSearch={search}
-            initialData={data}
+            path={path}
+            search={search}
+            data={data}
             host={res.get('host')}
             language={language}
             cookies={cookie}
+            theme={theme}
         />
     );
-    res.send(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <meta charset="UTF-8" />
-        <link rel="stylesheet" href="/static/assets/style.css">
-        <title>SSR React App</title>
-      </head>
-      <body>
-        <div id="root">${appHtml}</div>
-        <script src="/static/main.js"></script>
-      </body>
-    </html>
-  `);
+
+    const $ = cheerio.load(rawHtmlTemplate);
+    $('#root').html(appHtml);
+    $('html').attr("data-theme", theme);
+    res.send($.html());
 }
 
 app.get('*', (req, res) => {
-    let path = req.path
-    let search = "?" + (req.url.split('?'))[1] || '';
-    let host = req.get('host');
-    let cookie = req.get("cookie");
+    const path = req.path
+    const search = "?" + (req.url.split('?'))[1] || '';
+    const host = req.get('host');
+    const cookie = req.get("cookie");
+    const theme = req.cookies.theme || 'light';
 
     const language = resolvePreferredLanguage(req.headers['accept-language']);
 
     resolveComponentList(path, search, routes, host)
         .then((component) => {
             if (component) {
-                sendToClient(path, search, res, component, language, cookie)
+                sendToClient(path, search, res, component, language, cookie, theme)
             } else {
                 res.status(404).send('Not found');
             }
