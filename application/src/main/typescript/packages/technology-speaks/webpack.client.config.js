@@ -1,3 +1,4 @@
+const webpack = require('webpack');
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin')    ;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -46,7 +47,7 @@ module.exports = {
         ],
     },
     devServer: {
-        hot: false,
+        hot: true,
         liveReload : true,
         port: 3001,
         historyApiFallback: true,
@@ -69,6 +70,7 @@ module.exports = {
         }),
         new MiniCssExtractPlugin({
             filename: 'assets/style.css',
-        })
+        }),
+        new webpack.HotModuleReplacementPlugin(),
     ]
 };

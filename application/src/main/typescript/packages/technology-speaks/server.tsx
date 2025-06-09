@@ -10,7 +10,6 @@ import * as cheerio from 'cheerio';
 import * as path from "node:path";
 import * as fs from "node:fs";
 import {Router} from "react-ui-simplicity";
-import session from 'express-session';
 
 function resolvePreferredLanguage(header: string): string {
     if (!header) return "en";
@@ -33,13 +32,6 @@ const app = express();
 const PORT = 3000;
 
 app.use(cookieParser());
-
-app.use(session({
-    secret: 'dein-geheimes-session-secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false } // für localhost, true wenn HTTPS
-}));
 
 app.use(
     '/.well-known',

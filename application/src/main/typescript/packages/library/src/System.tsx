@@ -76,31 +76,49 @@ function System(properties : System.Attributes) {
     useLayoutEffect(() => {
 
         window.fetch = new Proxy(window.fetch, {
-            apply(target: (input: (RequestInfo | URL), init?: RequestInit) => Promise<Response>, thisArg: any, argArray: any[]): any {
-                setLoading(prev => [...prev, argArray])
+            apply(target: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>, thisArg: any, argArray: any[]): any {
 
-                let promise = Reflect.apply(target, thisArg, argArray)
+                const maxRetries = 10;
+                const delayMs = 1000;
 
-                promise
-                    .then(() => {
+                const fetchWithRetry = async (attempt = 1): Promise<Response> => {
+                    try {
+                        setLoading(prev => [...prev, argArray]);
+
+                        const response = await Reflect.apply(target, thisArg, argArray);
+
                         setTimeout(() => {
                             setLoading(prev => {
-                                let indexOf = prev.indexOf(argArray)
-                                prev.splice(indexOf)
-                                return [...prev]
-                            })
-                        }, 1000)
-                    })
-                    .catch((response: any) => {
-                        if (response.name === "TimeoutError") {
-                            setLoading([])
-                            Router.navigate("/errors/timeout")
-                        }
-                    })
+                                const indexOf = prev.indexOf(argArray);
+                                if (indexOf > -1) prev.splice(indexOf, 1);
+                                return [...prev];
+                            });
+                        }, delayMs);
 
-                return promise
+
+                        return response;
+
+                    } catch (error: any) {
+                        if (error.name === "TimeoutError") {
+                            setLoading([]);
+                            Router.navigate("/errors/timeout");
+                            throw error;
+                        }
+
+                        if (attempt < maxRetries) {
+                            console.warn(`fetch attempt ${attempt} failed, retrying...`, error);
+                            await new Promise(resolve => setTimeout(resolve, delayMs));
+                            return fetchWithRetry(attempt + 1);
+                        } else {
+                            throw error;
+                        }
+                    }
+                };
+
+                return fetchWithRetry();
             }
-        })
+        });
+
     }, []);
 
     return (
