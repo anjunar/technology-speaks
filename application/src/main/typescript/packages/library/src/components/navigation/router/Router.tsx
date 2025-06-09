@@ -9,16 +9,12 @@ import PathParams = Router.PathParams;
 
 const scrollAreaCache = new Map<string, number>()
 
-const elementCache = new Map<string, React.ReactElement>();
-const loaderCache = new Map<string, Record<string, any>>();
-
 export async function resolveComponentList(
     path: string,
     search: string,
     routes: Route[],
     host: string,
-    findFirst = false,
-    forceReload = false
+    findFirst = false
 ): Promise<[Route, React.ReactElement][]> {
     const queryParams = resolveQueryParameters(search);
 
@@ -40,44 +36,25 @@ export async function resolveComponentList(
             const component = route.component ?? (await route.dynamic?.(pathParams, queryParams));
             if (!component) return [];
 
-            const routeKey = rawPath + JSON.stringify(pathParams) + JSON.stringify(queryParams);
-
-            // 💾 Loader-Cache
             let props: Record<string, any> = { pathParams, queryParams };
 
             if (route.loader) {
-                if (!forceReload && loaderCache.has(routeKey) && route.subRouter === true) {
-                    props = { ...props, ...loaderCache.get(routeKey)! };
-                } else {
-                    const loaderEntries = Object.entries(route.loader);
-                    const loaded = await Promise.all(
-                        loaderEntries.map(([_, fn]) =>
-                            fn(host + rawPath, pathParams, queryParams)
-                        )
-                    );
-                    loaderEntries.forEach(([key], i) => {
-                        props[key] = loaded[i];
-                    });
-                    loaderCache.set(routeKey, { ...props });
-                }
-            }
-
-            // ⚡ Element-Cache
-            if (elementCache.has(routeKey) && route.subRouter === true) {
-                const element = elementCache.get(routeKey)!;
-                const childElements = !findFirst && route.children
-                    ? await walk(route.children)
-                    : [];
-                return [[route, element], ...childElements];
+                const loaderEntries = Object.entries(route.loader);
+                const loaded = await Promise.all(
+                    loaderEntries.map(([_, fn]) =>
+                        fn(host + path, pathParams, queryParams)
+                    )
+                );
+                loaderEntries.forEach(([key], i) => {
+                    props[key] = loaded[i];
+                });
             }
 
             const element = React.createElement(component as FunctionComponent<any>, props);
-            elementCache.set(routeKey, element);
 
             const childElements = !findFirst && route.children
                 ? await walk(route.children)
                 : [];
-
             return [[route, element], ...childElements];
         }
 
@@ -136,7 +113,8 @@ function Router(properties: Router.Attributes) {
         host,
         language,
         cookies,
-        theme
+        theme,
+        headers
     } = useContext(SystemContext)
 
     const hydrated = useHydrated()
@@ -194,7 +172,7 @@ function Router(properties: Router.Attributes) {
     }, [])
 
     function getContextHolder() {
-        return new SystemContextHolder(depth + 1, path, search, host, cookies, childRoutes, windows, darkMode, data, language, theme)
+        return new SystemContextHolder(depth + 1, path, search, host, cookies, childRoutes, windows, darkMode, data, language, theme, headers)
     }
 
     return (

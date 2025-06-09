@@ -54,6 +54,7 @@ app.use(
     createProxyMiddleware({
         target: 'http://localhost:3001/static',
         changeOrigin: true,
+        ws: true,
     })
 );
 
@@ -79,7 +80,7 @@ app.use(
     })
 );
 
-function sendToClient(path: string, search: string, res: any, data: [Router.Route, React.ReactElement][], language: string, cookie: string, theme : string) : void {
+function sendToClient(path: string, search: string, res: any, data: [Router.Route, React.ReactElement][], language: string, cookie: string, theme : string, headers : any) : void {
 
     const appHtml = renderToString(
         <App
@@ -90,6 +91,7 @@ function sendToClient(path: string, search: string, res: any, data: [Router.Rout
             language={language}
             cookies={cookie}
             theme={theme}
+            headers={headers}
         />
     );
 
@@ -108,10 +110,23 @@ app.get('*', (req, res) => {
 
     const language = resolvePreferredLanguage(req.headers['accept-language']);
 
-    resolveComponentList(path, search, routes, host, false, true)
+    globalThis.fetch = new Proxy(globalThis.fetch, {
+        apply(target: (input: (RequestInfo | URL), init?: RequestInit) => Promise<Response>, thisArg: any, argArray: any[]): any {
+            let init = argArray[1] || {}
+            let combinedHeaders = Object.assign(init.headers || {}, {'x-language': language, "cookie": cookie});
+            argArray[1] = Object.assign(init, {
+                credentials: "include",
+                headers: combinedHeaders
+            })
+
+            return Reflect.apply(target, thisArg, argArray)
+        }
+    })
+
+    resolveComponentList(path, search, routes, host)
         .then((components) => {
             if (components) {
-                sendToClient(path, search, res, components, language, cookie, theme)
+                sendToClient(path, search, res, components, language, cookie, theme, req.headers)
             } else {
                 res.status(404).send('Not found');
             }
