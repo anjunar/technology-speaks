@@ -7,7 +7,7 @@ import {routes} from "./routes";
 init()
 
 export function App(properties : App.Attributes) {
-    const {theme, data, host, language, cookies, headers} = properties
+    const {theme, data, host, language, cookies} = properties
     const [path, setPath] = useState(properties.path);
     const [search, setSearch] = useState(properties.search);
 
@@ -30,7 +30,6 @@ export function App(properties : App.Attributes) {
                    host={host}
                    language={language}
                    theme={theme}
-                   headers={headers}
     />;
 }
 
@@ -43,6 +42,5 @@ namespace App {
         search: string
         data : [Router.Route, React.ReactElement][]
         theme : string
-        headers : any
     }
 }

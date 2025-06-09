@@ -30,8 +30,7 @@ export class SystemContextHolder {
                 public darkMode : boolean = false,
                 public data : [Router.Route, React.ReactElement][] = [],
                 public language : string = "en",
-                public theme : string = "light",
-                public headers : any = null) {
+                public theme : string = "light") {
     }
 
 }
@@ -40,7 +39,7 @@ export const SystemContext = createContext(new SystemContextHolder())
 
 function System(properties : System.Attributes) {
 
-    const {depth, path, search, routes, data, host, language, cookies, theme, headers} = properties
+    const {depth, path, search, routes, data, host, language, cookies, theme} = properties
 
     const [loading, setLoading] = useState([])
 
@@ -123,7 +122,7 @@ function System(properties : System.Attributes) {
 
     return (
         <div className={"system"}>
-            <SystemContext.Provider value={new SystemContextHolder(depth, path, search, host,cookies, routes, [windows, setWindows], darkMode, data, language, theme, headers)}>
+            <SystemContext.Provider value={new SystemContextHolder(depth, path, search, host,cookies, routes, [windows, setWindows], darkMode, data, language, theme)}>
                 <div style={{position: "absolute", zIndex: 9999, top: 0, left: 0, height: "4px", width: "100%"}}>
                     {
                         loading.length > 0 && <Progress/>
@@ -164,7 +163,6 @@ namespace System {
         data : [Router.Route, React.ReactElement][]
         language : string
         theme : string
-        headers : any
     }
 }
 

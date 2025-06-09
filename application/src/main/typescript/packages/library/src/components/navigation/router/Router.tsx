@@ -114,7 +114,6 @@ function Router(properties: Router.Attributes) {
         language,
         cookies,
         theme,
-        headers
     } = useContext(SystemContext)
 
     const hydrated = useHydrated()
@@ -172,7 +171,7 @@ function Router(properties: Router.Attributes) {
     }, [])
 
     function getContextHolder() {
-        return new SystemContextHolder(depth + 1, path, search, host, cookies, childRoutes, windows, darkMode, data, language, theme, headers)
+        return new SystemContextHolder(depth + 1, path, search, host, cookies, childRoutes, windows, darkMode, data, language, theme)
     }
 
     return (

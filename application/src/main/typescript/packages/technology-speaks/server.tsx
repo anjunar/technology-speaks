@@ -72,7 +72,7 @@ app.use(
     })
 );
 
-function sendToClient(path: string, search: string, res: any, data: [Router.Route, React.ReactElement][], language: string, cookie: string, theme : string, headers : any) : void {
+function sendToClient(path: string, search: string, res: any, data: [Router.Route, React.ReactElement][], language: string, cookie: string, theme : string) : void {
 
     const appHtml = renderToString(
         <App
@@ -83,7 +83,6 @@ function sendToClient(path: string, search: string, res: any, data: [Router.Rout
             language={language}
             cookies={cookie}
             theme={theme}
-            headers={headers}
         />
     );
 
@@ -118,7 +117,7 @@ app.get('*', (req, res) => {
     resolveComponentList(path, search, routes, host)
         .then((components) => {
             if (components) {
-                sendToClient(path, search, res, components, language, cookie, theme, req.headers)
+                sendToClient(path, search, res, components, language, cookie, theme)
             } else {
                 res.status(404).send('Not found');
             }

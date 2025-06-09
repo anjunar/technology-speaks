@@ -22,7 +22,6 @@ async function main() {
             cookies={document.cookie}
             language={window.navigator.language.split("-")[0] || "en"}
             theme={Cookies.get("theme") || "light"}
-            headers={null}
         />
     ),  {
         onUncaughtError: (error, errorInfo) => {
