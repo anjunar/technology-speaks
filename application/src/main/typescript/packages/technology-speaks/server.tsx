@@ -10,6 +10,11 @@ import * as cheerio from 'cheerio';
 import * as path from "node:path";
 import * as fs from "node:fs";
 import {Router} from "react-ui-simplicity";
+import session from 'express-session';
+import webpack from 'webpack';
+import webpackConfig from './webpack.client.config';
+import webpackDevMiddleware from 'webpack-dev-middleware';
+import webpackHotMiddleware from 'webpack-hot-middleware';
 
 function resolvePreferredLanguage(header: string): string {
     if (!header) return "en";
@@ -32,6 +37,27 @@ const app = express();
 const PORT = 3000;
 
 app.use(cookieParser());
+
+app.use(session({
+    secret: 'dein-geheimes-session-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false } // für localhost, true wenn HTTPS
+}));
+
+// @ts-ignore
+const compiler = webpack(webpackConfig);
+
+app.use(
+    webpackDevMiddleware(compiler, {
+        publicPath: webpackConfig.output.publicPath,
+        stats: { colors: true },
+    })
+);
+
+app.use(
+    webpackHotMiddleware(compiler)
+);
 
 app.use(
     '/.well-known',

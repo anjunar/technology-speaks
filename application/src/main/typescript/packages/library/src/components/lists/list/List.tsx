@@ -13,6 +13,7 @@ function ListRenderer(properties: ListRenderer.Attributes) {
         limit,
         size,
         onRowClick,
+        initialData,
         showPagination = true,
         skipPrevious,
         arrowLeft,
