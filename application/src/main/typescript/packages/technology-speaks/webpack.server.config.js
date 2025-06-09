@@ -1,7 +1,7 @@
-const webpack = require('webpack');
 const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const {CleanWebpackPlugin} = require("clean-webpack-plugin");
 
 module.exports = {
     mode: 'development',
@@ -38,6 +38,7 @@ module.exports = {
             patterns: [
                 {from: 'public', to: 'public'},
             ],
-        })
+        }),
+        new CleanWebpackPlugin()
     ]
 };

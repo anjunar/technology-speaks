@@ -6,7 +6,7 @@
   "main": "index.tsx",
   "scripts": {
     "build:client": "webpack --config webpack.client.config.js",
-    "build:server": "webpack --config webpack.server.config.js --watch --no-daemon",
+    "build:server": "webpack --config webpack.server.config.js --watch",
     "start:dev-server": "pm2 start dist/server/server.js --watch --no-daemon --node-args=\"--inspect=9229\"",
     "start:dev-client": "webpack serve --config webpack.client.config.js",
     "dev": "concurrently \"npm run build:server\" \"npm run start:dev-server\" \"npm run start:dev-client\""
@@ -46,6 +46,7 @@
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@types/uuid": "^10.0.0",
+    "clean-webpack-plugin": "^4.0.0",
     "concurrently": "^9.1.2",
     "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.1.2",
@@ -63,7 +64,6 @@
     "webpack": "^5.99.9",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^6.0.1",
-    "webpack-dev-server": "^5.2.1",
-    "webpack-hot-middleware": "^2.26.1"
+    "webpack-dev-server": "^5.2.1"
   }
 }

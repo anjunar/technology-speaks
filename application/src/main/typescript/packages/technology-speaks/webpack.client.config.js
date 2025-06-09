@@ -1,12 +1,10 @@
 const path = require('path');
-const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin')    ;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
     mode: 'development',
     entry: [
-        'webpack-hot-middleware/client?reload=true',
         './src/client.tsx'
     ],
     devtool: 'inline-source-map',
@@ -71,7 +69,6 @@ module.exports = {
         }),
         new MiniCssExtractPlugin({
             filename: 'assets/style.css',
-        }),
-        new webpack.HotModuleReplacementPlugin()
+        })
     ]
 };
