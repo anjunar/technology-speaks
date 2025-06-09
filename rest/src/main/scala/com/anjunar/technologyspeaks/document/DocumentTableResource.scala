@@ -15,6 +15,7 @@ import com.google.common.collect.Lists
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import jakarta.persistence.Tuple
 import jakarta.ws.rs.*
 
 import java.util
@@ -23,15 +24,14 @@ import java.util.stream.Collectors
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
-import jakarta.persistence.Tuple
 
 @Path("documents")
 @ApplicationScoped
-@Secured 
+@Secured
 class DocumentTableResource extends SchemaBuilderContext {
 
   @Inject
-  var documentService : DocumentService = uninitialized
+  var documentService: DocumentService = uninitialized
 
   @Inject
   var jpaSearch: JPASearch = uninitialized
@@ -57,7 +57,7 @@ class DocumentTableResource extends SchemaBuilderContext {
   @JsonSchema(classOf[DocumentTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Documents", linkType = LinkType.TABLE)
-  def list(@BeanParam search : DocumentSearch): Table[Tuple] = {
+  def list(@BeanParam search: DocumentSearch): Table[Tuple] = {
 
     val context = jpaSearch.searchContext(search)
     val entities = jpaSearch.entities(search.index, search.limit, classOf[Document], context)
@@ -66,6 +66,31 @@ class DocumentTableResource extends SchemaBuilderContext {
     forLinks(classOf[Table[Document]], (instance, link) => {
       linkTo(methodOn(classOf[DocumentFormResource]).create)
         .build(link.addLink)
+
+      val search2 = new DocumentSearch
+      search2.index = search.index
+      search2.limit = search.limit
+      search2.text = search.text
+      linkTo(methodOn(classOf[DocumentTableResource]).search(search2))
+        .build(link.addLink)
+
+      if (search.index > 0) {
+        val prev = new DocumentSearch
+        prev.index = search.index - search.limit
+        prev.text = search.text
+        linkTo(methodOn(classOf[DocumentTableResource]).search(prev))
+          .withRel("prev")
+          .build(link.addLink)
+      }
+
+      if (search.index < (count - search.limit)) {
+        val next = new DocumentSearch
+        next.index = search.index + search.limit
+        next.text = search.text
+        linkTo(methodOn(classOf[DocumentTableResource]).search(next))
+          .withRel("next")
+          .build(link.addLink)
+      }
     })
 
     entities.forEach(tuple => {

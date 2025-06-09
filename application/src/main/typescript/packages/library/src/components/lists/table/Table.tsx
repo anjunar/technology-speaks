@@ -24,6 +24,7 @@ function TableRenderer(properties: TableRenderer.Attributes) {
         size,
         selectable,
         showHeader = true,
+        showPagination = true,
         onRowClick,
         skipPrevious,
         arrowLeft,
@@ -308,44 +309,48 @@ function TableRenderer(properties: TableRenderer.Attributes) {
             <tbody>
             {window.map((row, rowIndex) => getBodyRow(row, rowIndex))}
             </tbody>
-            <tfoot>
-            <tr>
-                <td colSpan={columns.length}>
-                    {
-                        (limit > -1) && (<div style={{display: "flex", alignItems: "center", height: "50px"}}>
-                            <button onClick={skipPrevious} className="material-icons">
-                                skip_previous
-                            </button>
-                            <button
-                                onClick={arrowLeft}
-                                className="material-icons"
-                                disabled={!(index > 0)}
-                            >
-                                keyboard_arrow_left
-                            </button>
-                            <button
-                                onClick={arrowRight}
-                                className="material-icons"
-                                disabled={!(index + limit < size)}
-                            >
-                                keyboard_arrow_right
-                            </button>
-                            <button onClick={skipNext} className="material-icons">
-                                skip_next
-                            </button>
-                            <span style={{marginLeft: "12px"}}>{index} - {index + limit} of {size}</span>
-                        </div>)
-                    }
-                </td>
-                {
-                    footerCells.length > 0 && (
-                        <td style={{verticalAlign: "middle"}}>
-                            {footerCells}
+            {
+                showPagination && (
+                    <tfoot>
+                    <tr>
+                        <td colSpan={columns.length}>
+                            {
+                                (limit > -1) && (<div style={{display: "flex", alignItems: "center", height: "50px"}}>
+                                    <button onClick={skipPrevious} className="material-icons">
+                                        skip_previous
+                                    </button>
+                                    <button
+                                        onClick={arrowLeft}
+                                        className="material-icons"
+                                        disabled={!(index > 0)}
+                                    >
+                                        keyboard_arrow_left
+                                    </button>
+                                    <button
+                                        onClick={arrowRight}
+                                        className="material-icons"
+                                        disabled={!(index + limit < size)}
+                                    >
+                                        keyboard_arrow_right
+                                    </button>
+                                    <button onClick={skipNext} className="material-icons">
+                                        skip_next
+                                    </button>
+                                    <span style={{marginLeft: "12px"}}>{index} - {index + limit} of {size}</span>
+                                </div>)
+                            }
                         </td>
-                    )
-                }
-            </tr>
-            </tfoot>
+                        {
+                            footerCells.length > 0 && (
+                                <td style={{verticalAlign: "middle"}}>
+                                    {footerCells}
+                                </td>
+                            )
+                        }
+                    </tr>
+                    </tfoot>
+                )
+            }
         </table>
     )
 }
@@ -369,6 +374,7 @@ namespace Table {
         onChange?: (value: any[]) => void
         selectable?: boolean
         showHeader?: boolean
+        showPagination?: boolean
         name?: string
         style?: CSSProperties
     }
@@ -461,6 +467,7 @@ namespace TableRenderer {
         size: number
         selectable: boolean
         showHeader: boolean
+        showPagination: boolean
         name: string
         value: any[],
         onChange: (value: any[]) => void

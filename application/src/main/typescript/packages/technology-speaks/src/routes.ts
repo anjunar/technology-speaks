@@ -73,7 +73,7 @@ export const routes: Router.Route[] = [
                                 const searchParams = urlBuilder.searchParams;
 
                                 searchParams.set("index", queryParams["index"] as string || "0")
-                                searchParams.set("limit", "5")
+                                searchParams.set("limit", queryParams["limit"] as string || "0")
 
                                 if (queryParams.text) {
                                     searchParams.set("text", queryParams.text as string)

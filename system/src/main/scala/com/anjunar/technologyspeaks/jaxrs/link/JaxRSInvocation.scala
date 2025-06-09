@@ -95,19 +95,19 @@ class JaxRSInvocation(private val method: ResolvedMethod,
     val pathParam = parameter.findDeclaredAnnotation(classOf[PathParam])
     if (pathParam != null)
       arg match
-        case value: util.Collection[?] => params.put(pathParam.value, value.toArray)
+        case value: util.Collection[?]  if ! value.isEmpty => params.put(pathParam.value, value.toArray)
         case _ => params.put(pathParam.value, arg)
 
     val queryParam = parameter.findDeclaredAnnotation(classOf[QueryParam])
     if (queryParam != null && arg != null)
       arg match
-        case value: util.Collection[?] => uriBuilder.queryParam(queryParam.value, value.toArray*)
+        case value: util.Collection[?] if ! value.isEmpty => uriBuilder.queryParam(queryParam.value, value.toArray*)
         case _ => uriBuilder.queryParam(queryParam.value, arg)
 
     val matrixParam = parameter.findDeclaredAnnotation(classOf[MatrixParam])
     if (matrixParam != null && arg != null)
       arg match
-        case value: util.Collection[?] => uriBuilder.matrixParam(matrixParam.value, value.toArray*)
+        case value: util.Collection[?]  if ! value.isEmpty => uriBuilder.matrixParam(matrixParam.value, value.toArray*)
         case _ => uriBuilder.matrixParam(matrixParam.value, arg)
   }
 

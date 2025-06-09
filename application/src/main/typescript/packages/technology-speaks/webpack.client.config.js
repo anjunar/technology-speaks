@@ -44,8 +44,8 @@ module.exports = {
         ],
     },
     devServer: {
-        hot: true,
-        liveReload : true,
+        // hot: true,
+        // liveReload : true,
         port: 3001,
         historyApiFallback: true,
         compress: false,

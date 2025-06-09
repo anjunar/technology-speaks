@@ -9,57 +9,82 @@ import PathParams = Router.PathParams;
 
 const scrollAreaCache = new Map<string, number>()
 
+const elementCache = new Map<string, React.ReactElement>();
+const loaderCache = new Map<string, Record<string, any>>();
+
 export async function resolveComponentList(
     path: string,
     search: string,
     routes: Route[],
     host: string,
     findFirst = false,
+    forceReload = false
 ): Promise<[Route, React.ReactElement][]> {
-    const queryParams = resolveQueryParameters(search)
+    const queryParams = resolveQueryParameters(search);
 
     async function walk(routes: Route[]): Promise<[Route, React.ReactElement][]> {
-        const flattened = flattenRoutes(routes)
+        const flattened = flattenRoutes(routes);
 
         for (const [rawPath, route] of flattened) {
-            let pathParams: PathParams
+            let pathParams: PathParams;
+
             if (route.subRouter && path.startsWith(rawPath)) {
-                pathParams = {}
+                pathParams = {};
             } else {
-                const matcher = match(rawPath, {decode: decodeURIComponent})
-                const matched = matcher(path)
-                if (!matched) continue
-                pathParams = matched.params as PathParams
+                const matcher = match(rawPath, { decode: decodeURIComponent });
+                const matched = matcher(path);
+                if (!matched) continue;
+                pathParams = matched.params as PathParams;
             }
 
-            let component = route.component ?? route.dynamic?.(pathParams, queryParams)
-            if (!component) return []
+            const component = route.component ?? (await route.dynamic?.(pathParams, queryParams));
+            if (!component) return [];
 
-            const props: any = {pathParams, queryParams}
+            const routeKey = rawPath + JSON.stringify(pathParams) + JSON.stringify(queryParams);
+
+            // 💾 Loader-Cache
+            let props: Record<string, any> = { pathParams, queryParams };
 
             if (route.loader) {
-                const loaderEntries = Object.entries(route.loader)
-                const loaded = await Promise.all(
-                    loaderEntries.map(([_, fn]) => fn(host + rawPath, pathParams, queryParams))
-                )
-                loaderEntries.forEach(([key], i) => {
-                    props[key] = loaded[i]
-                })
+                if (!forceReload && loaderCache.has(routeKey) && route.subRouter === true) {
+                    props = { ...props, ...loaderCache.get(routeKey)! };
+                } else {
+                    const loaderEntries = Object.entries(route.loader);
+                    const loaded = await Promise.all(
+                        loaderEntries.map(([_, fn]) =>
+                            fn(host + rawPath, pathParams, queryParams)
+                        )
+                    );
+                    loaderEntries.forEach(([key], i) => {
+                        props[key] = loaded[i];
+                    });
+                    loaderCache.set(routeKey, { ...props });
+                }
             }
 
-            const currentElement = React.createElement(component as FunctionComponent<any>, props)
+            // ⚡ Element-Cache
+            if (elementCache.has(routeKey) && route.subRouter === true) {
+                const element = elementCache.get(routeKey)!;
+                const childElements = !findFirst && route.children
+                    ? await walk(route.children)
+                    : [];
+                return [[route, element], ...childElements];
+            }
 
-            const childElements = ! findFirst && route.children
+            const element = React.createElement(component as FunctionComponent<any>, props);
+            elementCache.set(routeKey, element);
+
+            const childElements = !findFirst && route.children
                 ? await walk(route.children)
-                : []
+                : [];
 
-            return [[route, currentElement], ...childElements]
+            return [[route, element], ...childElements];
         }
 
-        return []
+        return [];
     }
 
-    return walk(routes)
+    return walk(routes);
 }
 
 export function flattenRoutes(routes: Route[], parentPath: string = ''): Router.RouteWithPath[] {
@@ -128,13 +153,12 @@ function Router(properties: Router.Attributes) {
         if (onRoute) onRoute(true);
 
         try {
-            const components = await resolveComponentList(path, search, routes, host, true);
+            const [components] = await resolveComponentList(path, search, routes, host, true);
+            const [route, component] = components
 
-            setState(components[0][1] ?? null);
+            setState(component);
 
-            const flattened = flattenRoutes(routes);
-            const matched = flattened.find(([p]) => path.startsWith(p));
-            setChildRoutes(matched?.[1]?.children ?? []);
+            setChildRoutes(route.children);
         } catch (error) {
             console.error("Fehler beim Laden der Komponenten", error);
             setState(null);
@@ -215,15 +239,10 @@ namespace Router {
     export interface Route {
         path: string
         subRouter?: boolean
-        component?: FunctionComponent<any> | MultiComponent
-        dynamic?: (path: PathParams, query: QueryParams) => FunctionComponent<any> | MultiComponent
+        component?: FunctionComponent<any>
+        dynamic?: (path: PathParams, query: QueryParams) => FunctionComponent<any>
         children?: Route[]
         loader?: Loader
-    }
-
-    export interface MultiComponent {
-        mobile: FunctionComponent<any>
-        desktop: FunctionComponent<any>
     }
 
     export class RedirectError extends Error {

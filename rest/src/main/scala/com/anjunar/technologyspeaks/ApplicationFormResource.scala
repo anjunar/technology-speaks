@@ -4,12 +4,12 @@ import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
 import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.control.*
-import com.anjunar.technologyspeaks.document.{DocumentSearchSchema, DocumentTableResource}
+import com.anjunar.technologyspeaks.document.{DocumentSearch, DocumentSearchSchema, DocumentTableResource}
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.security.*
-import com.anjunar.technologyspeaks.shared.i18n.I18nTableResource
-import com.anjunar.technologyspeaks.timeline.PostTableResource
+import com.anjunar.technologyspeaks.shared.i18n.{I18nSearch, I18nTableResource}
+import com.anjunar.technologyspeaks.timeline.{PostSearch, PostTableResource}
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.core.{Context, SecurityContext}
 import jakarta.ws.rs.{GET, Path, Produces}
@@ -58,31 +58,31 @@ class ApplicationFormResource extends SchemaBuilderContext {
             .withRel("profile")
             .build(link.addLink)
 
-          linkTo(methodOn(classOf[UserTableResource]).search(null))
+          linkTo(methodOn(classOf[UserTableResource]).search(new UserSearch))
             .withRel("users")
             .build(link.addLink)
 
-          linkTo(methodOn(classOf[RoleTableResource]).search(null))
+          linkTo(methodOn(classOf[RoleTableResource]).search(new RoleSearch))
             .withRel("roles")
             .build(link.addLink)
 
-          linkTo(methodOn(classOf[GroupTableResource]).search(null))
+          linkTo(methodOn(classOf[GroupTableResource]).search(new GroupSearch))
             .withRel("groups")
             .build(link.addLink)
 
-          linkTo(methodOn(classOf[CredentialTableResource]).search(null))
+          linkTo(methodOn(classOf[CredentialTableResource]).search(new CredentialSearch))
             .withRel("devices")
             .build(link.addLink)
 
-          linkTo(methodOn(classOf[PostTableResource]).search(null))
+          linkTo(methodOn(classOf[PostTableResource]).search(new PostSearch))
             .withRel("timeline")
             .build(link.addLink)
 
-          linkTo(methodOn(classOf[DocumentTableResource]).search(null))
+          linkTo(methodOn(classOf[DocumentTableResource]).search(new DocumentSearch))
             .withRel("documents")
             .build(link.addLink)
 
-          linkTo(methodOn(classOf[I18nTableResource]).search(null))
+          linkTo(methodOn(classOf[I18nTableResource]).search(new I18nSearch))
             .withRel("translations")
             .build(link.addLink)
 

@@ -27,13 +27,16 @@ function DocumentSearchPage(properties: SearchPageMobile.Attributes) {
 
     const loader = new class extends Pageable.Loader {
         async onLoad(query: Pageable.Query, callback: Pageable.Callback) {
+            const searchParamsRead = new URLSearchParams(window.location.search)
+
             const urlBuilder = new URL("/service/documents", window.location.origin)
             const searchParams = urlBuilder.searchParams;
 
-            const index = queryParams["index"] as string || query.index.toString();
+            let index = searchParamsRead.get("index")
+            let limit = searchParamsRead.get("limit")
+
             searchParams.set("index", index)
-            searchParams.set("limit", query.limit.toString())
-            window.history.pushState({}, "", `/documents/search?index=${query.index}`)
+            searchParams.set("limit", limit)
 
             if (search.text) {
                 searchParams.set("text", search.text)
@@ -59,30 +62,44 @@ function DocumentSearchPage(properties: SearchPageMobile.Attributes) {
         <div className={"search-page"}>
             <div className={"center-horizontal"}>
                 <div style={{display: "flex", flexWrap: "wrap-reverse", gap: "24px", alignItems: "baseline"}}>
-                    <List autoload={false} loader={loader} style={{minWidth: "360px", maxWidth: "800px", width: "100%"}} initialData={() => [rows, count]}>
-                        <List.Item>
-                            {
-                                ({row}: { row: Document }) => (
-                                    <div className={"selected"}
-                                         onClick={() => navigate(`/documents/document/${row.id}`)}>
-                                        <div style={{
-                                            display: "flex",
-                                            alignItems: "baseline",
-                                            justifyContent: "space-between",
-                                            gap: "12px"
-                                        }}>
-                                            <div style={{display: "flex", alignItems: "baseline", gap: "12px"}}>
-                                                <h2 style={{color: "var(--color-selected)"}}>{row.title}</h2>
-                                                <small>{row.score}</small>
+                    <div>
+                        <List autoload={false} loader={loader} style={{minWidth: "360px", maxWidth: "800px", width: "100%"}} initialData={() => [rows, count]}>
+                            <List.Item>
+                                {
+                                    ({row}: { row: Document }) => (
+                                        <div className={"selected"}
+                                             onClick={() => navigate(`/documents/document/${row.id}`)}>
+                                            <div style={{
+                                                display: "flex",
+                                                alignItems: "baseline",
+                                                justifyContent: "space-between",
+                                                gap: "12px"
+                                            }}>
+                                                <div style={{display: "flex", alignItems: "baseline", gap: "12px"}}>
+                                                    <h2 style={{color: "var(--color-selected)"}}>{row.title}</h2>
+                                                    <small>{row.score}</small>
+                                                </div>
+                                                <small>{row.user.nickName}: {format(row.created, "dd.MM.yyyy HH:mm")}</small>
                                             </div>
-                                            <small>{row.user.nickName}: {format(row.created, "dd.MM.yyyy HH:mm")}</small>
+                                            <p>{row.description}</p>
                                         </div>
-                                        <p>{row.description}</p>
-                                    </div>
-                                )
+                                    )
+                                }
+                            </List.Item>
+                        </List>
+                        <div>
+                            {
+                                onLink(links, "prev", (link) => (
+                                    <Link className={"material-icons"} value={link.url}>keyboard_arrow_left</Link>
+                                ))
                             }
-                        </List.Item>
-                    </List>
+                            {
+                                onLink(links, "next", (link) => (
+                                    <Link className={"material-icons"} value={link.url}>keyboard_arrow_right</Link>
+                                ))
+                            }
+                        </div>
+                    </div>
                     <div className={"search-box"} style={{minWidth: "360px", maxWidth : "800px"}}>
                         <div>
                             <div style={{display : "flex", alignItems : "center", justifyContent : "space-between", gap : "12px"}}>

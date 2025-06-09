@@ -7,15 +7,16 @@ import Router from "../router/Router";
 
 function Link(properties : Link.Attributes) {
 
-    const {data, value, children, className, style, icon} = properties
+    const {data, value, children, className, style, icon, onClick} = properties
 
     let href = value.replace("//", "/");
 
     const [activeState, setActiveState] = useState(false)
 
-    const onClick: React.MouseEventHandler<HTMLAnchorElement> = event => {
+    const onClickHandler: React.MouseEventHandler<HTMLAnchorElement> = event => {
         event.preventDefault()
         Router.navigate(href)
+        onClick && onClick(event)
     }
 
     useLayoutEffect(() => {
@@ -36,7 +37,7 @@ function Link(properties : Link.Attributes) {
         <a
             style={style}
             href={href}
-            onClick={onClick}
+            onClick={onClickHandler}
             className={className + (activeState ? " active" : "")}>
             <div style={{display: "flex", gap: "12px", alignItems: "center"}}>
                 {
@@ -59,6 +60,7 @@ namespace Link {
         children?: ReactNode
         style? : CSSProperties
         className? : string
+        onClick? : React.MouseEventHandler<HTMLAnchorElement>
     }
 
     export function onLink($links :LinkContainerObject, rel: string, callback: (link: RestLink) => React.ReactNode) {

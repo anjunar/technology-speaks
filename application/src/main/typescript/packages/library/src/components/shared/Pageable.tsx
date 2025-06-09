@@ -66,6 +66,11 @@ function withPageable(Component : any, parameters : withPageable.Attributes)  {
             return <div className={"center"}><h2>Loading...</h2></div>
         }
 
+        useLayoutEffect(() => {
+            setSize(count)
+            setWindow(rows)
+        }, [rows, count]);
+
         return (
             <Component
                 onRowClick={onRowClick}

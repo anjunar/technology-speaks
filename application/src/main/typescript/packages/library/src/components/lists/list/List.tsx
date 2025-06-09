@@ -13,6 +13,7 @@ function ListRenderer(properties: ListRenderer.Attributes) {
         limit,
         size,
         onRowClick,
+        showPagination = true,
         skipPrevious,
         arrowLeft,
         arrowRight,
@@ -41,34 +42,38 @@ function ListRenderer(properties: ListRenderer.Attributes) {
                     </List.ItemProvider>
                 ))
             }
-            <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
-                <div style={{display: "flex", alignItems: "center"}}>
-                    <div>{index} - {index + limit} of {size}</div>
-                    <button onClick={skipPrevious} className="material-icons">
-                        skip_previous
-                    </button>
-                    <button
-                        onClick={arrowLeft}
-                        className="material-icons"
-                        disabled={!(index > 0)}
-                    >
-                        keyboard_arrow_left
-                    </button>
-                    <button
-                        onClick={arrowRight}
-                        className="material-icons"
-                        disabled={!(index + limit < size)}
-                    >
-                        keyboard_arrow_right
-                    </button>
-                    <button onClick={skipNext} className="material-icons">
-                        skip_next
-                    </button>
-                </div>
-                <div>
-                    {footer}
-                </div>
-            </div>
+            {
+                showPagination && (
+                    <div style={{display: "flex", alignItems: "center", justifyContent: "space-between"}}>
+                        <div style={{display: "flex", alignItems: "center"}}>
+                            <div>{index} - {index + limit} of {size}</div>
+                            <button onClick={skipPrevious} className="material-icons">
+                                skip_previous
+                            </button>
+                            <button
+                                onClick={arrowLeft}
+                                className="material-icons"
+                                disabled={!(index > 0)}
+                            >
+                                keyboard_arrow_left
+                            </button>
+                            <button
+                                onClick={arrowRight}
+                                className="material-icons"
+                                disabled={!(index + limit < size)}
+                            >
+                                keyboard_arrow_right
+                            </button>
+                            <button onClick={skipNext} className="material-icons">
+                                skip_next
+                            </button>
+                        </div>
+                        <div>
+                            {footer}
+                        </div>
+                    </div>
+                )
+            }
         </div>
     )
 
@@ -86,6 +91,7 @@ namespace List {
         initialData? : () => [any[], number]
         autoload?: boolean
         limit?: number
+        showPagination?: boolean
         children: React.ReactNode
         value?: any
         onChange?: any
@@ -118,6 +124,7 @@ namespace ListRenderer {
         children: React.ReactNode
         window: any[]
         autoload?: boolean
+        showPagination?: boolean
         load: any
         initialData? : () => [any[], number]
         index: number

@@ -65,6 +65,7 @@ app.use(
         on : {
             proxyReq: (proxyReq, req, res) => {
                 proxyReq.setHeader('x-language', req.headers["x-language"] || "de");
+                proxyReq.setHeader('host', 'localhost:3000');
             }
         }
     })
@@ -99,7 +100,7 @@ app.get('*', (req, res) => {
 
     const language = resolvePreferredLanguage(req.headers['accept-language']);
 
-    resolveComponentList(path, search, routes, host)
+    resolveComponentList(path, search, routes, host, false, true)
         .then((components) => {
             if (components) {
                 sendToClient(path, search, res, components, language, cookie, theme)
