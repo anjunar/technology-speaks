@@ -3,13 +3,14 @@ import React from 'react';
 import {renderToString} from 'react-dom/server';
 import {App} from './src/App';
 import {createProxyMiddleware} from 'http-proxy-middleware';
-import {resolveComponentList} from "react-ui-simplicity/src/components/navigation/router/Router";
+import {resolveComponentList, resolveRoute} from "react-ui-simplicity";
 import {routes} from "./src/routes"
 import cookieParser from 'cookie-parser';
 import * as cheerio from 'cheerio';
 import * as path from "node:path";
 import * as fs from "node:fs";
 import {Router} from "react-ui-simplicity";
+import session from 'express-session';
 
 function resolvePreferredLanguage(header: string): string {
     if (!header) return "en";
@@ -32,6 +33,13 @@ const app = express();
 const PORT = 3000;
 
 app.use(cookieParser());
+
+app.use(session({
+    secret: 'dein-geheimes-session-secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false } // für localhost, true wenn HTTPS
+}));
 
 app.use(
     '/.well-known',
@@ -67,6 +75,7 @@ app.use(
             proxyReq: (proxyReq, req, res) => {
                 proxyReq.setHeader('x-language', req.headers["x-language"] || "de");
                 proxyReq.setHeader('host', 'localhost:3000');
+                proxyReq.setHeader('cookie', req.headers['cookie'])
             }
         }
     })
@@ -104,7 +113,7 @@ app.get('*', (req, res) => {
     globalThis.fetch = new Proxy(globalThis.fetch, {
         apply(target: (input: (RequestInfo | URL), init?: RequestInit) => Promise<Response>, thisArg: any, argArray: any[]): any {
             let init = argArray[1] || {}
-            let combinedHeaders = Object.assign(init.headers || {}, {'x-language': language, "cookie": cookie});
+            let combinedHeaders = Object.assign(init.headers || {}, {'x-language': language, "cookie": cookie}, req.headers);
             argArray[1] = Object.assign(init, {
                 credentials: "include",
                 headers: combinedHeaders
@@ -114,7 +123,9 @@ app.get('*', (req, res) => {
         }
     })
 
-    resolveComponentList(path, search, routes, host)
+    const resolved = resolveRoute(path, search, routes);
+
+    resolveComponentList(resolved, path, search, host)
         .then((components) => {
             if (components) {
                 sendToClient(path, search, res, components, language, cookie, theme)

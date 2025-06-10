@@ -97,7 +97,7 @@ export const routes: Router.Route[] = [
 
                                 if (response.ok) {
                                     let form = mapForm<DocumentSearch>(await response.json(), true);
-                                    form.text = decodeURIComponent(queryParams["text"] as string)
+                                    form.text = decodeURIComponent(queryParams["text"] as string || "")
                                     return form
                                 }
 

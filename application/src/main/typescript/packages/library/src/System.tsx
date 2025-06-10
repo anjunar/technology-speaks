@@ -1,5 +1,5 @@
 import "./System.css"
-import React, {createContext, Dispatch, SetStateAction, useLayoutEffect, useState} from "react";
+import React, {createContext, Dispatch, SetStateAction, useEffect, useLayoutEffect, useState} from "react";
 import {init} from "./domain/Persistence";
 import Router from "./components/navigation/router/Router";
 import Input from "./components/inputs/input/Input";
@@ -118,6 +118,10 @@ function System(properties : System.Attributes) {
             }
         });
 
+    }, []);
+
+    useEffect(() => {
+        document.documentElement.classList.remove("loading");
     }, []);
 
     return (

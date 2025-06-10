@@ -187,6 +187,12 @@ export const Input = forwardRef<{ selectionStart: number }, Input.Attributes>((p
         }
     }, [value, model.dirty]);
 
+    if (typeof window === "undefined") {
+        if (onModel) {
+            onModel(model)
+        }
+    }
+
     function parseValue(target: HTMLInputElement) {
         try {
             switch (type) {
@@ -245,7 +251,7 @@ export const Input = forwardRef<{ selectionStart: number }, Input.Attributes>((p
         <input
             autoComplete={autoComplete}
             checked={typeof state === "boolean" ? state : false}
-            className={`input${typeof state === "boolean" ? state ? " checked" : " unchecked" : ""}${model.dirty ? " dirty" : " pristine"}${model.valid ? " valid" : " error"}${true ? " focus" : " blur"}`}
+            className={`input${typeof state === "boolean" ? state ? " checked" : " unchecked" : ""}${model.dirty ? " dirty" : " pristine"}${model.valid ? " valid" : " error"}${hasFocus ? " focus" : " blur"}`}
             disabled={disabled}
             name={name}
             onBlur={onBlur}

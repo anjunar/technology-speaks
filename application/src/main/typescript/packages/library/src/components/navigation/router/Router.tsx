@@ -9,62 +9,71 @@ import PathParams = Router.PathParams;
 
 const scrollAreaCache = new Map<string, number>()
 
+const routeCache = new Map<string, React.ReactElement<any>>()
+
 export async function resolveComponentList(
+    [route, queryParams, pathParams, component] : [Route, QueryParams, PathParams, FunctionComponent<any>],
     path: string,
     search: string,
-    routes: Route[],
     host: string,
     findFirst = false
 ): Promise<[Route, React.ReactElement][]> {
-    const queryParams = resolveQueryParameters(search);
-
-    async function walk(routes: Route[]): Promise<[Route, React.ReactElement][]> {
-        const flattened = flattenRoutes(routes);
-
-        for (const [rawPath, route] of flattened) {
-            let pathParams: PathParams;
-
-            if (route.subRouter && path.startsWith(rawPath)) {
-                pathParams = {};
-            } else {
-                const matcher = match(rawPath, { decode: decodeURIComponent });
-                const matched = matcher(path);
-                if (!matched) continue;
-                pathParams = matched.params as PathParams;
-            }
-
-            const component = route.component ?? (await route.dynamic?.(pathParams, queryParams));
-            if (!component) return [];
-
-            let props: Record<string, any> = { pathParams, queryParams };
-
-            if (route.loader) {
-                const loaderEntries = Object.entries(route.loader);
-                const loaded = await Promise.all(
-                    loaderEntries.map(([_, fn]) =>
-                        fn(host + path, pathParams, queryParams)
-                    )
-                );
-                loaderEntries.forEach(([key], i) => {
-                    props[key] = loaded[i];
-                });
-            }
-
-            const element = React.createElement(component as FunctionComponent<any>, props);
-
-            const childElements = !findFirst && route.children
-                ? await walk(route.children)
-                : [];
-            return [[route, element], ...childElements];
-        }
-
+    if (route === null) {
         return [];
     }
 
-    return walk(routes);
+    const props : Record<string, any> = {queryParams, pathParams};
+
+    if (route.loader) {
+        const loaderEntries = Object.entries(route.loader);
+        const loaded = await Promise.all(
+            loaderEntries.map(([_, fn]) =>
+                fn(host + path, pathParams, queryParams)
+            )
+        );
+        loaderEntries.forEach(([key], i) => {
+            props[key] = loaded[i];
+        });
+    }
+
+    const element = React.createElement(component as FunctionComponent<any>, props);
+
+    const childElements = !findFirst && route.children
+        ? await resolveComponentList(resolveRoute(path, search, route.children), path, search, host, findFirst)
+        : [];
+    return [[route, element], ...childElements];
 }
 
-export function flattenRoutes(routes: Route[], parentPath: string = ''): Router.RouteWithPath[] {
+export function resolveRoute(
+    path: string,
+    search: string,
+    routes: Route[],
+): [Route, QueryParams, PathParams, FunctionComponent<any>] {
+    const queryParams = resolveQueryParameters(search);
+
+    const flattened = flattenRoutes(routes);
+
+    for (const [rawPath, route] of flattened) {
+        let pathParams: PathParams;
+
+        if (route.subRouter && path.startsWith(rawPath)) {
+            pathParams = {};
+        } else {
+            const matcher = match(rawPath, { decode: decodeURIComponent });
+            const matched = matcher(path);
+            if (!matched) continue;
+            pathParams = matched.params as PathParams;
+        }
+
+        const component = route.component ?? (route.dynamic?.(pathParams, queryParams));
+
+        return [route, queryParams, pathParams, component]
+    }
+
+    return [null, null, null, null]
+}
+
+function flattenRoutes(routes: Route[], parentPath: string = ''): Router.RouteWithPath[] {
     return routes.reduce((previous: Router.RouteWithPath[], current: Route) => {
         const currentPath = `${parentPath}${current.path}`.replace(/\/\//g, '/')
         const currentRouteWithPath: Router.RouteWithPath = [currentPath, current]
@@ -75,7 +84,7 @@ export function flattenRoutes(routes: Route[], parentPath: string = ''): Router.
     }, [])
 }
 
-export function resolveQueryParameters(search: string): QueryParams {
+function resolveQueryParameters(search: string): QueryParams {
     let segments = search
         .slice(1)
         .split("&")
@@ -130,12 +139,22 @@ function Router(properties: Router.Attributes) {
         if (onRoute) onRoute(true);
 
         try {
-            const [components] = await resolveComponentList(path, search, routes, host, true);
-            const [route, component] = components
+            const [route, queryParams, pathParams, component] = resolveRoute(path, search, routes);
 
-            setState(component);
+            const key = JSON.stringify([route, queryParams, pathParams])
 
+            if (routeCache.has(key)) {
+                setState(routeCache.get(key));
+                setChildRoutes(route.children);
+                return;
+            }
+
+            const [components] = await resolveComponentList([route, queryParams, pathParams, component], path, search, host, true);
+            const [_, element] = components
+            setState(element);
             setChildRoutes(route.children);
+            routeCache.set(key, element);
+
         } catch (error) {
             console.error("Fehler beim Laden der Komponenten", error);
             setState(null);

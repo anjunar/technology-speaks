@@ -2,8 +2,8 @@ import React from 'react';
 import {hydrateRoot} from 'react-dom/client';
 import {App} from './App';
 import {
-    resolveComponentList,
-} from "react-ui-simplicity/src/components/navigation/router/Router";
+    resolveComponentList, resolveRoute,
+} from "react-ui-simplicity";
 import {routes} from "./routes";
 import Cookies from "js-cookie";
 
@@ -11,7 +11,9 @@ const initialPath = window.location.pathname
 const initialSearch = window.location.search
 
 async function main() {
-    const components = await resolveComponentList(initialPath, initialSearch, routes, window.location.origin)
+    const resolved = resolveRoute(initialPath, initialSearch, routes);
+
+    const components = await resolveComponentList(resolved, initialPath, initialSearch, window.location.origin)
 
     hydrateRoot(document.getElementById('root'), (
         <App

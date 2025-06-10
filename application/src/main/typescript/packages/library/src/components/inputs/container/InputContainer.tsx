@@ -10,7 +10,7 @@ function InputContainer(properties: InputContainer.Attributes) {
 
     const [errors, setErrors] = useState([])
 
-    const [empty, setEmpty] = useState(true)
+    const [empty, setEmpty] = useState(false)
 
     const [focus, setFocus] = useState(false)
 
