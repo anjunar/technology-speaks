@@ -1,5 +1,10 @@
 package com.anjunar.technologyspeaks.security
 
 import java.util
+import java.util.UUID
 
-trait SecurityUser {}
+trait SecurityUser {
+  
+  val id : UUID
+  
+}

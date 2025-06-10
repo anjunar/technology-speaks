@@ -31,7 +31,7 @@ class JaxRSCallback extends Callback {
           userTransaction.rollback()
           throw new WebApplicationException(Status.FORBIDDEN)
         } else {
-          if owner.owner == principal.user || principal.hasRole("Administrator") then
+          if owner.owner == principal || principal.hasRole("Administrator") then
             owner
           else
             userTransaction.rollback()

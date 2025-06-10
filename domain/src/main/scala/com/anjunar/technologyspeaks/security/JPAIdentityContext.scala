@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.security
 
-import com.anjunar.technologyspeaks.control.{Credential, User}
+import com.anjunar.technologyspeaks.control.{Credential, CredentialWebAuthn, User}
 import jakarta.enterprise.context.{RequestScoped, SessionScoped}
 import jakarta.inject.Inject
 import jakarta.security.enterprise.SecurityContext
@@ -20,7 +20,7 @@ class JPAIdentityContext extends IdentityContext with Serializable {
   override def getPrincipal: SecurityCredential = {
     try
       if (Objects.isNull(user)) {
-        user = Credential.findByCredentialId(securityContext.getCallerPrincipal.getName)
+        user = CredentialWebAuthn.find(UUID.fromString(securityContext.getCallerPrincipal.getName))
         user
       } else {
         user

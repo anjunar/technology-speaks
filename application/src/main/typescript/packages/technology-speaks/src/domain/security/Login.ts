@@ -1,12 +1,15 @@
 import {ActiveObject, Basic, Entity} from "react-ui-simplicity";
 
-@Entity("WebAuthnLogin")
-export default class WebAuthnLogin extends ActiveObject {
+@Entity("Login")
+export default class Login extends ActiveObject {
 
-    $type = "WebAuthnLogin"
+    $type = "Login"
 
     @Basic()
     username : string
+
+    @Basic()
+    password : string
 
     @Basic()
     displayName : string

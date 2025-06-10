@@ -3,7 +3,7 @@ package com.anjunar.technologyspeaks.security
 import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
 import com.anjunar.scala.schema.model.LinkType
-import com.anjunar.technologyspeaks.control.{Role, User, UserFormResource}
+import com.anjunar.technologyspeaks.control.{CredentialWebAuthn, Role, User, UserFormResource}
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{createProxy, linkTo, methodOn}
 import com.anjunar.technologyspeaks.jpa.Pair
@@ -60,7 +60,10 @@ class ConfirmationFormResource extends SchemaBuilderContext {
       .emails
       .stream()
       .flatMap(email => email.credentials.stream())
-      .filter(token => token.oneTimeToken == confirmation.code)
+      .filter{
+        case web : CredentialWebAuthn => web.oneTimeToken == confirmation.code
+        case _ => false  
+      }
       .findFirst()
     
     if (value.isPresent)
@@ -86,7 +89,8 @@ class ConfirmationFormResource extends SchemaBuilderContext {
       .stream()
       .filter(email => email.value == value)
       .flatMap(email => email.credentials.stream())
-      .filter(token => ! token.validated)
+      .filter(token => ! token.validated && token.isInstanceOf[CredentialWebAuthn])
+      .map(token => token.asInstanceOf[CredentialWebAuthn])
       .toList
 
     tokens.forEach(token => {

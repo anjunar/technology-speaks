@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.security
 
-import com.anjunar.technologyspeaks.control.Credential
+import com.anjunar.technologyspeaks.control.{Credential, CredentialWebAuthn}
 import com.yubico.webauthn.data.{ByteArray, PublicKeyCredentialDescriptor, PublicKeyCredentialType}
 import com.yubico.webauthn.{CredentialRepository, RegisteredCredential}
 import jakarta.enterprise.context.ApplicationScoped
@@ -17,7 +17,7 @@ import scala.jdk.CollectionConverters.*
 class WebAuthnCredentialRepository extends CredentialRepository {
 
   override def getCredentialIdsForUsername(username: String): util.Set[PublicKeyCredentialDescriptor] = {
-    val resultList = Credential.forEmail(username)
+    val resultList = CredentialWebAuthn.forEmail(username)
 
     resultList.stream().map { credIdBytes =>
       PublicKeyCredentialDescriptor.builder()
@@ -28,7 +28,7 @@ class WebAuthnCredentialRepository extends CredentialRepository {
   }
 
   override def getUserHandleForUsername(username: String): Optional[ByteArray] = {
-    val entity = Credential.forUserName(username)
+    val entity = CredentialWebAuthn.forUserName(username)
       .stream()
       .findFirst()
 
@@ -37,12 +37,12 @@ class WebAuthnCredentialRepository extends CredentialRepository {
 
   override def getUsernameForUserHandle(userHandle: ByteArray): Optional[String] = {
     val handleStr = userHandle.getBase64Url
-    val entity = Credential.find(handleStr.getBytes)
+    val entity = CredentialWebAuthn.find(handleStr.getBytes)
     Optional.ofNullable(entity).map(_.email.value)
   }
 
   override def lookup(credentialId: ByteArray, userHandle: ByteArray): Optional[RegisteredCredential] = {
-    val resultList = Credential.forCredentialIdAndId(credentialId, userHandle)
+    val resultList = CredentialWebAuthn.forCredentialIdAndId(credentialId, userHandle)
     
     resultList.stream().findFirst().map { entity =>
       RegisteredCredential.builder()
@@ -55,7 +55,7 @@ class WebAuthnCredentialRepository extends CredentialRepository {
   }
 
   override def lookupAll(credentialId: ByteArray): util.Set[RegisteredCredential] = {
-    val resultList = Credential.forCredentialId(credentialId)
+    val resultList = CredentialWebAuthn.forCredentialId(credentialId)
     
     resultList.stream().map { entity =>
       RegisteredCredential.builder()

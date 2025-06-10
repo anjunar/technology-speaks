@@ -4,12 +4,15 @@ import {FormContext} from "../form/Form";
 import {FormModel} from "../../shared/Model";
 import LinkContainerObject from "../../../domain/container/LinkContainerObject";
 import LinkObject from "../../../domain/container/LinkObject";
+import {useServer} from "../../../hooks";
 
 function Button(properties : Button.Attributes) {
 
     const {children, type, force = false, ...rest} = properties
 
     const context : FormModel = useContext(FormContext)
+
+    let isServer = useServer();
 
     const button = useRef(null);
 
@@ -21,6 +24,11 @@ function Button(properties : Button.Attributes) {
         if (force) {
             return false
         }
+
+        if (isServer) {
+            return false
+        }
+
         switch (type) {
             case "submit" : return context.pristine || ! context.valid
             case "reset" : return context.pristine

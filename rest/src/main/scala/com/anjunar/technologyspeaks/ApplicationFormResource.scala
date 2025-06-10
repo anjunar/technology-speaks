@@ -37,11 +37,11 @@ class ApplicationFormResource extends SchemaBuilderContext {
       user.emails.add(email)
 
       forLinks(classOf[Application], (instance, link) => {
-        linkTo(methodOn(classOf[WebAuthnLoginResource]).entry())
+        linkTo(methodOn(classOf[LoginResource]).entry())
           .withRel("login")
           .build(link.addLink)
 
-        linkTo(methodOn(classOf[WebAuthnRegistrationResource]).entry())
+        linkTo(methodOn(classOf[RegistrationResource]).entry())
           .withRel("register")
           .build(link.addLink)
       })

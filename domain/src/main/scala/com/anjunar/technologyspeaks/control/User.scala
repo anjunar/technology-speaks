@@ -5,7 +5,7 @@ import com.anjunar.technologyspeaks.jpa
 import com.anjunar.technologyspeaks.jpa.{PostgresIndex, PostgresIndices, RepositoryContext, Save}
 import com.anjunar.technologyspeaks.openstreetmap.geocoding.GeoService
 import com.anjunar.technologyspeaks.openstreetmap.geocoding2.MapBoxService
-import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityUser}
+import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityRole, SecurityUser}
 import com.anjunar.technologyspeaks.shared.validators.Unique
 import com.anjunar.scala.mapper.annotations.Descriptor
 import com.anjunar.technologyspeaks.shared.property.EntityView
@@ -35,6 +35,10 @@ class User extends Identity with OwnerProvider with SecurityUser {
   @BeanProperty
   var nickName : String = uninitialized
 
+  @Descriptor(title = "Password")
+  @BeanProperty
+  var password : String = uninitialized
+
   @OneToMany(cascade = Array(CascadeType.ALL), mappedBy = "user")
   @BeanProperty
   @Descriptor(title = "Emails", widget = "form-array", writeable = true)
@@ -49,6 +53,12 @@ class User extends Identity with OwnerProvider with SecurityUser {
   @BeanProperty
   @Descriptor(title = "Address")
   var address : Address = uninitialized
+
+  @ManyToMany
+  @Size(min = 1, max = 10)
+  @BeanProperty
+  @Descriptor(title = "Roles")
+  val roles: util.Set[Role] = new util.HashSet[Role]
 
   @Transient
   @Descriptor(title = "Score")

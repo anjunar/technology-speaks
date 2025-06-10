@@ -8,7 +8,7 @@ import GeoPoint from "./domain/control/GeoPoint";
 import Application from "./domain/Application";
 import {registerEntity} from "react-ui-simplicity";
 import EMail from "./domain/control/EMail";
-import WebAuthnLogin from "./domain/security/WebAuthnLogin";
+import Login from "./domain/security/Login";
 import Credential from "./domain/control/Credential";
 import Group from "./domain/control/Group";
 import ManagedProperty from "./domain/shared/ManagedProperty";
@@ -46,7 +46,7 @@ export function init() {
     registerEntity(Address)
     registerEntity(GeoPoint)
 
-    registerEntity(WebAuthnLogin)
+    registerEntity(Login)
     registerEntity(Confirmation)
     registerEntity(ManagedProperty)
     registerEntity(HashTag)

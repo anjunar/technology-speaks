@@ -6,10 +6,10 @@ import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, met
 
 import java.lang.reflect.Type
 
-class WebAuthnLoginSchema extends EntityJSONSchema[WebAuthnLogin] {
-  override def build(instance: WebAuthnLogin, aType: Type): SchemaBuilder = {
+class LoginSchema extends EntityJSONSchema[Login] {
+  override def build(instance: Login, aType: Type): SchemaBuilder = {
     new SchemaBuilder()
-      .forType(classOf[WebAuthnLogin], (entity: EntitySchemaBuilder[WebAuthnLogin]) => entity
+      .forType(classOf[Login], (entity: EntitySchemaBuilder[Login]) => entity
         .property("username", property => property
           .withWriteable(true)
         )

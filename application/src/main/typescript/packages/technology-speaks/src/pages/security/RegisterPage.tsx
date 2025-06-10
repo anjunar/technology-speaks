@@ -2,7 +2,7 @@ import React, {useEffect} from "react"
 import * as webauthnJson from "@github/webauthn-json";
 import {UAParser} from 'ua-parser-js';
 import {Button, JSONSerializer, Router, SchemaForm, SchemaInput, useForm} from "react-ui-simplicity";
-import WebAuthnLogin from "../../domain/security/WebAuthnLogin";
+import Login from "../../domain/security/Login";
 import navigate = Router.navigate;
 
 
@@ -58,7 +58,7 @@ function RegisterPage(properties: RegisterPage.Attributes) {
 
 namespace RegisterPage {
     export interface Attributes {
-        register : WebAuthnLogin
+        register : Login
     }
 }
 

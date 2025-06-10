@@ -5,6 +5,8 @@ import {AsyncValidator, Error, FormModel, Validator} from "../../shared/Model";
 import LinkContainerObject from "../../../domain/container/LinkContainerObject";
 import NodeDescriptor from "../../../domain/descriptors/NodeDescriptor";
 import Validable from "../../../domain/descriptors/Validable";
+import {ObjectDescriptor} from "../../../domain/descriptors";
+import {ActiveObject} from "../../../domain/container";
 
 export const SchemaFormContext = createContext<(name: string) => NodeDescriptor & Validable>(null)
 
@@ -39,7 +41,7 @@ function SchemaForm(properties: SchemaForm.Attributes) {
 
     const asyncValidators = []
     if (links?.validate) {
-        let link = value.links.validate;
+        let link = value.$links.validate;
 
         asyncValidators.push(new class Server implements AsyncValidator {
 
@@ -66,6 +68,8 @@ function SchemaForm(properties: SchemaForm.Attributes) {
         })
     }
 
+    let link = Object.values(value.$links).find(link => link.method === "PUT" || link.method === "POST" || link.rel === "search");
+
     return (
         <SchemaFormContext.Provider value={node}>
             <Form
@@ -75,6 +79,8 @@ function SchemaForm(properties: SchemaForm.Attributes) {
                 onErrors={onErrors}
                 validators={validators}
                 asyncValidators={asyncValidators}
+                action={link?.url}
+                method={link?.method}
                 {...rest}
             >
                 {children}
@@ -89,7 +95,7 @@ namespace SchemaForm {
         onSubmit: (name : string, form : FormModel) => void
         onInput?: any
         onErrors?: (errors: Error[]) => void
-        value?: any
+        value?: ActiveObject
         links? : LinkContainerObject
         style?: CSSProperties,
         validators?: Validator[]

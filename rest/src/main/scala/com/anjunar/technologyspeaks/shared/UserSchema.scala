@@ -5,7 +5,7 @@ import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, LinkContext, Prope
 import com.anjunar.technologyspeaks.control.*
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{createProxy, linkTo, methodOn}
 import com.anjunar.technologyspeaks.media.{Media, Thumbnail}
-import com.anjunar.technologyspeaks.security.{ManagedPropertyFormResource, WebAuthnRegistrationResource}
+import com.anjunar.technologyspeaks.security.{ManagedPropertyFormResource, RegistrationResource}
 import com.anjunar.technologyspeaks.shared.property.{EntityView, ManagedProperty}
 import jakarta.validation.constraints.Email
 

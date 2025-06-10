@@ -45,6 +45,8 @@ class DocumentTableResource extends SchemaBuilderContext {
   def search(@BeanParam search: DocumentSearch): DocumentSearch = {
 
     forLinks(classOf[DocumentSearch], (instance, link) => {
+      linkTo(methodOn(classOf[DocumentTableResource]).search(search))
+        .build(link.addLink)
       linkTo(methodOn(classOf[DocumentTableResource]).list(search))
         .build(link.addLink)
     })

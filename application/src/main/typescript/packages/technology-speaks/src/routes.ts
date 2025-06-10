@@ -7,7 +7,7 @@ import LoginPage from "./pages/security/LoginPage";
 import RegisterPage from "./pages/security/RegisterPage";
 import ConfirmationPage from "./pages/security/ConfirmationPage";
 import {UAParser} from "ua-parser-js";
-import WebAuthnLogin from "./domain/security/WebAuthnLogin";
+import Login from "./domain/security/Login";
 import LogoutPage from "./pages/security/LogoutPage";
 import DocumentSearchPage from "./pages/documents/search/DocumentSearchPage";
 import DocumentFormPage from "./pages/documents/document/DocumentFormPage";
@@ -220,7 +220,7 @@ export const routes: Router.Route[] = [
                                 process(response, path)
 
                                 if (response.ok) {
-                                    let activeObject: WebAuthnLogin = mapForm(await response.json(), true);
+                                    let activeObject: Login = mapForm(await response.json(), true);
 
                                     const {browser, cpu, os, device} = UAParser(navigator.userAgent);
                                     activeObject.displayName = `${browser.name} on ${os.name} ${os.version} ${device.type ? device.type.substring(0, 1).toUpperCase() + device.type.substring(1) : "Desktop"}`

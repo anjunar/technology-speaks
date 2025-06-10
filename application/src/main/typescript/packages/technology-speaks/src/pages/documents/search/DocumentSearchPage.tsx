@@ -114,6 +114,9 @@ function DocumentSearchPage(properties: SearchPageMobile.Attributes) {
                             </div>
                             <SchemaForm value={search} onSubmit={onSubmit}>
                                 <SchemaInput name={"text"}/>
+                                <input type={"hidden"} name={"index"} value={"0"}/>
+                                <input type={"hidden"} name={"limit"} value={"5"}/>
+                                <input type={"hidden"} name={"sort"} value={"score:asc"}/>
                                 <div style={{display : "flex", justifyContent : "flex-end"}}>
                                     {
                                         onLink(links, "search", (link) => (

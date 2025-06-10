@@ -1,10 +1,11 @@
 import "./HomePage.css"
 import React from "react"
 import DocumentSearch from "../../domain/document/DocumentSearch";
-import {AutoSuggest, Form, mapTable, Router, useForm} from "react-ui-simplicity";
+import {AutoSuggest, Button, Form, FormModel, Link, mapTable, Router, SchemaForm, useForm} from "react-ui-simplicity";
 import HashTag from "../../domain/shared/HashTag";
 import {process} from "../Root"
 import navigate = Router.navigate;
+import onLink = Link.onLink;
 
 function HomePage(properties: HomePage.Attributes) {
 
@@ -56,6 +57,10 @@ function HomePage(properties: HomePage.Attributes) {
         return before.length + hashTag.value.length + 1;
     }
 
+    function onSubmit(name : string, form : FormModel) {
+
+    }
+
     return (
         <div className={"home-page"}>
             <div className={"center"}>
@@ -64,7 +69,10 @@ function HomePage(properties: HomePage.Attributes) {
                         <img src={"/assets/logo.png"} style={{width : "1em"}}/>
                         <h1 style={{fontSize : "1em", margin : 0, padding : 0, color : "white"}}>Technology Speaks</h1>
                     </div>
-                    <Form value={search} style={{marginTop : "12px", display : "flex", justifyContent : "stretch"}}>
+                    <SchemaForm onSubmit={onSubmit} value={search} style={{marginTop : "12px", display : "flex", justifyContent : "stretch", flexDirection : "column"}}>
+                        <input type={"hidden"} name={"index"} value={"0"}/>
+                        <input type={"hidden"} name={"limit"} value={"5"}/>
+                        <input type={"hidden"} name={"sort"} value={"score:asc"}/>
                         <AutoSuggest loader={loader}
                                      name={"text"}
                                      onKeyUp={onSearch}
@@ -77,7 +85,14 @@ function HomePage(properties: HomePage.Attributes) {
                                 )
                             }
                         </AutoSuggest>
-                    </Form>
+                        <div style={{display : "flex", justifyContent : "flex-end"}}>
+                            {
+                                onLink(search.$links, "list", link => (
+                                    <Button type={"submit"}>{link.title}</Button>
+                                ))
+                            }
+                        </div>
+                    </SchemaForm>
                 </div>
             </div>
         </div>

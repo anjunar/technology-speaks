@@ -243,7 +243,7 @@ namespace Router {
 
     export class RedirectError extends Error {
         constructor(public url: string) {
-            super()
+            super("Redirect Error to:" + url)
         }
     }
 }

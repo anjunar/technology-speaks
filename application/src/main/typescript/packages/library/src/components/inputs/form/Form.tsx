@@ -5,7 +5,7 @@ import {debounce} from "../../shared/Utils";
 
 function Form(properties: Form.Attributes) {
 
-    const {children, onModel, onSubmit, onInput, onErrors, validators, asyncValidators, value, ...rest} = properties
+    const {children, onModel, onSubmit, onInput, onErrors, validators, asyncValidators, value, action, method, ...rest} = properties
 
     const form = useMemo(() => {
         return new FormModel(undefined, value)
@@ -110,9 +110,9 @@ function Form(properties: Form.Attributes) {
     }, []);
 
     return (
-        <fieldset {...rest} className={`form${form.dirty ? " dirty" : " pristine"}${form.valid ? " valid" : " invalid"}`}>
+        <form action={action} method={method} {...rest} className={`form${form.dirty ? " dirty" : " pristine"}${form.valid ? " valid" : " invalid"}`}>
             <FormContext.Provider value={form}>{children}</FormContext.Provider>
-        </fieldset>
+        </form>
     )
 }
 
@@ -128,6 +128,8 @@ namespace Form {
         validators?: Validator[],
         asyncValidators?: AsyncValidator[]
         style? : CSSProperties
+        action? : string
+        method? : string
     }
 }
 

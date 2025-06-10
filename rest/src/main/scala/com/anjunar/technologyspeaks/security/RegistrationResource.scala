@@ -3,7 +3,7 @@ package com.anjunar.technologyspeaks.security
 import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
 import com.anjunar.scala.schema.model.LinkType
-import com.anjunar.technologyspeaks.control.{Credential, EMail, Role, User}
+import com.anjunar.technologyspeaks.control.{Credential, CredentialWebAuthn, EMail, Role, User}
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.jpa.Pair
@@ -28,9 +28,9 @@ import scala.jdk.CollectionConverters.*
 @Produces(Array(MediaType.APPLICATION_JSON))
 @Consumes(Array(MediaType.APPLICATION_JSON))
 @SessionScoped
-class WebAuthnRegistrationResource extends Serializable with SchemaBuilderContext {
+class RegistrationResource extends Serializable with SchemaBuilderContext {
 
-  val logger = LoggerFactory.getLogger(classOf[WebAuthnRegistrationResource])
+  val logger = LoggerFactory.getLogger(classOf[RegistrationResource])
 
   var request: PublicKeyCredentialCreationOptions = uninitialized
 
@@ -45,22 +45,22 @@ class WebAuthnRegistrationResource extends Serializable with SchemaBuilderContex
 
   @GET
   @Path("register")
-  @JsonSchema(classOf[WebAuthnRegistrationSchema])
+  @JsonSchema(classOf[RegistrationSchema])
   @LinkDescription(value = "Register", linkType = LinkType.FORM)
-  def entry(): WebAuthnLogin = {
+  def entry(): Login = {
 
-    forLinks(classOf[WebAuthnLogin], (instance, link) => {
-      linkTo(methodOn(classOf[WebAuthnRegistrationResource]).generateRegistrationOptions(null))
+    forLinks(classOf[Login], (instance, link) => {
+      linkTo(methodOn(classOf[RegistrationResource]).generateRegistrationOptions(null))
         .withRel("register")
         .build(link.addLink)
     })
 
 
-    new WebAuthnLogin
+    new Login
   }
 
   def findExistingUser(userName: String, displayName: String): Optional[UserIdentity] = {
-    val credential = Credential.forUserNameAndDisplayName(userName, displayName)
+    val credential = CredentialWebAuthn.forUserNameAndDisplayName(userName, displayName)
     if (credential == null) {
       Optional.empty()
     } else {
@@ -77,7 +77,7 @@ class WebAuthnRegistrationResource extends Serializable with SchemaBuilderContex
   @POST
   @Path("/register-options")
   @LinkDescription(value = "Register", linkType = LinkType.FORM)
-  def generateRegistrationOptions(userRequest: WebAuthnLogin): Response = {
+  def generateRegistrationOptions(userRequest: Login): Response = {
     request = webAuthnService
       .relyingParty
       .startRegistration(StartRegistrationOptions
@@ -125,7 +125,7 @@ class WebAuthnRegistrationResource extends Serializable with SchemaBuilderContex
       var user = User.findByEmail(request.getUser.getName)
       val token = if (user == null) {
 
-        val token = new Credential
+        val token = new CredentialWebAuthn
         token.roles.add(guest)
         token.generateOneTimeToken()
 
@@ -153,13 +153,17 @@ class WebAuthnRegistrationResource extends Serializable with SchemaBuilderContex
 
         val administrator = mail.credentials
           .stream()
-          .filter(token => token.hasRole("Administrator") && token.credentialId == null)
+          .filter({
+            case token : CredentialWebAuthn => token.hasRole("Administrator") && token.credentialId == null
+            case _ => false  
+          })
           .findFirst()
+          .asInstanceOf[Optional[CredentialWebAuthn]]
 
         val token = if (administrator.isPresent) {
           administrator.get()
         } else {
-          val token = new Credential
+          val token = new CredentialWebAuthn
           token.roles.add(guest)
           token.generateOneTimeToken()
 

@@ -9,7 +9,7 @@
     "build:server": "webpack --config webpack.server.config.js --watch",
     "start:dev-server": "pm2 start dist/server/server.js --watch --no-daemon --node-args=\"--inspect=9229\"",
     "start:dev-client": "webpack serve --config webpack.client.config.js",
-    "dev": "concurrently \"npm run build:server\" \"npm run start:dev-server\" \"npm run start:dev-client\""
+    "dev": "concurrently --kill-others \"npm run build:server\" \"npm run start:dev-server\" \"npm run start:dev-client\""
   },
   "keywords": [],
   "author": "",

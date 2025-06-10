@@ -4,12 +4,13 @@ import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
 import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
-import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
+import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{createProxy, linkTo, methodOn}
 import com.yubico.webauthn.*
 import com.yubico.webauthn.data.*
 import jakarta.enterprise.context.SessionScoped
 import jakarta.inject.Inject
 import jakarta.security.enterprise.AuthenticationStatus
+import jakarta.security.enterprise.credential.UsernamePasswordCredential
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.*
 
@@ -19,7 +20,7 @@ import scala.compiletime.uninitialized
 @Produces(Array(MediaType.APPLICATION_JSON))
 @Consumes(Array(MediaType.APPLICATION_JSON))
 @SessionScoped
-class WebAuthnLoginResource extends Serializable with SchemaBuilderContext {
+class LoginResource extends Serializable with SchemaBuilderContext {
 
   @Inject
   var webAuthnService: WebAuthnService = uninitialized
@@ -31,24 +32,45 @@ class WebAuthnLoginResource extends Serializable with SchemaBuilderContext {
   
   @GET
   @Path("login")  
-  @JsonSchema(classOf[WebAuthnLoginSchema])
+  @JsonSchema(classOf[LoginSchema])
   @LinkDescription(value = "Login", linkType = LinkType.FORM)  
-  def entry(): WebAuthnLogin = {
+  def entry(): Login = {
 
-    forLinks(classOf[WebAuthnLogin], (instance, link) => {
-      linkTo(methodOn(classOf[WebAuthnLoginResource]).beginLogin(null))
+    forLinks(classOf[Login], (instance, link) => {
+      linkTo(methodOn(classOf[LoginResource]).beginLogin(null))
         .withRel("login")
+        .build(link.addLink)
+      linkTo(methodOn(classOf[LoginResource]).fallback(null))
+        .withRel("fallback")
         .build(link.addLink)
     })
 
 
-    new WebAuthnLogin
+    new Login
+  }
+  
+  @POST
+  @Path("fallback")
+  @LinkDescription(value = "Login", linkType = LinkType.FORM)
+  @Consumes(Array(MediaType.APPLICATION_FORM_URLENCODED))  
+  def fallback(login : Login) : Response = {
+    
+    val credential = new UsernamePasswordCredential(login.username, login.password)
+
+    val status = authenticator.authenticate(credential)
+
+    status match {
+      case AuthenticationStatus.SUCCESS =>
+        Response.ok().build()
+      case _ =>
+        Response.status(Response.Status.UNAUTHORIZED).build()
+    }
   }
 
   @POST
-  @Path("/options")
+  @Path("options")
   @LinkDescription(value = "Login", linkType = LinkType.FORM)
-  def beginLogin(requestBody: WebAuthnLogin): Response = {
+  def beginLogin(requestBody: Login): Response = {
     val rp = webAuthnService.relyingParty
 
     val options = rp.startAssertion(
