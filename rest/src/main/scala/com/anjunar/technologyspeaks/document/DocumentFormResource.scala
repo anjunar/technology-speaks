@@ -47,6 +47,7 @@ class DocumentFormResource extends SchemaBuilderContext {
 
     forLinks(classOf[Document], (instance, link) => {
       linkTo(methodOn(classOf[DocumentFormResource]).save(instance))
+        .withRel("submit")
         .build(link.addLink)
     })
 
@@ -69,7 +70,8 @@ class DocumentFormResource extends SchemaBuilderContext {
     forLinks(classOf[Document], (instance, link) => {
       linkTo(methodOn(classOf[DocumentFormResource]).read(instance.id, true))
         .build(link.addLink)
-      linkTo(methodOn(classOf[DocumentFormResource]).update(instance, ""))
+      linkTo(methodOn(classOf[DocumentFormResource]).save(instance))
+        .withRel("submit")
         .build(link.addLink)
       linkTo(methodOn(classOf[DocumentFormResource]).delete(instance))
         .build(link.addLink)
@@ -129,50 +131,16 @@ class DocumentFormResource extends SchemaBuilderContext {
   def viewRevision(@PathParam("id") id: UUID, @PathParam("rev") revision: Int): Document = Document.find(id, revision)
 
   @POST
-  @Consumes(Array("application/json"))
-  @Produces(Array("application/json"))
+  @Consumes(Array("application/json", MediaType.MULTIPART_FORM_DATA))
   @JsonSchema(classOf[DocumentFormSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Save", linkType = LinkType.FORM)
-  def save(@JsonSchema(classOf[DocumentFormSchema]) entity: Document): Document = {
+  def save(@JsonSchema(classOf[DocumentFormSchema]) entity: Document): Response = {
     entity.user = User.current()
 
-    entity.persist()
-
-    forLinks(classOf[Document], (instance, link) => {
-      linkTo(methodOn(classOf[DocumentFormResource]).update(instance, ""))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[DocumentFormResource]).delete(instance))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[DocumentTableResource]).list(null))
-        .withRedirect
-        .build(link.addLink)
-    })
-
-    entity
-  }
-
-  @PUT
-  @Consumes(Array("application/json"))
-  @Produces(Array("application/json"))
-  @JsonSchema(classOf[DocumentFormSchema])
-  @RolesAllowed(Array("User", "Administrator"))
-  @LinkDescription(value = "Update", linkType = LinkType.FORM)
-  def update(@JsonSchema(classOf[DocumentFormSchema]) entity: Document, @HeaderParam("X-Session-Id") sessionId: String): Document = {
-
-    entity.user = User.current()
-
-    entity.validate()
-
-    forLinks(classOf[Document], (instance, link) => {
-      linkTo(methodOn(classOf[DocumentFormResource]).delete(instance))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[DocumentTableResource]).list(null))
-        .withRedirect
-        .build(link.addLink)
-    })
-
-    entity
+    entity.saveOrUpdate()
+    
+    createRedirectResponse
   }
 
   @DELETE

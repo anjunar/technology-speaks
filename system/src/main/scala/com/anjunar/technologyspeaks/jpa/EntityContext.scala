@@ -1,31 +1,36 @@
 package com.anjunar.technologyspeaks.jpa
 
+import com.anjunar.scala.mapper.IdProvider
 import com.anjunar.scala.mapper.exceptions.{ValidationException, ValidationViolation}
 import com.anjunar.scala.universe.TypeResolver
-import com.google.common.collect.Sets
 import jakarta.enterprise.inject.spi.CDI
 import jakarta.persistence.EntityManager
 import jakarta.validation.Validator
 
-import java.lang.annotation.Annotation
 import java.util
 
-trait EntityContext {
+trait EntityContext[E <: EntityContext[E]] extends IdProvider { self: E =>
 
-  def persist(): Unit = {
-    validate()
-    CDI.current().getBeanContainer.getEvent.select(new SaveLiteral).fire(this)
-    entityManager.persist(this)
-  }
+  def saveOrUpdate(): E = {
+    val managed = if (version == null) {
+      entityManager.persist(this)
+      this
+    } else {
+      if (entityManager.contains(this)) {
+        this
+      } else {
+        entityManager.merge(this)
+      }
+    }
 
-  def merge(): Unit = {
-    CDI.current().getBeanContainer.getEvent.select(new UpdateLiteral).fire(this)
-//    entityManager.merge(this)
+    CDI.current().getBeanContainer.getEvent.select(new SaveLiteral).fire(managed)
+
+    managed
   }
 
   def delete(): Unit = {
-    CDI.current().getBeanContainer.getEvent.select(new DeleteLiteral).fire(this)
     entityManager.remove(this)
+    CDI.current().getBeanContainer.getEvent.select(new DeleteLiteral).fire(this)
   }
 
   def detach(): Unit = {
@@ -55,9 +60,9 @@ trait EntityContext {
         new ValidationViolation(path, violation.getMessage, violation.getRootBeanClass)
       })
       .toList
-    
-    if (! validationViolation.isEmpty) {
-      throw new ValidationException(validationViolation)  
+
+    if (!validationViolation.isEmpty) {
+      throw new ValidationException(validationViolation)
     }
   }
 

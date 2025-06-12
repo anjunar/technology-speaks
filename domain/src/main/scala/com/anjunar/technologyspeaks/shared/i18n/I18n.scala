@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.shared.i18n
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.{Pair, RepositoryContext}
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import jakarta.persistence.{Column, Entity}
@@ -14,14 +14,12 @@ import scala.compiletime.uninitialized
 @Entity
 class I18n extends AbstractEntity {
 
-  @Descriptor(title = "Text", writeable = true, naming = true)
-  @BeanProperty
+  @PropertyDescriptor(title = "Text", writeable = true, naming = true)
   var text: String = uninitialized
 
-  @Descriptor(title = "Translations", writeable = true)
+  @PropertyDescriptor(title = "Translations", writeable = true)
   @Column(columnDefinition = "jsonb")
   @Type(classOf[TranslationType])
-  @BeanProperty
   val translations: util.Set[Translation] = new util.HashSet[Translation]()
   
   override def toString = s"I18n($text)"

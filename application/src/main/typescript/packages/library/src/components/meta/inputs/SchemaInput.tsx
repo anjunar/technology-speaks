@@ -68,13 +68,20 @@ function SchemaInput(properties: SchemaInput.Attributes) {
         return undefined
     }
 
+    function getDisabled() {
+        if (contextSchema.hidden) {
+            return false
+        }
+        return disabled || contextSchema.readOnly;
+    }
+
     return (
-        <InputContainer name={name} placeholder={contextSchema.title} style={style}>
+        <InputContainer name={name} placeholder={contextSchema.title} style={{display : contextSchema.hidden ? "none" : "block",...style}}>
             <Input
                 type={contextSchema.widget}
                 value={value}
                 name={name}
-                disabled={disabled || contextSchema.readOnly}
+                disabled={getDisabled()}
                 asyncValidators={asyncValidators()}
                 validators={validators}
                 {...configureNumber(contextSchema)}

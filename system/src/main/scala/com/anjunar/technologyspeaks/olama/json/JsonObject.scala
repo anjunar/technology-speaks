@@ -6,10 +6,8 @@ import scala.jdk.CollectionConverters.*
 
 class JsonObject extends JsonNode {
   
-  @BeanProperty
   val properties : util.LinkedHashMap[String, JsonNode] = new util.LinkedHashMap[String, JsonNode]()
   
-  @BeanProperty
   val required : util.Set[String] = new util.HashSet[String]()
   
 }

@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.control
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.control.Role
 import com.anjunar.technologyspeaks.jaxrs.search.RestPredicate
 import com.anjunar.technologyspeaks.jaxrs.search.provider.{GenericManyToManyProvider, GenericNameProvider}
@@ -14,16 +14,14 @@ import scala.compiletime.uninitialized
 
 class CredentialSearch extends AbstractSearch {
 
-  @Descriptor(title = "Display Name", writeable = true)
+  @PropertyDescriptor(title = "Display Name", writeable = true)
   @RestPredicate(classOf[GenericNameProvider[?]])
   @QueryParam("displayName")
-  @BeanProperty
   var displayName: String = uninitialized
 
-  @Descriptor(title = "Roles", writeable = true)
+  @PropertyDescriptor(title = "Roles", writeable = true)
   @RestPredicate(classOf[GenericManyToManyProvider[?]])
   @QueryParam("roles")
-  @BeanProperty
   val roles: util.Set[Role] = new util.HashSet[Role]()
 
 }

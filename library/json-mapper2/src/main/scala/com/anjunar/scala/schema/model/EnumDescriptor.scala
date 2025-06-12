@@ -1,14 +1,14 @@
 package com.anjunar.scala.schema.model
 
-import com.anjunar.scala.mapper.annotations.IgnoreFilter
+import com.anjunar.scala.mapper.annotations.{PropertyDescriptor, IgnoreFilter}
 
 import java.util
 import scala.beans.BeanProperty
 
 @IgnoreFilter
 class EnumDescriptor extends NodeDescriptor {
-  
-  @BeanProperty
+
+  @PropertyDescriptor(title = "Enumeration")
   var enums : util.List[String] = new util.ArrayList[String]()
   
 }

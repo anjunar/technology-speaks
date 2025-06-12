@@ -7,7 +7,6 @@ import scala.compiletime.uninitialized
 
 class TextNode extends Node {
 
-  @BeanProperty
   var value: String = uninitialized
   
   private def canEqual(other: Any): Boolean = other.isInstanceOf[TextNode]

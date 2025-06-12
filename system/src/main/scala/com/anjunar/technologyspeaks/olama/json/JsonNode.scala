@@ -8,10 +8,8 @@ import scala.compiletime.uninitialized
 class JsonNode {
 
   @JsonProperty("type")
-  @BeanProperty
   var nodeType : NodeType = uninitialized
 
-  @BeanProperty
   var description : String = uninitialized
 
 }

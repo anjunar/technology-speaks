@@ -10,6 +10,7 @@ import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.{ApplicationScoped, RequestScoped}
 import jakarta.inject.Inject
 import jakarta.ws.rs.*
+import jakarta.ws.rs.core.Response
 
 import java.util.UUID
 import scala.compiletime.uninitialized
@@ -29,6 +30,7 @@ class GroupFormResource extends SchemaBuilderContext {
 
     forLinks(classOf[Group], (instance, link) => {
       linkTo(methodOn(classOf[GroupFormResource]).save(instance))
+        .withRel("submit")
         .build(link.addLink)
     })
 
@@ -44,7 +46,8 @@ class GroupFormResource extends SchemaBuilderContext {
   def read(@PathParam("id") id: UUID): Group = {
 
     forLinks(classOf[Group], (instance, link) => {
-      linkTo(methodOn(classOf[GroupFormResource]).update(instance))
+      linkTo(methodOn(classOf[GroupFormResource]).save(instance))
+        .withRel("submit")
         .build(link.addLink)
       linkTo(methodOn(classOf[GroupFormResource]).delete(instance))
         .build(link.addLink)
@@ -59,47 +62,16 @@ class GroupFormResource extends SchemaBuilderContext {
 
   @POST
   @Consumes(Array("application/json"))
-  @Produces(Array("application/json"))
   @JsonSchema(classOf[GroupFormSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Save", linkType = LinkType.FORM)
-  def save(@JsonSchema(classOf[GroupFormSchema]) entity: Group): Group = {
+  def save(@JsonSchema(classOf[GroupFormSchema]) entity: Group): Response = {
 
     val user = User.current()
     entity.user = user
-    entity.persist()
+    entity.saveOrUpdate()
 
-    forLinks(classOf[Group], (instance, link) => {
-      linkTo(methodOn(classOf[GroupFormResource]).update(instance))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[GroupFormResource]).delete(instance))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[GroupTableResource]).list(null))
-        .withRedirect
-        .build(link.addLink)
-    })
-
-    entity
-  }
-
-  @PUT
-  @Consumes(Array("application/json"))
-  @Produces(Array("application/json"))
-  @JsonSchema(classOf[GroupFormSchema])
-  @RolesAllowed(Array("User", "Administrator"))
-  @LinkDescription(value = "Update", linkType = LinkType.FORM)
-  def update(@JsonSchema(classOf[GroupFormSchema]) entity: Group): Group = {
-    entity.validate()
-
-    forLinks(classOf[Group], (instance, link) => {
-      linkTo(methodOn(classOf[GroupFormResource]).delete(instance))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[GroupTableResource]).list(null))
-        .withRedirect
-        .build(link.addLink)
-    })
-
-    entity
+    createRedirectResponse
   }
 
   @DELETE

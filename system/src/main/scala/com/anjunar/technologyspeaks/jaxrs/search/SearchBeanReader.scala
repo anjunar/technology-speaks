@@ -1,5 +1,6 @@
 package com.anjunar.technologyspeaks.jaxrs.search
 
+import com.anjunar.scala.introspector.DescriptionIntrospector
 import com.anjunar.scala.universe.introspector.BeanIntrospector
 import jakarta.persistence.EntityManager
 import jakarta.persistence.criteria.*
@@ -15,7 +16,7 @@ import scala.collection.mutable.ListBuffer
 object SearchBeanReader {
   
   def read[E](search: AnyRef, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?]): (mutable.Buffer[Predicate], mutable.Map[String, Any], mutable.Buffer[Expression[java.lang.Double]]) = {
-    val beanModel = BeanIntrospector.createWithType(search.getClass)
+    val beanModel = DescriptionIntrospector.createWithType(search.getClass)
     val predicates = new mutable.ListBuffer[Predicate]
     val selection = new mutable.ListBuffer[Expression[java.lang.Double]]
     val parameters = mutable.Map[String, Any]()
@@ -32,7 +33,7 @@ object SearchBeanReader {
   }
 
   def order[E](search: AnyRef, entityManager: EntityManager, builder: CriteriaBuilder, root: Root[E], query: CriteriaQuery[?], selection : Expression[java.lang.Double], predicates : mutable.Buffer[Predicate]): Array[Order] = {
-    val beanModel = BeanIntrospector.createWithType(search.getClass)
+    val beanModel = DescriptionIntrospector.createWithType(search.getClass)
     var orders : util.List[Order] = new util.ArrayList[Order]
     for (property <- beanModel.properties) {
       val restPredicate = property.findDeclaredAnnotation(classOf[RestSort])

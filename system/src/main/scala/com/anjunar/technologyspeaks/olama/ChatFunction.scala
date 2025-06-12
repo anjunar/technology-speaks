@@ -8,8 +8,7 @@ import scala.compiletime.uninitialized
 
 class ChatFunction {
 
-  @BeanProperty
-  var function : Callee = uninitialized 
+  var function : Callee = uninitialized
 
 }
 
@@ -17,11 +16,9 @@ object ChatFunction {
 
   class Callee {
 
-    @BeanProperty
-    var name : String = uninitialized
+      var name : String = uninitialized
 
-    @BeanProperty
-    val arguments : util.LinkedHashMap[String, Any] = new util.LinkedHashMap[String, Any]()
+      val arguments : util.LinkedHashMap[String, Any] = new util.LinkedHashMap[String, Any]()
 
   }
 

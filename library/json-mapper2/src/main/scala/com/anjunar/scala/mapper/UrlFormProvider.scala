@@ -59,7 +59,7 @@ class UrlFormProvider extends MessageBodyReader[AnyRef] with EntitySecurity {
 
     val context = MultipartFormContext(null, null, noValidation, validatorFactory.getValidator, null, schemaBuilder, mutable.ListBuffer(), entityLoader)
 
-    val value = mapper.toJava(fields, Map.empty, TypeResolver.resolve(genericType), context)
+    val value = mapper.toJava(entity, fields, Map.empty, TypeResolver.resolve(genericType), context)
 
     checkRestrictionAndViolations(annotations, context, value)
   }

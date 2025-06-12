@@ -1,5 +1,6 @@
 package com.anjunar.technologyspeaks.document
 
+import com.anjunar.technologyspeaks.configuration.jaxrs.ObjectMapperContextResolver
 import com.anjunar.technologyspeaks.olama.*
 import com.anjunar.technologyspeaks.olama.json.*
 import com.anjunar.technologyspeaks.semanticspeak.SemanticSpeakService
@@ -106,7 +107,7 @@ class DocumentService {
       blockingQueue.put(line)
     })
 
-    val mapper = new ObjectMapper
+    val mapper = ObjectMapperContextResolver.objectMapper
     val collectionType = mapper.getTypeFactory.constructCollectionType(classOf[util.Set[HashTag]], classOf[HashTag])
     mapper.readValue(buffer, collectionType)
   }
@@ -136,7 +137,7 @@ class DocumentService {
       blockingQueue.put(line)
     })
 
-    val mapper = new ObjectMapper
+    val mapper = ObjectMapperContextResolver.objectMapper
     mapper.readValue(buffer, classOf[DocumentService.Summary]).summary
   }
 
@@ -169,7 +170,7 @@ class DocumentService {
       blockingQueue.put(line)
     })
 
-    val mapper = new ObjectMapper
+    val mapper = ObjectMapperContextResolver.objectMapper
     val collectionType = mapper.getTypeFactory.constructCollectionType(classOf[util.List[Chunk]], classOf[Chunk])
     mapper.readValue(buffer, collectionType)
   }
@@ -249,7 +250,7 @@ class DocumentService {
 
         if (hashTagsFromDB.isEmpty) {
           hashTag.embedding = vector
-          hashTag.persist()
+          hashTag.saveOrUpdate()
           hashTag
         } else {
           hashTagsFromDB.get(0)
@@ -282,7 +283,6 @@ class DocumentService {
 
 object DocumentService {
   class Summary {
-    @BeanProperty
-    var summary: String = uninitialized
+      var summary: String = uninitialized
   }
 }

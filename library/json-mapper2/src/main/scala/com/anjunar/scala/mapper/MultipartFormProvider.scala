@@ -82,7 +82,7 @@ class MultipartFormProvider extends MessageBodyReader[AnyRef] with EntitySecurit
 
     val context = MultipartFormContext(null, null, noValidation, validatorFactory.getValidator, null, schemaBuilder, mutable.ListBuffer(), entityLoader)
 
-    val value = mapper.toJava(fields, files, TypeResolver.resolve(genericType), context)
+    val value = mapper.toJava(entity, fields, files, TypeResolver.resolve(genericType), context)
 
     checkRestrictionAndViolations(annotations, context, value)
   }

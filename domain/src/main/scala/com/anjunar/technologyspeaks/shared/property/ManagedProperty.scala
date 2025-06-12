@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.shared.property
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.control.{Group, User}
 import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
@@ -18,27 +18,22 @@ import scala.compiletime.uninitialized
 class ManagedProperty extends AbstractEntity with OwnerProvider {
 
   @ManyToOne(optional = false)
-  @BeanProperty
   var view : EntityView = uninitialized
 
   @Size(min = 1, max = 80)
   @Column(nullable = false)
-  @BeanProperty
   var value : String = uninitialized
 
   @Column(nullable = false)
-  @BeanProperty
-  @Descriptor(title = "Visible for all")
+  @PropertyDescriptor(title = "Visible for all")
   var visibleForAll : Boolean = false
 
   @ManyToMany
-  @BeanProperty
-  @Descriptor(title = "Allowed Groups")
+  @PropertyDescriptor(title = "Allowed Groups")
   val groups : util.Set[Group] = new util.HashSet[Group]()
 
   @ManyToMany
-  @BeanProperty
-  @Descriptor(title = "Allowed Users")
+  @PropertyDescriptor(title = "Allowed Users")
   val users : util.Set[User] = new util.HashSet[User]()
 
   override def owner: SecurityUser = view.user
@@ -60,7 +55,7 @@ object ManagedProperty extends RepositoryContext[ManagedProperty](classOf[Manage
         val property = new ManagedProperty()
         property.value = name
         property.view = view
-        property.persist()
+        property.saveOrUpdate()
         view.properties.add(property)
         property
       })

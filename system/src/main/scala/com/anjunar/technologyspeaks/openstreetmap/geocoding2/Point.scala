@@ -6,7 +6,6 @@ import scala.beans.BeanProperty
 
 class Point {
 
-  @BeanProperty
   val coordinates: util.List[Double] = new util.ArrayList[Double]()
 
 }

@@ -6,7 +6,6 @@ import scala.compiletime.uninitialized
 
 class JsonArray extends JsonNode {
 
-  @BeanProperty
   var items : JsonNode = uninitialized
 
 }

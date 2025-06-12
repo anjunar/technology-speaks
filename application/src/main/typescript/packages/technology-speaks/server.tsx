@@ -76,6 +76,7 @@ app.use(
         on : {
             proxyReq: (proxyReq, req, res) => {
                 proxyReq.setHeader("x-forwarded-host", 'localhost:3000')
+                proxyReq.setHeader("x-forwarded-protocol", "http")
             }
         }
     })

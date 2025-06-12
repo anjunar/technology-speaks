@@ -61,7 +61,7 @@ class $naming$FormResource extends SchemaBuilderContext {
   def read(@PathParam("id") entity: $naming$): $naming$ = {
 
     forLinks(classOf[$naming$], (entity, link) => {
-      linkTo(methodOn(classOf[$naming$FormResource]).update(entity))
+      linkTo(methodOn(classOf[$naming$FormResource]).save(entity))
         .build(link.addLink)
       linkTo(methodOn(classOf[$naming$FormResource]).delete(entity.id))
         .build(link.addLink)
@@ -80,27 +80,7 @@ class $naming$FormResource extends SchemaBuilderContext {
     entity.persist()
 
     forLinks(classOf[$naming$], (entity, link) => {
-      linkTo(methodOn(classOf[$naming$FormResource]).update(entity))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[$naming$FormResource]).delete(entity.id))
-        .build(link.addLink)
-    })
-
-
-    entity
-  }
-
-  @PUT
-  @Consumes(Array("application/json"))
-  @Produces(Array("application/json"))
-  @JsonSchema(classOf[$naming$FormSchema])
-  @RolesAllowed(Array("Administrator"))
-  @LinkDescription(value = "Update", linkType = LinkType.FORM)
-  def update(@JsonSchema(classOf[$naming$FormSchema]) @SecuredOwner entity: $naming$): $naming$ = {
-    entity.validate()
-
-    forLinks(classOf[$naming$], (entity, link) => {
-      linkTo(methodOn(classOf[$naming$FormResource]).update(entity))
+      linkTo(methodOn(classOf[$naming$FormResource]).save(entity))
         .build(link.addLink)
       linkTo(methodOn(classOf[$naming$FormResource]).delete(entity.id))
         .build(link.addLink)

@@ -1,8 +1,9 @@
 package com.anjunar.technologyspeaks.configuration.jaxrs
 
+import com.anjunar.scala.mapper.IdProvider
 import com.anjunar.scala.mapper.annotations.SecuredOwner
 import com.anjunar.technologyspeaks.configuration.jaxrs.converter.*
-import com.anjunar.technologyspeaks.jaxrs.types.{DateDuration, DateTimeDuration, IdProvider, LongIntervall, OwnerProvider}
+import com.anjunar.technologyspeaks.jaxrs.types.{DateDuration, DateTimeDuration, LongIntervall, OwnerProvider}
 import com.anjunar.technologyspeaks.security.IdentityContext
 import jakarta.inject.Inject
 import jakarta.persistence.EntityManager

@@ -5,7 +5,6 @@ import scala.collection.mutable.ArrayBuffer
 
 class AbstractContainerNode[C <: AbstractNode[?]] extends AbstractNode[String]("test") {
 
-  @BeanProperty
   val children: Seq[C] = Seq.empty
 
 

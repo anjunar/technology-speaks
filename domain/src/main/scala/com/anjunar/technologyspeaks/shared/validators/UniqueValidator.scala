@@ -1,5 +1,6 @@
 package com.anjunar.technologyspeaks.shared.validators
 
+import com.anjunar.scala.introspector.DescriptionIntrospector
 import com.anjunar.technologyspeaks.control.User
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.anjunar.scala.universe.introspector.BeanIntrospector
@@ -24,7 +25,7 @@ class UniqueValidator extends ConstraintValidator[Unique, AbstractEntity] {
 
   override def isValid(entity: AbstractEntity, constraintValidatorContext: ConstraintValidatorContext): Boolean = {
 
-    val beanModel = BeanIntrospector.createWithType(entity.getClass)
+    val beanModel = DescriptionIntrospector.createWithType(entity.getClass)
     val beanProperty = beanModel.findProperty(property)
     val value = beanProperty.get(entity)
 

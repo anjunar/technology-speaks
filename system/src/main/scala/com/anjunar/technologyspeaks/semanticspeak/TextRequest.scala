@@ -5,7 +5,6 @@ import scala.beans.BeanProperty
 
 class TextRequest {
 
-  @BeanProperty
   val texts: util.List[String] = new util.ArrayList[String]()
 
 }

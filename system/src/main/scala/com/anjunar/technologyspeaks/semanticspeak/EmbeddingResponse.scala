@@ -5,7 +5,6 @@ import scala.compiletime.uninitialized
 
 class EmbeddingResponse {
 
-  @BeanProperty
   var embeddings : Array[Array[Float]] = uninitialized
   
 }

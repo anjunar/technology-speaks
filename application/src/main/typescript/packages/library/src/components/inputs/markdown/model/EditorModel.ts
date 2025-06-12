@@ -15,6 +15,9 @@ export default class EditorModel extends AbstractEntity {
     ast: Root
 
     @Basic()
+    markdown : string
+
+    @Basic()
     changes : Change[]
 
     @Basic()

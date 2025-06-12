@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.shared.hashtag
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.{PostgresIndex, PostgresIndices}
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import jakarta.persistence.{Column, Entity}
@@ -19,18 +19,15 @@ import org.hibernate.annotations
 ))
 class HashTag extends AbstractEntity {
 
-  @Descriptor(title = "HashTag", writeable = true, naming = true)
-  @BeanProperty
+  @PropertyDescriptor(title = "HashTag", writeable = true, naming = true)
   var value : String = uninitialized
 
-  @Descriptor(title = "Description", writeable = true)
-  @BeanProperty
+  @PropertyDescriptor(title = "Description", writeable = true)
   var description : String = uninitialized
 
   @Column
   @JdbcTypeCode(SqlTypes.VECTOR)
   @annotations.Array(length = 768)
-  @BeanProperty
   var embedding: Array[Float] = uninitialized
   
   override def toString = s"HashTag($value, $description)"

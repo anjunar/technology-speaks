@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.control
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jaxrs.search.{RestPredicate, RestSort}
 import com.anjunar.technologyspeaks.jaxrs.search.provider.{GenericIdProvider, GenericNameProvider, GenericSortProvider}
 import com.anjunar.technologyspeaks.jaxrs.types.AbstractSearch
@@ -13,16 +13,14 @@ import scala.compiletime.uninitialized
 
 class RoleSearch extends AbstractSearch {
 
-  @Descriptor(title = "Name", writeable = true)
+  @PropertyDescriptor(title = "Name", writeable = true)
   @RestPredicate(classOf[GenericNameProvider[?]])
   @QueryParam("name")
-  @BeanProperty
   var name: String = uninitialized
 
-  @Descriptor(title = "Description", writeable = true)
+  @PropertyDescriptor(title = "Description", writeable = true)
   @RestPredicate(classOf[GenericNameProvider[?]])
   @QueryParam("description")
-  @BeanProperty
   var description: String = uninitialized
 
 }

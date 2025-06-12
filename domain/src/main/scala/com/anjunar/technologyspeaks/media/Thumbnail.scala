@@ -1,7 +1,7 @@
 package com.anjunar.technologyspeaks.media
 
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import com.anjunar.scala.mapper.annotations.Descriptor
 import jakarta.persistence.*
 import org.apache.commons.io.{FileUtils, IOUtils}
 
@@ -13,21 +13,17 @@ import scala.compiletime.uninitialized
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 class Thumbnail extends AbstractEntity {
 
-  @BeanProperty
-  @Descriptor(title = "Name", naming = true)
+  @PropertyDescriptor(title = "Name", naming = true)
   var name: String = uninitialized
 
-  @BeanProperty
-  @Descriptor(title = "Type")
+  @PropertyDescriptor(title = "Type")
   var `type`: String = uninitialized
 
-  @BeanProperty
-  @Descriptor(title = "Subtype")
+  @PropertyDescriptor(title = "Subtype")
   var subType: String = uninitialized
 
   @Lob
-  @BeanProperty
-  @Descriptor(title = "Data")
+  @PropertyDescriptor(title = "Data")
   var data: Array[Byte] = uninitialized
 
 }

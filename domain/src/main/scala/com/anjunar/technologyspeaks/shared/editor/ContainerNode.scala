@@ -8,7 +8,6 @@ import scala.jdk.CollectionConverters.*
 
 class ContainerNode extends Node {
 
-  @BeanProperty
   val children : util.List[Node] = new util.ArrayList[Node]()
 
   private def canEqual(other: Any): Boolean = other.isInstanceOf[ContainerNode]

@@ -1,12 +1,13 @@
 package com.anjunar.scala.schema
 
 import com.anjunar.scala.i18n.I18nResolver
+import com.anjunar.scala.introspector.DescriptionIntrospector
 import com.anjunar.scala.mapper.annotations.Converter
 import com.anjunar.scala.schema.analyzer.*
 import com.anjunar.scala.schema.builder.{PropertyBuilder, SchemaBuilder}
 import com.anjunar.scala.schema.model.validators.{NotBlankValidator, NotNullValidator, SizeValidator}
 import com.anjunar.scala.schema.model.{CollectionDescriptor, EnumDescriptor, NodeDescriptor, ObjectDescriptor}
-import com.anjunar.scala.universe.introspector.{BeanIntrospector, BeanProperty}
+import com.anjunar.scala.universe.introspector.{AbstractProperty, BeanIntrospector, ScalaIntrospector}
 import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonValue}
 import jakarta.enterprise.inject.spi.CDI
@@ -61,7 +62,7 @@ object JsonDescriptorsGenerator {
 
       objectDescriptor
     } else {
-      val beanModel = BeanIntrospector.create(aClass)
+      val beanModel = DescriptionIntrospector.create(aClass)
 
       val descriptor = new ObjectDescriptor
       descriptor.`type` = aClass.raw.getSimpleName
@@ -136,7 +137,7 @@ object JsonDescriptorsGenerator {
 
   }
 
-  private def generateValidator(property: BeanProperty, descriptor: NodeDescriptor): Unit = {
+  private def generateValidator(property: AbstractProperty, descriptor: NodeDescriptor): Unit = {
     property.annotations.foreach {
       case size: Size =>
         descriptor.validators.put("Size", SizeValidator(size.min(), size.max()))
@@ -148,7 +149,7 @@ object JsonDescriptorsGenerator {
     }
   }
 
-  private def generatePrimitive(property: BeanProperty, propertyType: Class[?], schemaDefinition: PropertyBuilder[?]) = {
+  private def generatePrimitive(property: AbstractProperty, propertyType: Class[?], schemaDefinition: PropertyBuilder[?]) = {
     val nodeDescriptor = NodeDescriptor(
       i18nResolver.find(schemaDefinition.title),
       schemaDefinition.description,
@@ -164,7 +165,7 @@ object JsonDescriptorsGenerator {
     nodeDescriptor
   }
 
-  private def generateEnum(property: BeanProperty, schemaDefinition: PropertyBuilder[?]) = {
+  private def generateEnum(property: AbstractProperty, schemaDefinition: PropertyBuilder[?]) = {
     val constants: Array[Enum[?]] = property.propertyType.raw.getEnumConstants.asInstanceOf[Array[Enum[?]]]
     val enums = constants.map(constant => {
       val enumClass = TypeResolver.resolve(constant.getClass)
@@ -193,7 +194,7 @@ object JsonDescriptorsGenerator {
     enumDescriptor
   }
 
-  private def generateObject(property: BeanProperty, propertyType: ResolvedClass, schemaDefinition: PropertyBuilder[?], context: JsonDescriptorsContext): ObjectDescriptor = {
+  private def generateObject(property: AbstractProperty, propertyType: ResolvedClass, schemaDefinition: PropertyBuilder[?], context: JsonDescriptorsContext): ObjectDescriptor = {
     val objectDescriptor = generateObject(propertyType, schemaDefinition.schemaBuilder, new JsonDescriptorsContext(context))
     objectDescriptor.title = i18nResolver.find(schemaDefinition.title)
     objectDescriptor.description = schemaDefinition.description
@@ -207,7 +208,7 @@ object JsonDescriptorsGenerator {
     objectDescriptor
   }
 
-  private def generateArray(property: BeanProperty, propertyType: ResolvedClass, schemaDefinition: PropertyBuilder[?], context: JsonDescriptorsContext): CollectionDescriptor = {
+  private def generateArray(property: AbstractProperty, propertyType: ResolvedClass, schemaDefinition: PropertyBuilder[?], context: JsonDescriptorsContext): CollectionDescriptor = {
     val descriptor = new CollectionDescriptor
     val collectionType = propertyType.typeArguments.head
 

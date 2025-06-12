@@ -7,7 +7,6 @@ import scala.compiletime.uninitialized
 
 class List extends ContainerNode {
 
-  @BeanProperty
   var ordered : Boolean = uninitialized
   
   override def toString = s"List($ordered, ${super.toString})"

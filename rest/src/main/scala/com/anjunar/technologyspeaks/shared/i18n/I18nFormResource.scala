@@ -44,6 +44,7 @@ class I18nFormResource extends SchemaBuilderContext {
 
     forLinks(classOf[I18n], (entity, link) => {
       linkTo(methodOn(classOf[I18nFormResource]).save(entity))
+        .withRel("submit")
         .build(link.addLink)
       linkTo(methodOn(classOf[I18nFormResource]).delete(entity))
         .build(link.addLink)
@@ -63,7 +64,8 @@ class I18nFormResource extends SchemaBuilderContext {
     val entity = I18n.find(id)
 
     forLinks(classOf[I18n], (entity, link) => {
-      linkTo(methodOn(classOf[I18nFormResource]).update(entity))
+      linkTo(methodOn(classOf[I18nFormResource]).save(entity))
+        .withRel("submit")
         .build(link.addLink)
       linkTo(methodOn(classOf[I18nFormResource]).delete(entity))
         .build(link.addLink)
@@ -78,38 +80,10 @@ class I18nFormResource extends SchemaBuilderContext {
   @JsonSchema(classOf[I18nFormSchema])
   @RolesAllowed(Array("Administrator"))
   @LinkDescription(value = "Save", linkType = LinkType.FORM)
-  def save(@JsonSchema(classOf[I18nFormSchema]) entity: I18n): I18n = {
-    entity.persist()
-
-    forLinks(classOf[I18n], (entity, link) => {
-      linkTo(methodOn(classOf[I18nFormResource]).update(entity))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[I18nFormResource]).delete(entity))
-        .build(link.addLink)
-    })
-
-
-    entity
-  }
-
-  @PUT
-  @Consumes(Array("application/json"))
-  @Produces(Array("application/json"))
-  @JsonSchema(classOf[I18nFormSchema])
-  @RolesAllowed(Array("Administrator"))
-  @LinkDescription(value = "Update", linkType = LinkType.FORM)
-  def update(@JsonSchema(classOf[I18nFormSchema]) @SecuredOwner entity: I18n): I18n = {
-    entity.validate()
-
-    forLinks(classOf[I18n], (entity, link) => {
-      linkTo(methodOn(classOf[I18nFormResource]).update(entity))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[I18nFormResource]).delete(entity))
-        .build(link.addLink)
-    })
-
-
-    entity
+  def save(@JsonSchema(classOf[I18nFormSchema]) entity: I18n): Response = {
+    entity.saveOrUpdate()
+    
+    createRedirectResponse
   }
 
   @Path("/{id}")

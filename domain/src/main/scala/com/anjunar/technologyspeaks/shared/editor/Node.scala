@@ -32,7 +32,6 @@ abstract class Node {
   @JsonIgnore
   val id : UUID = UUID.randomUUID()
   
-  @BeanProperty
   var position : Position = uninitialized
   
   override def toString = position.toString

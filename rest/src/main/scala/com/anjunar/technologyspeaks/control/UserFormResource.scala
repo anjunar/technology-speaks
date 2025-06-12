@@ -45,6 +45,7 @@ class UserFormResource extends SchemaBuilderContext {
 
     forLinks(classOf[User], (user, link) => {
       linkTo(methodOn(classOf[UserFormResource]).save(user))
+        .withRel("submit")
         .build(link.addLink)
       linkTo(methodOn(classOf[UserFormResource]).delete(user.id))
         .build(link.addLink)
@@ -64,7 +65,8 @@ class UserFormResource extends SchemaBuilderContext {
     val entity = User.find(id)
 
     forLinks(classOf[User], (user, link) => {
-      linkTo(methodOn(classOf[UserFormResource]).update(user))
+      linkTo(methodOn(classOf[UserFormResource]).save(user))
+        .withRel("submit")
         .build(link.addLink)
       linkTo(methodOn(classOf[UserFormResource]).delete(user.id))
         .build(link.addLink)
@@ -75,42 +77,13 @@ class UserFormResource extends SchemaBuilderContext {
 
   @POST
   @Consumes(Array("application/json"))
-  @Produces(Array("application/json"))
   @JsonSchema(classOf[UserFormSchema])
   @RolesAllowed(Array("Administrator"))
   @LinkDescription(value = "Save", linkType = LinkType.FORM)
-  def save(@JsonSchema(classOf[UserFormSchema]) entity: User): User = {
-    entity.persist()
-
-    forLinks(classOf[User], (user, link) => {
-      linkTo(methodOn(classOf[UserFormResource]).update(user))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[UserFormResource]).delete(user.id))
-        .build(link.addLink)
-    })
-
-
-    entity
-  }
-
-  @PUT
-  @Consumes(Array("application/json"))
-  @Produces(Array("application/json"))
-  @JsonSchema(classOf[UserFormSchema])
-  @RolesAllowed(Array("Guest", "User", "Administrator"))
-  @LinkDescription(value = "Update", linkType = LinkType.FORM)
-  def update(@JsonSchema(classOf[UserFormSchema]) @SecuredOwner entity: User): User = {
-    entity.validate()
-
-    forLinks(classOf[User], (user, link) => {
-      linkTo(methodOn(classOf[UserFormResource]).update(user))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[UserFormResource]).delete(user.id))
-        .build(link.addLink)
-    })
-
-
-    entity
+  def save(@JsonSchema(classOf[UserFormSchema]) entity: User): Response = {
+    entity.saveOrUpdate()
+    
+    createRedirectResponse
   }
 
   @Path("/{id}")

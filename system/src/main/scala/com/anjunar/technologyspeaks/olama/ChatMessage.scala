@@ -10,17 +10,13 @@ import scala.jdk.CollectionConverters.*
 
 class ChatMessage {
 
-  @BeanProperty
   var role : ChatRole = uninitialized
 
-  @BeanProperty
   var content : String = uninitialized
 
-  @BeanProperty
-  @JsonProperty("tool_calls")  
+  @JsonProperty("tool_calls")
   val toolCalls : util.List[ChatFunction] = new util.ArrayList[ChatFunction]()
 
-  @BeanProperty
   var images: Array[String] = uninitialized
   
 }

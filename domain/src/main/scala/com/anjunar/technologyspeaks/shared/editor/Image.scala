@@ -7,10 +7,8 @@ import scala.compiletime.uninitialized
 
 class Image extends Node {
 
-  @BeanProperty
   var url : String = uninitialized
 
-  @BeanProperty
   var alt : String = uninitialized
 
   private def canEqual(other: Any): Boolean = other.isInstanceOf[Image]

@@ -1,11 +1,10 @@
 package com.anjunar.technologyspeaks.shared.editor
 
-import com.anjunar.scala.mapper.annotations.{Converter, Descriptor}
-import com.anjunar.scala.mapper.file.File
+import com.anjunar.scala.mapper.annotations.{Converter, PropertyDescriptor}
+import com.anjunar.scala.mapper.file.{File, FileContext}
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import com.fasterxml.jackson.annotation.JsonTypeInfo
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id
-import jakarta.persistence.{CascadeType, Column, Convert, Entity, OneToMany, OneToOne, Transient}
+import jakarta.persistence.*
+import jakarta.ws.rs.FormParam
 import org.hibernate.annotations.Type
 import org.hibernate.envers.Audited
 
@@ -15,24 +14,27 @@ import scala.compiletime.uninitialized
 
 @Entity
 @Audited
-class Editor extends AbstractEntity {
+class Editor extends AbstractEntity with FileContext {
 
-  @Descriptor(title = "Files")
+  @PropertyDescriptor(title = "Files")
   @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, targetEntity = classOf[EditorFile])
-  @BeanProperty
-  val files : util.List[File] = new util.ArrayList[File]()
+  val files: util.List[File] = new util.ArrayList[File]()
 
-  @Descriptor(title = "Editor")
+  @PropertyDescriptor(title = "AST")
   @Column(columnDefinition = "jsonb")
   @Type(classOf[RootType])
   @Converter(classOf[RootConverter])
-  @BeanProperty
-  var json : Root = uninitialized
+  var json: Root = uninitialized
+
+  @Lob
+  @Column(columnDefinition = "text")
+  @PropertyDescriptor(title = "Markdown")
+  @FormParam("editor")
+  var markdown: String = uninitialized
 
   @Transient
-  @Descriptor(title = "Changes")
-  @BeanProperty
+  @PropertyDescriptor(title = "Changes")
   val changes: util.List[Change] = new util.ArrayList[Change]()
-  
+
   override def toString = s"Editor($json)"
 }

@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.jaxrs.search
 
-import com.anjunar.scala.universe.introspector.BeanProperty
+import com.anjunar.scala.universe.introspector.{AbstractProperty, BeanProperty}
 import jakarta.persistence.EntityManager
 import jakarta.persistence.criteria.{CriteriaBuilder, CriteriaQuery, Expression, Predicate, Root, Selection}
 
@@ -13,6 +13,6 @@ case class Context[V,E](value: V,
                         root: Root[E],
                         query: CriteriaQuery[?],
                         selection : mutable.Buffer[Expression[java.lang.Double]],
-                        property: BeanProperty,
+                        property: AbstractProperty,
                         name: String,
                         parameters: mutable.Map[String, Any])

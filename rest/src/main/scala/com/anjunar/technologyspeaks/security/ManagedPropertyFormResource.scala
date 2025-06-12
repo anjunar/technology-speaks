@@ -8,7 +8,7 @@ import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, met
 import com.anjunar.technologyspeaks.shared.property.ManagedProperty
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
-import jakarta.ws.rs.{Consumes, GET, PUT, Path, PathParam, Produces}
+import jakarta.ws.rs.{Consumes, GET, POST, PUT, Path, PathParam, Produces}
 
 import java.util.UUID
 
@@ -35,7 +35,7 @@ class ManagedPropertyFormResource extends SchemaBuilderContext {
     ManagedProperty.find(id)
   }
 
-  @PUT
+  @POST
   @Consumes(Array("application/json"))
   @Produces(Array("application/json"))
   @JsonSchema(classOf[ManagedPropertyFormSchema])

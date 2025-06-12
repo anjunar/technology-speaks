@@ -9,7 +9,7 @@ import java.util
 import scala.collection.mutable
 import scala.compiletime.uninitialized
 
-case class MultipartFormContext(parent : JsonContext,
+case class MultipartFormContext(parent : Context,
                        name : String,
                        noValidation : Boolean,
                        validator : Validator,
@@ -24,7 +24,7 @@ case class MultipartFormContext(parent : JsonContext,
 
 object MultipartFormContext {
 
-  def apply(parent : JsonContext, propertyName: String, noValidation : Boolean, propertySchema : SchemaBuilder, context: MultipartFormContext): MultipartFormContext = {
+  def apply(parent : Context, propertyName: String, noValidation : Boolean, propertySchema : SchemaBuilder, context: MultipartFormContext): MultipartFormContext = {
     val newContext = MultipartFormContext(
       parent,
       propertyName,

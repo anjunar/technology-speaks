@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.shared.editor
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.github.gumtreediff.actions.model.{Action, Delete, Insert, Move, Update}
 import com.github.gumtreediff.tree.Tree
 import difflib.Delta.TYPE
@@ -14,35 +14,40 @@ import scala.jdk.CollectionConverters.*
 import scala.collection.immutable.List
 import scala.collection.mutable.ListBuffer
 
-case class Change(
+class Change {
+  
+  @PropertyDescriptor(title = "Action")
+  var action: String = uninitialized
 
-  @Descriptor(title = "Action")
-  @BeanProperty
-  action : String,
+  @PropertyDescriptor(title = "Type")
+  var nodeType: String = uninitialized
 
-  @Descriptor(title = "Type")
-  @BeanProperty
-  nodeType : String,
+  @PropertyDescriptor(title = "Old Value")
+  var oldValue: String = uninitialized
 
-  @Descriptor(title = "Old Value")
-  @BeanProperty
-  oldValue : String = null,
+  @PropertyDescriptor(title = "New Value")
+  var newValue: String = uninitialized
 
-  @Descriptor(title = "New Value")
-  @BeanProperty
-  newValue : String = null,
+  @PropertyDescriptor(title = "Value")
+  var value: String = uninitialized
 
-  @Descriptor(title = "Value")
-  @BeanProperty
-  value : String = null,
+  @PropertyDescriptor(title = "Offset")
+  var offset: Int = uninitialized
 
-  @Descriptor(title = "Offset")
-  @BeanProperty
-  offset : Int
-
-)
+}
 
 object Change {
+  
+  def apply(action: String , nodeType: String, oldValue: String = null, newValue: String = null, value: String = null,  offset: Int) : Change = {
+    val change = new Change
+    change.action = action
+    change.nodeType = action
+    change.oldValue = oldValue
+    change.newValue = newValue
+    change.value = value
+    change.offset = offset
+    change
+  }
 
   def createChanges(position : Int, oldText: String, newText: String): List[Change] = {
     val oldList = oldText.toCharArray.map(_.toString).toList.asJava

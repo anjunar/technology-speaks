@@ -47,6 +47,7 @@ class DocumentTableResource extends SchemaBuilderContext {
 
     forLinks(classOf[DocumentSearch], (instance, link) => {
       linkTo(methodOn(classOf[DocumentTableResource]).search(search))
+        .withRel("submit")
         .build(link.addLink)
       linkTo(methodOn(classOf[DocumentTableResource]).list(search))
         .build(link.addLink)

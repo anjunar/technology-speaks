@@ -1,8 +1,8 @@
 package com.anjunar.technologyspeaks.control
 
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import com.anjunar.scala.mapper.annotations.Descriptor
 import jakarta.persistence.{CascadeType, Embedded, Entity, OneToOne}
 import jakarta.validation.constraints.{NotBlank, Pattern, Size}
 
@@ -13,32 +13,26 @@ import scala.compiletime.uninitialized
 class Address extends AbstractEntity {
 
   @OneToOne(mappedBy = "address")
-  @BeanProperty
   var user : User = uninitialized
 
   @Size(min = 3, max = 80)
-  @BeanProperty
-  @Descriptor(title = "Street", naming = true)
+  @PropertyDescriptor(title = "Street", naming = true)
   var street : String = uninitialized
 
   @Size(min = 0, max = 10)
-  @BeanProperty
-  @Descriptor(title = "Housenumber", naming = true)
+  @PropertyDescriptor(title = "Housenumber", naming = true)
   var number : String = uninitialized
 
   @Pattern(regexp = "^\\d{5,5}$")
-  @BeanProperty
-  @Descriptor(title = "Zipcode")
+  @PropertyDescriptor(title = "Zipcode")
   var zipCode : String = uninitialized
 
   @Size(min = 3, max = 80)
-  @BeanProperty
-  @Descriptor(title = "Country")
+  @PropertyDescriptor(title = "Country")
   var country : String = uninitialized
   
   @Embedded
-  @BeanProperty
-  @Descriptor(title = "Lat and Lan")
+  @PropertyDescriptor(title = "Lat and Lan")
   var point : GeoPoint = uninitialized
 
 

@@ -5,10 +5,8 @@ import scala.compiletime.uninitialized
 
 class JsonFunctionBody extends JsonNode {
 
-  @BeanProperty
   var name : String = uninitialized
 
-  @BeanProperty
   var parameters : JsonObject = uninitialized
 
 }

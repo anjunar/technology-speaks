@@ -5,7 +5,6 @@ import scala.compiletime.uninitialized
 
 class RequestOptions {
   
-  @BeanProperty
   var temperature : Int = uninitialized
 
 }

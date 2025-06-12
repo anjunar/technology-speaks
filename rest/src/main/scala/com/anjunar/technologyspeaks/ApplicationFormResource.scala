@@ -1,31 +1,22 @@
 package com.anjunar.technologyspeaks
 
 import com.anjunar.scala.mapper.annotations.JsonSchema
-import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, SchemaBuilderContext}
-import com.anjunar.scala.schema.model.LinkType
+import com.anjunar.scala.schema.builder.SchemaBuilderContext
 import com.anjunar.technologyspeaks.control.*
-import com.anjunar.technologyspeaks.document.{DocumentSearch, DocumentSearchSchema, DocumentTableResource}
-import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
+import com.anjunar.technologyspeaks.document.{DocumentSearch, DocumentTableResource}
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
 import com.anjunar.technologyspeaks.security.*
 import com.anjunar.technologyspeaks.shared.i18n.{I18nSearch, I18nTableResource}
 import com.anjunar.technologyspeaks.timeline.{PostSearch, PostTableResource}
 import jakarta.enterprise.context.ApplicationScoped
-import jakarta.ws.rs.core.{Context, HttpHeaders, SecurityContext}
 import jakarta.ws.rs.{GET, Path, Produces}
 
-import java.security.Principal
-import java.util.{Objects, UUID}
-import scala.compiletime.uninitialized
+import java.util.Objects
 
 
 @Path("/")
-@ApplicationScoped 
+@ApplicationScoped
 class ApplicationFormResource extends SchemaBuilderContext {
-
-
-  @Context
-  var httpHeaders: HttpHeaders = uninitialized
 
   @GET
   @Produces(Array("application/json"))

@@ -69,7 +69,7 @@ function HomePage(properties: HomePage.Attributes) {
                         <img src={"/assets/logo.png"} style={{width : "1em"}}/>
                         <h1 style={{fontSize : "1em", margin : 0, padding : 0, color : "white"}}>Technology Speaks</h1>
                     </div>
-                    <SchemaForm actionRel={"search"} onSubmit={onSubmit} value={search} style={{marginTop : "12px", display : "flex", justifyContent : "stretch", flexDirection : "column"}}>
+                    <SchemaForm onSubmit={onSubmit} value={search} style={{marginTop : "12px", display : "flex", justifyContent : "stretch", flexDirection : "column"}}>
                         <input type={"hidden"} name={"index"} value={"0"}/>
                         <input type={"hidden"} name={"limit"} value={"5"}/>
                         <input type={"hidden"} name={"sort"} value={"score:asc"}/>

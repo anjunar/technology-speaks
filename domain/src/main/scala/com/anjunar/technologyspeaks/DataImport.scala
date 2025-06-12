@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.scala.universe.ClassPathResolver
 import com.anjunar.technologyspeaks.control.*
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
@@ -35,21 +35,21 @@ class DataImport {
       administrator = new Role
       administrator.name = "Administrator"
       administrator.description = "Administrator"
-      administrator.persist()
+      administrator.saveOrUpdate()
     }
     var user = Role.query(("name", "User"))
     if (Objects.isNull(user)) {
       user = new Role
       user.name = "User"
       user.description = "Benutzer"
-      user.persist()
+      user.saveOrUpdate()
     }
     var guest = Role.query(("name", "Guest"))
     if (Objects.isNull(guest)) {
       guest = new Role
       guest.name = "Guest"
       guest.description = "Gast"
-      guest.persist()
+      guest.saveOrUpdate()
     }
 
     var patrick = User.findByEmail("anjunar@gmx.de")
@@ -90,12 +90,12 @@ class DataImport {
       passwordCredential.roles.add(administrator)
       email.credentials.add(passwordCredential)
 
-      patrick.persist()
+      patrick.saveOrUpdate()
     }
 
     transaction.commit()
 
-    ClassPathResolver.findAnnotation(classOf[Descriptor])
+    ClassPathResolver.findAnnotation(classOf[PropertyDescriptor])
       .foreach(resolved => {
 
         transaction.begin()
@@ -105,7 +105,7 @@ class DataImport {
         if (i18n == null) {
           i18n = new I18n
           i18n.text = resolved.annotation.title()
-          i18n.persist()
+          i18n.saveOrUpdate()
         }
 
         I18n.languages.filter(locale => i18n.translations.stream().noneMatch(translation => translation.locale == locale))
@@ -130,7 +130,7 @@ class DataImport {
         if (i18n == null) {
           i18n = new I18n
           i18n.text = resolved.annotation.value()
-          i18n.persist()
+          i18n.saveOrUpdate()
         }
 
         I18n.languages.filter(locale => i18n.translations.stream().noneMatch(translation => translation.locale == locale))

@@ -1,8 +1,8 @@
 package com.anjunar.technologyspeaks.shared
 
+import com.anjunar.scala.mapper.IdProvider
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.EntityContext
-import com.anjunar.scala.mapper.annotations.Descriptor
-import com.anjunar.technologyspeaks.jaxrs.types.IdProvider
 import jakarta.persistence.*
 
 import java.time.LocalDateTime
@@ -10,25 +10,23 @@ import java.util.UUID
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
+import java.lang
+
 @MappedSuperclass
-abstract class AbstractEntity extends EntityContext with IdProvider {
+abstract class AbstractEntity extends EntityContext[AbstractEntity] {
 
   @Id
   @Column(name = "id", unique = true, nullable = false)
-  @BeanProperty
-  @Descriptor(title = "Id", id = true, hidden = true)
+  @PropertyDescriptor(title = "Id", id = true, hidden = true, widget = "hidden")
   val id: UUID = UUID.randomUUID()
 
   @Version
-  @BeanProperty
-  var version: Int = uninitialized
+  var version: lang.Integer = uninitialized
 
-  @Descriptor(title = "Created")
-  @BeanProperty
+  @PropertyDescriptor(title = "Created")
   var created: LocalDateTime = uninitialized
 
-  @Descriptor(title = "Modified")
-  @BeanProperty
+  @PropertyDescriptor(title = "Modified")
   var modified: LocalDateTime = uninitialized
   
 

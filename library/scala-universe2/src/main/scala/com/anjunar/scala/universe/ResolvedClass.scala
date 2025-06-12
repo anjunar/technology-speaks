@@ -18,20 +18,20 @@ class ResolvedClass(val underlying : Type) extends Annotated {
 
   lazy val raw : Class[?] = TypeResolver.rawType(underlying)
 
-    lazy val hierarchy : Array[ResolvedClass] = {
-      val result = ArrayBuffer[ResolvedClass]()
-      var cursor : Type = underlying
-      while (cursor != null) {
-        result.addOne(TypeResolver.resolve(TypeToken.of(underlying).resolveType(cursor).getType))
-        val rawClass = TypeResolver.rawType(TypeToken.of(underlying).resolveType(cursor).getType)
-        rawClass.getGenericInterfaces.foreach(interface => TypeResolver.resolve(TypeToken.of(underlying).resolveType(interface).getType))
-        cursor = rawClass.getGenericSuperclass
-        if (cursor == classOf[Object]) {
-          cursor = null
-        }
+  lazy val hierarchy : Array[ResolvedClass] = {
+    val result = ArrayBuffer[ResolvedClass]()
+    var cursor : Type = underlying
+    while (cursor != null) {
+      result.addOne(TypeResolver.resolve(TypeToken.of(underlying).resolveType(cursor).getType))
+      val rawClass = TypeResolver.rawType(TypeToken.of(underlying).resolveType(cursor).getType)
+      rawClass.getGenericInterfaces.foreach(interface => result.addOne(TypeResolver.resolve(TypeToken.of(underlying).resolveType(interface).getType)))
+      cursor = rawClass.getGenericSuperclass
+      if (cursor == classOf[Object]) {
+        cursor = null
       }
-      result.toArray
     }
+    result.toArray
+  }
 
   lazy val declaredFields : Array[ResolvedField] = raw.getDeclaredFields.map(field => new ResolvedField(field, this))
 

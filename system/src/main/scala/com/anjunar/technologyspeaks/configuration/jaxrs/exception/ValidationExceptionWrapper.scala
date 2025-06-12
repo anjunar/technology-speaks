@@ -1,6 +1,7 @@
 package com.anjunar.technologyspeaks.configuration.jaxrs.exception
 
 import com.anjunar.scala.mapper.exceptions.ValidationException
+import com.anjunar.technologyspeaks.configuration.jaxrs.ObjectMapperContextResolver
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.inject.Inject
 import jakarta.transaction.UserTransaction
@@ -33,7 +34,7 @@ class ValidationExceptionWrapper extends ExceptionMapper[ValidationException] {
       Violation(violation.message, violation.root.getSimpleName, path)
     }).toList
 
-    val objectMapper = new ObjectMapper()
+    val objectMapper = ObjectMapperContextResolver.objectMapper
 
     Response
       .status(Status.BAD_REQUEST)

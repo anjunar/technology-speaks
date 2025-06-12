@@ -5,10 +5,8 @@ import scala.compiletime.uninitialized
 
 class EmbeddingRequest extends AbstractRequest {
   
-  @BeanProperty
   var input : String = uninitialized
 
-  @BeanProperty
   var options : RequestOptions = uninitialized
 
 }

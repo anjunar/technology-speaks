@@ -7,7 +7,6 @@ import scala.compiletime.uninitialized
 
 class EmbeddingResponse extends AbstractResponse {
 
-  @BeanProperty
   var embeddings : Array[Array[Float]] = uninitialized
 
 }

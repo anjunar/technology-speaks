@@ -1,5 +1,6 @@
 package com.anjunar.technologyspeaks.configuration.jaxrs.exception
 
+import com.anjunar.technologyspeaks.configuration.jaxrs.ObjectMapperContextResolver
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.inject.Inject
 import jakarta.transaction.UserTransaction
@@ -27,7 +28,7 @@ class JaxRSExceptionWrapper extends ExceptionMapper[Exception] {
     
     case _ =>
       log.error(exception.getMessage, exception)
-      val objectMapper = new ObjectMapper
+      val objectMapper = ObjectMapperContextResolver.objectMapper
       transaction.rollback()
       Response.serverError.entity(objectMapper.writeValueAsString(exception)).build
 

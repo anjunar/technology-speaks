@@ -9,13 +9,10 @@ import scala.compiletime.uninitialized
 class Response {
 
   @JsonProperty("type")
-  @BeanProperty
   var typ : String = uninitialized
 
-  @BeanProperty
   var licence : String = uninitialized
   
-  @BeanProperty
   val features : util.List[Feature] = new util.ArrayList[Feature]()
 
 }

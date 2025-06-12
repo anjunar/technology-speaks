@@ -8,7 +8,6 @@ import scala.compiletime.uninitialized
 @Entity
 class CredentialPassword extends Credential {
   
-  @BeanProperty
   var password : String = uninitialized
 
 }

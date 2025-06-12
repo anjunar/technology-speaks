@@ -1,18 +1,15 @@
 package com.anjunar.technologyspeaks.jaxrs.types
 
-import com.anjunar.scala.mapper.annotations.Descriptor
-
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
 class Sort {
 
-  @Descriptor(title = "Property", writeable = true)
-  @BeanProperty
+  @PropertyDescriptor(title = "Property", writeable = true)
   var property : String = uninitialized
 
-  @Descriptor(title = "Value", writeable = true)
-  @BeanProperty
+  @PropertyDescriptor(title = "Value", writeable = true)
   var value : String = uninitialized
 
 }

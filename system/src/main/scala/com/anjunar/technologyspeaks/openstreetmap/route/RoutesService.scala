@@ -1,5 +1,6 @@
 package com.anjunar.technologyspeaks.openstreetmap.route
 
+import com.anjunar.technologyspeaks.configuration.jaxrs.ObjectMapperContextResolver
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import jakarta.ws.rs.client.{Client, ClientBuilder, WebTarget}
@@ -32,10 +33,7 @@ object RoutesService {
       val webTarget = target.asInstanceOf[ResteasyWebTarget]
       val resteasyJacksonProvider = new ResteasyJackson2Provider() {}
 
-      val mapper = new ObjectMapper()
-        .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .registerModule(new JavaTimeModule)
+      val mapper = ObjectMapperContextResolver.objectMapper
 
       resteasyJacksonProvider.setMapper(mapper)
       webTarget.register(resteasyJacksonProvider)

@@ -1,12 +1,13 @@
 package com.anjunar.scala.mapper.converters
 
+import com.anjunar.scala.introspector.DescriptionIntrospector
 import com.anjunar.scala.mapper.helper.JPAHelper.resolveMappings
 import com.anjunar.scala.mapper.annotations.{Converter, Filter, IgnoreFilter}
 import com.anjunar.scala.mapper.intermediate.model.{JsonNode, JsonObject, JsonString}
 import com.anjunar.scala.mapper.{JsonContext, JsonConverterRegistry}
 import com.anjunar.scala.schema.builder.{EntitySchemaBuilder, LinkContext, PrimitiveSchemaBuilder, SchemaBuilder}
 import com.anjunar.scala.schema.model.{Link, NodeDescriptor}
-import com.anjunar.scala.universe.introspector.{BeanIntrospector, BeanProperty}
+import com.anjunar.scala.universe.introspector.{BeanIntrospector, AbstractProperty, ScalaIntrospector}
 import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import com.google.common.reflect.TypeToken
@@ -63,7 +64,7 @@ class JsonBeanConverter extends JsonAbstractConverter(TypeResolver.resolve(class
 
     val resolvedType = TypeToken.of(aType.underlying).resolveType(instance.getClass).getType
 
-    val beanModel = BeanIntrospector.createWithType(resolvedType)
+    val beanModel = DescriptionIntrospector.createWithType(resolvedType)
 
     var typeMapping = schema.findInstanceMapping(instance.asInstanceOf[AnyRef])
 
@@ -132,7 +133,7 @@ class JsonBeanConverter extends JsonAbstractConverter(TypeResolver.resolve(class
     jsonObject
   }
 
-  private def proceed(instance: Any, context: JsonContext, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, propertySchema: SchemaBuilder) = {
+  private def proceed(instance: Any, context: JsonContext, properties: mutable.LinkedHashMap[String, JsonNode], property: AbstractProperty, propertySchema: SchemaBuilder) = {
     val registry = context.registry
     val converter = registry.find(property.propertyType)
     val value = property.get(instance.asInstanceOf[AnyRef])
@@ -160,13 +161,13 @@ class JsonBeanConverter extends JsonAbstractConverter(TypeResolver.resolve(class
     }
   }
 
-  private def processProperty(context: JsonContext, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, converter: JsonAbstractConverter, value: Any, propertySchema: SchemaBuilder) = value match
+  private def processProperty(context: JsonContext, properties: mutable.LinkedHashMap[String, JsonNode], property: AbstractProperty, converter: JsonAbstractConverter, value: Any, propertySchema: SchemaBuilder) = value match
     case collection: util.Collection[?] => if !collection.isEmpty then addProperty(context, properties, property, converter, value, propertySchema)
     case map: util.Map[?, ?] => if !map.isEmpty then addProperty(context, properties, property, converter, value, propertySchema)
     case _ => addProperty(context, properties, property, converter, value, propertySchema)
 
 
-  private def addProperty(context: JsonContext, properties: mutable.LinkedHashMap[String, JsonNode], property: BeanProperty, converter: JsonAbstractConverter, value: Any, propertySchema: SchemaBuilder) = {
+  private def addProperty(context: JsonContext, properties: mutable.LinkedHashMap[String, JsonNode], property: AbstractProperty, converter: JsonAbstractConverter, value: Any, propertySchema: SchemaBuilder) = {
 
     val jpaConverter = property.findAnnotation(classOf[Converter])
 
@@ -186,8 +187,8 @@ class JsonBeanConverter extends JsonAbstractConverter(TypeResolver.resolve(class
       val jsonSubTypes = aType.findDeclaredAnnotation(classOf[JsonSubTypes])
       val jsonTypeInfo = aType.findAnnotation(classOf[JsonTypeInfo])
 
-      val beanModel = if (jsonSubTypes == null) BeanIntrospector.create(aType) else
-        BeanIntrospector.createWithType(
+      val beanModel = if (jsonSubTypes == null) DescriptionIntrospector.create(aType) else
+        DescriptionIntrospector.createWithType(
           jsonSubTypes.value().find(subType => subType.value().getSimpleName == jsonObject.value(if jsonTypeInfo == null then "$type" else jsonTypeInfo.property()).value).get.value()
         )
 

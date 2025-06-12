@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.control
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.SecurityUser
@@ -16,24 +16,20 @@ import java.util
 @Table(name = "groups")
 class Group extends AbstractEntity with OwnerProvider {
 
-  @BeanProperty
   @Size(min = 3, max = 80)
   @NotEmpty
-  @Descriptor(title = "Name", naming = true)
+  @PropertyDescriptor(title = "Name", naming = true)
   var name : String = uninitialized
 
-  @BeanProperty
   @Size(min = 0, max = 80)
-  @Descriptor(title = "Description")
+  @PropertyDescriptor(title = "Description")
   var description : String = uninitialized
 
   @ManyToOne(optional = false)
-  @BeanProperty
   var user : User = uninitialized
 
   @ManyToMany
-  @BeanProperty
-  @Descriptor(title = "Users")
+  @PropertyDescriptor(title = "Users")
   val users : util.Set[User] = new util.HashSet[User]()
 
   override def owner : SecurityUser = user

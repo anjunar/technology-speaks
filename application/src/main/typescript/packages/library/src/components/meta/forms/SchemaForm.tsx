@@ -20,7 +20,8 @@ function SchemaForm(properties: SchemaForm.Attributes) {
         onErrors,
         value,
         links,
-        actionRel,
+        actionRel = "submit",
+        enctype,
         ...rest
     } = properties
 
@@ -82,6 +83,7 @@ function SchemaForm(properties: SchemaForm.Attributes) {
                 asyncValidators={asyncValidators}
                 action={link?.method === "GET" ? link?.url : "/service" + link?.url}
                 method={link?.method}
+                enctype={enctype}
                 {...rest}
             >
                 {children}
@@ -102,6 +104,7 @@ namespace SchemaForm {
         validators?: Validator[]
         className?: string
         actionRel? : string
+        enctype? : string
     }
 }
 

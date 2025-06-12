@@ -6,6 +6,4 @@ trait FileContext {
 
   def files : util.List[File]
   
-  def create : File
-
 }

@@ -26,10 +26,6 @@ import scala.compiletime.uninitialized
   @Inject 
   var authenticator: Authenticator = uninitialized
 
-  @Context
-  var httpHeaders: HttpHeaders = uninitialized
-
-
   @GET
   @Produces(Array("application/json"))
   @JsonSchema(classOf[LogoutFormSchema])
@@ -60,8 +56,7 @@ import scala.compiletime.uninitialized
         .build(link.addLink)
     })
 
-    val host = httpHeaders.getHeaderString("x-forwarded-host")
-    val targetUri = URI.create("http://" + host)
-    Response.seeOther(targetUri).build()
+    createRedirectResponse
   }
+
 }

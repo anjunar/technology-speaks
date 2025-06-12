@@ -36,7 +36,7 @@ class CredentialFormResource extends SchemaBuilderContext {
     Credential.find(id)
   }
 
-  @PUT
+  @POST
   @Consumes(Array("application/json"))
   @Produces(Array("application/json"))
   @JsonSchema(classOf[CredentialFormSchema])

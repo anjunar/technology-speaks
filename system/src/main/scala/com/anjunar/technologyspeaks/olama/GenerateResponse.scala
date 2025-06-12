@@ -5,10 +5,8 @@ import scala.compiletime.uninitialized
 
 class GenerateResponse extends AbstractResponse {
 
-  @BeanProperty
   var response : String = uninitialized
 
-  @BeanProperty
   var context : Array[Int] = uninitialized
   
 }

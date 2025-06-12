@@ -139,7 +139,7 @@ class RegistrationResource extends Serializable with SchemaBuilderContext {
         email.user = user
         user.emails.add(email)
         user.enabled = true
-        user.persist()
+        user.saveOrUpdate()
 
         token
       } else {

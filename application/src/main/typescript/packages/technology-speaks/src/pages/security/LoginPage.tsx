@@ -53,7 +53,7 @@ function LoginPage(properties: LoginPage.Attributes) {
         <div className={"login-page"} style={{display : "flex", justifyContent : "center", alignItems : "center", height : "100%"}}>
             <div>
                 <h1>Login</h1>
-                <SchemaForm actionRel={"fallback"} value={domain} onSubmit={loginAction} style={{width : "300px"}}>
+                <SchemaForm value={domain} onSubmit={loginAction} style={{width : "300px"}}>
                     <SchemaInput name={"username"}/>
                     <JsFlag showWhenJs={false}>
                         <SchemaInput name={"password"}/>

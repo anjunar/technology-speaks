@@ -1,5 +1,6 @@
 package com.anjunar.technologyspeaks.shared
 
+import com.anjunar.scala.mapper.file.File
 import com.anjunar.scala.schema.builder.EntitySchemaBuilder
 import com.anjunar.technologyspeaks.shared.editor.*
 
@@ -10,7 +11,7 @@ object EditorSchema {
       .property("id")
       .property("files", property => property
         .withWriteable(true)
-        .forType(classOf[EditorFile], (builder: EntitySchemaBuilder[EditorFile]) => builder
+        .forType(classOf[File], (builder: EntitySchemaBuilder[File]) => builder
           .property("id")
           .property("name", property => property
             .withWriteable(true)
@@ -23,10 +24,11 @@ object EditorSchema {
           )
         )
       )
-      .property("json", property => property
+      .property("markdown", property => property
         .withWidget("editor")
         .withWriteable(true)
       )
+      .property("json")
       .property("changes", property => property
         .forType(classOf[Change], (builder: EntitySchemaBuilder[Change]) => builder
           .property("action")

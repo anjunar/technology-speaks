@@ -1,11 +1,12 @@
 package com.anjunar.technologyspeaks.jaxrs.link
 
 import com.anjunar.scala.i18n.I18nResolver
+import com.anjunar.scala.introspector.DescriptionIntrospector
 import com.anjunar.scala.mapper.annotations.SecuredOwner
 import com.anjunar.scala.schema.model.{Link, LinkType}
 import com.anjunar.scala.universe.TypeResolver
 import com.anjunar.scala.universe.annotations.Annotated
-import com.anjunar.scala.universe.introspector.BeanIntrospector
+import com.anjunar.scala.universe.introspector.{BeanIntrospector, ScalaIntrospector}
 import com.anjunar.scala.universe.members.ResolvedMethod
 import com.anjunar.technologyspeaks.jaxrs.types.*
 import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityCredential}
@@ -60,7 +61,7 @@ class JaxRSInvocation(private val method: ResolvedMethod,
       val beanParam = parameter.findDeclaredAnnotation(classOf[BeanParam])
       val contextParam = parameter.findDeclaredAnnotation(classOf[Context])
       if (beanParam != null && arg != null) {
-        val beanModel = BeanIntrospector.create(parameter.parameterType)
+        val beanModel = DescriptionIntrospector.create(parameter.parameterType)
         for (beanProperty <- beanModel.properties) {
           readParameter(beanProperty.get(arg).asInstanceOf[AnyRef], beanProperty)
         }

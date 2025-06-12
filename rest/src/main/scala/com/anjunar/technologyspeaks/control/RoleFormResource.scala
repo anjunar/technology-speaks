@@ -10,6 +10,7 @@ import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.{ApplicationScoped, RequestScoped}
 import jakarta.inject.Inject
 import jakarta.ws.rs.*
+import jakarta.ws.rs.core.Response
 
 import java.util.UUID
 import scala.compiletime.uninitialized
@@ -29,6 +30,7 @@ class RoleFormResource extends SchemaBuilderContext {
 
     forLinks(classOf[Role], (instance, link) => {
       linkTo(methodOn(classOf[RoleFormResource]).save(instance))
+        .withRel("submit")
         .build(link.addLink)
     })
 
@@ -44,7 +46,8 @@ class RoleFormResource extends SchemaBuilderContext {
   def read(@PathParam("id") id: UUID): Role = {
 
     forLinks(classOf[Role], (instance, link) => {
-      linkTo(methodOn(classOf[RoleFormResource]).update(instance))
+      linkTo(methodOn(classOf[RoleFormResource]).save(instance))
+        .withRel("submit")
         .build(link.addLink)
       linkTo(methodOn(classOf[RoleFormResource]).delete(instance))
         .build(link.addLink)
@@ -59,44 +62,13 @@ class RoleFormResource extends SchemaBuilderContext {
 
   @POST
   @Consumes(Array("application/json"))
-  @Produces(Array("application/json"))
   @JsonSchema(classOf[RoleFormSchema])
   @RolesAllowed(Array("Administrator"))
   @LinkDescription(value = "Save", linkType = LinkType.FORM)
-  def save(@JsonSchema(classOf[RoleFormSchema]) entity: Role): Role = {
-    entity.persist()
+  def save(@JsonSchema(classOf[RoleFormSchema]) entity: Role): Response = {
+    entity.saveOrUpdate()
 
-    forLinks(classOf[Role], (instance, link) => {
-      linkTo(methodOn(classOf[RoleFormResource]).update(instance))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[RoleFormResource]).delete(instance))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[RoleTableResource]).list(null))
-        .withRedirect
-        .build(link.addLink)
-    })
-
-    entity
-  }
-
-  @PUT
-  @Consumes(Array("application/json"))
-  @Produces(Array("application/json"))
-  @JsonSchema(classOf[RoleFormSchema])
-  @RolesAllowed(Array("Administrator"))
-  @LinkDescription(value = "Update", linkType = LinkType.FORM)
-  def update(@JsonSchema(classOf[RoleFormSchema]) entity: Role): Role = {
-    entity.validate()
-
-    forLinks(classOf[Role], (instance, link) => {
-      linkTo(methodOn(classOf[RoleFormResource]).delete(instance))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[RoleTableResource]).list(null))
-        .withRedirect
-        .build(link.addLink)
-    })
-
-    entity
+    createRedirectResponse
   }
 
   @DELETE

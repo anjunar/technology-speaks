@@ -1,8 +1,8 @@
 package com.anjunar.technologyspeaks.jaxrs.search.provider
 
+import com.anjunar.scala.mapper.IdProvider
 import com.anjunar.technologyspeaks.jaxrs.search.{Context, PredicateProvider}
 import com.anjunar.scala.universe.introspector.BeanProperty
-import com.anjunar.technologyspeaks.jaxrs.types.IdProvider
 import jakarta.persistence.EntityManager
 import jakarta.persistence.criteria.{CriteriaBuilder, CriteriaQuery, Predicate, Root}
 

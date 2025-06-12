@@ -7,7 +7,6 @@ import scala.compiletime.uninitialized
 
 class Heading extends ContainerNode {
 
-  @BeanProperty
   var depth : Int = uninitialized
 
   override def toString = s"Emphasis($depth, ${super.toString})"

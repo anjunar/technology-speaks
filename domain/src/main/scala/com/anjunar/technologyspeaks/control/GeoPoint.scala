@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.control
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import jakarta.persistence.Embeddable
 
 import scala.beans.BeanProperty
@@ -10,12 +10,10 @@ import scala.compiletime.uninitialized
 @Embeddable
 class GeoPoint {
   
-  @BeanProperty
-  @Descriptor(title = "Lan")
+  @PropertyDescriptor(title = "Lan")
   var x : Double = uninitialized
 
-  @BeanProperty
-  @Descriptor(title = "Lat")
+  @PropertyDescriptor(title = "Lat")
   var y : Double = uninitialized
   
   override def toString = s"GeoPoint($x, $y)"

@@ -5,13 +5,10 @@ import scala.compiletime.uninitialized
 
 class Marker {
 
-  @BeanProperty
   var column: Int = uninitialized
 
-  @BeanProperty
   var line: Int = uninitialized
 
-  @BeanProperty
   var offset: Int = uninitialized
   
   override def toString = s"Marker($column, $line, $offset)"

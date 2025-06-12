@@ -1,8 +1,9 @@
 package com.anjunar.scala.schema.builder
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.introspector.DescriptionIntrospector
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.scala.schema.model.Link
-import com.anjunar.scala.universe.introspector.{BeanIntrospector, BeanProperty}
+import com.anjunar.scala.universe.introspector.{AbstractProperty, BeanIntrospector, BeanProperty}
 
 import java.lang.reflect.Type
 import java.time.{Duration, LocalDate, LocalDateTime, LocalTime}
@@ -15,13 +16,19 @@ class PropertyBuilder[C](val name : String, val aClass : Type, isTable : Boolean
 
   var schemaBuilder: SchemaBuilder = new SchemaBuilder(isTable, parent)
 
-  val property: BeanProperty = {
-    val model = BeanIntrospector.createWithType(aClass)
-    model.findProperty(name)
+  val property: AbstractProperty = {
+    val model = DescriptionIntrospector.createWithType(aClass)
+    val beanProperty = model.findProperty(name)
+    
+    if (beanProperty == null) {
+      throw new IllegalStateException(s"Property $name not fount on Class ${aClass.getTypeName}")
+    }
+    
+    beanProperty
   }
 
-  val annotation: Descriptor = {
-    property.findDeclaredAnnotation(classOf[Descriptor])
+  val annotation: PropertyDescriptor = {
+    property.findDeclaredAnnotation(classOf[PropertyDescriptor])
   }
 
   var widget : String = {

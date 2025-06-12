@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.security
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import org.jboss.resteasy.annotations.jaxrs.FormParam
 
 import scala.beans.BeanProperty
@@ -8,18 +8,15 @@ import scala.compiletime.uninitialized
 
 class Login {
 
-  @BeanProperty
-  @Descriptor(title = "Email", widget = "email")
+  @PropertyDescriptor(title = "Email", widget = "email")
   @FormParam("username")  
   var username: String = uninitialized
 
-  @Descriptor(title = "Password", widget = "password")
-  @BeanProperty
+  @PropertyDescriptor(title = "Password", widget = "password")
   @FormParam("password")
   var password : String = uninitialized
   
-  @BeanProperty
-  @Descriptor(title = "Device Name", widget = "text")
+  @PropertyDescriptor(title = "Device Name", widget = "text")
   var displayName : String = uninitialized
   
 }

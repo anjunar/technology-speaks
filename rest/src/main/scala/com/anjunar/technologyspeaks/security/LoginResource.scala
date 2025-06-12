@@ -31,9 +31,6 @@ class LoginResource extends Serializable with SchemaBuilderContext {
 
   var assertionRequest: AssertionRequest = uninitialized
 
-  @Context
-  var httpHeaders: HttpHeaders = uninitialized
-  
   @GET
   @Path("login")  
   @JsonSchema(classOf[LoginSchema])
@@ -45,7 +42,7 @@ class LoginResource extends Serializable with SchemaBuilderContext {
         .withRel("login")
         .build(link.addLink)
       linkTo(methodOn(classOf[LoginResource]).fallback(null))
-        .withRel("fallback")
+        .withRel("submit")
         .build(link.addLink)
     })
 
@@ -65,9 +62,7 @@ class LoginResource extends Serializable with SchemaBuilderContext {
 
     status match {
       case AuthenticationStatus.SUCCESS =>
-        val host = httpHeaders.getHeaderString("x-forwarded-host")
-        val targetUri = URI.create("http://" + host)
-        Response.seeOther(targetUri).build()
+        createRedirectResponse
       case _ =>
         Response.status(Response.Status.UNAUTHORIZED).build()
     }

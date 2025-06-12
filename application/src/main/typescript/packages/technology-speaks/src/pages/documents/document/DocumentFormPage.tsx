@@ -3,7 +3,7 @@ import React, {useRef, useState} from "react"
 import Document from "../../../domain/document/Document";
 import {
     Button,
-    FormModel,
+    FormModel, JsFlag,
     JSONSerializer,
     MarkDownEditor,
     MarkDownView,
@@ -74,7 +74,7 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
 
     let actions = Object.values(domain.$links)
         .filter((link) => link.method !== "GET")
-        .map((link) => <Button key={link.rel} name={link.rel}>{link.title}</Button>)
+        .map((link) => <Button type={"submit"} key={link.rel} name={link.rel}>{link.title}</Button>)
 
     return (
         <div className={"document-form-page"}>
@@ -85,7 +85,7 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
                             Server
                         </Window.Header>
                         <Window.Content>
-                            <div ref={scrollRef} style={{overflowY: "auto", padding: "20px", height: "calc(50vh - 90px)", whiteSpace : "pre-wrap"}}>
+                            <div ref={scrollRef} style={{overflowY: "auto", padding: "20px", height: "calc(50vh - 64px)", whiteSpace : "pre-wrap"}}>
                                 <p>
                                     {buffer}
                                 </p>
@@ -94,13 +94,17 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
                     </Window>
                 ), document.getElementById("viewport"))
             }
-            <SchemaForm value={domain} onSubmit={onSubmit}
-                        style={{display: "flex", height: "calc(100% - 70px)", flexDirection: "column"}}>
+            <SchemaForm value={domain} onSubmit={onSubmit} enctype={"multipart/form-data"}
+                        style={{display: "flex", flexDirection: "column"}}>
+                <SchemaInput name={"id"}/>
                 <SchemaInput name={"title"}/>
-                <div style={{flex: 1, display: "flex", height: "100%"}}>
-                    <MarkDownEditor name={"editor"} style={{flex: 1, height: "100%"}}/>
-                    <MarkDownView name={"editor"} style={{flex: 1, height: "100%"}}/>
+                <div style={{flex: 1, display: "flex", height: "100%", flexWrap : "wrap"}}>
+                    <MarkDownEditor name={"editor"} style={{flex: 1, minHeight : "600px", minWidth : "300px", maxWidth : "800px", width : "100%"}}/>
+                    <MarkDownView name={"editor"} style={{flex: 1, height: "100%", minWidth : "300px", maxWidth : "800px", width : "100%"}}/>
                 </div>
+                <JsFlag showWhenJs={false}>
+                    <input type={"file"} name={"files"} multiple={true}/>
+                </JsFlag>
                 <div style={{display: "flex", justifyContent: "flex-end"}}>{actions}</div>
             </SchemaForm>
         </div>

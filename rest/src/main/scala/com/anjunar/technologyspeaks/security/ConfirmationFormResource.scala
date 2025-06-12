@@ -31,6 +31,7 @@ class ConfirmationFormResource extends SchemaBuilderContext {
 
   forLinks(classOf[Confirmation], (instance, link) => {
     linkTo(methodOn(classOf[ConfirmationFormResource]).confirm(null))
+      .withRel("submit")
       .build(link.addLink)
 
     User.current()

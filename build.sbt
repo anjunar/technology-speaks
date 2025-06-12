@@ -38,6 +38,7 @@ lazy val system = (project in file("system"))
   .dependsOn(jsonMapper2)
   .settings(
     libraryDependencies ++= Seq(
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.18.3",
       "com.github.gumtreediff" % "core" % "3.0.0",
       "com.google.guava" % "guava" % "33.0.0-jre",
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",

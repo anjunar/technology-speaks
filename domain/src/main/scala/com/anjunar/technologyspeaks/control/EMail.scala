@@ -1,8 +1,8 @@
 package com.anjunar.technologyspeaks.control
 
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import com.anjunar.scala.mapper.annotations.Descriptor
 import com.anjunar.technologyspeaks.shared.validators.Unique
 import jakarta.persistence.{CascadeType, Column, Entity, ManyToOne, OneToMany, Table, UniqueConstraint}
 import jakarta.validation.constraints.{Email, NotBlank}
@@ -17,20 +17,16 @@ class EMail extends AbstractEntity {
 
   @Email
   @NotBlank
-  @Descriptor(title = "Email", naming = true, widget = "email")
+  @PropertyDescriptor(title = "Email", naming = true, widget = "email")
   @Column(unique = true)
-  @BeanProperty
   var value: String = uninitialized
 
-  @BeanProperty
   var handle: Array[Byte] = uninitialized
 
   @ManyToOne(optional = false)
-  @BeanProperty
   var user : User = uninitialized
 
-  @BeanProperty
-  @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, mappedBy = "email")  
+  @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, mappedBy = "email")
   val credentials : util.Set[Credential] = new util.HashSet[Credential]()
   
   override def toString = s"EMail($value)"

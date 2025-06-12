@@ -5,7 +5,6 @@ import scala.compiletime.uninitialized
 
 class AbstractRequest {
 
-  @BeanProperty
   var model: String = uninitialized
 
 

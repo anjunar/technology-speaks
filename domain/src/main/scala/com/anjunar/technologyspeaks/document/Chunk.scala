@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.document
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.{PostgresIndex, PostgresIndices}
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import jakarta.persistence.{Column, Entity, Lob, ManyToOne, Transient}
@@ -19,29 +19,24 @@ import org.hibernate.envers.Audited
 ))
 class Chunk extends AbstractEntity {
 
-  @Descriptor(title = "Title")
-  @BeanProperty
+  @PropertyDescriptor(title = "Title")
   var title : String = uninitialized
 
-  @Descriptor(title = "Content")
+  @PropertyDescriptor(title = "Content")
   @Lob
-  @BeanProperty
   @Column(columnDefinition = "text")
   var content : String = uninitialized
 
   @Transient
-  @Descriptor(title = "Distance")
-  @BeanProperty
+  @PropertyDescriptor(title = "Distance")
   var distance: Double = uninitialized
 
   @Column
   @JdbcTypeCode(SqlTypes.VECTOR)
   @annotations.Array(length = 768)
-  @BeanProperty
   var embedding: Array[Float] = uninitialized
 
   @ManyToOne(optional = false)
-  @BeanProperty
   var document: Document = uninitialized
   
   override def toString = s"Chunk($title, $content)"

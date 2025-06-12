@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.document
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.scala.mapper.file.{File, FileContext}
 import com.anjunar.technologyspeaks.control.User
 import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
@@ -13,6 +13,7 @@ import com.github.gumtreediff.actions.{ChawatheScriptGenerator, EditScriptGenera
 import com.github.gumtreediff.matchers.Matchers
 import jakarta.persistence.*
 import jakarta.validation.constraints.Size
+import jakarta.ws.rs.FormParam
 import org.hibernate.annotations.CollectionType
 import org.hibernate.envers.{AuditReaderFactory, Audited, NotAudited}
 
@@ -25,29 +26,26 @@ import scala.jdk.CollectionConverters.*
 
 @Entity
 @Audited
-class Document extends AbstractEntity with OwnerProvider with FileContext {
+class Document extends AbstractEntity with OwnerProvider {
 
   @Size(min = 3, max = 80)
-  @Descriptor(title = "Title")
-  @BeanProperty
+  @PropertyDescriptor(title = "Title")
+  @FormParam("title")
   var title: String = uninitialized
 
   @Lob
   @Column(columnDefinition = "text")
-  @Descriptor(title = "Description")
+  @PropertyDescriptor(title = "Description")
   @NotAudited
-  @BeanProperty
   var description: String = uninitialized
 
-  @Descriptor(title = "User")
+  @PropertyDescriptor(title = "User")
   @ManyToOne(optional = false)
-  @BeanProperty
   @NotAudited
   var user: User = uninitialized
 
-  @Descriptor(title = "Editor", widget = "editor")
+  @PropertyDescriptor(title = "Editor", widget = "editor")
   @OneToOne(optional = false, cascade = Array(CascadeType.ALL), orphanRemoval = true)
-  @BeanProperty
   var editor: Editor = uninitialized
 
   @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, mappedBy = "document")
@@ -55,20 +53,14 @@ class Document extends AbstractEntity with OwnerProvider with FileContext {
   @BeanProperty  
   val chunks: util.List[Chunk] = new util.ArrayList[Chunk]()
 
-  @Descriptor(title = "HashTags", widget = "form-array")
+  @PropertyDescriptor(title = "HashTags", widget = "form-array")
   @ManyToMany
-  @BeanProperty
   @NotAudited
   val hashTags : util.Set[HashTag] = new util.HashSet[HashTag]()
   
-  @Descriptor(title = "Language")
-  @BeanProperty
+  @PropertyDescriptor(title = "Language")
   var language : Locale = uninitialized
   
-  def files : util.List[File] = editor.files
-  
-  def create : File = new EditorFile
-
   override def owner: SecurityUser = user
   
   override def toString = s"Document($title, $description, $language)"

@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.timeline
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.control.User
 import com.anjunar.technologyspeaks.jaxrs.search.RestPredicate
 import com.anjunar.technologyspeaks.jaxrs.search.provider.GenericManyToOneProvider
@@ -13,10 +13,9 @@ import scala.compiletime.uninitialized
 
 class PostSearch extends AbstractSearch {
 
-  @Descriptor(title = "User", writeable = true, widget = "lazy-select")
+  @PropertyDescriptor(title = "User", writeable = true, widget = "lazy-select")
   @RestPredicate(classOf[GenericManyToOneProvider[?]])
   @QueryParam("user")
-  @BeanProperty
   var user: User = uninitialized
 
 }

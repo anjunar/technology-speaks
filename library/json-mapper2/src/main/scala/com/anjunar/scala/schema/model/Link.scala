@@ -1,14 +1,13 @@
 package com.anjunar.scala.schema.model
 
-import com.anjunar.scala.mapper.annotations.IgnoreFilter
-import com.anjunar.scala.schema.builder.SchemaBuilder
+import com.anjunar.scala.mapper.annotations.{PropertyDescriptor, IgnoreFilter}
 
-import scala.beans.BeanProperty
+import scala.annotation.meta.field
 
 @IgnoreFilter
-case class Link(@BeanProperty url: String,
-                @BeanProperty method : String,
-                @BeanProperty rel : String,
-                @BeanProperty title: String,
-                @BeanProperty linkType : LinkType,
-                @BeanProperty body : AnyRef)
+case class Link(@(PropertyDescriptor @field)(title = "URL") url: String,
+                @(PropertyDescriptor @field)(title = "Method") method: String,
+                @(PropertyDescriptor @field)(title = "Relation") rel: String,
+                @(PropertyDescriptor @field)(title = "Title") title: String,
+                @(PropertyDescriptor @field)(title = "Link Type") linkType: LinkType,
+                @(PropertyDescriptor @field)(title = "Body") body: AnyRef)

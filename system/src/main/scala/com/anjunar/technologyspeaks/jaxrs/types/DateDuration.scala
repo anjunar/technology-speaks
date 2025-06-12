@@ -7,10 +7,8 @@ import scala.compiletime.uninitialized
 
 class DateDuration {
 
-  @BeanProperty
   var from: LocalDate = uninitialized
   
-  @BeanProperty
   var to: LocalDate = uninitialized
 
 }

@@ -8,14 +8,11 @@ import scala.compiletime.uninitialized
 
 class ChatResponse extends AbstractResponse {
 
-  @BeanProperty
   var message : ChatMessage = uninitialized
 
   @JsonProperty("done_reason")
-  @BeanProperty
   var doneReason : String = uninitialized
 
-  @BeanProperty
   var done : Boolean = uninitialized
 
 }

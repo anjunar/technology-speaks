@@ -1,16 +1,17 @@
 package com.anjunar.scala.mapper.helper
 
-import com.anjunar.scala.universe.introspector.{BeanIntrospector, BeanProperty}
+import com.anjunar.scala.introspector.DescriptionIntrospector
+import com.anjunar.scala.universe.introspector.{AbstractProperty, BeanIntrospector, BeanProperty}
 import jakarta.persistence.{ManyToMany, OneToMany, OneToOne}
 
 import java.util
 
 object JPAHelper {
 
-  def resolveMappings(entity: AnyRef, property: BeanProperty, propertyValue: Any): Unit = {
+  def resolveMappings(entity: AnyRef, property: AbstractProperty, propertyValue: Any): Unit = {
     val oneToOne = property.findAnnotation(classOf[OneToOne])
     if (oneToOne != null && oneToOne.mappedBy().nonEmpty) {
-      val beanModel = BeanIntrospector.createWithType(propertyValue.getClass)
+      val beanModel = DescriptionIntrospector.createWithType(propertyValue.getClass)
       val mappedByProperty = beanModel.findProperty(oneToOne.mappedBy())
       mappedByProperty.set(propertyValue.asInstanceOf[AnyRef], entity)
     }
@@ -20,7 +21,7 @@ object JPAHelper {
       propertyValue match {
         case collection: util.Collection[AnyRef] =>
           collection.forEach(element => {
-            val beanModel = BeanIntrospector.createWithType(element.getClass)
+            val beanModel = DescriptionIntrospector.createWithType(element.getClass)
             val mappedByProperty = beanModel.findProperty(oneToMany.mappedBy())
             mappedByProperty.set(element, entity)
           })
@@ -32,7 +33,7 @@ object JPAHelper {
       propertyValue match {
         case collection: util.Collection[AnyRef] =>
           collection.forEach { element =>
-            val beanModel = BeanIntrospector.createWithType(element.getClass)
+            val beanModel = DescriptionIntrospector.createWithType(element.getClass)
             val inverseCollectionProp = beanModel.findProperty(manyToMany.mappedBy())
             val inverseCollectionValue = inverseCollectionProp.get(element) match {
               case null =>

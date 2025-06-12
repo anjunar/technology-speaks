@@ -12,7 +12,6 @@ class Point {
   @BeanProperty  
   var typ : String = uninitialized
 
-  @BeanProperty
   val coordinates : util.List[Double] = new util.ArrayList()
 
 }

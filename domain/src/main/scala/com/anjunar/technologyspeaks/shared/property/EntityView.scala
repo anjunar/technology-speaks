@@ -15,11 +15,9 @@ import scala.compiletime.uninitialized
 abstract class EntityView extends AbstractEntity with OwnerProvider {
 
   @ManyToOne(optional = false)
-  @BeanProperty
   var user : User = uninitialized
 
   @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true)
-  @BeanProperty
   var properties : util.Set[ManagedProperty] = new util.HashSet[ManagedProperty]()
 
   override def owner: SecurityUser = user

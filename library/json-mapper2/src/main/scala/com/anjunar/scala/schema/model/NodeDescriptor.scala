@@ -1,6 +1,6 @@
 package com.anjunar.scala.schema.model
 
-import com.anjunar.scala.mapper.annotations.IgnoreFilter
+import com.anjunar.scala.mapper.annotations.{PropertyDescriptor, IgnoreFilter}
 import com.anjunar.scala.schema.JsonDescriptorsGenerator
 import com.anjunar.scala.schema.model.validators.Validator
 import com.anjunar.scala.universe.TypeResolver
@@ -12,37 +12,37 @@ import scala.compiletime.uninitialized
 @IgnoreFilter
 class NodeDescriptor {
 
-  @BeanProperty
+  @PropertyDescriptor(title = "Title")
   var title: String = ""
 
-  @BeanProperty
+  @PropertyDescriptor(title = "Description")
   var description: String = ""
 
-  @BeanProperty
+  @PropertyDescriptor(title = "Widget")
   var widget: String = ""
 
-  @BeanProperty
+  @PropertyDescriptor(title = "Identifier")
   var id: Boolean = false
 
-  @BeanProperty
+  @PropertyDescriptor(title = "Named")
   var name: Boolean = false
 
-  @BeanProperty
+  @PropertyDescriptor(title = "Writeable")
   var writeable: Boolean = false
 
-  @BeanProperty
+  @PropertyDescriptor(title = "Hidden")
   var hidden : Boolean = false
 
-  @BeanProperty
+  @PropertyDescriptor(title = "Type")
   var `type`: String = ""
 
-  @BeanProperty
+  @PropertyDescriptor(title = "Step")
   var step : String = uninitialized
 
-  @BeanProperty
+  @PropertyDescriptor(title = "Links")
   var links: util.Map[String, Link] = new util.LinkedHashMap[String, Link]()
 
-  @BeanProperty
+  @PropertyDescriptor(title = "Validators")
   var validators : util.Map[String, Validator] = new util.HashMap[String, Validator]()
 
 }

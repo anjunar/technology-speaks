@@ -1,9 +1,9 @@
 package com.anjunar.technologyspeaks.control
 
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityCredential, SecurityUser}
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import com.anjunar.scala.mapper.annotations.Descriptor
 import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
 import com.yubico.webauthn.data.ByteArray
 import jakarta.enterprise.inject.spi.CDI
@@ -22,8 +22,7 @@ class Credential extends AbstractEntity with SecurityCredential with OwnerProvid
 
   @ManyToMany
   @Size(min = 1, max = 10)
-  @BeanProperty
-  @Descriptor(title = "Roles")
+  @PropertyDescriptor(title = "Roles")
   val roles: util.Set[Role] = new util.HashSet[Role]
 
   @ManyToOne

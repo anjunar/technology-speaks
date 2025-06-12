@@ -1,7 +1,9 @@
 package com.anjunar.technologyspeaks.shared.editor
 
+import com.anjunar.technologyspeaks.configuration.jaxrs.ObjectMapperContextResolver
 import com.fasterxml.jackson.annotation.JsonInclude.Include
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper, SerializationFeature}
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import org.hibernate.`type`.descriptor.WrapperOptions
 import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.hibernate.usertype.UserType
@@ -12,10 +14,7 @@ import java.util.Objects
 
 class RootType extends UserType[Root] {
 
-  private val objectMapper = new ObjectMapper()
-    .setSerializationInclusion(Include.NON_EMPTY)
-    .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
-    .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+  private val objectMapper = ObjectMapperContextResolver.objectMapper
 
   override def getSqlType: Int = Types.OTHER
 

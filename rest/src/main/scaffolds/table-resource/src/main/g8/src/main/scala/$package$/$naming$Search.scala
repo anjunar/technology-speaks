@@ -1,6 +1,6 @@
 package $package$
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import PropertyDescriptor
 import com.anjunar.technologyspeaks.jaxrs.search.RestPredicate
 import com.anjunar.technologyspeaks.jaxrs.search.provider.*
 import com.anjunar.technologyspeaks.jaxrs.types.AbstractSearch

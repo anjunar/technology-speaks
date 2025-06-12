@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.document
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.shared.editor.{Change, Editor}
 
 import java.util
@@ -10,20 +10,16 @@ import scala.compiletime.uninitialized
 
 class Revision {
   
-  @Descriptor(title = "Id")
-  @BeanProperty
+  @PropertyDescriptor(title = "Id")
   var id : UUID = uninitialized
 
-  @Descriptor(title = "Revision")
-  @BeanProperty
+  @PropertyDescriptor(title = "Revision")
   var revision : Int = uninitialized
 
-  @Descriptor(title = "Title")
-  @BeanProperty
+  @PropertyDescriptor(title = "Title")
   var title : String = uninitialized
 
-  @Descriptor(title = "Editor")
-  @BeanProperty
+  @PropertyDescriptor(title = "Editor")
   var editor : Editor = uninitialized
   
   override def toString = s"Revision($revision, $title)"

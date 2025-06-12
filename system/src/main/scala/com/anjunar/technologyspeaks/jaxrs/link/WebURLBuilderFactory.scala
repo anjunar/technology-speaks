@@ -1,6 +1,7 @@
 package com.anjunar.technologyspeaks.jaxrs.link
 
 import com.anjunar.scala.i18n.I18nResolver
+import com.anjunar.technologyspeaks.configuration.jaxrs.ObjectMapperContextResolver
 import com.anjunar.technologyspeaks.security.IdentityContext
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.enterprise.inject.spi.CDI
@@ -27,7 +28,7 @@ object WebURLBuilderFactory {
 
   private val proxyCache: ThreadLocal[mutable.Map[Class[?], Class[?]]] = new ThreadLocal[mutable.Map[Class[?], Class[?]]]
 
-  private val objectMapper = new ObjectMapper()
+  private val objectMapper = ObjectMapperContextResolver.objectMapper
 
   def linkTo(invocation: AnyRef): WebURLBuilder = {
     val element = invocation.getClass.getField("handler").get(invocation)

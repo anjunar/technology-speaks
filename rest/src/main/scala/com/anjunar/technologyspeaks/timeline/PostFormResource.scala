@@ -10,6 +10,7 @@ import com.anjunar.technologyspeaks.security.Secured
 import com.anjunar.technologyspeaks.shared.editor.Paragraph
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
+import jakarta.ws.rs.core.Response
 import jakarta.ws.rs.{Consumes, DELETE, GET, POST, PUT, Path, PathParam, Produces}
 
 import java.util.UUID
@@ -28,6 +29,7 @@ class PostFormResource extends SchemaBuilderContext {
 
     forLinks(classOf[Post], (instance, link) => {
       linkTo(methodOn(classOf[PostFormResource]).save(instance))
+        .withRel("submit")
         .build(link.addLink)
     })
 
@@ -47,7 +49,8 @@ class PostFormResource extends SchemaBuilderContext {
   def read(@PathParam("id") id: UUID): Post = {
 
     forLinks(classOf[Post], (instance, link) => {
-      linkTo(methodOn(classOf[PostFormResource]).update(instance))
+      linkTo(methodOn(classOf[PostFormResource]).save(instance))
+        .withRel("submit")
         .build(link.addLink)
       linkTo(methodOn(classOf[PostFormResource]).delete(instance))
         .build(link.addLink)
@@ -62,46 +65,14 @@ class PostFormResource extends SchemaBuilderContext {
 
   @POST
   @Consumes(Array("application/json"))
-  @Produces(Array("application/json"))
   @JsonSchema(classOf[PostFormSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Save", linkType = LinkType.FORM)
-  def save(@JsonSchema(classOf[PostFormSchema]) entity: Post): Post = {
+  def save(@JsonSchema(classOf[PostFormSchema]) entity: Post): Response = {
     entity.user = User.current()
-    entity.persist()
-
-    forLinks(classOf[Post], (instance, link) => {
-      linkTo(methodOn(classOf[PostFormResource]).update(instance))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[PostFormResource]).delete(instance))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[PostTableResource]).list(null))
-        .withRedirect
-        .build(link.addLink)
-    })
-
-    entity
-  }
-
-  @PUT
-  @Consumes(Array("application/json"))
-  @Produces(Array("application/json"))
-  @JsonSchema(classOf[PostFormSchema])
-  @RolesAllowed(Array("User", "Administrator"))
-  @LinkDescription(value = "Update", linkType = LinkType.FORM)
-  def update(@JsonSchema(classOf[PostFormSchema]) entity: Post): Post = {
-    entity.user = User.current()
-    entity.validate()
-
-    forLinks(classOf[Post], (instance, link) => {
-      linkTo(methodOn(classOf[PostFormResource]).delete(instance))
-        .build(link.addLink)
-      linkTo(methodOn(classOf[PostTableResource]).list(null))
-        .withRedirect
-        .build(link.addLink)
-    })
-
-    entity
+    entity.saveOrUpdate()
+    
+    createRedirectResponse
   }
 
   @DELETE

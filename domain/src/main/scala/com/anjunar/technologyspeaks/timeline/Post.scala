@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.timeline
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.control.User
 import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
 import com.anjunar.technologyspeaks.shared.AbstractEntity
@@ -15,14 +15,12 @@ import scala.compiletime.uninitialized
 @Entity
 class Post extends AbstractEntity with OwnerProvider {
 
-  @Descriptor(title = "User")
+  @PropertyDescriptor(title = "User")
   @ManyToOne(optional = false)
-  @BeanProperty
   var user : User = uninitialized
 
-  @Descriptor(title = "Editor", widget = "editor")
+  @PropertyDescriptor(title = "Editor", widget = "editor")
   @OneToOne(optional = false, cascade = Array(CascadeType.ALL), orphanRemoval = true)
-  @BeanProperty
   var editor : Editor = uninitialized
 
   override def owner: SecurityUser = user

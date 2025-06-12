@@ -5,7 +5,7 @@ import com.anjunar.scala.universe.ResolvedClass
 import java.lang.reflect.{ParameterizedType, Type}
 import scala.reflect.runtime.universe
 
-class ScalaModel(underlying: ResolvedClass) {
+class ScalaModel(val underlying: ResolvedClass) {
 
   private val universeType : universe.Type = fromJavaType(underlying.underlying)
 
@@ -50,6 +50,8 @@ class ScalaModel(underlying: ResolvedClass) {
     }
     
   })
+  
+  def findProperty(name : String) : ScalaProperty = properties.find(property => property.name == name).orNull
 
 
 }

@@ -1,6 +1,6 @@
 package com.anjunar.technologyspeaks.shared.i18n
 
-import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jaxrs.search.RestPredicate
 import com.anjunar.technologyspeaks.jaxrs.search.provider.*
 import com.anjunar.technologyspeaks.jaxrs.types.AbstractSearch
@@ -12,10 +12,9 @@ import scala.compiletime.uninitialized
 
 class I18nSearch extends AbstractSearch {
   
-  @Descriptor(title = "Text", writeable = true)
+  @PropertyDescriptor(title = "Text", writeable = true)
   @QueryParam("text")
   @RestPredicate(value = classOf[GenericSimilarityProvider[?]], property = "text")
-  @BeanProperty
   var text : String = uninitialized
   
 }
