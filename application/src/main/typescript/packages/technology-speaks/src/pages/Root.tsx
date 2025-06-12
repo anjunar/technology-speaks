@@ -1,8 +1,9 @@
 import "./Root.css"
 
-import React, {useEffect, useState} from "react"
+import React, {useContext, useEffect, useState} from "react"
 import {Drawer, Link, Router, ToolBar, useMatchMedia, Viewport} from "react-ui-simplicity";
 import Application from "../domain/Application";
+import {SystemContext} from "react-ui-simplicity/src/System";
 import navigate = Router.navigate;
 import onLink = Link.onLink;
 
@@ -18,11 +19,11 @@ function Root(properties: AppContent.Attributes) {
 
     const {application} = properties
 
-    const [open, setOpen] = useState(false)
+    const {cookie} = useContext(SystemContext)
 
     const mediaQuery = useMatchMedia("(max-width: 1440px)")
 
-    const [page, setPage] = useState(0)
+    const [open, setOpen] = useState(cookie["drawer"] === "open")
 
     const onLinkClick = () => {
         if (mediaQuery) {
@@ -36,13 +37,19 @@ function Root(properties: AppContent.Attributes) {
         setOpen(!mediaQuery)
     }, []);
 
+    function onDrawerClick(event : React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        setOpen(!open)
+    }
+
     return (
         <div className={"app"}>
             <ToolBar>
                 <div slot="left">
-                    <button className="material-icons" onClick={() => setOpen(!open)}>
-                        menu
-                    </button>
+                    <form action="/toggle-drawer" method="POST" onSubmit={onDrawerClick}>
+                        <input type="hidden" name="drawer" value={cookie["drawer"] === "open" ? "close" : "open"}/>
+                        <button type="submit" className={"material-icons"}>menu</button>
+                    </form>
                 </div>
                 <div slot={"right"}>
                     <div style={{display: "flex", gap: "5px", justifyContent: "flex-end", alignItems: "center"}}>

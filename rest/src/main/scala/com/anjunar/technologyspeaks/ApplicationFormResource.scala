@@ -11,17 +11,22 @@ import com.anjunar.technologyspeaks.security.*
 import com.anjunar.technologyspeaks.shared.i18n.{I18nSearch, I18nTableResource}
 import com.anjunar.technologyspeaks.timeline.{PostSearch, PostTableResource}
 import jakarta.enterprise.context.ApplicationScoped
-import jakarta.ws.rs.core.{Context, SecurityContext}
+import jakarta.ws.rs.core.{Context, HttpHeaders, SecurityContext}
 import jakarta.ws.rs.{GET, Path, Produces}
 
 import java.security.Principal
 import java.util.{Objects, UUID}
+import scala.compiletime.uninitialized
 
 
 @Path("/")
 @ApplicationScoped 
 class ApplicationFormResource extends SchemaBuilderContext {
-  
+
+
+  @Context
+  var httpHeaders: HttpHeaders = uninitialized
+
   @GET
   @Produces(Array("application/json"))
   @JsonSchema(classOf[ApplicationFormSchema])

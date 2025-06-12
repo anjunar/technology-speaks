@@ -13,6 +13,9 @@ class LoginSchema extends EntityJSONSchema[Login] {
         .property("username", property => property
           .withWriteable(true)
         )
+        .property("password", property => property
+          .withWriteable(true)
+        )
       )
   }
 }

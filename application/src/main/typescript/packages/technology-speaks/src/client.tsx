@@ -10,10 +10,34 @@ import Cookies from "js-cookie";
 const initialPath = window.location.pathname
 const initialSearch = window.location.search
 
+function resolvePreferredLanguage(header: string): string {
+    if (!header) return "en";
+
+    const languages = header
+        .split(",")
+        .map(part => {
+            const [lang, q] = part.trim().split(";q=");
+            return { lang, q: parseFloat(q || "1") };
+        })
+        .sort((a, b) => b.q - a.q);
+
+    return languages[0]?.lang?.split("-")[0] || "en";
+}
+
+function parseCookieString(cookieString) {
+    return cookieString
+        .split("; ")
+        .map(cookie => cookie.split("="))
+        .reduce((acc, [key, value]) => {
+            acc[key] = decodeURIComponent(value);
+            return acc;
+        }, {});
+}
+
 async function main() {
     const resolved = resolveRoute(initialPath, initialSearch, routes);
 
-    const components = await resolveComponentList(resolved, initialPath, initialSearch, window.location.origin)
+    const components = await resolveComponentList(resolved, initialPath, initialSearch, window.location.origin, parseCookieString(document.cookie), window.navigator.language)
 
     hydrateRoot(document.getElementById('root'), (
         <App
@@ -21,9 +45,8 @@ async function main() {
             search={initialSearch}
             data={components}
             host={window.location.origin}
-            cookies={document.cookie}
+            cookies={parseCookieString(document.cookie) || {}}
             language={window.navigator.language.split("-")[0] || "en"}
-            theme={Cookies.get("theme") || "light"}
         />
     ),  {
         onUncaughtError: (error, errorInfo) => {

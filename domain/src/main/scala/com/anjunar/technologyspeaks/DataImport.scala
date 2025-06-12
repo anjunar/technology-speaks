@@ -85,6 +85,11 @@ class DataImport {
       patrick.address = address
       patrick.emails.add(email)
 
+      val passwordCredential = new CredentialPassword
+      passwordCredential.password = "patrick"
+      passwordCredential.roles.add(administrator)
+      email.credentials.add(passwordCredential)
+
       patrick.persist()
     }
 

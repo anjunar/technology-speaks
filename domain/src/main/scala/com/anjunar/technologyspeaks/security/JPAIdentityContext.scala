@@ -20,7 +20,7 @@ class JPAIdentityContext extends IdentityContext with Serializable {
   override def getPrincipal: SecurityCredential = {
     try
       if (Objects.isNull(user)) {
-        user = CredentialWebAuthn.find(UUID.fromString(securityContext.getCallerPrincipal.getName))
+        user = Credential.find(UUID.fromString(securityContext.getCallerPrincipal.getName))
         user
       } else {
         user

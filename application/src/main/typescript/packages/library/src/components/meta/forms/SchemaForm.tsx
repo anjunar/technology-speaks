@@ -20,6 +20,7 @@ function SchemaForm(properties: SchemaForm.Attributes) {
         onErrors,
         value,
         links,
+        actionRel,
         ...rest
     } = properties
 
@@ -68,7 +69,7 @@ function SchemaForm(properties: SchemaForm.Attributes) {
         })
     }
 
-    let link = Object.values(value.$links).find(link => link.method === "PUT" || link.method === "POST" || link.rel === "search");
+    let link = Object.values(value.$links || {}).find(link => link.rel === actionRel);
 
     return (
         <SchemaFormContext.Provider value={node}>
@@ -79,7 +80,7 @@ function SchemaForm(properties: SchemaForm.Attributes) {
                 onErrors={onErrors}
                 validators={validators}
                 asyncValidators={asyncValidators}
-                action={link?.url}
+                action={link?.method === "GET" ? link?.url : "/service" + link?.url}
                 method={link?.method}
                 {...rest}
             >
@@ -100,6 +101,7 @@ namespace SchemaForm {
         style?: CSSProperties,
         validators?: Validator[]
         className?: string
+        actionRel? : string
     }
 }
 

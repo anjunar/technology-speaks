@@ -1,5 +1,5 @@
 import "./System.css"
-import React, {createContext, Dispatch, SetStateAction, useEffect, useLayoutEffect, useState} from "react";
+import React, {createContext, Dispatch, SetStateAction, useContext, useEffect, useLayoutEffect, useState} from "react";
 import {init} from "./domain/Persistence";
 import Router from "./components/navigation/router/Router";
 import Input from "./components/inputs/input/Input";
@@ -24,13 +24,11 @@ export class SystemContextHolder {
                 public path : string = "",
                 public search : string = "",
                 public host : string = "",
-                public cookies: string = "",
+                public cookie: Record<string, string> = {},
                 public routes: Router.Route[] = [],
                 public windows: [WindowRef[], Dispatch<SetStateAction<WindowRef[]>>] = null,
-                public darkMode : boolean = false,
                 public data : [Router.Route, React.ReactElement][] = [],
-                public language : string = "en",
-                public theme : string = "light") {
+                public language : string = "en") {
     }
 
 }
@@ -39,13 +37,18 @@ export const SystemContext = createContext(new SystemContextHolder())
 
 function System(properties : System.Attributes) {
 
-    const {depth, path, search, routes, data, host, language, cookies, theme} = properties
+    const {depth, path, search, routes, data, host, language, cookies} = properties
 
     const [loading, setLoading] = useState([])
 
     const [windows, setWindows] = useState<WindowRef[]>([])
 
-    const [darkMode, setDarkMode] = useState(theme === "dark")
+    const [darkMode, setDarkMode] = useState(cookies["theme"] === "dark")
+
+    function onDarkModeClick(event : React.FormEvent<HTMLFormElement>) {
+        event.preventDefault()
+        setDarkMode(!darkMode)
+    }
 
     useLayoutEffect(() => {
         const matchMedia = window.matchMedia('(prefers-color-scheme: dark)');
@@ -126,7 +129,7 @@ function System(properties : System.Attributes) {
 
     return (
         <div className={"system"}>
-            <SystemContext.Provider value={new SystemContextHolder(depth, path, search, host,cookies, routes, [windows, setWindows], darkMode, data, language, theme)}>
+            <SystemContext.Provider value={new SystemContextHolder(depth, path, search, host, cookies, routes, [windows, setWindows], data, language)}>
                 <div style={{position: "absolute", zIndex: 9999, top: 0, left: 0, height: "4px", width: "100%"}}>
                     {
                         loading.length > 0 && <Progress/>
@@ -146,7 +149,10 @@ function System(properties : System.Attributes) {
                     </div>
                     <div slot={"right"}>
                         <div style={{display : "flex", alignItems : "center", gap : "5px", justifyContent : "flex-end"}}>
-                            <Input type={"checkbox"} value={darkMode} onChange={(value: any) => setDarkMode(value)}/>
+                            <form action="/toggle-theme" method="POST" onSubmit={onDarkModeClick}>
+                                <input type="hidden" name="theme" value={cookies["theme"] === "dark" ? "light" : "dark"}/>
+                                <button type="submit" className={"material-icons"}>{cookies["theme"] === "dark" ? "light_mode" : "dark_mode"}</button>
+                            </form>
                         </div>
                     </div>
                 </ToolBar>
@@ -161,12 +167,11 @@ namespace System {
         depth : number
         search : string
         path : string
-        cookies : string
+        cookies : Record<string, string>
         routes : Router.Route[]
         host : string
         data : [Router.Route, React.ReactElement][]
         language : string
-        theme : string
     }
 }
 

@@ -1,6 +1,14 @@
 import React from "react"
 import * as webauthnJson from "@github/webauthn-json";
-import {Button, JSONDeserializer, JSONSerializer, Router, SchemaForm, SchemaInput, useForm} from "react-ui-simplicity";
+import {
+    Button,
+    JsFlag,
+    JSONSerializer,
+    Router,
+    SchemaForm,
+    SchemaInput,
+    useForm
+} from "react-ui-simplicity";
 import navigate = Router.navigate;
 import Login from "../../domain/security/Login";
 
@@ -45,9 +53,17 @@ function LoginPage(properties: LoginPage.Attributes) {
         <div className={"login-page"} style={{display : "flex", justifyContent : "center", alignItems : "center", height : "100%"}}>
             <div>
                 <h1>Login</h1>
-                <SchemaForm value={domain} onSubmit={loginAction} style={{width : "300px"}}>
+                <SchemaForm actionRel={"fallback"} value={domain} onSubmit={loginAction} style={{width : "300px"}}>
                     <SchemaInput name={"username"}/>
-                    <Button name={"login"} style={{float : "right"}}>Login</Button>
+                    <JsFlag showWhenJs={false}>
+                        <SchemaInput name={"password"}/>
+                    </JsFlag>
+                    <div style={{display : "flex", justifyContent : "flex-end"}}>
+                        <JsFlag showWhenJs={true}>
+                            <Button name={"login"}>WebAuthn</Button>
+                        </JsFlag>
+                        <Button name={"fallback"}>Login</Button>
+                    </div>
                 </SchemaForm>
             </div>
         </div>

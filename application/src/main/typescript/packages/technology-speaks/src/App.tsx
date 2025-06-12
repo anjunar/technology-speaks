@@ -7,7 +7,7 @@ import {routes} from "./routes";
 init()
 
 export function App(properties : App.Attributes) {
-    const {theme, data, host, language, cookies} = properties
+    const {data, host, language, cookies} = properties
     const [path, setPath] = useState(properties.path);
     const [search, setSearch] = useState(properties.search);
 
@@ -29,7 +29,6 @@ export function App(properties : App.Attributes) {
                    data={data}
                    host={host}
                    language={language}
-                   theme={theme}
     />;
 }
 
@@ -37,10 +36,9 @@ namespace App {
     export interface Attributes {
         host : string
         language : string
-        cookies : string
+        cookies : Record<string, string>
         path: string
         search: string
         data : [Router.Route, React.ReactElement][]
-        theme : string
     }
 }

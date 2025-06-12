@@ -69,7 +69,7 @@ function HomePage(properties: HomePage.Attributes) {
                         <img src={"/assets/logo.png"} style={{width : "1em"}}/>
                         <h1 style={{fontSize : "1em", margin : 0, padding : 0, color : "white"}}>Technology Speaks</h1>
                     </div>
-                    <SchemaForm onSubmit={onSubmit} value={search} style={{marginTop : "12px", display : "flex", justifyContent : "stretch", flexDirection : "column"}}>
+                    <SchemaForm actionRel={"search"} onSubmit={onSubmit} value={search} style={{marginTop : "12px", display : "flex", justifyContent : "stretch", flexDirection : "column"}}>
                         <input type={"hidden"} name={"index"} value={"0"}/>
                         <input type={"hidden"} name={"limit"} value={"5"}/>
                         <input type={"hidden"} name={"sort"} value={"score:asc"}/>
@@ -78,7 +78,7 @@ function HomePage(properties: HomePage.Attributes) {
                                      onKeyUp={onSearch}
                                      placeholder={"Search with natural language"}
                                      onSelection={onSelection}
-                                     style={{backgroundColor : "var(--color-background-primary)", flex : 1, width : "100%", padding : "12px"}}>
+                                     style={{backgroundColor : "var(--color-background-primary)", flex : 1, padding : "12px"}}>
                             {
                                 (row : HashTag) => (
                                     <p>{row.value}</p>

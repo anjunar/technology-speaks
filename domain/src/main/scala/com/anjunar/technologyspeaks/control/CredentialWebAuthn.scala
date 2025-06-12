@@ -8,6 +8,7 @@ import jakarta.persistence.{Entity, NoResultException}
 import java.security.SecureRandom
 import java.util
 import java.util.Base64
+import java.lang
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
@@ -25,7 +26,7 @@ class CredentialWebAuthn extends Credential {
   var publicKeyCose: Array[Byte] = uninitialized
 
   @BeanProperty
-  var signCount: Long = uninitialized
+  var signCount: lang.Long = uninitialized
 
   @BeanProperty
   var transports: String = uninitialized

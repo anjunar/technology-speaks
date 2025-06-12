@@ -31,8 +31,10 @@ export const routes: Router.Route[] = [
         subRouter: true,
         component: Root,
         loader: {
-            async application(path, pathParams, queryParams) {
-                let response = await fetch("http://localhost:3000/service")
+            async application(language, cookie, path, pathParams, queryParams) {
+                let response = await fetch("http://localhost:3000/service", {
+                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                })
 
                 process(response, path)
 
@@ -48,8 +50,10 @@ export const routes: Router.Route[] = [
                 path: "/",
                 component: HomePage,
                 loader: {
-                    async search(path, pathParams, queryParams) {
-                        let response = await fetch("http://localhost:3000/service/documents/search")
+                    async search(language, cookie, path, pathParams, queryParams) {
+                        let response = await fetch("http://localhost:3000/service/documents/search", {
+                            headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                        })
 
                         process(response, path)
 
@@ -68,7 +72,7 @@ export const routes: Router.Route[] = [
                         path: "/search",
                         component: DocumentSearchPage,
                         loader: {
-                            async table(path, pathParams : PathParams, queryParams : QueryParams) {
+                            async table(language, cookie, path, pathParams : PathParams, queryParams : QueryParams) {
                                 const urlBuilder = new URL("/service/documents", "http://localhost:3000")
                                 const searchParams = urlBuilder.searchParams;
 
@@ -80,7 +84,9 @@ export const routes: Router.Route[] = [
                                     searchParams.set("sort", "score:asc")
                                 }
 
-                                let response = await fetch(urlBuilder.toString())
+                                let response = await fetch(urlBuilder.toString(), {
+                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                })
 
                                 process(response, path)
 
@@ -90,8 +96,10 @@ export const routes: Router.Route[] = [
 
                                 throw new Error(response.status.toString())
                             },
-                            async search(path, pathParams, queryParams) {
-                                let response = await fetch(`http://localhost:3000/service/documents/search`)
+                            async search(language, cookie, path, pathParams, queryParams) {
+                                let response = await fetch(`http://localhost:3000/service/documents/search`, {
+                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                })
 
                                 process(response, path)
 
@@ -109,8 +117,10 @@ export const routes: Router.Route[] = [
                         path: "/document",
                         component : DocumentFormPage,
                         loader: {
-                            async form(path, pathParams, queryParams) {
-                                let response = await fetch(`http://localhost:3000/service/documents/document`)
+                            async form(language, cookie, path, pathParams, queryParams) {
+                                let response = await fetch(`http://localhost:3000/service/documents/document`, {
+                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                })
 
                                 process(response, path)
 
@@ -132,8 +142,10 @@ export const routes: Router.Route[] = [
                             }
                         },
                         loader: {
-                            async form(path, pathParams, queryParams) {
-                                let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}?edit=${queryParams["edit"]}`)
+                            async form(language, cookie, path, pathParams, queryParams) {
+                                let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}?edit=${queryParams["edit"]}`, {
+                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                })
 
                                 process(response, path)
 
@@ -156,8 +168,10 @@ export const routes: Router.Route[] = [
                                         path: "/revision/:rev/view",
                                         component: DocumentViewPage,
                                         loader: {
-                                            async form(path, pathParams, queryParams) {
-                                                let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/view`)
+                                            async form(language, cookie, path, pathParams, queryParams) {
+                                                let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/view`, {
+                                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                                })
 
                                                 process(response, path)
 
@@ -172,8 +186,10 @@ export const routes: Router.Route[] = [
                                         path: "/revision/:rev/compare",
                                         component: DocumentViewPage,
                                         loader: {
-                                            async form(path, pathParams, queryParams) {
-                                                let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/compare`)
+                                            async form(language, cookie, path, pathParams, queryParams) {
+                                                let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/compare`, {
+                                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                                })
 
                                                 process(response, path)
 
@@ -197,8 +213,10 @@ export const routes: Router.Route[] = [
                         path: "/login",
                         component: LoginPage,
                         loader: {
-                            async login(path, pathParams, queryParams) {
-                                let response = await fetch("http://localhost:3000/service/security/login")
+                            async login(language, cookie, path, pathParams, queryParams) {
+                                let response = await fetch("http://localhost:3000/service/security/login", {
+                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                })
 
                                 process(response, path)
 
@@ -214,8 +232,10 @@ export const routes: Router.Route[] = [
                         path: "/register",
                         component: RegisterPage,
                         loader: {
-                            async register(path, pathParams, queryParams) {
-                                let response = await fetch("http://localhost:3000/service/security/register")
+                            async register(language, cookie, path, pathParams, queryParams) {
+                                let response = await fetch("http://localhost:3000/service/security/register", {
+                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                })
 
                                 process(response, path)
 
@@ -237,8 +257,10 @@ export const routes: Router.Route[] = [
                         path: "/confirm",
                         component: ConfirmationPage,
                         loader: {
-                            async form(path, pathParams, queryParams) {
-                                let response = await fetch("http://localhost:3000/service/security/confirm")
+                            async form(language, cookie, path, pathParams, queryParams) {
+                                let response = await fetch("http://localhost:3000/service/security/confirm", {
+                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                })
 
                                 process(response, path)
 
@@ -254,8 +276,10 @@ export const routes: Router.Route[] = [
                         path: "/logout",
                         component: LogoutPage,
                         loader: {
-                            async credential(path, pathParams, queryParams) {
-                                let response = await fetch("http://localhost:3000/service/security/logout")
+                            async credential(language, cookie, path, pathParams, queryParams) {
+                                let response = await fetch("http://localhost:3000/service/security/logout", {
+                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                })
 
                                 process(response, path)
 
@@ -279,8 +303,10 @@ export const routes: Router.Route[] = [
                                 path : "/search",
                                 component : I18nTablePage,
                                 loader : {
-                                    async table(path, pathParams : PathParams, queryParams : QueryParams) {
-                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns?index=${queryParams["index"] || 0}&limit=10`)
+                                    async table(language, cookie, path, pathParams : PathParams, queryParams : QueryParams) {
+                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns?index=${queryParams["index"] || 0}&limit=10`, {
+                                            headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                        })
 
                                         process(response, path)
 
@@ -290,8 +316,10 @@ export const routes: Router.Route[] = [
 
                                         throw new Error(response.status.toString())
                                     },
-                                    async search(path, pathParams : PathParams, queryParams : QueryParams) {
-                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns/search`)
+                                    async search(language, cookie, path, pathParams : PathParams, queryParams : QueryParams) {
+                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns/search`, {
+                                            headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                        })
 
                                         process(response, path)
 
@@ -307,8 +335,10 @@ export const routes: Router.Route[] = [
                                 path : "/i18n/:id",
                                 component : I18nFormPage,
                                 loader : {
-                                    async form(path, pathParams : PathParams, queryParams : QueryParams) {
-                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns/i18n/${pathParams["id"]}`)
+                                    async form(language, cookie, path, pathParams : PathParams, queryParams : QueryParams) {
+                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns/i18n/${pathParams["id"]}`, {
+                                            headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                        })
 
                                         process(response, path)
 
@@ -332,7 +362,7 @@ export const routes: Router.Route[] = [
                         path: "/form",
                         component: FormPage,
                         loader: {
-                            async form(path, query) {
+                            async form(language, cookie, path, query) {
                                 let element = query["link"]
 
                                 let link
@@ -342,7 +372,9 @@ export const routes: Router.Route[] = [
                                     link = ""
                                 }
 
-                                let response = await fetch("http://localhost:3000/service" + link)
+                                let response = await fetch("http://localhost:3000/service" + link, {
+                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                })
 
                                 process(response, path)
 
@@ -359,7 +391,7 @@ export const routes: Router.Route[] = [
                         path: "/table",
                         component: TablePage,
                         loader: {
-                            async search(path, query) {
+                            async search(language, cookie, path, query) {
                                 let element = query["link"]
 
                                 let link
@@ -369,7 +401,9 @@ export const routes: Router.Route[] = [
                                     link = ""
                                 }
 
-                                let response = await fetch("http://localhost:3000/service" + link)
+                                let response = await fetch("http://localhost:3000/service" + link, {
+                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                })
 
                                 process(response, path)
 

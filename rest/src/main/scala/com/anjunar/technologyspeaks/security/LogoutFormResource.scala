@@ -10,9 +10,11 @@ import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, met
 import jakarta.annotation.security.RolesAllowed
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
+import jakarta.security.enterprise.AuthenticationStatus
 import jakarta.ws.rs.*
-import jakarta.ws.rs.core.{Context, Response, SecurityContext}
+import jakarta.ws.rs.core.{Context, HttpHeaders, MediaType, Response, SecurityContext}
 
+import java.net.URI
 import java.util.UUID
 import scala.compiletime.uninitialized
 
@@ -21,30 +23,35 @@ import scala.compiletime.uninitialized
 @ApplicationScoped
 @Secured class LogoutFormResource extends SchemaBuilderContext {
 
-  @Inject var authenticator: Authenticator = uninitialized
+  @Inject 
+  var authenticator: Authenticator = uninitialized
+
+  @Context
+  var httpHeaders: HttpHeaders = uninitialized
+
 
   @GET
   @Produces(Array("application/json"))
   @JsonSchema(classOf[LogoutFormSchema])
   @RolesAllowed(Array("Guest", "User", "Administrator"))
   @LinkDescription(value = "Logout", linkType = LinkType.FORM)
-  def logout(): Credential = {
+  def logout(): EMail = {
 
-    forLinks(classOf[Credential], (instance, link) => {
+    forLinks(classOf[EMail], (instance, link) => {
       linkTo(methodOn(classOf[LogoutFormResource]).logout(null))
         .build(link.addLink)
     })
 
 
-    Credential.current()
+    Credential.current().email
   }
 
   @POST
   @Produces(Array("application/json"))
-  @Consumes(Array("application/json"))
+  @Consumes(Array("application/json", MediaType.APPLICATION_FORM_URLENCODED))
   @RolesAllowed(Array("Guest", "User", "Administrator"))
   @LinkDescription(value = "Logout", linkType = LinkType.FORM)
-  def logout(@JsonSchema(classOf[LogoutFormSchema]) entity: Credential): Response = {
+  def logout(@JsonSchema(classOf[LogoutFormSchema]) @BeanParam entity: Credential): Response = {
     authenticator.logout()
 
     forLinks(classOf[Credential], (instance, link) => {
@@ -53,6 +60,8 @@ import scala.compiletime.uninitialized
         .build(link.addLink)
     })
 
-    Response.ok().build()
+    val host = httpHeaders.getHeaderString("x-forwarded-host")
+    val targetUri = URI.create("http://" + host)
+    Response.seeOther(targetUri).build()
   }
 }

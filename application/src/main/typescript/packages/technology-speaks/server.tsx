@@ -10,7 +10,6 @@ import * as cheerio from 'cheerio';
 import * as path from "node:path";
 import * as fs from "node:fs";
 import {Router} from "react-ui-simplicity";
-import session from 'express-session';
 
 function resolvePreferredLanguage(header: string): string {
     if (!header) return "en";
@@ -34,12 +33,15 @@ const PORT = 3000;
 
 app.use(cookieParser());
 
-app.use(session({
-    secret: 'dein-geheimes-session-secret',
-    resave: false,
-    saveUninitialized: false,
-    cookie: { secure: false } // für localhost, true wenn HTTPS
-}));
+app.use(
+    "/toggle-drawer",
+    express.urlencoded({ extended: true })
+);
+
+app.use(
+    "/toggle-theme",
+    express.urlencoded({ extended: true })
+);
 
 app.use(
     '/.well-known',
@@ -73,15 +75,13 @@ app.use(
         changeOrigin: true,
         on : {
             proxyReq: (proxyReq, req, res) => {
-                proxyReq.setHeader('x-language', req.headers["x-language"] || "de");
-                proxyReq.setHeader('host', 'localhost:3000');
-                proxyReq.setHeader('cookie', req.headers['cookie'])
+                proxyReq.setHeader("x-forwarded-host", 'localhost:3000')
             }
         }
     })
 );
 
-function sendToClient(path: string, search: string, res: any, data: [Router.Route, React.ReactElement][], language: string, cookie: string, theme : string) : void {
+function sendToClient(path: string, search: string, res: any, data: [Router.Route, React.ReactElement][], language: string, cookie: Record<string, string>) : void {
 
     const appHtml = renderToString(
         <App
@@ -91,44 +91,53 @@ function sendToClient(path: string, search: string, res: any, data: [Router.Rout
             host={res.get('host')}
             language={language}
             cookies={cookie}
-            theme={theme}
         />
     );
 
     const $ = cheerio.load(rawHtmlTemplate);
     $('#root').html(appHtml);
-    $('html').attr("data-theme", theme);
+    $('html').attr("data-theme", cookie["theme"] || "light") ;
     res.send($.html());
 }
 
+app.post('/toggle-drawer', (req, res) => {
+    if (req.body.drawer === "open") {
+        res.setHeader("Set-Cookie", "drawer=open; Path=/; Max-Age=31536000");
+    } else {
+        res.setHeader("Set-Cookie", "drawer=close; Path=/; Max-Age=31536000");
+    }
+    res.redirect(req.headers.referer || "/");
+})
+
+app.post('/toggle-theme', (req, res) => {
+    if (req.body.theme === "dark") {
+        res.setHeader("Set-Cookie", "theme=dark; Path=/; Max-Age=31536000");
+    } else {
+        res.setHeader("Set-Cookie", "theme=light; Path=/; Max-Age=31536000");
+    }
+    res.redirect(req.headers.referer || "/");
+})
+
+
 app.get('*', (req, res) => {
     const path = req.path
-    const search = "?" + (req.url.split('?'))[1] || '';
+    const search = "?" + ((req.url.split('?'))[1] || '');
     const host = req.get('host');
-    const cookie = req.get("cookie");
-    const theme = req.cookies.theme || 'light';
+    const cookie = req.cookies as Record<string, string>
+    let drawer = req.cookies["drawer"];
+
+    if (! drawer) {
+        res.setHeader("Set-Cookie", "drawer=open; Path=/; Max-Age=31536000");
+    }
 
     const language = resolvePreferredLanguage(req.headers['accept-language']);
 
-    globalThis.fetch = new Proxy(globalThis.fetch, {
-        apply(target: (input: (RequestInfo | URL), init?: RequestInit) => Promise<Response>, thisArg: any, argArray: any[]): any {
-            let init = argArray[1] || {}
-            let combinedHeaders = Object.assign(init.headers || {}, {'x-language': language, "cookie": cookie}, req.headers);
-            argArray[1] = Object.assign(init, {
-                credentials: "include",
-                headers: combinedHeaders
-            })
-
-            return Reflect.apply(target, thisArg, argArray)
-        }
-    })
-
     const resolved = resolveRoute(path, search, routes);
 
-    resolveComponentList(resolved, path, search, host)
+    resolveComponentList(resolved, path, search, host, cookie, language)
         .then((components) => {
             if (components) {
-                sendToClient(path, search, res, components, language, cookie, theme)
+                sendToClient(path, search, res, components, language, cookie)
             } else {
                 res.status(404).send('Not found');
             }

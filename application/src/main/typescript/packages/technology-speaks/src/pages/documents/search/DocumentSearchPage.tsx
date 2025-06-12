@@ -67,22 +67,23 @@ function DocumentSearchPage(properties: SearchPageMobile.Attributes) {
                             <List.Item>
                                 {
                                     ({row}: { row: Document }) => (
-                                        <div className={"selected"}
-                                             onClick={() => navigate(`/documents/document/${row.id}`)}>
-                                            <div style={{
-                                                display: "flex",
-                                                alignItems: "baseline",
-                                                justifyContent: "space-between",
-                                                gap: "12px"
-                                            }}>
-                                                <div style={{display: "flex", alignItems: "baseline", gap: "12px"}}>
-                                                    <h2 style={{color: "var(--color-selected)"}}>{row.title}</h2>
-                                                    <small>{row.score}</small>
+                                        <a href={row.$links["read"].url}>
+                                            <div className={"selected"}>
+                                                <div style={{
+                                                    display: "flex",
+                                                    alignItems: "baseline",
+                                                    justifyContent: "space-between",
+                                                    gap: "12px"
+                                                }}>
+                                                    <div style={{display: "flex", alignItems: "baseline", gap: "12px"}}>
+                                                        <h2 style={{color: "var(--color-selected)"}}>{row.title}</h2>
+                                                        <small>{row.score}</small>
+                                                    </div>
+                                                    <small>{row.user.nickName}: {format(row.created, "dd.MM.yyyy HH:mm")}</small>
                                                 </div>
-                                                <small>{row.user.nickName}: {format(row.created, "dd.MM.yyyy HH:mm")}</small>
+                                                <p>{row.description}</p>
                                             </div>
-                                            <p>{row.description}</p>
-                                        </div>
+                                        </a>
                                     )
                                 }
                             </List.Item>

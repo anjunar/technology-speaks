@@ -16,6 +16,8 @@ export async function resolveComponentList(
     path: string,
     search: string,
     host: string,
+    cookie: Record<string, string>,
+    language : string,
     findFirst = false
 ): Promise<[Route, React.ReactElement][]> {
     if (route === null) {
@@ -28,7 +30,7 @@ export async function resolveComponentList(
         const loaderEntries = Object.entries(route.loader);
         const loaded = await Promise.all(
             loaderEntries.map(([_, fn]) =>
-                fn(host + path, pathParams, queryParams)
+                fn(language, cookie, host + path, pathParams, queryParams)
             )
         );
         loaderEntries.forEach(([key], i) => {
@@ -39,7 +41,7 @@ export async function resolveComponentList(
     const element = React.createElement(component as FunctionComponent<any>, props);
 
     const childElements = !findFirst && route.children
-        ? await resolveComponentList(resolveRoute(path, search, route.children), path, search, host, findFirst)
+        ? await resolveComponentList(resolveRoute(path, search, route.children), path, search, host, cookie, language, findFirst)
         : [];
     return [[route, element], ...childElements];
 }
@@ -117,12 +119,10 @@ function Router(properties: Router.Attributes) {
         search,
         routes,
         windows,
-        darkMode,
         data,
         host,
         language,
-        cookies,
-        theme,
+        cookie,
     } = useContext(SystemContext)
 
     const hydrated = useHydrated()
@@ -149,7 +149,7 @@ function Router(properties: Router.Attributes) {
                 return;
             }
 
-            const [components] = await resolveComponentList([route, queryParams, pathParams, component], path, search, host, true);
+            const [components] = await resolveComponentList([route, queryParams, pathParams, component], path, search, host,  cookie, language, true);
             const [_, element] = components
             setState(element);
             setChildRoutes(route.children);
@@ -190,7 +190,7 @@ function Router(properties: Router.Attributes) {
     }, [])
 
     function getContextHolder() {
-        return new SystemContextHolder(depth + 1, path, search, host, cookies, childRoutes, windows, darkMode, data, language, theme)
+        return new SystemContextHolder(depth + 1, path, search, host, cookie, childRoutes, windows, data, language)
     }
 
     return (
@@ -229,7 +229,7 @@ namespace Router {
     }
 
     export interface Loader {
-        [key: string]: (path: string, pathParams: PathParams, queryParams: QueryParams) => Promise<any>
+        [key: string]: (language : string, cookie : Record<string, string>, path: string, pathParams: PathParams, queryParams: QueryParams) => Promise<any>
     }
 
     export interface Route {

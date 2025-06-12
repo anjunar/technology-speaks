@@ -35,8 +35,8 @@ function LogoutPage(properties: LogoutPage.Attributes) {
 
     return (
         <div className={"logout-page"} style={{display: "flex", justifyContent: "center", alignItems: "center", height: "100%"}}>
-            <SchemaForm value={domain} style={{width : "300px"}} onSubmit={onSubmit}>
-                <SchemaInput name={"displayName"}/>
+            <SchemaForm actionRel={"logout"} value={domain} style={{width : "300px"}} onSubmit={onSubmit}>
+                <SchemaInput name={"value"}/>
                 <Button name={"logout"}>Logout</Button>
             </SchemaForm>
         </div>

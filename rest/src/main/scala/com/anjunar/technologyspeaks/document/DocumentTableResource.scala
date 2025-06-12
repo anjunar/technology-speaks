@@ -17,6 +17,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.Tuple
 import jakarta.ws.rs.*
+import jakarta.ws.rs.core.{Context, HttpHeaders}
 
 import java.util
 import java.util.UUID
@@ -35,7 +36,7 @@ class DocumentTableResource extends SchemaBuilderContext {
 
   @Inject
   var jpaSearch: JPASearch = uninitialized
-
+  
   @GET
   @Path("search")
   @Produces(Array("application/json"))

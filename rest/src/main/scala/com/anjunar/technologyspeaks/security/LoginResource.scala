@@ -14,6 +14,7 @@ import jakarta.security.enterprise.credential.UsernamePasswordCredential
 import jakarta.ws.rs.*
 import jakarta.ws.rs.core.*
 
+import java.net.URI
 import scala.compiletime.uninitialized
 
 @Path("/security")
@@ -29,6 +30,9 @@ class LoginResource extends Serializable with SchemaBuilderContext {
   var authenticator: Authenticator = uninitialized
 
   var assertionRequest: AssertionRequest = uninitialized
+
+  @Context
+  var httpHeaders: HttpHeaders = uninitialized
   
   @GET
   @Path("login")  
@@ -53,7 +57,7 @@ class LoginResource extends Serializable with SchemaBuilderContext {
   @Path("fallback")
   @LinkDescription(value = "Login", linkType = LinkType.FORM)
   @Consumes(Array(MediaType.APPLICATION_FORM_URLENCODED))  
-  def fallback(login : Login) : Response = {
+  def fallback(@BeanParam login : Login) : Response = {
     
     val credential = new UsernamePasswordCredential(login.username, login.password)
 
@@ -61,7 +65,9 @@ class LoginResource extends Serializable with SchemaBuilderContext {
 
     status match {
       case AuthenticationStatus.SUCCESS =>
-        Response.ok().build()
+        val host = httpHeaders.getHeaderString("x-forwarded-host")
+        val targetUri = URI.create("http://" + host)
+        Response.seeOther(targetUri).build()
       case _ =>
         Response.status(Response.Status.UNAUTHORIZED).build()
     }
