@@ -1,6 +1,6 @@
 package com.anjunar.scala.mapper.converters
 
-import com.anjunar.scala.mapper.Context
+import com.anjunar.scala.mapper.JsonContext
 import com.anjunar.scala.mapper.intermediate.model.{JsonNode, JsonString}
 import com.anjunar.scala.universe.members.ResolvedMethod
 import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
@@ -10,9 +10,9 @@ import java.util
 import java.util.{Arrays, Objects}
 import scala.language.existentials
 
-class EnumConverter extends AbstractConverter(TypeResolver.resolve(classOf[Enum[?]])) {
+class JsonEnumConverter extends JsonAbstractConverter(TypeResolver.resolve(classOf[Enum[?]])) {
 
-  override def toJson(instance: Any, aType: ResolvedClass, context: Context): JsonNode = {
+  override def toJson(instance: Any, aType: ResolvedClass, context: JsonContext): JsonNode = {
     val resolvedMember = aType
       .methods
       .find((member: ResolvedMethod) => Objects.nonNull(member.findDeclaredAnnotation(classOf[JsonValue])))
@@ -25,7 +25,7 @@ class EnumConverter extends AbstractConverter(TypeResolver.resolve(classOf[Enum[
 
   }
 
-  override def toJava(jsonNode: JsonNode, aType: ResolvedClass, context: Context): Any = {
+  override def toJava(jsonNode: JsonNode, aType: ResolvedClass, context: JsonContext): Any = {
     val resolvedMethod = aType
       .methods
       .find(member => Objects.nonNull(member.findDeclaredAnnotation(classOf[JsonCreator])))

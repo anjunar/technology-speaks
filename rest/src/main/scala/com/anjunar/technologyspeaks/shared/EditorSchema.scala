@@ -10,15 +10,12 @@ object EditorSchema {
       .property("id")
       .property("files", property => property
         .withWriteable(true)
-        .forType(classOf[File], (builder: EntitySchemaBuilder[File]) => builder
+        .forType(classOf[EditorFile], (builder: EntitySchemaBuilder[EditorFile]) => builder
           .property("id")
           .property("name", property => property
             .withWriteable(true)
           )
-          .property("type", property => property
-            .withWriteable(true)
-          )
-          .property("subType", property => property
+          .property("contentType", property => property
             .withWriteable(true)
           )
           .property("data", property => property

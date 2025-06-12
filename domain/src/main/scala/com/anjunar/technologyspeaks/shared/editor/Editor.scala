@@ -1,6 +1,7 @@
 package com.anjunar.technologyspeaks.shared.editor
 
 import com.anjunar.scala.mapper.annotations.{Converter, Descriptor}
+import com.anjunar.scala.mapper.file.File
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.fasterxml.jackson.annotation.JsonTypeInfo
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id
@@ -17,7 +18,7 @@ import scala.compiletime.uninitialized
 class Editor extends AbstractEntity {
 
   @Descriptor(title = "Files")
-  @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true)
+  @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, targetEntity = classOf[EditorFile])
   @BeanProperty
   val files : util.List[File] = new util.ArrayList[File]()
 

@@ -1,15 +1,15 @@
 package com.anjunar.scala.mapper.converters
 
-import com.anjunar.scala.mapper.Context
+import com.anjunar.scala.mapper.{JsonContext, UploadedFile}
 import com.anjunar.scala.mapper.intermediate.model.{JsonArray, JsonNode}
 import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
 
 import java.util
 import scala.jdk.CollectionConverters.*
 
-class ArrayConverter extends AbstractConverter(TypeResolver.resolve(classOf[util.Collection[?]])) {
+class JsonArrayConverter extends JsonAbstractConverter(TypeResolver.resolve(classOf[util.Collection[?]])) {
 
-  override def toJson(instance: Any, aType: ResolvedClass, context: Context): JsonNode = instance match
+  override def toJson(instance: Any, aType: ResolvedClass, context: JsonContext): JsonNode = instance match
     case collection: util.Collection[Any] =>
       JsonArray(
         collection.asScala.map(item => {
@@ -20,7 +20,7 @@ class ArrayConverter extends AbstractConverter(TypeResolver.resolve(classOf[util
       )
     case _ => throw new IllegalStateException("No Collection")
 
-  override def toJava(jsonNode: JsonNode, aType: ResolvedClass, context: Context): Any = jsonNode match
+  override def toJava(jsonNode: JsonNode, aType: ResolvedClass, context: JsonContext): Any = jsonNode match
     case array : JsonArray =>
 
       val collection: util.Collection[Any] = aType.raw match

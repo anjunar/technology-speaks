@@ -1,6 +1,6 @@
 package com.anjunar.scala.mapper.converters
 
-import com.anjunar.scala.mapper.Context
+import com.anjunar.scala.mapper.JsonContext
 import com.anjunar.scala.mapper.intermediate.model.{JsonNode, JsonObject}
 import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
 
@@ -8,9 +8,9 @@ import java.util
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.*
 
-class MapConverter extends AbstractConverter(TypeResolver.resolve(classOf[util.Map[Any, Any]])) {
+class JsonMapConverter extends JsonAbstractConverter(TypeResolver.resolve(classOf[util.Map[Any, Any]])) {
 
-  override def toJson(instance: Any, aType: ResolvedClass, context: Context): JsonNode = instance match
+  override def toJson(instance: Any, aType: ResolvedClass, context: JsonContext): JsonNode = instance match
     case map: util.Map[String, Any] =>
       JsonObject(
         mutable.LinkedHashMap.from(map
@@ -27,5 +27,5 @@ class MapConverter extends AbstractConverter(TypeResolver.resolve(classOf[util.M
     case _ => throw new IllegalStateException("No Collection")
 
 
-  override def toJava(jsonNode: JsonNode, aType: ResolvedClass, context: Context): Any = ???
+  override def toJava(jsonNode: JsonNode, aType: ResolvedClass, context: JsonContext): Any = ???
 }

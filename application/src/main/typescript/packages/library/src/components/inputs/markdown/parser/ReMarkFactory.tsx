@@ -10,9 +10,9 @@ import type {Element} from 'hast';
 import {Node} from 'unist';
 import EditorModel from "../model/EditorModel";
 
-export const encodeBase64 = (type: string, subType: string, data: string) => {
+export const encodeBase64 = (type: string, data: string) => {
     if (data) {
-        return `data:${type}/${subType};base64,${data}`
+        return `data:${type};base64,${data}`
     }
     return null
 }
@@ -26,7 +26,7 @@ export function createImagePlugin(model: EditorModel): Plugin {
                 const file = model.files.find(f => f.name === href);
 
                 if (file) {
-                    node.properties.src = encodeBase64(file.type, file.subType, file.data);
+                    node.properties.src = encodeBase64(file.contentType, file.data);
                     node.properties.style = 'width: 100%';
                 }
             }

@@ -1,12 +1,13 @@
 package com.anjunar.technologyspeaks.document
 
 import com.anjunar.scala.mapper.annotations.Descriptor
+import com.anjunar.scala.mapper.file.{File, FileContext}
 import com.anjunar.technologyspeaks.control.User
 import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.SecurityUser
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import com.anjunar.technologyspeaks.shared.editor.{ASTDiffUtil, Change, Editor}
+import com.anjunar.technologyspeaks.shared.editor.{ASTDiffUtil, Change, Editor, EditorFile}
 import com.anjunar.technologyspeaks.shared.hashtag.HashTag
 import com.github.gumtreediff.actions.{ChawatheScriptGenerator, EditScriptGenerator, InsertDeleteChawatheScriptGenerator}
 import com.github.gumtreediff.matchers.Matchers
@@ -24,7 +25,7 @@ import scala.jdk.CollectionConverters.*
 
 @Entity
 @Audited
-class Document extends AbstractEntity with OwnerProvider {
+class Document extends AbstractEntity with OwnerProvider with FileContext {
 
   @Size(min = 3, max = 80)
   @Descriptor(title = "Title")
@@ -62,6 +63,10 @@ class Document extends AbstractEntity with OwnerProvider {
   @Descriptor(title = "Language")
   @BeanProperty
   var language : Locale = uninitialized
+  
+  def files : util.List[File] = editor.files
+  
+  def create : File = new EditorFile
 
   override def owner: SecurityUser = user
   

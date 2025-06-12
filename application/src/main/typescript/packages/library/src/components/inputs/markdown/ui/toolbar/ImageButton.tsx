@@ -3,13 +3,12 @@ import {MarkDownContext} from "../../MarkDownEditor";
 import EditorFile from "../../model/EditorFile";
 
 function decodeBase64(result: string) {
-    let base64 = /data:(\w+)\/(\w+);base64,((?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}={2}))/g
+    let base64 = /data:(\w+);base64,((?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}={2}))/g
     let regexResult = base64.exec(result)
     if (regexResult) {
-        let type = regexResult[1]
-        let subType = regexResult[2]
+        let contentType = regexResult[1]
         let data = regexResult[3]
-        return {type, subType, data}
+        return {contentType, data}
     }
     throw new Error("Cannot decode to Base64")
 }
@@ -39,12 +38,11 @@ function ImageButton(properties: ImageButton.Attributes) {
                 reader.onload = e => {
                     if (reader.result) {
 
-                        const {type, subType, data} = decodeBase64(reader.result as string)
+                        const {contentType, data} = decodeBase64(reader.result as string)
 
                         const markdownFile = new EditorFile()
                         markdownFile.name = file.name
-                        markdownFile.type = type
-                        markdownFile.subType = subType
+                        markdownFile.contentType = contentType
                         markdownFile.data = data
                         markdownFile.lastModified = file.lastModified
 

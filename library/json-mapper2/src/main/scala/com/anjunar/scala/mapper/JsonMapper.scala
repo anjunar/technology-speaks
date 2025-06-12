@@ -10,19 +10,19 @@ import com.anjunar.scala.universe.ResolvedClass
 
 class JsonMapper {
 
-  val registry = new ConverterRegistry
+  val registry = new JsonConverterRegistry
 
   def toJsonObjectForJson(jsonObject: JsonObject): String = {
     JsonGenerator.generate(jsonObject)
   }
 
-  def toJson(entity: AnyRef, aType: ResolvedClass, context: Context): JsonObject = {
+  def toJson(entity: AnyRef, aType: ResolvedClass, context: JsonContext): JsonObject = {
     val converter = registry.find(aType)
     val jsonObject = converter.toJson(entity, aType, context).asInstanceOf[JsonObject]
     jsonObject
   }
 
-  def toJava(jsonNode: JsonNode, aType : ResolvedClass, context: Context): AnyRef = {
+  def toJava(jsonNode: JsonNode, aType : ResolvedClass, context: JsonContext): AnyRef = {
     val converter = registry.find(aType)
     converter.toJava(jsonNode, aType, context).asInstanceOf[AnyRef]
   }

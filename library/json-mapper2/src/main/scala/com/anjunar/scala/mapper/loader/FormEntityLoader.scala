@@ -5,8 +5,8 @@ import com.anjunar.scala.universe.ResolvedClass
 
 import java.lang.annotation.Annotation
 
-trait EntityLoader {
+trait FormEntityLoader {
 
-  def load(jsonObject: JsonObject, aType: ResolvedClass, annotations: Array[Annotation]): AnyRef
+  def load(fields: Map[String, List[String]], aType: ResolvedClass, annotations: Array[Annotation]): AnyRef
 
 }

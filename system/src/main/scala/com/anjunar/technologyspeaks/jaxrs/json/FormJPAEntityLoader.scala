@@ -2,7 +2,7 @@ package com.anjunar.technologyspeaks.jaxrs.json
 
 import com.anjunar.scala.mapper.annotations.DoNotLoad
 import com.anjunar.scala.mapper.intermediate.model.JsonObject
-import com.anjunar.scala.mapper.loader.EntityLoader
+import com.anjunar.scala.mapper.loader.{FormEntityLoader, JsonEntityLoader}
 import com.anjunar.scala.universe.ResolvedClass
 import com.fasterxml.jackson.annotation.JsonSubTypes
 import jakarta.enterprise.context.ApplicationScoped
@@ -14,20 +14,19 @@ import java.util.UUID
 import scala.compiletime.uninitialized
 
 @ApplicationScoped
-class JPAEntityLoader extends EntityLoader {
+class FormJPAEntityLoader extends FormEntityLoader {
 
   @Inject
   var entityManager : EntityManager = uninitialized
 
-  override def load(jsonObject: JsonObject, aType: ResolvedClass, annotations : Array[Annotation]): AnyRef = {
-
+  override def load(fields: Map[String, List[String]], aType: ResolvedClass, annotations: Array[Annotation]): AnyRef = {
     val doNotLoad = annotations.find(annotation => annotation.annotationType() == classOf[DoNotLoad])
 
-    val option = jsonObject.value.get("id")
+    val option = fields("id").headOption
 
     var entity: AnyRef = if (option.isDefined && doNotLoad.isEmpty) {
       val entityClass = aType.raw.asInstanceOf[Class[AnyRef]]
-      val uuid = UUID.fromString(option.get.value.toString)
+      val uuid = UUID.fromString(option.get)
       entityManager.find(entityClass, uuid)
     } else {
       null
@@ -38,8 +37,8 @@ class JPAEntityLoader extends EntityLoader {
       if (jsonSubTypes == null) {
         entity = aType.findConstructor().newInstance().asInstanceOf[AnyRef]
       } else {
-        val jsonType = jsonObject.value("$type")
-        val maybeType = jsonSubTypes.value().find(subType => subType.value().getSimpleName == jsonType.value.toString)
+        val jsonType = fields("$type").head
+        val maybeType = jsonSubTypes.value().find(subType => subType.value().getSimpleName == jsonType)
         if (maybeType.isDefined) {
           entity = maybeType.get.value().getConstructor().newInstance().asInstanceOf[AnyRef]
         } else {
