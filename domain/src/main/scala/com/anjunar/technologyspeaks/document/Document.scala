@@ -33,6 +33,7 @@ class Document extends AbstractEntity with OwnerProvider with FileContext {
   var title: String = uninitialized
 
   @Lob
+  @Column(columnDefinition = "text")
   @Descriptor(title = "Description")
   @NotAudited
   @BeanProperty

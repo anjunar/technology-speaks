@@ -60,9 +60,11 @@ function LoginPage(properties: LoginPage.Attributes) {
                     </JsFlag>
                     <div style={{display : "flex", justifyContent : "flex-end"}}>
                         <JsFlag showWhenJs={true}>
-                            <Button name={"login"}>WebAuthn</Button>
+                            <Button name={"login"}>Login</Button>
                         </JsFlag>
-                        <Button name={"fallback"}>Login</Button>
+                        <JsFlag showWhenJs={false}>
+                            <Button name={"fallback"}>Login</Button>
+                        </JsFlag>
                     </div>
                 </SchemaForm>
             </div>

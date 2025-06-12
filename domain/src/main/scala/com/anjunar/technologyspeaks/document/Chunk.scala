@@ -26,6 +26,7 @@ class Chunk extends AbstractEntity {
   @Descriptor(title = "Content")
   @Lob
   @BeanProperty
+  @Column(columnDefinition = "text")
   var content : String = uninitialized
 
   @Transient
