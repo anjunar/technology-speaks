@@ -4,7 +4,7 @@
              xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
     <persistence-unit name="main" transaction-type="JTA">
         <jta-data-source>java:jboss/datasources/technology-speaks</jta-data-source>
-        <validation-mode>NONE</validation-mode>
+<!--        <validation-mode>NONE</validation-mode>-->
         <properties>
             <property name="hibernate.query.literal_handling_mode" value="INLINE"/>
             <property name="hibernate.dialect" value="com.anjunar.technologyspeaks.configuration.Postgres16Dialect"/>

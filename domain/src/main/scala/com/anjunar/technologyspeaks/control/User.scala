@@ -2,25 +2,16 @@ package com.anjunar.technologyspeaks.control
 
 import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
-import com.anjunar.technologyspeaks.jpa
-import com.anjunar.technologyspeaks.jpa.{PostgresIndex, PostgresIndices, RepositoryContext, Save}
-import com.anjunar.technologyspeaks.openstreetmap.geocoding.GeoService
+import com.anjunar.technologyspeaks.jpa.{PostgresIndex, PostgresIndices, RepositoryContext}
 import com.anjunar.technologyspeaks.openstreetmap.geocoding2.MapBoxService
-import com.anjunar.technologyspeaks.security.{IdentityContext, SecurityRole, SecurityUser}
-import com.anjunar.technologyspeaks.shared.validators.Unique
+import com.anjunar.technologyspeaks.security.SecurityUser
 import com.anjunar.technologyspeaks.shared.property.EntityView
-import jakarta.enterprise.event.Observes
-import jakarta.enterprise.inject.spi.CDI
 import jakarta.persistence.*
 import jakarta.validation.constraints.*
-import org.hibernate.`type`.SqlTypes
-import org.hibernate.annotations.JdbcTypeCode
 
 import java.util
-import java.util.{HashSet, Objects, Set}
-import scala.beans.BeanProperty
+import java.util.Objects
 import scala.compiletime.uninitialized
-import org.hibernate.annotations
 
 
 @Entity
@@ -32,24 +23,25 @@ class User extends Identity with OwnerProvider with SecurityUser {
   @Size(min = 3, max = 80)
   @NotBlank
   @PropertyDescriptor(title = "Nickname", naming = true)
+  @Column(unique = true)
   @Basic
-  var nickName : String = uninitialized
+  var nickName: String = uninitialized
 
   @PropertyDescriptor(title = "Password")
   @Basic
-  var password : String = uninitialized
+  var password: String = uninitialized
 
   @OneToMany(cascade = Array(CascadeType.ALL), mappedBy = "user")
   @PropertyDescriptor(title = "Emails", widget = "form-array", writeable = true)
-  val emails : util.Set[EMail] = new util.HashSet[EMail]()
-  
+  val emails: util.Set[EMail] = new util.HashSet[EMail]()
+
   @OneToOne(cascade = Array(CascadeType.ALL), orphanRemoval = true)
   @PropertyDescriptor(title = "Info", naming = true)
   var info: UserInfo = uninitialized
 
   @OneToOne(cascade = Array(CascadeType.ALL), orphanRemoval = true)
   @PropertyDescriptor(title = "Address")
-  var address : Address = uninitialized
+  var address: Address = uninitialized
 
   @ManyToMany
   @Size(min = 1, max = 10)
@@ -59,7 +51,7 @@ class User extends Identity with OwnerProvider with SecurityUser {
   override def owner: User = this
 
   @PrePersist
-  @PreUpdate  
+  @PreUpdate
   def saveGeoPoint(): Unit = {
     if (Objects.nonNull(address)) {
       val response = MapBoxService.find(address.street, address.number, address.zipCode, address.country)
@@ -69,7 +61,7 @@ class User extends Identity with OwnerProvider with SecurityUser {
       address.point = point
     }
   }
-  
+
   override def toString = s"User($nickName)"
 }
 
@@ -79,24 +71,24 @@ object User extends RepositoryContext[User](classOf[User]) {
     val token = Credential.current()
     token.email.user
   }
-  
-  def findByEmail(email : String) : User = {
+
+  def findByEmail(email: String): User = {
     try
       User.query("select u from User u join u.emails e where e.value = :value")
         .setParameter("value", email)
         .getSingleResult
     catch
-      case e : NoResultException => null
+      case e: NoResultException => null
   }
 
   @Entity(name = "UserView")
   class View extends EntityView {
-    
+
     override def toString = s"View()"
   }
 
   object View extends RepositoryContext[View](classOf[View]) {
-    def findByUser(user : User) : View = {
+    def findByUser(user: User): View = {
       if (user.isPersistent) {
         try {
           User.View.query("select v from UserView v where v.user = :user")

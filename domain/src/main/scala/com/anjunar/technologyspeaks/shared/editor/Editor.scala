@@ -14,7 +14,7 @@ import scala.compiletime.uninitialized
 
 @Entity
 @Audited
-class Editor extends AbstractEntity with FileContext {
+class Editor extends AbstractEntity {
 
   @PropertyDescriptor(title = "Files")
   @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, targetEntity = classOf[EditorFile])
@@ -31,6 +31,7 @@ class Editor extends AbstractEntity with FileContext {
   @Column(columnDefinition = "text")
   @PropertyDescriptor(title = "Markdown")
   @FormParam("editor")
+  @Basic
   var markdown: String = uninitialized
 
   @Transient

@@ -4,22 +4,19 @@ import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.SecurityRole
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import com.anjunar.technologyspeaks.shared.validators.Unique
-import jakarta.persistence.{Basic, Entity, Table, UniqueConstraint}
+import jakarta.persistence.{Basic, Column, Entity}
 import jakarta.validation.constraints.{NotBlank, Size}
 
-import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
 
 @Entity
-@Table(name = "role", uniqueConstraints = Array(new UniqueConstraint(columnNames = Array("name"))))
-@Unique(message = "Rolle schon vorhanden", property = "name")
 class Role extends AbstractEntity with SecurityRole {
 
   @Size(min = 3, max = 80)
   @NotBlank
   @PropertyDescriptor(title = "Name", naming = true)
+  @Column(unique = true)
   @Basic
   var name: String = uninitialized
 
@@ -28,7 +25,7 @@ class Role extends AbstractEntity with SecurityRole {
   @PropertyDescriptor(title = "Description")
   @Basic
   var description: String = uninitialized
-  
+
   override def toString = s"Role($name, $description)"
 }
 
