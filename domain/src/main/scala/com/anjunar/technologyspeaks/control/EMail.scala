@@ -4,7 +4,7 @@ import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.anjunar.technologyspeaks.shared.validators.Unique
-import jakarta.persistence.{CascadeType, Column, Entity, ManyToOne, OneToMany, Table, UniqueConstraint}
+import jakarta.persistence.{Basic, CascadeType, Column, Entity, ManyToOne, OneToMany, Table, UniqueConstraint}
 import jakarta.validation.constraints.{Email, NotBlank}
 
 import scala.beans.BeanProperty
@@ -19,8 +19,10 @@ class EMail extends AbstractEntity {
   @NotBlank
   @PropertyDescriptor(title = "Email", naming = true, widget = "email")
   @Column(unique = true)
+  @Basic
   var value: String = uninitialized
 
+  @Basic
   var handle: Array[Byte] = uninitialized
 
   @ManyToOne(optional = false)

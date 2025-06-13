@@ -24,10 +24,12 @@ class UserInfo extends AbstractEntity {
 
   @Size(min = 3, max = 80)
   @PropertyDescriptor(title = "First Name", naming = true)
+  @Basic
   var firstName : String = uninitialized
   
   @Size(min = 3, max = 80)
   @PropertyDescriptor(title = "Last Name", naming = true)
+  @Basic
   var lastName : String = uninitialized
   
   @ManyToOne(cascade = Array(CascadeType.ALL))
@@ -36,6 +38,7 @@ class UserInfo extends AbstractEntity {
   
   @Past
   @PropertyDescriptor(title = "Birthdate")
+  @Basic
   var birthDate: LocalDate = uninitialized
   
   override def toString = s"UserInfo($firstName, $lastName, $birthDate)"

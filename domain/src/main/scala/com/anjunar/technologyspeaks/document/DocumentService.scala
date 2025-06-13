@@ -215,7 +215,6 @@ class DocumentService {
       .getResultStream
       .map(entity => {
         val chunk = entity.get(0, classOf[Chunk])
-        chunk.distance = entity.get(1, classOf[Double])
         chunk
       })
       .toList

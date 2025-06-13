@@ -3,7 +3,7 @@ package com.anjunar.technologyspeaks.document
 import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.{PostgresIndex, PostgresIndices}
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import jakarta.persistence.{Column, Entity, Lob, ManyToOne, Transient}
+import jakarta.persistence.{Basic, Column, Entity, Lob, ManyToOne, Transient}
 import org.hibernate.`type`.SqlTypes
 import org.hibernate.annotations.JdbcTypeCode
 
@@ -20,20 +20,19 @@ import org.hibernate.envers.Audited
 class Chunk extends AbstractEntity {
 
   @PropertyDescriptor(title = "Title")
+  @Basic
   var title : String = uninitialized
 
   @PropertyDescriptor(title = "Content")
   @Lob
   @Column(columnDefinition = "text")
+  @Basic
   var content : String = uninitialized
-
-  @Transient
-  @PropertyDescriptor(title = "Distance")
-  var distance: Double = uninitialized
 
   @Column
   @JdbcTypeCode(SqlTypes.VECTOR)
   @annotations.Array(length = 768)
+  @Basic
   var embedding: Array[Float] = uninitialized
 
   @ManyToOne(optional = false)

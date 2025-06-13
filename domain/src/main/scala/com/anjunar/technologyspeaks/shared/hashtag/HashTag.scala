@@ -3,7 +3,7 @@ package com.anjunar.technologyspeaks.shared.hashtag
 import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.{PostgresIndex, PostgresIndices}
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import jakarta.persistence.{Column, Entity}
+import jakarta.persistence.{Basic, Column, Entity}
 import org.hibernate.`type`.SqlTypes
 import org.hibernate.annotations.JdbcTypeCode
 
@@ -19,13 +19,15 @@ import org.hibernate.annotations
 ))
 class HashTag extends AbstractEntity {
 
+  @Basic
   @PropertyDescriptor(title = "HashTag", writeable = true, naming = true)
   var value : String = uninitialized
 
+  @Basic
   @PropertyDescriptor(title = "Description", writeable = true)
   var description : String = uninitialized
 
-  @Column
+  @Basic
   @JdbcTypeCode(SqlTypes.VECTOR)
   @annotations.Array(length = 768)
   var embedding: Array[Float] = uninitialized

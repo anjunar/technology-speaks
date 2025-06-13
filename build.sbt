@@ -43,6 +43,7 @@ lazy val system = (project in file("system"))
       "com.google.guava" % "guava" % "33.0.0-jre",
       "com.googlecode.java-diff-utils" % "diffutils" % "1.3.0",
       "com.pgvector" % "pgvector" % "0.1.6",
+      "com.vladsch.flexmark" % "flexmark-all" % "0.64.8",
       "com.yubico" % "webauthn-server-core" % "2.7.0",
       "commons-io" % "commons-io" % "2.16.0",
       "jakarta.platform" % "jakarta.jakartaee-api" % "10.0.0",

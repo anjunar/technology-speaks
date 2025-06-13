@@ -31,12 +31,14 @@ class Document extends AbstractEntity with OwnerProvider {
   @Size(min = 3, max = 80)
   @PropertyDescriptor(title = "Title")
   @FormParam("title")
+  @Basic
   var title: String = uninitialized
 
   @Lob
   @Column(columnDefinition = "text")
   @PropertyDescriptor(title = "Description")
   @NotAudited
+  @Basic
   var description: String = uninitialized
 
   @PropertyDescriptor(title = "User")
@@ -59,6 +61,7 @@ class Document extends AbstractEntity with OwnerProvider {
   val hashTags : util.Set[HashTag] = new util.HashSet[HashTag]()
   
   @PropertyDescriptor(title = "Language")
+  @Basic
   var language : Locale = uninitialized
   
   override def owner: SecurityUser = user

@@ -32,9 +32,11 @@ class User extends Identity with OwnerProvider with SecurityUser {
   @Size(min = 3, max = 80)
   @NotBlank
   @PropertyDescriptor(title = "Nickname", naming = true)
+  @Basic
   var nickName : String = uninitialized
 
   @PropertyDescriptor(title = "Password")
+  @Basic
   var password : String = uninitialized
 
   @OneToMany(cascade = Array(CascadeType.ALL), mappedBy = "user")
@@ -54,10 +56,6 @@ class User extends Identity with OwnerProvider with SecurityUser {
   @PropertyDescriptor(title = "Roles")
   val roles: util.Set[Role] = new util.HashSet[Role]
 
-  @Transient
-  @PropertyDescriptor(title = "Score")
-  var score: Double = uninitialized
-
   override def owner: User = this
 
   @PrePersist
@@ -72,7 +70,7 @@ class User extends Identity with OwnerProvider with SecurityUser {
     }
   }
   
-  override def toString = s"User($nickName, $score)"
+  override def toString = s"User($nickName)"
 }
 
 object User extends RepositoryContext[User](classOf[User]) {

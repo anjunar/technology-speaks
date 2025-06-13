@@ -3,7 +3,7 @@ package com.anjunar.technologyspeaks.control
 import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.yubico.webauthn.data.ByteArray
-import jakarta.persistence.{Entity, NoResultException}
+import jakarta.persistence.{Basic, Entity, NoResultException}
 
 import java.security.SecureRandom
 import java.util
@@ -15,17 +15,23 @@ import scala.compiletime.uninitialized
 @Entity
 class CredentialWebAuthn extends Credential {
 
+  @Basic
   @PropertyDescriptor(title = "Device Name", widget = "text")
   var displayName: String = uninitialized
 
+  @Basic
   var credentialId: Array[Byte] = uninitialized
 
+  @Basic
   var publicKeyCose: Array[Byte] = uninitialized
 
+  @Basic
   var signCount: lang.Long = uninitialized
 
+  @Basic
   var transports: String = uninitialized
 
+  @Basic
   var oneTimeToken: String = uninitialized
 
   def generateOneTimeToken(): Unit = {

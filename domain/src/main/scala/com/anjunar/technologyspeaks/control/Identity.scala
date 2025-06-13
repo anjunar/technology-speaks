@@ -14,9 +14,11 @@ import scala.beans.BeanProperty
 class Identity extends AbstractEntity {
 
   @PropertyDescriptor(title = "Active")
+  @Basic
   var enabled: Boolean = false
 
   @PropertyDescriptor(title = "Deleted")
+  @Basic
   var deleted : Boolean = false
 
 }

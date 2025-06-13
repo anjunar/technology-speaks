@@ -16,6 +16,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.persistence.{EntityManager, TupleElement}
 import jakarta.persistence.criteria.*
+import jakarta.persistence.Tuple
 import jakarta.ws.rs.{Path, *}
 
 import java.net.SocketTimeoutException
@@ -56,20 +57,10 @@ class UserTableResource extends SchemaBuilderContext {
   @JsonSchema(classOf[UserTableSchema])
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Users", linkType = LinkType.TABLE)
-  def list(@BeanParam search: UserSearch): Table[User] = {
+  def list(@BeanParam search: UserSearch): Table[Tuple] = {
     val context = jpaSearch.searchContext(search)
-    val tuples = jpaSearch.entities(search.index, search.limit, classOf[User], context)
-    val entities = tuples.stream().map(tuple => {
-      var user : User = null
-      var score = 0.0
-      tuple.getElements.forEach({
-        case tupleElement : TupleElement[?] if tupleElement.getJavaType == classOf[User] => user = tuple.get(0, classOf[User])
-        case tupleElement : TupleElement[?] if tupleElement.getAlias == "score" => score = tuple.get(1, classOf[Double])
-      })
+    val entities = jpaSearch.entities(search.index, search.limit, classOf[User], context)
 
-      user.score = score
-      user
-    }).toList
     val count = jpaSearch.count(classOf[User], context)
 
     forLinks(classOf[Table[User]], (instance, link) => {
@@ -77,13 +68,14 @@ class UserTableResource extends SchemaBuilderContext {
         .build(link.addLink)
     })
 
-    entities.forEach(entity => {
+    entities.forEach(tuple => {
+      val entity = tuple.get(0, classOf[User])
       forLinks(entity, classOf[User], (row, link) => {
         linkTo(methodOn(classOf[UserFormResource]).read(row.id))
           .build(link.addLink)
       })
     })
 
-    new Table[User](entities, count)
+    new Table[Tuple](entities, count)
   }
 }

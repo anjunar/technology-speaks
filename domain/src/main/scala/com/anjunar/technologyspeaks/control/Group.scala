@@ -4,7 +4,7 @@ import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.SecurityUser
-import jakarta.persistence.{Entity, ManyToMany, ManyToOne, Table}
+import jakarta.persistence.{Basic, Entity, ManyToMany, ManyToOne, Table}
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import jakarta.validation.constraints.{NotEmpty, Size}
 
@@ -16,13 +16,16 @@ import java.util
 @Table(name = "groups")
 class Group extends AbstractEntity with OwnerProvider {
 
+
   @Size(min = 3, max = 80)
   @NotEmpty
   @PropertyDescriptor(title = "Name", naming = true)
+  @Basic
   var name : String = uninitialized
 
   @Size(min = 0, max = 80)
   @PropertyDescriptor(title = "Description")
+  @Basic
   var description : String = uninitialized
 
   @ManyToOne(optional = false)

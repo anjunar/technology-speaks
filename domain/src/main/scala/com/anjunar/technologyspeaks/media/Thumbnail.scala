@@ -14,16 +14,16 @@ import scala.compiletime.uninitialized
 class Thumbnail extends AbstractEntity {
 
   @PropertyDescriptor(title = "Name", naming = true)
+  @Basic
   var name: String = uninitialized
 
-  @PropertyDescriptor(title = "Type")
-  var `type`: String = uninitialized
-
-  @PropertyDescriptor(title = "Subtype")
-  var subType: String = uninitialized
+  @PropertyDescriptor(title = "Content Type")
+  @Basic
+  var contentType: String = uninitialized
 
   @Lob
   @PropertyDescriptor(title = "Data")
+  @Basic
   var data: Array[Byte] = uninitialized
 
 }

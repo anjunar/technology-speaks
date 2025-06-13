@@ -3,7 +3,7 @@ package com.anjunar.technologyspeaks.shared.i18n
 import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.{Pair, RepositoryContext}
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import jakarta.persistence.{Column, Entity}
+import jakarta.persistence.{Basic, Column, Entity}
 import org.hibernate.annotations.Type
 
 import java.util
@@ -15,6 +15,7 @@ import scala.compiletime.uninitialized
 class I18n extends AbstractEntity {
 
   @PropertyDescriptor(title = "Text", writeable = true, naming = true)
+  @Basic
   var text: String = uninitialized
 
   @PropertyDescriptor(title = "Translations", writeable = true)

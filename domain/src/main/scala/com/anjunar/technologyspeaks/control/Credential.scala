@@ -26,7 +26,7 @@ class Credential extends AbstractEntity with SecurityCredential with OwnerProvid
   val roles: util.Set[Role] = new util.HashSet[Role]
 
   @ManyToOne
-  @BeanProperty  
+  @PropertyDescriptor(title = "Emails")
   var email : EMail = uninitialized
 
   override def hasRole(name: String): Boolean = roles.stream.anyMatch((role: Role) => role.name == name)

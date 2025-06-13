@@ -5,7 +5,7 @@ import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.SecurityRole
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.anjunar.technologyspeaks.shared.validators.Unique
-import jakarta.persistence.{Entity, Table, UniqueConstraint}
+import jakarta.persistence.{Basic, Entity, Table, UniqueConstraint}
 import jakarta.validation.constraints.{NotBlank, Size}
 
 import scala.beans.BeanProperty
@@ -20,11 +20,13 @@ class Role extends AbstractEntity with SecurityRole {
   @Size(min = 3, max = 80)
   @NotBlank
   @PropertyDescriptor(title = "Name", naming = true)
+  @Basic
   var name: String = uninitialized
 
   @Size(min = 3, max = 80)
   @NotBlank
   @PropertyDescriptor(title = "Description")
+  @Basic
   var description: String = uninitialized
   
   override def toString = s"Role($name, $description)"

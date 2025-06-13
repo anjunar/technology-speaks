@@ -36,7 +36,7 @@ class DocumentTableResource extends SchemaBuilderContext {
 
   @Inject
   var jpaSearch: JPASearch = uninitialized
-  
+
   @GET
   @Path("search")
   @Produces(Array("application/json"))

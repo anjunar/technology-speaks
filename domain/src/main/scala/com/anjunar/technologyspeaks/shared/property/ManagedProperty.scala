@@ -6,7 +6,7 @@ import com.anjunar.technologyspeaks.jaxrs.types.OwnerProvider
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.security.SecurityUser
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import jakarta.persistence.{Column, Entity, ManyToMany, ManyToOne}
+import jakarta.persistence.{Basic, Column, Entity, ManyToMany, ManyToOne}
 import jakarta.validation.constraints.Size
 
 import java.util
@@ -22,10 +22,12 @@ class ManagedProperty extends AbstractEntity with OwnerProvider {
 
   @Size(min = 1, max = 80)
   @Column(nullable = false)
+  @Basic
   var value : String = uninitialized
 
   @Column(nullable = false)
   @PropertyDescriptor(title = "Visible for all")
+  @Basic
   var visibleForAll : Boolean = false
 
   @ManyToMany
