@@ -5,10 +5,7 @@ import {
     resolveComponentList, resolveRoute,
 } from "react-ui-simplicity";
 import {routes} from "./routes";
-import Cookies from "js-cookie";
-
-const initialPath = window.location.pathname
-const initialSearch = window.location.search
+import {RequestInformation} from "./request";
 
 function resolvePreferredLanguage(header: string): string {
     if (!header) return "en";
@@ -34,19 +31,24 @@ function parseCookieString(cookieString) {
         }, {});
 }
 
-async function main() {
-    const resolved = resolveRoute(initialPath, initialSearch, routes);
+const info : RequestInformation = {
+    protocol : window.location.protocol,
+    path : window.location.pathname,
+    search : window.location.search,
+    cookie : parseCookieString(document.cookie) || {},
+    host : window.location.origin,
+    language : resolvePreferredLanguage(window.navigator.language)
+}
 
-    const components = await resolveComponentList(resolved, initialPath, initialSearch, window.location.origin, parseCookieString(document.cookie), window.navigator.language)
+
+async function main() {
+    const resolved = resolveRoute(info, routes);
+
+    const components = await resolveComponentList(resolved, info)
 
     hydrateRoot(document.getElementById('root'), (
-        <App
-            path={initialPath}
-            search={initialSearch}
-            data={components}
-            host={window.location.origin}
-            cookies={parseCookieString(document.cookie) || {}}
-            language={window.navigator.language.split("-")[0] || "en"}
+        <App info={info}
+             data={components}
         />
     ),  {
         onUncaughtError: (error, errorInfo) => {

@@ -1,12 +1,12 @@
 import "./SchemaForm.css"
-import React, {createContext, CSSProperties, useMemo} from "react"
+import React, {createContext, CSSProperties, useContext, useMemo} from "react"
 import Form from "../../inputs/form/Form"
 import {AsyncValidator, Error, FormModel, Validator} from "../../shared/Model";
 import LinkContainerObject from "../../../domain/container/LinkContainerObject";
 import NodeDescriptor from "../../../domain/descriptors/NodeDescriptor";
 import Validable from "../../../domain/descriptors/Validable";
-import {ObjectDescriptor} from "../../../domain/descriptors";
 import {ActiveObject} from "../../../domain/container";
+import {SystemContext} from "../../../System";
 
 export const SchemaFormContext = createContext<(name: string) => NodeDescriptor & Validable>(null)
 
@@ -22,8 +22,11 @@ function SchemaForm(properties: SchemaForm.Attributes) {
         links,
         actionRel = "submit",
         enctype,
+        redirect,
         ...rest
     } = properties
+
+    const {info} = useContext(SystemContext);
 
     const node = useMemo(() => {
         return (name: string) => {
@@ -72,6 +75,13 @@ function SchemaForm(properties: SchemaForm.Attributes) {
 
     let link = Object.values(value.$links || {}).find(link => link.rel === actionRel);
 
+    function getRedirect() {
+        if (redirect) {
+            return `?redirect=${encodeURIComponent(redirect)}`;
+        }
+        return info.search
+    }
+
     return (
         <SchemaFormContext.Provider value={node}>
             <Form
@@ -81,7 +91,7 @@ function SchemaForm(properties: SchemaForm.Attributes) {
                 onErrors={onErrors}
                 validators={validators}
                 asyncValidators={asyncValidators}
-                action={link?.method === "GET" ? link?.url : "/service" + link?.url}
+                action={link?.method === "GET" ? link?.url + getRedirect() : "/service" + link?.url + getRedirect()}
                 method={link?.method}
                 enctype={enctype}
                 {...rest}
@@ -105,6 +115,7 @@ namespace SchemaForm {
         className?: string
         actionRel? : string
         enctype? : string
+        redirect? : string
     }
 }
 

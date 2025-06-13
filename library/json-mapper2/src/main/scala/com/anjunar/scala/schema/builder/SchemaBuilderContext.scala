@@ -1,7 +1,7 @@
 package com.anjunar.scala.schema.builder
 
 import jakarta.inject.Inject
-import jakarta.ws.rs.core.{Context, HttpHeaders, Response}
+import jakarta.ws.rs.core.{Context, HttpHeaders, Response, UriInfo}
 
 import java.net.URI
 import scala.compiletime.uninitialized
@@ -14,10 +14,14 @@ trait SchemaBuilderContext {
   @Context
   var httpHeaders: HttpHeaders = uninitialized
 
-  def createRedirectResponse = {
+  @Context
+  var uriInfo : UriInfo = uninitialized
+
+  def createRedirectResponse: Response = {
     val protocol = httpHeaders.getHeaderString("x-forwarded-protocol")
     val host = httpHeaders.getHeaderString("x-forwarded-host")
-    val targetUri = URI.create(s"$protocol://$host")
+    val redirect = uriInfo.getQueryParameters(true).getFirst("redirect")
+    val targetUri = URI.create(s"$protocol://$host$redirect")
     Response.seeOther(targetUri).build()
   }
 

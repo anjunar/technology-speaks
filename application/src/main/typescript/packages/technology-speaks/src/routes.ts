@@ -18,11 +18,23 @@ import I18nTablePage from "./pages/shared/i18n/I18nTablePage";
 import I18nFormPage from "./pages/shared/i18n/I18nFormPage";
 import QueryParams = Router.QueryParams;
 import PathParams = Router.PathParams;
+import {RequestInformation} from "./request";
 
 export function process(response: Response, redirect : string) {
     if (response.status === 403) {
         throw new Router.RedirectError(`/security/login?redirect=${redirect}`)
     }
+}
+
+function getHeaders(info : RequestInformation) {
+    return {
+        cookie: `JSESSIONID=${info.cookie["JSESSIONID"]}`,
+        "accept-language": info.language
+    };
+}
+
+function getRedirect(info) {
+    return `${info.path}${info.search}`;
 }
 
 export const routes: Router.Route[] = [
@@ -31,12 +43,12 @@ export const routes: Router.Route[] = [
         subRouter: true,
         component: Root,
         loader: {
-            async application(language, cookie, path, pathParams, queryParams) {
+            async application(info, pathParams, queryParams) {
                 let response = await fetch("http://localhost:3000/service", {
-                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                    headers : getHeaders(info)
                 })
 
-                process(response, path)
+                process(response, getRedirect(info))
 
                 if (response.ok) {
                     return mapForm(await response.json(), false)
@@ -50,12 +62,12 @@ export const routes: Router.Route[] = [
                 path: "/",
                 component: HomePage,
                 loader: {
-                    async search(language, cookie, path, pathParams, queryParams) {
+                    async search(info, pathParams, queryParams) {
                         let response = await fetch("http://localhost:3000/service/documents/search", {
-                            headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                            headers : getHeaders(info)
                         })
 
-                        process(response, path)
+                        process(response, getRedirect(info))
 
                         if (response.ok) {
                             return mapForm(await response.json(), true)
@@ -72,7 +84,7 @@ export const routes: Router.Route[] = [
                         path: "/search",
                         component: DocumentSearchPage,
                         loader: {
-                            async table(language, cookie, path, pathParams : PathParams, queryParams : QueryParams) {
+                            async table(info, pathParams : PathParams, queryParams : QueryParams) {
                                 const urlBuilder = new URL("/service/documents", "http://localhost:3000")
                                 const searchParams = urlBuilder.searchParams;
 
@@ -85,10 +97,10 @@ export const routes: Router.Route[] = [
                                 }
 
                                 let response = await fetch(urlBuilder.toString(), {
-                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                    headers : getHeaders(info)
                                 })
 
-                                process(response, path)
+                                process(response, getRedirect(info))
 
                                 if (response.ok) {
                                     return mapTable(await response.json(), true)
@@ -96,12 +108,12 @@ export const routes: Router.Route[] = [
 
                                 throw new Error(response.status.toString())
                             },
-                            async search(language, cookie, path, pathParams, queryParams) {
+                            async search(info, pathParams, queryParams) {
                                 let response = await fetch(`http://localhost:3000/service/documents/search`, {
-                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                    headers : getHeaders(info)
                                 })
 
-                                process(response, path)
+                                process(response, getRedirect(info))
 
                                 if (response.ok) {
                                     let form = mapForm<DocumentSearch>(await response.json(), true);
@@ -117,12 +129,12 @@ export const routes: Router.Route[] = [
                         path: "/document",
                         component : DocumentFormPage,
                         loader: {
-                            async form(language, cookie, path, pathParams, queryParams) {
+                            async form(info, pathParams, queryParams) {
                                 let response = await fetch(`http://localhost:3000/service/documents/document`, {
-                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                    headers : getHeaders(info)
                                 })
 
-                                process(response, path)
+                                process(response, getRedirect(info))
 
                                 if (response.ok) {
                                     return mapForm(await response.json(), true)
@@ -142,12 +154,12 @@ export const routes: Router.Route[] = [
                             }
                         },
                         loader: {
-                            async form(language, cookie, path, pathParams, queryParams) {
+                            async form(info, pathParams, queryParams) {
                                 let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}?edit=${queryParams["edit"]}`, {
-                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                    headers : getHeaders(info)
                                 })
 
-                                process(response, path)
+                                process(response, getRedirect(info))
 
                                 if (response.ok) {
                                     return mapForm(await response.json(), true)
@@ -168,12 +180,12 @@ export const routes: Router.Route[] = [
                                         path: "/revision/:rev/view",
                                         component: DocumentViewPage,
                                         loader: {
-                                            async form(language, cookie, path, pathParams, queryParams) {
+                                            async form(info, pathParams, queryParams) {
                                                 let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/view`, {
-                                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                                    headers : getHeaders(info)
                                                 })
 
-                                                process(response, path)
+                                                process(response, getRedirect(info))
 
                                                 if (response.ok) {
                                                     return mapForm(await response.json(), true)
@@ -186,12 +198,12 @@ export const routes: Router.Route[] = [
                                         path: "/revision/:rev/compare",
                                         component: DocumentViewPage,
                                         loader: {
-                                            async form(language, cookie, path, pathParams, queryParams) {
+                                            async form(info, pathParams, queryParams) {
                                                 let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/compare`, {
-                                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                                    headers : getHeaders(info)
                                                 })
 
-                                                process(response, path)
+                                                process(response, getRedirect(info))
 
                                                 if (response.ok) {
                                                     return mapForm(await response.json(), true)
@@ -213,12 +225,12 @@ export const routes: Router.Route[] = [
                         path: "/login",
                         component: LoginPage,
                         loader: {
-                            async login(language, cookie, path, pathParams, queryParams) {
+                            async login(info, pathParams, queryParams) {
                                 let response = await fetch("http://localhost:3000/service/security/login", {
-                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                    headers : getHeaders(info)
                                 })
 
-                                process(response, path)
+                                process(response, getRedirect(info))
 
                                 if (response.ok) {
                                     return mapForm(await response.json(), true)
@@ -232,12 +244,12 @@ export const routes: Router.Route[] = [
                         path: "/register",
                         component: RegisterPage,
                         loader: {
-                            async register(language, cookie, path, pathParams, queryParams) {
+                            async register(info, pathParams, queryParams) {
                                 let response = await fetch("http://localhost:3000/service/security/register", {
-                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                    headers : getHeaders(info)
                                 })
 
-                                process(response, path)
+                                process(response, getRedirect(info))
 
                                 if (response.ok) {
                                     let activeObject: Login = mapForm(await response.json(), true);
@@ -257,12 +269,12 @@ export const routes: Router.Route[] = [
                         path: "/confirm",
                         component: ConfirmationPage,
                         loader: {
-                            async form(language, cookie, path, pathParams, queryParams) {
+                            async form(info, pathParams, queryParams) {
                                 let response = await fetch("http://localhost:3000/service/security/confirm", {
-                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                    headers : getHeaders(info)
                                 })
 
-                                process(response, path)
+                                process(response, getRedirect(info))
 
                                 if (response.ok) {
                                     return mapForm(await response.json(), true)
@@ -276,12 +288,12 @@ export const routes: Router.Route[] = [
                         path: "/logout",
                         component: LogoutPage,
                         loader: {
-                            async credential(language, cookie, path, pathParams, queryParams) {
+                            async credential(info, pathParams, queryParams) {
                                 let response = await fetch("http://localhost:3000/service/security/logout", {
-                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                    headers : getHeaders(info)
                                 })
 
-                                process(response, path)
+                                process(response, getRedirect(info))
 
                                 if (response.ok) {
                                     return mapForm(await response.json(), true)
@@ -303,12 +315,12 @@ export const routes: Router.Route[] = [
                                 path : "/search",
                                 component : I18nTablePage,
                                 loader : {
-                                    async table(language, cookie, path, pathParams : PathParams, queryParams : QueryParams) {
+                                    async table(info, pathParams : PathParams, queryParams : QueryParams) {
                                         let response = await fetch(`http://localhost:3000/service/shared/i18ns?index=${queryParams["index"] || 0}&limit=10`, {
-                                            headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                            headers : getHeaders(info)
                                         })
 
-                                        process(response, path)
+                                        process(response, getRedirect(info))
 
                                         if (response.ok) {
                                             return mapTable(await response.json(), true)
@@ -316,12 +328,12 @@ export const routes: Router.Route[] = [
 
                                         throw new Error(response.status.toString())
                                     },
-                                    async search(language, cookie, path, pathParams : PathParams, queryParams : QueryParams) {
+                                    async search(info, pathParams : PathParams, queryParams : QueryParams) {
                                         let response = await fetch(`http://localhost:3000/service/shared/i18ns/search`, {
-                                            headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                            headers : getHeaders(info)
                                         })
 
-                                        process(response, path)
+                                        process(response, getRedirect(info))
 
                                         if (response.ok) {
                                             return mapForm(await response.json(), true)
@@ -335,12 +347,12 @@ export const routes: Router.Route[] = [
                                 path : "/i18n/:id",
                                 component : I18nFormPage,
                                 loader : {
-                                    async form(language, cookie, path, pathParams : PathParams, queryParams : QueryParams) {
+                                    async form(info, pathParams : PathParams, queryParams : QueryParams) {
                                         let response = await fetch(`http://localhost:3000/service/shared/i18ns/i18n/${pathParams["id"]}`, {
-                                            headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                            headers : getHeaders(info)
                                         })
 
-                                        process(response, path)
+                                        process(response, getRedirect(info))
 
                                         if (response.ok) {
                                             return mapForm(await response.json(), true)
@@ -362,7 +374,7 @@ export const routes: Router.Route[] = [
                         path: "/form",
                         component: FormPage,
                         loader: {
-                            async form(language, cookie, path, query) {
+                            async form(info, query) {
                                 let element = query["link"]
 
                                 let link
@@ -373,10 +385,10 @@ export const routes: Router.Route[] = [
                                 }
 
                                 let response = await fetch("http://localhost:3000/service" + link, {
-                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                    headers : getHeaders(info)
                                 })
 
-                                process(response, path)
+                                process(response, getRedirect(info))
 
                                 if (response.ok) {
                                     return mapForm(await response.json(), true)
@@ -391,7 +403,7 @@ export const routes: Router.Route[] = [
                         path: "/table",
                         component: TablePage,
                         loader: {
-                            async search(language, cookie, path, query) {
+                            async search(info, query) {
                                 let element = query["link"]
 
                                 let link
@@ -402,10 +414,10 @@ export const routes: Router.Route[] = [
                                 }
 
                                 let response = await fetch("http://localhost:3000/service" + link, {
-                                    headers : {cookie : `JSESSIONID=${cookie["JSESSIONID"]}`, "accept-language" : language}
+                                    headers : getHeaders(info)
                                 })
 
-                                process(response, path)
+                                process(response, getRedirect(info))
 
                                 if (response.ok) {
                                     return mapForm(await response.json(), true)

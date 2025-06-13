@@ -94,7 +94,9 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
                     </Window>
                 ), document.getElementById("viewport"))
             }
-            <SchemaForm value={domain} onSubmit={onSubmit} enctype={"multipart/form-data"}
+            <SchemaForm value={domain} onSubmit={onSubmit}
+                        enctype={"multipart/form-data"}
+                        redirect={"/documents/search?index=0&limit=5"}
                         style={{display: "flex", flexDirection: "column"}}>
                 <SchemaInput name={"id"}/>
                 <SchemaInput name={"title"}/>

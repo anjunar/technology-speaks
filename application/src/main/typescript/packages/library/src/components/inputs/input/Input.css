@@ -40,7 +40,7 @@ input {
             color: var(--color-text);
         }
 
-        &.checked::before {
+        &:checked::before {
             content: 'check_box';
             color: var(--color-selected);
         }

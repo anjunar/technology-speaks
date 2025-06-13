@@ -10,6 +10,7 @@ import * as cheerio from 'cheerio';
 import * as path from "node:path";
 import * as fs from "node:fs";
 import {Router} from "react-ui-simplicity";
+import {RequestInformation} from "./src/request";
 
 function resolvePreferredLanguage(header: string): string {
     if (!header) return "en";
@@ -75,29 +76,25 @@ app.use(
         changeOrigin: true,
         on : {
             proxyReq: (proxyReq, req, res) => {
-                proxyReq.setHeader("x-forwarded-host", 'localhost:3000')
                 proxyReq.setHeader("x-forwarded-protocol", "http")
+                proxyReq.setHeader("x-forwarded-host", 'localhost:3000')
             }
         }
     })
 );
 
-function sendToClient(path: string, search: string, res: any, data: [Router.Route, React.ReactElement][], language: string, cookie: Record<string, string>) : void {
+function sendToClient(res: any, data: [Router.Route, React.ReactElement][], info : RequestInformation) : void {
 
     const appHtml = renderToString(
         <App
-            path={path}
-            search={search}
             data={data}
-            host={res.get('host')}
-            language={language}
-            cookies={cookie}
+            info={info}
         />
     );
 
     const $ = cheerio.load(rawHtmlTemplate);
     $('#root').html(appHtml);
-    $('html').attr("data-theme", cookie["theme"] || "light") ;
+    $('html').attr("data-theme", info.cookie["theme"] || "light") ;
     res.send($.html());
 }
 
@@ -124,21 +121,24 @@ app.get('*', (req, res) => {
     const path = req.path
     const search = "?" + ((req.url.split('?'))[1] || '');
     const host = req.get('host');
+    const protocol = req.protocol;
     const cookie = req.cookies as Record<string, string>
-    let drawer = req.cookies["drawer"];
+    const drawer = req.cookies["drawer"];
+    const language = resolvePreferredLanguage(req.headers['accept-language']);
+
+    const request : RequestInformation = {protocol, host, path, search, cookie, language};
 
     if (! drawer) {
         res.setHeader("Set-Cookie", "drawer=open; Path=/; Max-Age=31536000");
     }
 
-    const language = resolvePreferredLanguage(req.headers['accept-language']);
 
-    const resolved = resolveRoute(path, search, routes);
+    const resolved = resolveRoute(request, routes);
 
-    resolveComponentList(resolved, path, search, host, cookie, language)
+    resolveComponentList(resolved, request)
         .then((components) => {
             if (components) {
-                sendToClient(path, search, res, components, language, cookie)
+                sendToClient(res, components, request)
             } else {
                 res.status(404).send('Not found');
             }

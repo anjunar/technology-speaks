@@ -6,6 +6,7 @@ import {useHydrated} from "../../../hooks";
 import Route = Router.Route;
 import QueryParams = Router.QueryParams;
 import PathParams = Router.PathParams;
+import {RequestInformation} from "technology-speaks/src/request";
 
 const scrollAreaCache = new Map<string, number>()
 
@@ -13,11 +14,7 @@ const routeCache = new Map<string, React.ReactElement<any>>()
 
 export async function resolveComponentList(
     [route, queryParams, pathParams, component] : [Route, QueryParams, PathParams, FunctionComponent<any>],
-    path: string,
-    search: string,
-    host: string,
-    cookie: Record<string, string>,
-    language : string,
+    info : RequestInformation,
     findFirst = false
 ): Promise<[Route, React.ReactElement][]> {
     if (route === null) {
@@ -30,7 +27,7 @@ export async function resolveComponentList(
         const loaderEntries = Object.entries(route.loader);
         const loaded = await Promise.all(
             loaderEntries.map(([_, fn]) =>
-                fn(language, cookie, host + path, pathParams, queryParams)
+                fn(info, pathParams, queryParams)
             )
         );
         loaderEntries.forEach(([key], i) => {
@@ -41,28 +38,27 @@ export async function resolveComponentList(
     const element = React.createElement(component as FunctionComponent<any>, props);
 
     const childElements = !findFirst && route.children
-        ? await resolveComponentList(resolveRoute(path, search, route.children), path, search, host, cookie, language, findFirst)
+        ? await resolveComponentList(resolveRoute(info, route.children), info, findFirst)
         : [];
     return [[route, element], ...childElements];
 }
 
 export function resolveRoute(
-    path: string,
-    search: string,
+    info : RequestInformation,
     routes: Route[],
 ): [Route, QueryParams, PathParams, FunctionComponent<any>] {
-    const queryParams = resolveQueryParameters(search);
+    const queryParams = resolveQueryParameters(info.search);
 
     const flattened = flattenRoutes(routes);
 
     for (const [rawPath, route] of flattened) {
         let pathParams: PathParams;
 
-        if (route.subRouter && path.startsWith(rawPath)) {
+        if (route.subRouter && info.path.startsWith(rawPath)) {
             pathParams = {};
         } else {
             const matcher = match(rawPath, { decode: decodeURIComponent });
-            const matched = matcher(path);
+            const matched = matcher(info.path);
             if (!matched) continue;
             pathParams = matched.params as PathParams;
         }
@@ -115,14 +111,10 @@ function Router(properties: Router.Attributes) {
 
     const {
         depth,
-        path,
-        search,
         routes,
         windows,
         data,
-        host,
-        language,
-        cookie,
+        info
     } = useContext(SystemContext)
 
     const hydrated = useHydrated()
@@ -139,7 +131,7 @@ function Router(properties: Router.Attributes) {
         if (onRoute) onRoute(true);
 
         try {
-            const [route, queryParams, pathParams, component] = resolveRoute(path, search, routes);
+            const [route, queryParams, pathParams, component] = resolveRoute(info, routes);
 
             const key = JSON.stringify([route, queryParams, pathParams])
 
@@ -149,7 +141,7 @@ function Router(properties: Router.Attributes) {
                 return;
             }
 
-            const [components] = await resolveComponentList([route, queryParams, pathParams, component], path, search, host,  cookie, language, true);
+            const [components] = await resolveComponentList([route, queryParams, pathParams, component], info, true);
             const [_, element] = components
             setState(element);
             setChildRoutes(route.children);
@@ -168,7 +160,7 @@ function Router(properties: Router.Attributes) {
         if (hydrated) {
             processUrlChange()
         }
-    }, [path, search])
+    }, [info.path, info.search])
 
     useEffect(() => {
         let scrollTop = scrollAreaCache.get(window.location.href)
@@ -190,7 +182,7 @@ function Router(properties: Router.Attributes) {
     }, [])
 
     function getContextHolder() {
-        return new SystemContextHolder(depth + 1, path, search, host, cookie, childRoutes, windows, data, language)
+        return new SystemContextHolder(depth + 1, childRoutes, windows, data, info)
     }
 
     return (
@@ -229,7 +221,7 @@ namespace Router {
     }
 
     export interface Loader {
-        [key: string]: (language : string, cookie : Record<string, string>, path: string, pathParams: PathParams, queryParams: QueryParams) => Promise<any>
+        [key: string]: (info : RequestInformation, pathParams: PathParams, queryParams: QueryParams) => Promise<any>
     }
 
     export interface Route {

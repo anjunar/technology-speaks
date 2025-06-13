@@ -6,6 +6,7 @@ import Input from "./components/inputs/input/Input";
 import ToolBar from "./components/layout/toolbar/ToolBar";
 import Progress from "./components/indicators/progress/Progress";
 import Cookies from 'js-cookie';
+import {RequestInformation} from "technology-speaks/src/request";
 
 init()
 
@@ -21,14 +22,10 @@ export class WindowRef {
 export class SystemContextHolder {
 
     constructor(public depth : number = 0,
-                public path : string = "",
-                public search : string = "",
-                public host : string = "",
-                public cookie: Record<string, string> = {},
                 public routes: Router.Route[] = [],
                 public windows: [WindowRef[], Dispatch<SetStateAction<WindowRef[]>>] = null,
                 public data : [Router.Route, React.ReactElement][] = [],
-                public language : string = "en") {
+                public info : RequestInformation = null) {
     }
 
 }
@@ -37,13 +34,13 @@ export const SystemContext = createContext(new SystemContextHolder())
 
 function System(properties : System.Attributes) {
 
-    const {depth, path, search, routes, data, host, language, cookies} = properties
+    const {depth, routes, data, info} = properties
 
     const [loading, setLoading] = useState([])
 
     const [windows, setWindows] = useState<WindowRef[]>([])
 
-    const [darkMode, setDarkMode] = useState(cookies["theme"] === "dark")
+    const [darkMode, setDarkMode] = useState(info.cookie["theme"] === "dark")
 
     function onDarkModeClick(event : React.FormEvent<HTMLFormElement>) {
         event.preventDefault()
@@ -129,7 +126,7 @@ function System(properties : System.Attributes) {
 
     return (
         <div className={"system"}>
-            <SystemContext.Provider value={new SystemContextHolder(depth, path, search, host, cookies, routes, [windows, setWindows], data, language)}>
+            <SystemContext.Provider value={new SystemContextHolder(depth, routes, [windows, setWindows], data, info)}>
                 <div style={{position: "absolute", zIndex: 9999, top: 0, left: 0, height: "4px", width: "100%"}}>
                     {
                         loading.length > 0 && <Progress/>
@@ -150,8 +147,8 @@ function System(properties : System.Attributes) {
                     <div slot={"right"}>
                         <div style={{display : "flex", alignItems : "center", gap : "5px", justifyContent : "flex-end"}}>
                             <form action="/toggle-theme" method="POST" onSubmit={onDarkModeClick}>
-                                <input type="hidden" name="theme" value={cookies["theme"] === "dark" ? "light" : "dark"}/>
-                                <button type="submit" className={"material-icons"}>{cookies["theme"] === "dark" ? "light_mode" : "dark_mode"}</button>
+                                <input type="hidden" name="theme" value={info.cookie["theme"] === "dark" ? "light" : "dark"}/>
+                                <button type="submit" className={"material-icons"}>{info.cookie["theme"] === "dark" ? "light_mode" : "dark_mode"}</button>
                             </form>
                         </div>
                     </div>
@@ -163,15 +160,10 @@ function System(properties : System.Attributes) {
 
 namespace System {
     export interface Attributes {
-
         depth : number
-        search : string
-        path : string
-        cookies : Record<string, string>
         routes : Router.Route[]
-        host : string
         data : [Router.Route, React.ReactElement][]
-        language : string
+        info : RequestInformation
     }
 }
 

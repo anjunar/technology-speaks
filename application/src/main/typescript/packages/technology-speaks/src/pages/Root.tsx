@@ -19,11 +19,11 @@ function Root(properties: AppContent.Attributes) {
 
     const {application} = properties
 
-    const {cookie} = useContext(SystemContext)
+    const {info} = useContext(SystemContext)
 
     const mediaQuery = useMatchMedia("(max-width: 1440px)")
 
-    const [open, setOpen] = useState(cookie["drawer"] === "open")
+    const [open, setOpen] = useState(info.cookie["drawer"] === "open")
 
     const onLinkClick = () => {
         if (mediaQuery) {
@@ -47,7 +47,7 @@ function Root(properties: AppContent.Attributes) {
             <ToolBar>
                 <div slot="left">
                     <form action="/toggle-drawer" method="POST" onSubmit={onDrawerClick}>
-                        <input type="hidden" name="drawer" value={cookie["drawer"] === "open" ? "close" : "open"}/>
+                        <input type="hidden" name="drawer" value={info.cookie["drawer"] === "open" ? "close" : "open"}/>
                         <button type="submit" className={"material-icons"}>menu</button>
                     </form>
                 </div>

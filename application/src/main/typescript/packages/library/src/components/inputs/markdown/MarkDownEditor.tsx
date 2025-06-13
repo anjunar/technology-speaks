@@ -8,6 +8,7 @@ import {useInput} from "../../../hooks";
 import {Model} from "../../shared";
 import EditorModel from "./model/EditorModel";
 import EditorFile from "./model/EditorFile";
+import JsFlag from "../../layout/jsFlag/JsFlag";
 
 
 export const MarkDownContext = React.createContext<MarkDownEditor.Context>(null)
@@ -69,19 +70,24 @@ function MarkDownEditor(properties: MarkDownEditor.Attributes) {
 
     return (
         <div className={"markdown-editor"} style={style}>
-            <MarkDownContext.Provider value={{
-                model: state, textAreaRef, cursor, updateAST() {
-                    // setAstUpdate(!astUpdate)
-                }
-            }}>
-                <Toolbar page={page} onPage={value => setPage(value)}/>
+            <MarkDownContext.Provider value={{model: state, textAreaRef, cursor, updateAST() {}}}>
+                <JsFlag showWhenJs={true}>
+                    <Toolbar page={page} onPage={value => setPage(value)}/>
+                </JsFlag>
                 <textarea name={name} onSelect={onSelect} ref={textAreaRef} onInput={(event: any) => state.markdown = event.target.value} value={state.markdown} className={"content"}></textarea>
-                <div>
+                <div style={{display: "flex", flexDirection: "row", gap : "16px"}}>
                     {
-                        state?.files?.map(file => <img key={file.name} title={file.name} src={encodeBase64(file.contentType, file.data)} style={{height: "32px"}} onClick={() => onStoreClick(file)}/>)
+                        state?.files?.map(file => (
+                            <div key={file.name} style={{display: "flex", alignItems : "center", gap : "8px"}}>
+                                <img title={file.name} src={encodeBase64(file.contentType, file.data)} style={{height: "32px"}} onClick={() => onStoreClick(file)}/>
+                                <input type={"checkbox"} name={"files:delete"} value={file.id}/>
+                            </div>
+                        ))
                     }
                 </div>
-                <Footer page={page} onPage={(value) => setPage(value)}/>
+                <JsFlag showWhenJs={true}>
+                    <Footer page={page} onPage={(value) => setPage(value)}/>
+                </JsFlag>
             </MarkDownContext.Provider>
         </div>
     )

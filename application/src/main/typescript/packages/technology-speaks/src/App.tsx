@@ -3,13 +3,14 @@ import React, {useEffect, useState} from 'react';
 import {Router, System} from "react-ui-simplicity";
 import {init} from "./Persistence"
 import {routes} from "./routes";
+import {RequestInformation} from "./request";
 
 init()
 
 export function App(properties : App.Attributes) {
-    const {data, host, language, cookies} = properties
-    const [path, setPath] = useState(properties.path);
-    const [search, setSearch] = useState(properties.search);
+    const {data, info} = properties
+    const [path, setPath] = useState(info.path);
+    const [search, setSearch] = useState(info.search);
 
     useEffect(() => {
         const onPopState = () => {
@@ -23,22 +24,21 @@ export function App(properties : App.Attributes) {
 
     return <System depth={0}
                    routes={routes}
-                   path={path}
-                   cookies={cookies}
-                   search={search}
                    data={data}
-                   host={host}
-                   language={language}
+                   info={{
+                       protocol : info.protocol,
+                       path : path,
+                       search : search,
+                       cookie : info.cookie,
+                       host : info.host,
+                       language : info.language,
+                   }}
     />;
 }
 
 namespace App {
     export interface Attributes {
-        host : string
-        language : string
-        cookies : Record<string, string>
-        path: string
-        search: string
         data : [Router.Route, React.ReactElement][]
+        info : RequestInformation
     }
 }

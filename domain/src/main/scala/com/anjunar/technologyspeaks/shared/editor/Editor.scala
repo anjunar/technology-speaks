@@ -18,6 +18,7 @@ class Editor extends AbstractEntity with FileContext {
 
   @PropertyDescriptor(title = "Files")
   @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, targetEntity = classOf[EditorFile])
+  @FormParam("files")  
   val files: util.List[File] = new util.ArrayList[File]()
 
   @PropertyDescriptor(title = "AST")

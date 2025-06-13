@@ -61,7 +61,9 @@ class MultipartFormProvider extends MessageBodyReader[AnyRef] with EntitySecurit
         files += name -> UploadedFile(filename, contentType, partData.toByteArray)
       } else {
         val value = partData.toString(StandardCharsets.UTF_8)
-        fields += name -> (fields.getOrElse(name, List.empty) :+ value)
+        if (value.nonEmpty) {
+          fields += name -> (fields.getOrElse(name, List.empty) :+ value)  
+        }
       }
 
       nextPart = multipartStream.readBoundary()
