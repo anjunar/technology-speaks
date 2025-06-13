@@ -16,7 +16,7 @@ class ChatResource {
   var oLlamaService: OLlamaService = uninitialized
 
   @Inject
-  var documentService: DocumentService = uninitialized
+  var documentService: DocumentAIService = uninitialized
 
   @GET
   def chat(@QueryParam("text") text: String): String = {

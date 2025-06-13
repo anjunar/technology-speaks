@@ -2,7 +2,6 @@ package com.anjunar.technologyspeaks.shared.editor
 
 import jakarta.persistence.Entity
 
-class ListItem extends ContainerNode {
-  
-  override def toString = s"ListItem(${super.toString})"
-}
+import java.util
+
+case class ListItem(position : Position, children : util.List[Node]) extends ContainerNode

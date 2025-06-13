@@ -27,12 +27,8 @@ import scala.compiletime.uninitialized
   new JsonSubTypes.Type(value = classOf[Text], name = "text")
 ))
 @JsonTypeInfo(use = Id.NAME, property = "type")
-abstract class Node {
+trait Node {
   
-  @JsonIgnore
-  val id : UUID = UUID.randomUUID()
+  def position : Position
   
-  var position : Position = uninitialized
-  
-  override def toString = position.toString
 }

@@ -2,7 +2,6 @@ package com.anjunar.technologyspeaks.shared.editor
 
 import jakarta.persistence.Entity
 
-class TableRow extends ContainerNode {
+import java.util
 
-  override def toString = s"TableRow(${super.toString})"
-}
+case class TableRow(position : Position, children : util.List[Node]) extends ContainerNode

@@ -33,7 +33,10 @@ class DocumentFormResource extends SchemaBuilderContext {
   val log: Logger = Logger[DocumentFormResource]
 
   @Inject
-  private var service : DocumentService = uninitialized
+  var aiService : DocumentAIService = uninitialized
+  
+  @Inject
+  var service : DocumentService = uninitialized
 
   @Resource
   var executor: ManagedExecutorService  = uninitialized
@@ -138,7 +141,7 @@ class DocumentFormResource extends SchemaBuilderContext {
   def save(@JsonSchema(classOf[DocumentFormSchema]) entity: Document): Response = {
     entity.user = User.current()
 
-    entity.saveOrUpdate()
+    service.saveOrUpdate(entity)
     
     createRedirectResponse
   }
@@ -170,7 +173,7 @@ class DocumentFormResource extends SchemaBuilderContext {
 
     executor.runAsync(() => {
       try {
-        service.update(document.id, queue)
+        aiService.update(document.id, queue)
       } catch {
         case e: Exception =>
           queue.offer(s"Error: ${e.getMessage}")

@@ -43,7 +43,6 @@ class CredentialFormResource extends SchemaBuilderContext {
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Update", linkType = LinkType.FORM)
   def update(@JsonSchema(classOf[CredentialFormSchema]) @SecuredOwner entity: Credential): Credential = {
-    entity.validate()
     entity
   }
 

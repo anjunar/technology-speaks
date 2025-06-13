@@ -42,7 +42,6 @@ class ManagedPropertyFormResource extends SchemaBuilderContext {
   @RolesAllowed(Array("User", "Administrator"))
   @LinkDescription(value = "Update", linkType = LinkType.FORM)
   def update(@JsonSchema(classOf[ManagedPropertyFormSchema]) @SecuredOwner entity: ManagedProperty): ManagedProperty = {
-    entity.validate()
     entity
   }
 

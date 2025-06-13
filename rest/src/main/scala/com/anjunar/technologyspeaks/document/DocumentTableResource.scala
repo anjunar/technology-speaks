@@ -32,7 +32,7 @@ import scala.jdk.CollectionConverters.*
 class DocumentTableResource extends SchemaBuilderContext {
 
   @Inject
-  var documentService: DocumentService = uninitialized
+  var documentService: DocumentAIService = uninitialized
 
   @Inject
   var jpaSearch: JPASearch = uninitialized

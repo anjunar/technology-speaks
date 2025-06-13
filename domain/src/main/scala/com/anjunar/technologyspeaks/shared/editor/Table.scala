@@ -2,12 +2,8 @@ package com.anjunar.technologyspeaks.shared.editor
 
 import jakarta.persistence.Entity
 
+import java.util
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
-class Table extends ContainerNode {
-
-  var align : String = uninitialized
-
-  override def toString = s"Table($align, ${super.toString})"
-}
+case class Table(align : String, position : Position, children : util.List[Node]) extends ContainerNode

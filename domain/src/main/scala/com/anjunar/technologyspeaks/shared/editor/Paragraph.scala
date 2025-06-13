@@ -2,8 +2,6 @@ package com.anjunar.technologyspeaks.shared.editor
 
 import jakarta.persistence.Entity
 
-class Paragraph extends ContainerNode {
+import java.util
 
-  override def toString = s"Paragraph(${super.toString})"
-  
-}
+case class Paragraph(position : Position, children : util.List[Node]) extends ContainerNode

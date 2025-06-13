@@ -23,7 +23,7 @@ class DocumentTextProvider extends PredicateProvider[String, Document] {
 
     /*
         if (!Strings.isNullOrEmpty(value)) {
-          val documentService = CDI.current().select(classOf[DocumentService]).get()
+          val documentService = CDI.current().select(classOf[DocumentAIService]).get()
 
           val decodedValue = URLDecoder.decode(value, "UTF-8")
 
@@ -33,7 +33,7 @@ class DocumentTextProvider extends PredicateProvider[String, Document] {
     */
 
     if (!Strings.isNullOrEmpty(value)) {
-      val documentService = CDI.current().select(classOf[DocumentService]).get()
+      val documentService = CDI.current().select(classOf[DocumentAIService]).get()
 
       val hashTagOnlyPattern: Regex = """^(#\w+\s*)+$""".r
       val hashTagPattern: Regex = """(#\w+)""".r

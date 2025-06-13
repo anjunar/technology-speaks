@@ -1,7 +1,5 @@
 package com.anjunar.technologyspeaks.shared.editor
 
-class Root extends ContainerNode {
+import java.util
 
-  override def toString = s"Root(${super.toString})"
-  
-}
+case class Root(position : Position, children : util.List[Node]) extends ContainerNode

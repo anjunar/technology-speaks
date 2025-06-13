@@ -5,26 +5,4 @@ import jakarta.persistence.Entity
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
-class Image extends Node {
-
-  var url : String = uninitialized
-
-  var alt : String = uninitialized
-
-  private def canEqual(other: Any): Boolean = other.isInstanceOf[Image]
-
-  override def equals(other: Any): Boolean = other match {
-    case that: Image =>
-      that.canEqual(this) &&
-        url == that.url &&
-        alt == that.alt
-    case _ => false
-  }
-
-  override def hashCode(): Int = {
-    val state = Seq(url, alt)
-    state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
-  }
-  
-  override def toString = s"Image($url, $alt)"
-}
+case class Image(position : Position, url : String, alt : String) extends Node
