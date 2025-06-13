@@ -96,7 +96,7 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
             }
             <SchemaForm value={domain} onSubmit={onSubmit}
                         enctype={"multipart/form-data"}
-                        redirect={"/documents/search?index=0&limit=5"}
+                        redirect={`/documents/document/${domain.id}`}
                         style={{display: "flex", flexDirection: "column"}}>
                 <SchemaInput name={"id"}/>
                 <SchemaInput name={"title"}/>
