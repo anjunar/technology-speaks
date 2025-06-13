@@ -12,19 +12,15 @@ import scala.compiletime.uninitialized
 class Revision {
   
   @PropertyDescriptor(title = "Id")
-  @Basic
   var id : UUID = uninitialized
 
   @PropertyDescriptor(title = "Revision")
-  @Basic
   var revision : Int = uninitialized
 
   @PropertyDescriptor(title = "Title")
-  @Basic
   var title : String = uninitialized
 
   @PropertyDescriptor(title = "Editor")
-  @Basic
   var editor : Editor = uninitialized
   
   override def toString = s"Revision($revision, $title)"

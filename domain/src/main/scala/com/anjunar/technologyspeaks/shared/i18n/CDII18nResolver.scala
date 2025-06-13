@@ -1,10 +1,10 @@
-package com.anjunar.technologyspeaks
+package com.anjunar.technologyspeaks.shared.i18n
 
-import jakarta.enterprise.context.ApplicationScoped
 import com.anjunar.scala.i18n
 import com.anjunar.scala.i18n.I18nResolver
 import com.anjunar.technologyspeaks.shared.i18n.I18n
 import com.typesafe.scalalogging.Logger
+import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.servlet.http.HttpServletRequest
 

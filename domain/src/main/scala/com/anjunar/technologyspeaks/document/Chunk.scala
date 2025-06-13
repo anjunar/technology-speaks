@@ -1,6 +1,7 @@
 package com.anjunar.technologyspeaks.document
 
 import com.anjunar.scala.mapper.annotations.PropertyDescriptor
+import com.anjunar.technologyspeaks.control.User
 import com.anjunar.technologyspeaks.jpa.{PostgresIndex, PostgresIndices}
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import jakarta.persistence.{Basic, Column, Entity, Lob, ManyToOne, Transient}
@@ -35,7 +36,7 @@ class Chunk extends AbstractEntity {
   @Basic
   var embedding: Array[Float] = uninitialized
 
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, targetEntity = classOf[Document])
   var document: Document = uninitialized
   
   override def toString = s"Chunk($title, $content)"

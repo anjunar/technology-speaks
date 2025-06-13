@@ -14,10 +14,10 @@ import scala.compiletime.uninitialized
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 abstract class EntityView extends AbstractEntity with OwnerProvider {
 
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, targetEntity = classOf[User])
   var user : User = uninitialized
 
-  @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true)
+  @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, targetEntity = classOf[ManagedProperty])
   var properties : util.Set[ManagedProperty] = new util.HashSet[ManagedProperty]()
 
   override def owner: SecurityUser = user

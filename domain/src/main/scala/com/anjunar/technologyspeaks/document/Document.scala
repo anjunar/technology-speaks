@@ -42,21 +42,21 @@ class Document extends AbstractEntity with OwnerProvider {
   var description: String = uninitialized
 
   @PropertyDescriptor(title = "User")
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, targetEntity = classOf[User])
   @NotAudited
   var user: User = uninitialized
 
   @PropertyDescriptor(title = "Editor", widget = "editor")
-  @OneToOne(optional = false, cascade = Array(CascadeType.ALL), orphanRemoval = true)
+  @OneToOne(optional = false, cascade = Array(CascadeType.ALL), orphanRemoval = true, targetEntity = classOf[Editor])
   var editor: Editor = uninitialized
 
-  @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, mappedBy = "document")
+  @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, mappedBy = "document", targetEntity = classOf[Chunk])
   @NotAudited
   @BeanProperty  
   val chunks: util.List[Chunk] = new util.ArrayList[Chunk]()
 
   @PropertyDescriptor(title = "HashTags", widget = "form-array")
-  @ManyToMany
+  @ManyToMany(targetEntity = classOf[HashTag])
   @NotAudited
   val hashTags : util.Set[HashTag] = new util.HashSet[HashTag]()
   

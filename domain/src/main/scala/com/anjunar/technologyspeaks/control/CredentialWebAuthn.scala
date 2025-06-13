@@ -4,6 +4,7 @@ import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.yubico.webauthn.data.ByteArray
 import jakarta.persistence.{Basic, Entity, NoResultException}
+import org.hibernate.Session
 
 import java.security.SecureRandom
 import java.util

@@ -20,12 +20,12 @@ import java.util.Base64
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 class Credential extends AbstractEntity with SecurityCredential with OwnerProvider {
 
-  @ManyToMany
+  @ManyToMany(targetEntity = classOf[Role])
   @Size(min = 1, max = 10)
   @PropertyDescriptor(title = "Roles")
   val roles: util.Set[Role] = new util.HashSet[Role]
 
-  @ManyToOne
+  @ManyToOne(targetEntity = classOf[EMail])
   @PropertyDescriptor(title = "Emails")
   var email : EMail = uninitialized
 

@@ -17,7 +17,7 @@ import scala.compiletime.uninitialized
 @Entity
 class ManagedProperty extends AbstractEntity with OwnerProvider {
 
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, targetEntity = classOf[EntityView])
   var view : EntityView = uninitialized
 
   @Size(min = 1, max = 80)
@@ -30,7 +30,7 @@ class ManagedProperty extends AbstractEntity with OwnerProvider {
   @Basic
   var visibleForAll : Boolean = false
 
-  @ManyToMany
+  @ManyToMany(targetEntity = classOf[Group])
   @PropertyDescriptor(title = "Allowed Groups")
   val groups : util.Set[Group] = new util.HashSet[Group]()
 

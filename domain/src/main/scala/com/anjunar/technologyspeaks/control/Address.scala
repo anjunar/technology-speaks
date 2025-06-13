@@ -12,7 +12,7 @@ import scala.compiletime.uninitialized
 @Entity
 class Address extends AbstractEntity {
 
-  @OneToOne(mappedBy = "address")
+  @OneToOne(mappedBy = "address", targetEntity = classOf[User])
   var user : User = uninitialized
 
   @Basic

@@ -22,10 +22,10 @@ class EMail extends AbstractEntity {
   @Basic
   var handle: Array[Byte] = uninitialized
 
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, targetEntity = classOf[User])
   var user: User = uninitialized
 
-  @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, mappedBy = "email")
+  @OneToMany(cascade = Array(CascadeType.ALL), orphanRemoval = true, mappedBy = "email", targetEntity = classOf[Credential])
   val credentials: util.Set[Credential] = new util.HashSet[Credential]()
 
   override def toString = s"EMail($value)"

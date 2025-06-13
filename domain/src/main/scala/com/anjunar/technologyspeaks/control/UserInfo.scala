@@ -19,7 +19,7 @@ import scala.compiletime.uninitialized
 ))
 class UserInfo extends AbstractEntity {
 
-  @OneToOne(mappedBy = "info")
+  @OneToOne(mappedBy = "info", targetEntity = classOf[User])
   var user : User = uninitialized
 
   @Size(min = 3, max = 80)
@@ -32,7 +32,7 @@ class UserInfo extends AbstractEntity {
   @Basic
   var lastName : String = uninitialized
   
-  @ManyToOne(cascade = Array(CascadeType.ALL))
+  @ManyToOne(cascade = Array(CascadeType.ALL), targetEntity = classOf[Media])
   @PropertyDescriptor(title = "Picture", widget = "image")
   var image : Media = uninitialized
   

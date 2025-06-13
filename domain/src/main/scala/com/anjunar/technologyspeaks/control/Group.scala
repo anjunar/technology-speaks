@@ -28,10 +28,10 @@ class Group extends AbstractEntity with OwnerProvider {
   @Basic
   var description : String = uninitialized
 
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, targetEntity = classOf[User])
   var user : User = uninitialized
 
-  @ManyToMany
+  @ManyToMany(targetEntity = classOf[User])
   @PropertyDescriptor(title = "Users")
   val users : util.Set[User] = new util.HashSet[User]()
 

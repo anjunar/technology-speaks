@@ -97,17 +97,21 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
             <SchemaForm value={domain} onSubmit={onSubmit}
                         enctype={"multipart/form-data"}
                         redirect={`/documents/document/${domain.id}`}
-                        style={{display: "flex", flexDirection: "column"}}>
-                <SchemaInput name={"id"}/>
-                <SchemaInput name={"title"}/>
+                        style={{display: "flex", flexDirection: "column", width: "100%"}}>
+                <SchemaInput name={"id"} style={{maxWidth : "800px"}}/>
+                <SchemaInput name={"title"} style={{maxWidth : "800px"}}/>
                 <div style={{flex: 1, display: "flex", height: "100%", flexWrap : "wrap"}}>
                     <MarkDownEditor name={"editor"} style={{flex: 1, minHeight : "600px", minWidth : "300px", maxWidth : "800px", width : "100%"}}/>
-                    <MarkDownView name={"editor"} style={{flex: 1, height: "100%", minWidth : "300px", maxWidth : "800px", width : "100%"}}/>
+                    <JsFlag showWhenJs={true}>
+                        <MarkDownView name={"editor"} style={{flex: 1, height: "100%", minWidth : "300px", maxWidth : "800px", width : "100%"}}/>
+                    </JsFlag>
                 </div>
-                <JsFlag showWhenJs={false}>
-                    <input type={"file"} name={"files"} multiple={true}/>
-                </JsFlag>
-                <div style={{display: "flex", justifyContent: "flex-end"}}>{actions}</div>
+                <div style={{display: "flex", justifyContent: "space-between", alignItems : "center"}}>
+                    <JsFlag showWhenJs={false}>
+                        <input type={"file"} name={"files"} multiple={true}/>
+                    </JsFlag>
+                    <div style={{display: "flex", justifyContent: "flex-end"}}>{actions}</div>
+                </div>
             </SchemaForm>
         </div>
     )

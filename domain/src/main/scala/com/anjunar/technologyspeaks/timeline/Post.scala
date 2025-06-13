@@ -16,11 +16,11 @@ import scala.compiletime.uninitialized
 class Post extends AbstractEntity with OwnerProvider {
 
   @PropertyDescriptor(title = "User")
-  @ManyToOne(optional = false)
+  @ManyToOne(optional = false, targetEntity = classOf[User])
   var user : User = uninitialized
 
   @PropertyDescriptor(title = "Editor", widget = "editor")
-  @OneToOne(optional = false, cascade = Array(CascadeType.ALL), orphanRemoval = true)
+  @OneToOne(optional = false, cascade = Array(CascadeType.ALL), orphanRemoval = true, targetEntity = classOf[Editor])
   var editor : Editor = uninitialized
 
   override def owner: SecurityUser = user
