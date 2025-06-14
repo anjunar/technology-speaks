@@ -14,7 +14,7 @@ object RewriteServletFilter {
   private val blacklist = Lists.newArrayList("/service")
 }
 
-@WebFilter(filterName = "rewriteFilter", urlPatterns = Array("*"))
+@WebFilter(filterName = "rewriteFilter", urlPatterns = Array("*"), asyncSupported = true)
 class RewriteServletFilter extends Filter {
 
   @throws[ServletException]

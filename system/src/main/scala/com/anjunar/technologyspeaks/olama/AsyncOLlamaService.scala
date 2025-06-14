@@ -9,12 +9,13 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.client.{ClientBuilder, Entity}
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget
 
+import java.util.concurrent.atomic.AtomicBoolean
 import scala.util.control.Breaks.{break, breakable}
 
 @ApplicationScoped
 class AsyncOLlamaService {
 
-  def chat(request: ChatRequest, onData: String => Unit): Unit = {
+  def chat(request: ChatRequest, onData: String => Unit, canceled : AtomicBoolean): Unit = {
     val client = ClientBuilder.newClient
     try {
       val target = client.target("http://localhost:11434/api/chat")
@@ -36,6 +37,7 @@ class AsyncOLlamaService {
             val chatResponse = mapper.readValue(line, classOf[ChatResponse])
             onData(chatResponse.message.content)
             if (chatResponse.done) break
+            if (canceled.get()) break
           }
         }
       } finally {

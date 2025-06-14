@@ -26,9 +26,18 @@ export async function resolveComponentList(
     if (route.loader) {
         const loaderEntries = Object.entries(route.loader);
         const loaded = await Promise.all(
-            loaderEntries.map(([_, fn]) =>
-                fn(info, pathParams, queryParams)
-            )
+            loaderEntries.map(([_, fn]) => {
+                return fn(info, pathParams, queryParams)
+                    .catch(e => {
+                        if (e instanceof Router.RedirectError) {
+                            Router.navigate(e.url)
+                            return null;
+                        }
+                        if (typeof window === "undefined") {
+                            throw e;
+                        }
+                    })
+            })
         );
         loaderEntries.forEach(([key], i) => {
             props[key] = loaded[i];

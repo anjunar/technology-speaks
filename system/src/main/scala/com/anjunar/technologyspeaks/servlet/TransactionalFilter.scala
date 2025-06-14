@@ -10,7 +10,7 @@ import java.io.IOException
 import scala.compiletime.uninitialized
 
 
-@WebFilter(filterName = "transaction", urlPatterns = Array("/service/*"))
+@WebFilter(filterName = "transaction", urlPatterns = Array("/service/*"), asyncSupported = true)
 class TransactionalFilter extends Filter {
 
   @Resource

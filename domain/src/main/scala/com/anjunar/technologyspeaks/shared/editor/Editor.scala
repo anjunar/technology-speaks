@@ -9,6 +9,7 @@ import org.hibernate.annotations.Type
 import org.hibernate.envers.Audited
 
 import java.util
+import java.util.stream.Collectors
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
@@ -37,6 +38,16 @@ class Editor extends AbstractEntity {
   @Transient
   @PropertyDescriptor(title = "Changes")
   val changes: util.List[Change] = new util.ArrayList[Change]()
+
+  def toText() : String = toText(json)
+  
+  private def toText(root: Node): String = root match {
+    case node: Table => ""
+    case node: ContainerNode => node.children.stream().map(node => toText(node)).collect(Collectors.joining("\n"))
+    case node: TextNode => node.value
+    case _ => ""
+  }
+
 
   override def toString = s"Editor($json)"
 }

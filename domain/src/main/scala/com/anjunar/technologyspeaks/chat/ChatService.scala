@@ -1,24 +1,16 @@
 package com.anjunar.technologyspeaks.chat
 
-import com.anjunar.technologyspeaks.olama.json.{JsonNode, JsonObject, NodeType}
-import com.anjunar.technologyspeaks.olama.{AsyncOLlamaService, ChatMessage, ChatRequest, ChatRole, EmbeddingRequest, GenerateRequest, OLlamaService}
-import com.google.common.collect.Lists
+import com.anjunar.technologyspeaks.document.Document
+import com.anjunar.technologyspeaks.olama.*
 import com.typesafe.scalalogging.Logger
-import com.vladsch.flexmark.ext.tables.TablesExtension
-import com.vladsch.flexmark.parser.Parser
-import com.vladsch.flexmark.util.data.MutableDataSet
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.transaction.Transactional
-import org.jsoup.Jsoup
-import org.jsoup.select.NodeVisitor
 
 import java.util.concurrent.BlockingQueue
+import java.util.concurrent.atomic.AtomicBoolean
 import scala.compiletime.uninitialized
-import java.util.stream.Stream
 import scala.jdk.CollectionConverters.*
-import java.util
-import scala.collection.immutable.HashSet
 
 @ApplicationScoped
 class ChatService {
@@ -32,14 +24,32 @@ class ChatService {
   var syncService: OLlamaService = uninitialized
 
   @Transactional
-  def chat(text: String, queue: BlockingQueue[String]): Unit = {
+  def chat(text: String, queue: BlockingQueue[String], canceled : AtomicBoolean): Unit = {
+
+    val inputVector = syncService.generateEmbeddings(EmbeddingRequest(input = text))
 
     val memoryShortTerm = MemoryEntry.findLatest10()
-    val memoryLongTerm = MemoryEntry.findSimilar(syncService.generateEmbeddings(EmbeddingRequest(input = text)).embeddings.head)
+    val memoryLongTerm = MemoryEntry.findSimilar(inputVector.embeddings.head)
 
     val memory = (memoryShortTerm.asScala.toSet ++ memoryLongTerm.asScala.toSet).toList.sortBy(entry => entry.created)
 
-    val tokenSize = memory.map((entry: MemoryEntry) => entry.tokenSize).sum
+    val session = memory.flatMap(item => Seq(ChatMessage(content = item.question), ChatMessage(content = item.answer, role = ChatRole.ASSISTANT)))
+
+    val documents = Document.findTop5(inputVector.embeddings.head)
+      .asScala
+      .map(document => ChatMessage(content = document.editor.toText(), role = ChatRole.ASSISTANT))
+      .toSeq
+    /*
+        val bias = Source.fromResource("bias.txt")
+          .getLines()
+          .filter(line => line.trim.nonEmpty)
+          .map(line => ChatMessage(content = "Memory: " + line, role = ChatRole.SYSTEM))
+          .toSeq
+    */
+
+    val messages = documents ++ session ++ Seq(ChatMessage(content = text))
+
+    val tokenSize = messages.map((entry: ChatMessage) => entry.tokenSize).sum
 
     if (tokenSize > 8192) {
       throw new RuntimeException("Token size is too large")
@@ -47,19 +57,15 @@ class ChatService {
       log.info(s"Token size: $tokenSize")
     }
 
-    val session = memory.flatMap(item => Seq(ChatMessage(content = item.question), ChatMessage(content = item.answer, role = ChatRole.ASSISTANT)))
-
-    val request = ChatRequest(messages = session ++ Seq(ChatMessage(content = text)))
+    val request = ChatRequest(messages = messages, options = RequestOptions(num_ctx = 8192, temperature = 0.3))
 
     var buffer = ""
 
     asyncService.chat(request, text => {
       buffer += text
       queue.offer(text)
-    })
+    }, canceled)
 
-    val document = Jsoup.parse(buffer)
-    val chatResponseText = document.text()
 
     val systemPrompt =
       """You are responsible for creating memory memoryShortTerm. For every user interaction, summarize the user input and the
@@ -74,10 +80,10 @@ class ChatService {
 
     val promptText =
       s"""
-      |User input: $text
-      |Assistant response: $chatResponseText
-      |
-      |Summary:""".stripMargin
+         |User input: $text
+         |Assistant response: $buffer
+         |
+         |Summary:""".stripMargin
 
     val response = syncService.generate(GenerateRequest(prompt = promptText, system = systemPrompt))
 

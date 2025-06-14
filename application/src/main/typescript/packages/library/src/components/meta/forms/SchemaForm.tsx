@@ -79,7 +79,7 @@ function SchemaForm(properties: SchemaForm.Attributes) {
         if (redirect) {
             return `?redirect=${encodeURIComponent(redirect)}`;
         }
-        return info.search
+        return info.search.length === 1 ? "" : info.search;
     }
 
     return (

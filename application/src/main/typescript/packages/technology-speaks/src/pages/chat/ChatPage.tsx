@@ -15,7 +15,11 @@ export function ChatPage(properties: ChatPage.Attributes) {
 
     const [htmlBuffer, setHtmlBuffer] = useState("")
 
+    const [open, setOpen] = useState(true)
+
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    const eventSourceRef = useRef<EventSource>(null);
 
     async function markdownToHtml(markdownText) {
         const file = await remark()
@@ -28,16 +32,19 @@ export function ChatPage(properties: ChatPage.Attributes) {
         setHtmlBuffer(file.toString())
     }
 
-    function onKeyUp(event : React.KeyboardEvent<HTMLInputElement>) {
+    function onKeyUp(event : React.KeyboardEvent<HTMLTextAreaElement>) {
+        let value = event.currentTarget.value;
+
         function startChatStream(session : string) : EventSource {
-            let eventSource = new EventSource(`/service/chat?text=${encodeURIComponent(event.currentTarget.value)}&session=${session}`);
+            let eventSource = new EventSource(`/service/chat?text=${encodeURIComponent(value)}&session=${session}`);
+            setOpen(false)
 
             eventSource.onmessage = (e) => {
-
                 let data = JSON.parse(e.data).text;
 
                 if (data === "!Done!") {
                     eventSource.close()
+                    setOpen(true)
                 } else {
                     setBuffer((prev) => {
                         const next = prev + data
@@ -61,6 +68,7 @@ export function ChatPage(properties: ChatPage.Attributes) {
             const session = v4()
 
             let eventSource = startChatStream(session);
+            eventSourceRef.current = eventSource;
 
             eventSource.onerror = (e) => {
                 console.error(e)
@@ -68,6 +76,7 @@ export function ChatPage(properties: ChatPage.Attributes) {
 
                 setTimeout(() => {
                     eventSource = startChatStream(session)
+                    eventSourceRef.current = eventSource;
                 }, 3000);
             }
         }
@@ -86,7 +95,9 @@ export function ChatPage(properties: ChatPage.Attributes) {
                     </div>
                     <div dangerouslySetInnerHTML={{__html : htmlBuffer}} style={{whiteSpace : "pre-wrap"}}></div>
                     <div style={{backgroundColor : "var(--color-background-tertiary)"}}>
-                        <input type={"text"} placeholder={"Message"} onKeyUp={onKeyUp}/>
+                        {
+                            open ? (<textarea placeholder={"Message"} onKeyUp={onKeyUp} style={{width : "100%", height : "100px"}}/>) : (<button onClick={() => {eventSourceRef.current.close(); setOpen(true)}}>Close</button>)
+                        }
                     </div>
                 </div>
             </div>

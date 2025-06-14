@@ -4,7 +4,7 @@ import jakarta.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
 import jakarta.servlet.annotation.WebFilter
 import jakarta.servlet.http.{HttpServletRequest, HttpServletResponse}
 
-@WebFilter(filterName = "http-servlet-response", urlPatterns = Array("/service/*"))
+@WebFilter(filterName = "http-servlet-response", urlPatterns = Array("/service/*"), asyncSupported = true)
 class HttpServletResponseFilter extends Filter {
 
   override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {

@@ -4,20 +4,22 @@ import {FormContext} from "../form/Form";
 import {FormModel} from "../../shared/Model";
 import LinkContainerObject from "../../../domain/container/LinkContainerObject";
 import LinkObject from "../../../domain/container/LinkObject";
-import {useServer} from "../../../hooks";
+import {useHydrated, useServer} from "../../../hooks";
 
-function Button(properties : Button.Attributes) {
+function Button(properties: Button.Attributes) {
 
     const {children, type, force = false, ...rest} = properties
 
-    const context : FormModel = useContext(FormContext)
+    const context: FormModel = useContext(FormContext)
 
-    let isServer = useServer();
+    const isServer = useServer();
+
+    const isHydrated = useHydrated();
 
     const button = useRef(null);
 
     function isDisabled() {
-        if (! context) {
+        if (!context) {
             return false
         }
 
@@ -30,8 +32,10 @@ function Button(properties : Button.Attributes) {
         }
 
         switch (type) {
-            case "submit" : return context.pristine || ! context.valid
-            case "reset" : return context.pristine
+            case "submit" :
+                return context.pristine || !context.valid
+            case "reset" :
+                return context.pristine
         }
     }
 
@@ -46,8 +50,10 @@ function Button(properties : Button.Attributes) {
         }
     }, []);
 
+    const disabled = !isHydrated ? true : isDisabled()
+
     return (
-        <button ref={button} className={"large"} disabled={isDisabled()} type={type} {...rest}>
+        <button ref={button} className={"large"} disabled={disabled} type={type} {...rest}>
             {children}
         </button>
     )
@@ -55,17 +61,21 @@ function Button(properties : Button.Attributes) {
 
 namespace Button {
     export interface Attributes extends ButtonHTMLAttributes<HTMLButtonElement> {
-        force? : boolean
+        force?: boolean
     }
 
-    export function renderButtons(container: LinkContainerObject, force? : boolean) {
+    export function renderButtons(container: LinkContainerObject, force?: boolean) {
 
         function type(link: LinkObject) {
             switch (link.method) {
-                case "POST" : return "submit"
-                case "PUT" : return  "submit"
-                case "DELETE" : return "submit"
-                default : return "button"
+                case "POST" :
+                    return "submit"
+                case "PUT" :
+                    return "submit"
+                case "DELETE" :
+                    return "submit"
+                default :
+                    return "button"
             }
         }
 
@@ -75,7 +85,8 @@ namespace Button {
                     Object.values(container || {})
                         .filter(link => link.method !== "GET" && link.rel !== "validate")
                         .map(link => (
-                            <Button style={{flex: 1}} key={link.rel} name={link.rel} type={type(link)} force={link.method === "DELETE" || force || link.linkType === "action"}>
+                            <Button style={{flex: 1}} key={link.rel} name={link.rel} type={type(link)}
+                                    force={link.method === "DELETE" || force || link.linkType === "action"}>
                                 {link.title}
                             </Button>
                         ))

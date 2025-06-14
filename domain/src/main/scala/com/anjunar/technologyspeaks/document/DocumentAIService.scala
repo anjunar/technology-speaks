@@ -15,6 +15,7 @@ import jakarta.transaction.Transactional
 import java.util
 import java.util.{Locale, UUID}
 import java.util.concurrent.BlockingQueue
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.regex.Pattern
 import java.util.stream.Collectors
 import scala.beans.BeanProperty
@@ -28,9 +29,6 @@ class DocumentAIService {
 
   @Inject
   var asyncOLlamaService: AsyncOLlamaService = uninitialized
-
-  @Inject
-  var semanticSpealService: SemanticSpeakService = uninitialized
 
   @Inject
   var entityManager: EntityManager = uninitialized
@@ -79,7 +77,7 @@ class DocumentAIService {
     response.message.content
   }
 
-  def createHashTags(text: String, blockingQueue: BlockingQueue[String]): util.Set[HashTag] = {
+  def createHashTags(text: String, blockingQueue: BlockingQueue[String], cancelled : AtomicBoolean): util.Set[HashTag] = {
     val message = ChatMessage(
       content = s"""Generate hashtags for the following text and a short description for each hashtag.
          |Keep the text and short description in the original language.
@@ -105,14 +103,14 @@ class DocumentAIService {
     asyncOLlamaService.chat(request, line => {
       buffer += line
       blockingQueue.put(line)
-    })
+    }, cancelled)
 
     val mapper = ObjectMapperContextResolver.objectMapper
     val collectionType = mapper.getTypeFactory.constructCollectionType(classOf[util.Set[HashTag]], classOf[HashTag])
     mapper.readValue(buffer, collectionType)
   }
 
-  def createDescription(text: String, blockingQueue: BlockingQueue[String]): String = {
+  def createDescription(text: String, blockingQueue: BlockingQueue[String], cancelled : AtomicBoolean): String = {
     val message = ChatMessage(
       content = s"""Please make a very short summary with the following text.
          |Keep the summary in the original language.
@@ -135,13 +133,13 @@ class DocumentAIService {
     asyncOLlamaService.chat(request, line => {
       buffer += line
       blockingQueue.put(line)
-    })
+    }, cancelled)
 
     val mapper = ObjectMapperContextResolver.objectMapper
     mapper.readValue(buffer, classOf[DocumentAIService.Summary]).summary
   }
 
-  def createChunks(text: String, blockingQueue: BlockingQueue[String]): util.List[Chunk] = {
+  def createChunks(text: String, blockingQueue: BlockingQueue[String], cancelled : AtomicBoolean): util.List[Chunk] = {
     val message = ChatMessage(
       content = s"""Split the following text into thematically sections.
          |Each section should cover a separate topic.
@@ -168,7 +166,7 @@ class DocumentAIService {
     asyncOLlamaService.chat(request, line => {
       buffer += line
       blockingQueue.put(line)
-    })
+    }, cancelled)
 
     val mapper = ObjectMapperContextResolver.objectMapper
     val collectionType = mapper.getTypeFactory.constructCollectionType(classOf[util.List[Chunk]], classOf[Chunk])
@@ -192,44 +190,18 @@ class DocumentAIService {
     vec.map(_ / norm)
   }
 
-  def findTop5Embeddings(vector: Array[Float]): java.util.List[Chunk] = {
-    val cb = entityManager.getCriteriaBuilder
-    val query = cb.createTupleQuery()
-    val root = query.from(classOf[Chunk])
-
-    val distanceExpr = cb.function(
-      "cosine_distance",
-      classOf[java.lang.Double],
-      root.get("embedding"),
-      cb.parameter(classOf[Array[java.lang.Float]], "embedding")
-    )
-
-    query.multiselect(root, distanceExpr)
-      .orderBy(cb.asc(distanceExpr))
-
-    entityManager.createQuery(query)
-      .setParameter("embedding", vector)
-      .setMaxResults(5)
-      .getResultStream
-      .map(entity => {
-        val chunk = entity.get(0, classOf[Chunk])
-        chunk
-      })
-      .toList
-  }
-
   @Transactional
-  def update(id: UUID, blockingQueue: BlockingQueue[String]): Unit = {
+  def update(id: UUID, blockingQueue: BlockingQueue[String], cancelled : AtomicBoolean): Unit = {
 
     val document = Document.find(id)
     
-    val text = toText(document.editor.json)
+    val text = document.editor.toText()
 
     blockingQueue.put("Start Processing\n")
 
     document.language = createLanguageDetection(text)
 
-    val chunks = createChunks(text, blockingQueue)
+    val chunks = createChunks(text, blockingQueue, cancelled)
     chunks.forEach(chunk => {
       chunk.embedding = createEmbeddings(chunk.title + "\n" + chunk.content)
       chunk.document = document
@@ -237,7 +209,7 @@ class DocumentAIService {
 
     blockingQueue.put("\n\nAll Chunks created\n")
 
-    val hashTags = createHashTags(text, blockingQueue).stream
+    val hashTags = createHashTags(text, blockingQueue, cancelled).stream
       .map(hashTag => {
         val vector = createEmbeddings(hashTag.description)
 
@@ -264,16 +236,9 @@ class DocumentAIService {
     document.hashTags.clear()
     document.hashTags.addAll(hashTags)
 
-    document.description = createDescription(text, blockingQueue)
+    document.description = createDescription(text, blockingQueue, cancelled)
 
     blockingQueue.put("Done")
-  }
-
-  def toText(root: Node): String = root match {
-    case node: Table => ""
-    case node: ContainerNode => node.children.stream().map(node => toText(node)).collect(Collectors.joining("\n"))
-    case node: TextNode => node.value
-    case _ => ""
   }
 
 }

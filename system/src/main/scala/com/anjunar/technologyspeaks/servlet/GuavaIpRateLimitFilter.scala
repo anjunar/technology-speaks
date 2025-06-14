@@ -8,7 +8,7 @@ import jakarta.servlet.{Filter, FilterChain, ServletRequest, ServletResponse}
 
 import java.util.concurrent.{ConcurrentHashMap, TimeUnit}
 
-@WebFilter(filterName = "rate-filter", urlPatterns = Array("/service/*"))
+@WebFilter(filterName = "rate-filter", urlPatterns = Array("/service/*"), asyncSupported = true)
 class GuavaIpRateLimitFilter extends Filter {
 
   override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain): Unit = {

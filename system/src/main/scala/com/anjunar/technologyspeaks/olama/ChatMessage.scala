@@ -8,4 +8,8 @@ case class ChatMessage(role: ChatRole = ChatRole.USER,
                        content: String,
                        @JsonProperty("tool_calls")
                        toolCalls: util.List[ChatFunction] = null,
-                       images: Array[String] = null)
+                       images: Array[String] = null) {
+  
+  def tokenSize : Int = content.split(" ").length
+  
+}

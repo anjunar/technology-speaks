@@ -22,6 +22,7 @@ import jakarta.ws.rs.*
 import jakarta.ws.rs.core.{MediaType, Response, StreamingOutput}
 
 import java.nio.charset.StandardCharsets
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.{Properties, UUID}
 import java.util.concurrent.{BlockingQueue, ConcurrentHashMap, LinkedBlockingQueue}
 import scala.compiletime.uninitialized
@@ -172,6 +173,8 @@ class DocumentFormResource extends SchemaBuilderContext {
   @Produces(Array(MediaType.SERVER_SENT_EVENTS))
   def progressStream(@PathParam("id") document: Document, @QueryParam("session") session : UUID): Response = {
 
+    val cancelled = new AtomicBoolean(false)
+    
     val service = aiService
     var queue = batchSessions.get(session)
 
@@ -181,7 +184,7 @@ class DocumentFormResource extends SchemaBuilderContext {
 
       executor.runAsync(() => {
         try {
-          service.update(document.id, queue)
+          service.update(document.id, queue, cancelled)
         } catch {
           case e: Exception =>
             queue.offer(s"Error: ${e.getMessage}")
@@ -195,7 +198,7 @@ class DocumentFormResource extends SchemaBuilderContext {
     val stream: StreamingOutput = output => {
       try {
         var done = false
-        while (!done) {
+        while (!done && !cancelled.get()) {
           val msg = queue.take()
           val json = mapper.writeValueAsString(Map("text" -> msg))
           val sseMsg = s"data: $json\n\n"
@@ -204,7 +207,11 @@ class DocumentFormResource extends SchemaBuilderContext {
           if (msg == "Done") done = true
         }
       } catch {
-        case e: InterruptedException => log.error(e.getMessage, e)
+        case e: InterruptedException =>
+          log.error(e.getMessage, e)
+          cancelled.set(true)
+      } finally {
+        batchSessions.remove(session)
       }
     }
 

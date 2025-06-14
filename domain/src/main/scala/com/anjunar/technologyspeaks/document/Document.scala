@@ -23,6 +23,7 @@ import scala.beans.BeanProperty
 import scala.collection.mutable
 import scala.compiletime.uninitialized
 import scala.jdk.CollectionConverters.*
+import java.lang
 
 @Entity
 @Audited
@@ -70,6 +71,36 @@ class Document extends AbstractEntity with OwnerProvider {
 }
 
 object Document extends RepositoryContext[Document](classOf[Document]) {
+  
+  def findTop5(vector : Array[Float]) : util.List[Document] = {
+    val builder = entityManager.getCriteriaBuilder
+    val query = builder.createQuery(classOf[Document])
+    val root = query.from(classOf[Document])
+
+    val subquery = query.subquery(classOf[lang.Double])
+    val chunkRoot = subquery.correlate(root).join("chunks")
+
+    val distanceExpr = builder.avg(builder.function(
+      "cosine_distance",
+      classOf[lang.Double],
+      chunkRoot.get("embedding"),
+      builder.parameter(classOf[Array[lang.Float]], "embedding")
+    ))
+
+    subquery.select(distanceExpr)
+      .where(Array(builder.equal(chunkRoot.get("document"), root)) *)
+
+    val maxDistance = 0.35d
+    val predicate = builder.lessThanOrEqualTo(subquery, maxDistance)
+
+    query.select(root)
+      .where(Array(predicate)*)
+    
+    entityManager.createQuery(query)
+      .setParameter("embedding", vector)
+      .setMaxResults(5)
+      .getResultList
+  }
 
   def revisions(document: Document, index: Int, limit: Int): (Int, util.List[Revision]) = {
     val auditReader = AuditReaderFactory.get(entityManager)
