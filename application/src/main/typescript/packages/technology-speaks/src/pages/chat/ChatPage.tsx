@@ -1,5 +1,10 @@
 import './ChatPage.css'
 import React, {useLayoutEffect, useRef, useState} from 'react';
+import { remark } from 'remark'
+import rehypePrism from "rehype-prism-plus";
+import remarkRehype from "remark-rehype";
+import rehypeStringify from "rehype-stringify";
+import remarkGfm from "remark-gfm";
 
 export function ChatPage(properties: ChatPage.Attributes) {
 
@@ -7,7 +12,20 @@ export function ChatPage(properties: ChatPage.Attributes) {
 
     const [buffer, setBuffer] = useState("")
 
+    const [htmlBuffer, setHtmlBuffer] = useState("")
+
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    async function markdownToHtml(markdownText) {
+        const file = await remark()
+            .use(remarkRehype)
+            .use(rehypePrism)
+            .use(remarkGfm)
+            .use(rehypeStringify)
+            .process(markdownText)
+
+        setHtmlBuffer(file.toString())
+    }
 
     function onKeyUp(event : React.KeyboardEvent<HTMLInputElement>) {
         if (event.key === "Enter") {
@@ -17,11 +35,13 @@ export function ChatPage(properties: ChatPage.Attributes) {
 
             eventSource.onmessage = (e) => {
 
-                if (e.data === "!Done!") {
+                let data = JSON.parse(e.data).text;
+
+                if (data === "!Done!") {
                     eventSource.close()
                 } else {
                     setBuffer((prev) => {
-                        const next = prev + JSON.parse(e.data).text
+                        const next = prev + data
 
                         requestAnimationFrame(() => {
                             if (scrollRef.current) {
@@ -33,8 +53,17 @@ export function ChatPage(properties: ChatPage.Attributes) {
                     });
                 }
             }
+
+            eventSource.onerror = (e) => {
+                console.error(e)
+                eventSource.close()
+            }
         }
     }
+
+    useLayoutEffect(() => {
+        markdownToHtml(buffer)
+    }, [buffer]);
 
     return (
         <div className={"chat-page"}>
@@ -43,7 +72,7 @@ export function ChatPage(properties: ChatPage.Attributes) {
                     <div>
                         <h1>Chat</h1>
                     </div>
-                    <div dangerouslySetInnerHTML={{__html : buffer}}></div>
+                    <div dangerouslySetInnerHTML={{__html : htmlBuffer}} style={{whiteSpace : "pre-wrap"}}></div>
                     <div style={{backgroundColor : "var(--color-background-tertiary)"}}>
                         <input type={"text"} placeholder={"Message"} onKeyUp={onKeyUp}/>
                     </div>

@@ -49,20 +49,13 @@ class ChatService {
 
     val session = memory.flatMap(item => Seq(ChatMessage(content = item.question), ChatMessage(content = item.answer, role = ChatRole.ASSISTANT)))
 
-    val prompt = s"""Respond with HTML and provide the content inside the <body> tag.
-                   |Preserve the original language of the Text.
-                   |""".stripMargin
-
-    val request = ChatRequest(messages = Seq(ChatMessage(content = prompt, role = ChatRole.SYSTEM)) ++ session ++ Seq(ChatMessage(content = text)))
+    val request = ChatRequest(messages = session ++ Seq(ChatMessage(content = text)))
 
     var buffer = ""
-    val blackList = HashSet("!Done!", "html", "```")
 
     asyncService.chat(request, text => {
-      if (! blackList.contains(text.trim())) {
-        buffer += text
-        queue.offer(text)
-      }
+      buffer += text
+      queue.offer(text)
     })
 
     val document = Jsoup.parse(buffer)
