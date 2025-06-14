@@ -19,6 +19,7 @@ import I18nFormPage from "./pages/shared/i18n/I18nFormPage";
 import QueryParams = Router.QueryParams;
 import PathParams = Router.PathParams;
 import {RequestInformation} from "./request";
+import ChatPage from "./pages/chat/ChatPage";
 
 export function process(response: Response, redirect : string) {
     if (response.status === 403) {
@@ -76,6 +77,10 @@ export const routes: Router.Route[] = [
                         throw new Error(response.status.toString())
                     }
                 }
+            },
+            {
+                path: "/chat",
+                component : ChatPage
             },
             {
                 path: "/documents",

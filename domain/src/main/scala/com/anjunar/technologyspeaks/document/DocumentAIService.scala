@@ -2,7 +2,7 @@ package com.anjunar.technologyspeaks.document
 
 import com.anjunar.technologyspeaks.configuration.jaxrs.ObjectMapperContextResolver
 import com.anjunar.technologyspeaks.olama.*
-import com.anjunar.technologyspeaks.olama.json.*
+import com.anjunar.technologyspeaks.olama.json.{JsonArray, JsonNode, JsonObject, NodeType}
 import com.anjunar.technologyspeaks.semanticspeak.SemanticSpeakService
 import com.anjunar.technologyspeaks.shared.editor.*
 import com.anjunar.technologyspeaks.shared.hashtag.HashTag
@@ -37,9 +37,9 @@ class DocumentAIService {
 
   def createLanguageDetection(text: String): Locale = {
 
-    val response = oLlamaService.chat(ChatRequest(Seq(
-      ChatMessage("You are a language detection assistant. Only respond with the ISO 639-1 language code (e.g., 'en', 'de', 'fr') of the input text. Do not provide any explanations or additional content.", ChatRole.SYSTEM),
-      ChatMessage(text)
+    val response = oLlamaService.chat(ChatRequest(messages = Seq(
+      ChatMessage(content = "You are a language detection assistant. Only respond with the ISO 639-1 language code (e.g., 'en', 'de', 'fr') of the input text. Do not provide any explanations or additional content.", role = ChatRole.SYSTEM),
+      ChatMessage(content = text)
     )))
 
     Locale.forLanguageTag(response.message.content)
@@ -64,7 +64,7 @@ class DocumentAIService {
     }
 
     val message = ChatMessage(
-      s"""Rephrase the following sentence to make it more fluent without changing its meaning.
+      content = s"""Rephrase the following sentence to make it more fluent without changing its meaning.
          |Return only the rephrased text, no additional comments. No thematic expansions.
          |Keep the text in the original language.
          |
@@ -72,7 +72,7 @@ class DocumentAIService {
          |
          |$renderedText""".stripMargin)
 
-    val request = ChatRequest(Seq(message))
+    val request = ChatRequest(messages = Seq(message))
 
     val response = oLlamaService.chat(request)
 
@@ -81,7 +81,7 @@ class DocumentAIService {
 
   def createHashTags(text: String, blockingQueue: BlockingQueue[String]): util.Set[HashTag] = {
     val message = ChatMessage(
-      s"""Generate hashtags for the following text and a short description for each hashtag.
+      content = s"""Generate hashtags for the following text and a short description for each hashtag.
          |Keep the text and short description in the original language.
          |Return the hashtags as JSON Array in the following format:
          |
@@ -94,11 +94,11 @@ class DocumentAIService {
     val valueNode = JsonNode(NodeType.STRING)
     val descriptionNode = JsonNode(NodeType.STRING)
 
-    val jsonObject = JsonObject(("value", valueNode), ("description", descriptionNode))
+    val jsonObject = JsonObject(properties = Map(("value" -> valueNode), ("description" -> descriptionNode)))
 
-    val jsonArray = JsonArray(jsonObject)
+    val jsonArray = JsonArray(items = jsonObject)
 
-    val request = ChatRequest(jsonArray, Seq(message))
+    val request = ChatRequest(format = jsonArray, messages = Seq(message))
 
     var buffer = ""
 
@@ -114,7 +114,7 @@ class DocumentAIService {
 
   def createDescription(text: String, blockingQueue: BlockingQueue[String]): String = {
     val message = ChatMessage(
-      s"""Please make a very short summary with the following text.
+      content = s"""Please make a very short summary with the following text.
          |Keep the summary in the original language.
          |Return the summary in JSON Object format.:
          |
@@ -126,9 +126,9 @@ class DocumentAIService {
 
     val node = JsonNode(NodeType.STRING)
 
-    val jsonObject = JsonObject(("summary", node))
+    val jsonObject = JsonObject(properties = Map(("summary" -> node)))
 
-    val request = ChatRequest(jsonObject, Seq(message))
+    val request = ChatRequest(format = jsonObject, messages = Seq(message))
 
     var buffer = ""
 
@@ -143,7 +143,7 @@ class DocumentAIService {
 
   def createChunks(text: String, blockingQueue: BlockingQueue[String]): util.List[Chunk] = {
     val message = ChatMessage(
-      s"""Split the following text into thematically sections.
+      content = s"""Split the following text into thematically sections.
          |Each section should cover a separate topic.
          |Keep the title and the content in the original language.
          |Return the sections as JSON Array in the following format:
@@ -157,11 +157,11 @@ class DocumentAIService {
     val titleNode = JsonNode(NodeType.STRING)
     val contentNode = JsonNode(NodeType.STRING)
 
-    val jsonObject = JsonObject(("title", titleNode), ("content", contentNode))
+    val jsonObject = JsonObject(properties = Map(("title" -> titleNode), ("content" -> contentNode)))
 
-    val jsonArray = JsonArray(jsonObject)
+    val jsonArray = JsonArray(items = jsonObject)
 
-    val request = ChatRequest(jsonArray, Seq(message))
+    val request = ChatRequest(format = jsonArray, messages = Seq(message))
 
     var buffer = ""
 
@@ -176,9 +176,7 @@ class DocumentAIService {
   }
 
   def createEmbeddings(text: String): Array[Float] = {
-    val options = RequestOptions(0)
-
-    val request = EmbeddingRequest(text, options)
+    val request = EmbeddingRequest(input = text)
 
     normalize(oLlamaService.generateEmbeddings(request).embeddings.head)
     /*

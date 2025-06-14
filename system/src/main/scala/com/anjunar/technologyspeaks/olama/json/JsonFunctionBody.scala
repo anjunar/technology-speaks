@@ -1,12 +1,6 @@
 package com.anjunar.technologyspeaks.olama.json
 
-import scala.beans.BeanProperty
-import scala.compiletime.uninitialized
+case class JsonFunctionBody(description: String,
+                            name: String,
+                            parameters: JsonObject)
 
-class JsonFunctionBody extends JsonNode {
-
-  var name : String = uninitialized
-
-  var parameters : JsonObject = uninitialized
-
-}

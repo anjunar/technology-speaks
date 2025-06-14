@@ -163,7 +163,7 @@ class DataImport {
          |Text:
          |${i18n.text}""".stripMargin
 
-    val response = oLlamaService.chat(ChatRequest(Seq(ChatMessage(prompt))))
+    val response = oLlamaService.chat(ChatRequest(messages = Seq(ChatMessage(content = prompt))))
 
     val translation = new Translation
     translation.locale = locale

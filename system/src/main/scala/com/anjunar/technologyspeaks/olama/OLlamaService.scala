@@ -39,8 +39,27 @@ class OLlamaService extends Serializable {
 
   private def proxy: OLlamaResource = webTarget.proxy(classOf[OLlamaResource])
 
-  def generate(request: GenerateRequest): GenerateResponse =
-    proxy.generate(request)
+  def generate(request: GenerateRequest): GenerateResponse = {
+    val client = ClientBuilder.newClient
+    try {
+      val target = client.target("http://localhost:11434/api/generate")
+
+      val webTarget = target.asInstanceOf[ResteasyWebTarget]
+      val resteasyJacksonProvider = new JacksonJsonProvider()
+      val mapper = ObjectMapperContextResolver.objectMapper
+
+      resteasyJacksonProvider.setMapper(mapper)
+      webTarget.register(resteasyJacksonProvider)
+
+      val response = target.request().post(Entity.json(request))
+      val body = response.readEntity(classOf[InputStream])
+
+      mapper.readValue(body, classOf[GenerateResponse])
+
+    } finally {
+      client.close()
+    }
+  }
 
   def chat(request: ChatRequest): ChatResponse = {
     val client = ClientBuilder.newClient

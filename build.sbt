@@ -56,7 +56,7 @@ lazy val system = (project in file("system"))
       "org.hibernate.orm" % "hibernate-vector" % "7.0.0.Beta5",
       "org.jboss.resteasy" % "resteasy-client" % "7.0.0.Beta1",
       "org.jboss.resteasy" % "resteasy-jackson2-provider" % "7.0.0.Beta1",
-      "org.jsoup" % "jsoup" % "1.19.1",
+      "org.jsoup" % "jsoup" % "1.20.1",
       "org.postgresql" % "postgresql" % "42.7.5",
       "org.slf4j" % "slf4j-api" % "2.0.16",
       "org.thymeleaf" % "thymeleaf" % "2.0.21",

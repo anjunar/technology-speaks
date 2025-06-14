@@ -103,6 +103,15 @@ function Root(properties: AppContent.Attributes) {
                                 ))
                             }
                             {
+                                onLink(application.$links, "chat", (link) => (
+                                    <li>
+                                        <Link key={link.url} value={link.url} icon={"chat"}>
+                                            {link.title}
+                                        </Link>
+                                    </li>
+                                ))
+                            }
+                            {
                                 onLink(application.$links, "documents", (link) => (
                                     <li>
                                         <Link key={link.url} value={link.url} icon={"menu_book"}>

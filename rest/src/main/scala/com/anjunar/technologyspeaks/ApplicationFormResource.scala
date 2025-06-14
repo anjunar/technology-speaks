@@ -2,6 +2,7 @@ package com.anjunar.technologyspeaks
 
 import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.SchemaBuilderContext
+import com.anjunar.technologyspeaks.chat.ChatResource
 import com.anjunar.technologyspeaks.control.*
 import com.anjunar.technologyspeaks.document.{DocumentSearch, DocumentTableResource}
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
@@ -52,6 +53,10 @@ class ApplicationFormResource extends SchemaBuilderContext {
         if (principal.validated) {
           linkTo(methodOn(classOf[UserFormResource]).read(user.id))
             .withRel("profile")
+            .build(link.addLink)
+
+          linkTo(methodOn(classOf[ChatResource]).chat(null))
+            .withRel("chat")
             .build(link.addLink)
 
           linkTo(methodOn(classOf[UserTableResource]).search(new UserSearch))

@@ -1,26 +1,8 @@
 package com.anjunar.technologyspeaks.olama.json
 
-import scala.beans.BeanProperty
-import scala.compiletime.uninitialized
+import com.fasterxml.jackson.annotation.JsonProperty
 
-class JsonFunction extends JsonNode {
-
-  var function : JsonFunctionBody = uninitialized
-
-}
-
-object JsonFunction {
-  
-  def apply(name : String, parameters : JsonObject, description : String = null) : JsonFunction = {
-    val body = new JsonFunctionBody
-    body.name = name
-    body.parameters = parameters
-    body.description = description
-    
-    val jsonFunction = new JsonFunction
-    jsonFunction.function = body
-    jsonFunction.nodeType = NodeType.FUNCTION
-    jsonFunction
-  }
-  
-}
+case class JsonFunction(@JsonProperty("type")
+                        nodeType: NodeType = NodeType.FUNCTION,
+                        description: String,
+                        function: JsonFunctionBody) extends Node

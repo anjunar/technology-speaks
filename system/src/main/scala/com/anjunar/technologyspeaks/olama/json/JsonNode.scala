@@ -5,22 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
-class JsonNode {
+case class JsonNode(@JsonProperty("type")
+                    nodeType: NodeType,
+                    description: String = null) extends Node
 
-  @JsonProperty("type")
-  var nodeType : NodeType = uninitialized
-
-  var description : String = uninitialized
-
-}
-
-object JsonNode {
-  
-  def apply(nodeType : NodeType, description : String = null) : JsonNode = {
-    val node = new JsonNode
-    node.nodeType = nodeType
-    node.description = description
-    node
-  }
-  
-}
