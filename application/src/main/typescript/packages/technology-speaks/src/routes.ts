@@ -35,7 +35,7 @@ function getHeaders(info : RequestInformation) {
 }
 
 function getRedirect(info) {
-    return `${info.path}${info.search}`;
+    return `${info.path}${info.search.length === 1 ? "" : info.search}`;
 }
 
 export const routes: Router.Route[] = [

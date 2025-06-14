@@ -23,7 +23,7 @@ import jakarta.ws.rs.core.{MediaType, Response, StreamingOutput}
 
 import java.nio.charset.StandardCharsets
 import java.util.{Properties, UUID}
-import java.util.concurrent.{ConcurrentHashMap, LinkedBlockingQueue}
+import java.util.concurrent.{BlockingQueue, ConcurrentHashMap, LinkedBlockingQueue}
 import scala.compiletime.uninitialized
 
 @Path("documents/document")
@@ -41,6 +41,8 @@ class DocumentFormResource extends SchemaBuilderContext {
 
   @Resource
   var executor: ManagedExecutorService  = uninitialized
+
+  val batchSessions : ConcurrentHashMap[UUID, BlockingQueue[String]] = new ConcurrentHashMap[UUID, BlockingQueue[String]]()
 
   @GET
   @Produces(Array("application/json"))
@@ -168,20 +170,25 @@ class DocumentFormResource extends SchemaBuilderContext {
   @Path("/{id}/batch")
   @RolesAllowed(Array("User", "Administrator"))
   @Produces(Array(MediaType.SERVER_SENT_EVENTS))
-  def progressStream(@PathParam("id") document: Document): Response = {
+  def progressStream(@PathParam("id") document: Document, @QueryParam("session") session : UUID): Response = {
 
-    val queue = new LinkedBlockingQueue[String]
-    val aiService1 = aiService
+    val service = aiService
+    var queue = batchSessions.get(session)
 
-    executor.runAsync(() => {
-      try {
-        aiService1.update(document.id, queue)
-      } catch {
-        case e: Exception =>
-          queue.offer(s"Error: ${e.getMessage}")
-          queue.offer("Done")
-      }
-    })
+    if (queue == null) {
+      queue = new LinkedBlockingQueue[String]
+      batchSessions.put(session, queue)
+
+      executor.runAsync(() => {
+        try {
+          service.update(document.id, queue)
+        } catch {
+          case e: Exception =>
+            queue.offer(s"Error: ${e.getMessage}")
+            queue.offer("Done")
+        }
+      })
+    }
 
     val mapper = ObjectMapperContextResolver.objectMapper
 

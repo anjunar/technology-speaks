@@ -16,6 +16,7 @@ import {
 import {process} from "../../Root";
 import {createPortal} from "react-dom";
 import navigate = Router.navigate;
+import {v4} from "uuid";
 
 function DocumentFormPage(properties: DocumentFormPage.Attributes) {
 
@@ -38,10 +39,8 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
             method: link.method
         })
 
-        if (response.ok) {
-            setOpen(true)
-
-            let eventSource = new EventSource(`/service/documents/document/${domain.id}/batch`);
+        function startDocumentBatchProcessing(session: string) : EventSource {
+            let eventSource = new EventSource(`/service/documents/document/${domain.id}/batch?session=${session}`);
 
             eventSource.onmessage = (e) => {
 
@@ -62,9 +61,26 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
                         return next;
                     });
                 }
-
-
             };
+            return eventSource;
+        }
+
+        if (response.ok) {
+            setOpen(true)
+
+            const session = v4()
+
+            let eventSource = startDocumentBatchProcessing(session);
+
+            eventSource.onerror = (e) => {
+                console.error(e)
+                eventSource.close()
+
+                setTimeout(() => {
+                    eventSource = startDocumentBatchProcessing(session)
+                }, 3000);
+            }
+
         } else {
             if (response.status === 403) {
                 process(response)

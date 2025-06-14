@@ -55,7 +55,7 @@ class ApplicationFormResource extends SchemaBuilderContext {
             .withRel("profile")
             .build(link.addLink)
 
-          linkTo(methodOn(classOf[ChatResource]).chat(null))
+          linkTo(methodOn(classOf[ChatResource]).chat(null, null))
             .withRel("chat")
             .build(link.addLink)
 

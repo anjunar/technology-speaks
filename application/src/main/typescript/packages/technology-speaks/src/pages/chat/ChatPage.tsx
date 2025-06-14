@@ -5,6 +5,7 @@ import rehypePrism from "rehype-prism-plus";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import remarkGfm from "remark-gfm";
+import {v4} from "uuid";
 
 export function ChatPage(properties: ChatPage.Attributes) {
 
@@ -28,10 +29,8 @@ export function ChatPage(properties: ChatPage.Attributes) {
     }
 
     function onKeyUp(event : React.KeyboardEvent<HTMLInputElement>) {
-        if (event.key === "Enter") {
-            event.preventDefault()
-
-            let eventSource = new EventSource(`/service/chat?text=${encodeURIComponent(event.currentTarget.value)}`);
+        function startChatStream(session : string) : EventSource {
+            let eventSource = new EventSource(`/service/chat?text=${encodeURIComponent(event.currentTarget.value)}&session=${session}`);
 
             eventSource.onmessage = (e) => {
 
@@ -53,10 +52,23 @@ export function ChatPage(properties: ChatPage.Attributes) {
                     });
                 }
             }
+            return eventSource;
+        }
+
+        if (event.key === "Enter") {
+            event.preventDefault()
+
+            const session = v4()
+
+            let eventSource = startChatStream(session);
 
             eventSource.onerror = (e) => {
                 console.error(e)
                 eventSource.close()
+
+                setTimeout(() => {
+                    eventSource = startChatStream(session)
+                }, 3000);
             }
         }
     }

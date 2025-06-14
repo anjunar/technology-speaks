@@ -17,7 +17,8 @@ import jakarta.ws.rs.core.{MediaType, Response, StreamingOutput}
 import org.jboss.resteasy.annotations.jaxrs.QueryParam
 
 import java.nio.charset.StandardCharsets
-import java.util.concurrent.LinkedBlockingQueue
+import java.util.UUID
+import java.util.concurrent.{BlockingQueue, ConcurrentHashMap, LinkedBlockingQueue}
 import scala.compiletime.uninitialized
 
 @ApplicationScoped
@@ -33,24 +34,31 @@ class ChatResource {
   @Resource
   var executor: ManagedExecutorService = uninitialized
 
+  val batchSessions: ConcurrentHashMap[UUID, BlockingQueue[String]] = new ConcurrentHashMap[UUID, BlockingQueue[String]]()
+
   @GET
   @RolesAllowed(Array("User", "Administrator"))
   @Produces(Array(MediaType.SERVER_SENT_EVENTS))
   @LinkDescription(value = "Chat", linkType = LinkType.ACTION)
-  def chat(@QueryParam("text") text : String): Response = {
-
-    val queue = new LinkedBlockingQueue[String]
+  def chat(@QueryParam("text") text : String, @QueryParam("session") session : UUID): Response = {
     val test = this.service
-    executor.runAsync(() => {
-      try {
-        test.chat(text, queue)
-      } catch {
-        case e: Throwable =>
-          log.error(e.getMessage, e)
-          queue.offer(s"Error: ${e.getMessage}")
-          queue.offer("!Done!")
-      }
-    })
+
+    var queue = batchSessions.get(session)
+    if (queue == null) {
+      queue = new LinkedBlockingQueue[String]
+      batchSessions.put(session, queue)
+
+      executor.runAsync(() => {
+        try {
+          test.chat(text, queue)
+        } catch {
+          case e: Throwable =>
+            log.error(e.getMessage, e)
+            queue.offer(s"Error: ${e.getMessage}")
+            queue.offer("!Done!")
+        }
+      })
+    }
 
     val mapper = ObjectMapperContextResolver.objectMapper
 
