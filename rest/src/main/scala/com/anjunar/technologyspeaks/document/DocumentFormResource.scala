@@ -3,6 +3,7 @@ package com.anjunar.technologyspeaks.document
 import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.SchemaBuilderContext
 import com.anjunar.scala.schema.model.LinkType
+import com.anjunar.technologyspeaks.configuration.jaxrs.ObjectMapperContextResolver
 import com.anjunar.technologyspeaks.control.User
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
@@ -170,10 +171,11 @@ class DocumentFormResource extends SchemaBuilderContext {
   def progressStream(@PathParam("id") document: Document): Response = {
 
     val queue = new LinkedBlockingQueue[String]
+    val aiService1 = aiService
 
     executor.runAsync(() => {
       try {
-        aiService.update(document.id, queue)
+        aiService1.update(document.id, queue)
       } catch {
         case e: Exception =>
           queue.offer(s"Error: ${e.getMessage}")
@@ -181,12 +183,15 @@ class DocumentFormResource extends SchemaBuilderContext {
       }
     })
 
+    val mapper = ObjectMapperContextResolver.objectMapper
+
     val stream: StreamingOutput = output => {
       try {
         var done = false
         while (!done) {
           val msg = queue.take()
-          val sseMsg = s"data: $msg\n\n"
+          val json = mapper.writeValueAsString(Map("text" -> msg))
+          val sseMsg = s"data: $json\n\n"
           output.write(sseMsg.getBytes(StandardCharsets.UTF_8))
           output.flush()
           if (msg == "Done") done = true

@@ -69,7 +69,12 @@ class DocumentService {
     case node : ast.Text =>
       val position = createPosition(node)
       Text(position, node.getChars.unescape())
-
+    case node : ast.SoftLineBreak =>
+      val position = createPosition(node)
+      SoftBreak(position)
+    case node : ast.HardLineBreak =>
+      val position = createPosition(node)
+      HardBreak(position)
   }
 
   private def children(node: VNode) = {

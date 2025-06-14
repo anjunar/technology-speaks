@@ -21,8 +21,12 @@ trait SchemaBuilderContext {
     val protocol = httpHeaders.getHeaderString("x-forwarded-protocol")
     val host = httpHeaders.getHeaderString("x-forwarded-host")
     val redirect = uriInfo.getQueryParameters(true).getFirst("redirect")
-    val targetUri = URI.create(s"$protocol://$host$redirect")
-    Response.seeOther(targetUri).build()
+    if (redirect == null) {
+      Response.ok.build()
+    } else {
+      val targetUri = URI.create(s"$protocol://$host$redirect")
+      Response.seeOther(targetUri).build()
+    }
   }
 
   def forLinks[C](aClass: Class[C], link: (C, LinkContext) => Unit): SchemaBuilder = provider.builder.forLinks(aClass, link)

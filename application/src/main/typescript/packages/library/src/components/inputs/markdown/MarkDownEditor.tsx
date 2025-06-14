@@ -74,7 +74,7 @@ function MarkDownEditor(properties: MarkDownEditor.Attributes) {
                 <JsFlag showWhenJs={true}>
                     <Toolbar page={page} onPage={value => setPage(value)}/>
                 </JsFlag>
-                <textarea name={name} onSelect={onSelect} ref={textAreaRef} onInput={(event: any) => state.markdown = event.target.value} value={state.markdown} className={"content"}></textarea>
+                <textarea name={name} onSelect={onSelect} ref={textAreaRef} onInput={(event: any) => state.markdown = event.target.value} defaultValue={state.markdown} className={"content"}></textarea>
                 <div style={{display: "flex", flexDirection: "row", gap : "16px"}}>
                     {
                         state?.files?.map(file => (

@@ -44,23 +44,26 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
             let eventSource = new EventSource(`/service/documents/document/${domain.id}/batch`);
 
             eventSource.onmessage = (e) => {
-                setBuffer((prev) => {
-                    const next = prev + e.data;
 
-                    requestAnimationFrame(() => {
-                        if (scrollRef.current) {
-                            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-                        }
-                    });
-
-                    return next;
-                });
-
-                if (e.data === "Done") {
+                if (e.data === "!Done!") {
                     eventSource.close()
                     setOpen(false)
                     navigate("/documents/search")
+                } else {
+                    setBuffer((prev) => {
+                        const next = prev + JSON.parse(e.data).text;
+
+                        requestAnimationFrame(() => {
+                            if (scrollRef.current) {
+                                scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+                            }
+                        });
+
+                        return next;
+                    });
                 }
+
+
             };
         } else {
             if (response.status === 403) {
