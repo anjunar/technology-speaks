@@ -22,7 +22,7 @@ function LogoutPage(properties: LogoutPage.Attributes) {
         })
 
         if (response.ok) {
-            navigate("/", true)
+            navigate("/security/login", true)
         } else {
             if (response.status === 403) {
                 process(response)

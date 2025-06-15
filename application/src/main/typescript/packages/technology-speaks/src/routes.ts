@@ -23,7 +23,7 @@ import ChatPage from "./pages/chat/ChatPage";
 
 export function process(response: Response, redirect : string) {
     if (response.status === 403) {
-        throw new Router.RedirectError(`/security/login?redirect=${redirect}`)
+        throw new Router.RedirectError(`/security/login?redirect=${encodeURIComponent(redirect)}`)
     }
 }
 
