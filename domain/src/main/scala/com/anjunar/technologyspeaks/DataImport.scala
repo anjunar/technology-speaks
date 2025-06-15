@@ -167,7 +167,7 @@ class DataImport {
 
     val translation = new Translation
     translation.locale = locale
-    translation.text = response.message.content.trim
+    translation.text = response.trim
 
     i18n.translations.add(translation)
   }

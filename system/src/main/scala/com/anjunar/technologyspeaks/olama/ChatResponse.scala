@@ -10,9 +10,4 @@ class ChatResponse extends AbstractResponse {
 
   var message : ChatMessage = uninitialized
 
-  @JsonProperty("done_reason")
-  var doneReason : String = uninitialized
-
-  var done : Boolean = uninitialized
-
 }

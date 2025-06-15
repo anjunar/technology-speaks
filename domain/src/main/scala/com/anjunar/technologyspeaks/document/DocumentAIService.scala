@@ -35,12 +35,13 @@ class DocumentAIService {
 
   def createLanguageDetection(text: String): Locale = {
 
-    val response = oLlamaService.chat(ChatRequest(messages = Seq(
-      ChatMessage(content = "You are a language detection assistant. Only respond with the ISO 639-1 language code (e.g., 'en', 'de', 'fr') of the input text. Do not provide any explanations or additional content.", role = ChatRole.SYSTEM),
-      ChatMessage(content = text)
-    ), stream = false))
+    val system =
+      """You are a language detection assistant. Only respond with the ISO 639-1 language code
+        |(e.g., 'en', 'de', 'fr') of the input text. Do not provide any explanations or additional content.""".stripMargin
 
-    Locale.forLanguageTag(response.message.content)
+    val response = oLlamaService.generate(GenerateRequest(system = system, prompt = text))
+
+    Locale.forLanguageTag(response)
   }
 
   def createSearch(text: String): String = {
@@ -61,33 +62,21 @@ class DocumentAIService {
       renderedText = renderedText.replace(hashTag.value, hashTag.description)
     }
 
-    val message = ChatMessage(
-      content = s"""Rephrase the following sentence to make it more fluent without changing its meaning.
+    val message = s"""Rephrase the following sentence to make it more fluent without changing its meaning.
          |Return only the rephrased text, no additional comments. No thematic expansions.
-         |Keep the text in the original language.
-         |
-         |Text:
-         |
-         |$renderedText""".stripMargin)
+         |Keep the text in the original language.""".stripMargin
 
-    val request = ChatRequest(messages = Seq(message), stream = false)
-
-    val response = oLlamaService.chat(request)
-
-    response.message.content
+    oLlamaService.generate(GenerateRequest(system = message, prompt = renderedText))
   }
 
   def createHashTags(text: String, blockingQueue: BlockingQueue[String], cancelled : AtomicBoolean): util.Set[HashTag] = {
-    val message = ChatMessage(
-      content = s"""Generate hashtags for the following text and a short description for each hashtag.
+    val system =
+      s"""Generate hashtags for the following text and a short description for each hashtag.
          |Keep the text and short description in the original language.
          |Return the hashtags as JSON Array in the following format:
          |
          |[{"value" : "#Hashtag in original language", "description" : "A short description in original language"}]
-         |
-         |Text:
-         |
-         |$text""".stripMargin)
+         """.stripMargin
 
     val valueNode = JsonNode(NodeType.STRING)
     val descriptionNode = JsonNode(NodeType.STRING)
@@ -96,11 +85,11 @@ class DocumentAIService {
 
     val jsonArray = JsonArray(items = jsonObject)
 
-    val request = ChatRequest(format = jsonArray, messages = Seq(message))
+    val request = GenerateRequest(format = jsonArray, system = system, prompt = text, stream = true)
 
     var buffer = ""
 
-    asyncOLlamaService.chat(request, line => {
+    asyncOLlamaService.generate(request, line => {
       buffer += line
       blockingQueue.put(line)
     }, cancelled)
@@ -111,26 +100,23 @@ class DocumentAIService {
   }
 
   def createDescription(text: String, blockingQueue: BlockingQueue[String], cancelled : AtomicBoolean): String = {
-    val message = ChatMessage(
-      content = s"""Please make a very short summary with the following text.
+    val system =
+      s"""Please make a very short summary with the following text.
          |Keep the summary in the original language.
          |Return the summary in JSON Object format.:
          |
          |{"summary": "Here is a very short summary in original language"}
-         |
-         |Text:
-         |
-         |$text""".stripMargin)
+         """.stripMargin
 
     val node = JsonNode(NodeType.STRING)
 
     val jsonObject = JsonObject(properties = Map(("summary" -> node)))
 
-    val request = ChatRequest(format = jsonObject, messages = Seq(message))
+    val request = GenerateRequest(format = jsonObject, system = system, prompt = text, stream = true)
 
     var buffer = ""
 
-    asyncOLlamaService.chat(request, line => {
+    asyncOLlamaService.generate(request, line => {
       buffer += line
       blockingQueue.put(line)
     }, cancelled)
@@ -140,17 +126,14 @@ class DocumentAIService {
   }
 
   def createChunks(text: String, blockingQueue: BlockingQueue[String], cancelled : AtomicBoolean): util.List[Chunk] = {
-    val message = ChatMessage(
-      content = s"""Split the following text into thematically sections.
+    val system =
+      s"""Split the following text into thematically sections.
          |Each section should cover a separate topic.
          |Keep the title and the content in the original language.
          |Return the sections as JSON Array in the following format:
          |
          |[{"title" : "Title in original language", "content" : "A short summary of the section in original language"}]
-         |
-         |Text:
-         |
-         |$text""".stripMargin)
+         """.stripMargin
 
     val titleNode = JsonNode(NodeType.STRING)
     val contentNode = JsonNode(NodeType.STRING)
@@ -159,11 +142,11 @@ class DocumentAIService {
 
     val jsonArray = JsonArray(items = jsonObject)
 
-    val request = ChatRequest(format = jsonArray, messages = Seq(message))
+    val request = GenerateRequest(format = jsonArray, system = system, prompt = text, stream = true)
 
     var buffer = ""
 
-    asyncOLlamaService.chat(request, line => {
+    asyncOLlamaService.generate(request, line => {
       buffer += line
       blockingQueue.put(line)
     }, cancelled)
@@ -176,13 +159,7 @@ class DocumentAIService {
   def createEmbeddings(text: String): Array[Float] = {
     val request = EmbeddingRequest(input = text)
 
-    normalize(oLlamaService.generateEmbeddings(request).embeddings.head)
-    /*
-        val textRequest = new TextRequest
-        textRequest.texts.add(text)
-        semanticSpealService.generateEmbedding(textRequest)
-          .embeddings(0)
-    */
+    normalize(oLlamaService.generateEmbeddings(request))
   }
 
   def normalize(vec: Array[Float]): Array[Float] = {

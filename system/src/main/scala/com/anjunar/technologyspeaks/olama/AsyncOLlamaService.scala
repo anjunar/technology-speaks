@@ -48,4 +48,37 @@ class AsyncOLlamaService {
     }
   }
 
+  def generate(request: GenerateRequest, onData: String => Unit, canceled: AtomicBoolean): Unit = {
+    val client = ClientBuilder.newClient
+    try {
+      val target = client.target("http://localhost:11434/api/generate")
+
+      val webTarget = target.asInstanceOf[ResteasyWebTarget]
+      val resteasyJacksonProvider = new JacksonJsonProvider()
+      val mapper = ObjectMapperContextResolver.objectMapper
+
+      resteasyJacksonProvider.setMapper(mapper)
+      webTarget.register(resteasyJacksonProvider)
+
+      val response = target.request().post(Entity.json(request))
+      val inputStream = response.readEntity(classOf[java.io.InputStream])
+      val source = scala.io.Source.fromInputStream(inputStream)
+
+      try {
+        breakable {
+          for (line <- source.getLines()) {
+            val generateResponse = mapper.readValue(line, classOf[GenerateResponse])
+            onData(generateResponse.response)
+            if (generateResponse.done) break
+            if (canceled.get()) break
+          }
+        }
+      } finally {
+        source.close()
+      }
+    } finally {
+      client.close()
+    }
+  }
+
 }

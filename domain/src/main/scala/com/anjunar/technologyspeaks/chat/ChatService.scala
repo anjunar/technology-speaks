@@ -29,13 +29,13 @@ class ChatService {
     val inputVector = syncService.generateEmbeddings(EmbeddingRequest(input = text))
 
     val memoryShortTerm = MemoryEntry.findLatest10()
-    val memoryLongTerm = MemoryEntry.findSimilar(inputVector.embeddings.head)
+    val memoryLongTerm = MemoryEntry.findSimilar(inputVector)
 
     val memory = (memoryShortTerm.asScala.toSet ++ memoryLongTerm.asScala.toSet).toList.sortBy(entry => entry.created)
 
     val session = memory.flatMap(item => Seq(ChatMessage(content = item.question), ChatMessage(content = item.answer, role = ChatRole.ASSISTANT)))
 
-    val documents = Document.findTop5(inputVector.embeddings.head)
+    val documents = Document.findTop5(inputVector)
       .asScala
       .map(document => ChatMessage(content = document.editor.toText(), role = ChatRole.ASSISTANT))
       .toSeq
@@ -87,9 +87,9 @@ class ChatService {
 
       val response = syncService.generate(GenerateRequest(prompt = promptText, system = systemPrompt))
 
-      val embeddingResponse = syncService.generateEmbeddings(EmbeddingRequest(input = response.response))
+      val embeddingResponse = syncService.generateEmbeddings(EmbeddingRequest(input = response))
 
-      MemoryEntry(response.response, text, buffer, embeddingResponse.embeddings.head)
+      MemoryEntry(response, text, buffer, embeddingResponse)
         .saveOrUpdate()
     }
 

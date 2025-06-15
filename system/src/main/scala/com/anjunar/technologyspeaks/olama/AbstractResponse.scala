@@ -31,5 +31,9 @@ class AbstractResponse {
   @JsonProperty("eval_duration")
   var evalDuration: Long = uninitialized
 
+  @JsonProperty("done_reason")
+  var doneReason: String = uninitialized
+
+  var done: Boolean = uninitialized
 
 }

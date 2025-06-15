@@ -31,9 +31,9 @@ class OLlamaService extends Serializable {
 
   private def proxy: OLlamaResource = webTarget.proxy(classOf[OLlamaResource])
 
-  def generate(request: GenerateRequest): GenerateResponse = proxy.generate(request)
+  def generate(request: GenerateRequest): String = proxy.generate(request).response
 
-  def chat(request: ChatRequest): ChatResponse = proxy.chat(request)
+  def chat(request: ChatRequest): String = proxy.chat(request).message.content
 
-  def generateEmbeddings(request: EmbeddingRequest): EmbeddingResponse = proxy.generateEmbeddings(request)
+  def generateEmbeddings(request: EmbeddingRequest): Array[Float] = proxy.generateEmbeddings(request).embeddings.head
 }
