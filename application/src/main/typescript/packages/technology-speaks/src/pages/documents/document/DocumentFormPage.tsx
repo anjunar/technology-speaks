@@ -1,5 +1,5 @@
 import "./DocumentFormPage.css"
-import React, {useRef, useState} from "react"
+import React, {useContext, useRef, useState} from "react"
 import Document from "../../../domain/document/Document";
 import {
     Button,
@@ -17,6 +17,7 @@ import {process} from "../../Root";
 import {createPortal} from "react-dom";
 import navigate = Router.navigate;
 import {v4} from "uuid";
+import {SystemContext} from "react-ui-simplicity/src/System";
 
 function DocumentFormPage(properties: DocumentFormPage.Attributes) {
 
@@ -25,6 +26,8 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
     const domain = useForm(form);
 
     const [open, setOpen] = useState(false)
+
+    const {info} = useContext(SystemContext)
 
     const [buffer, setBuffer] = useState("")
 
@@ -39,18 +42,24 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
             method: link.method
         })
 
-        function startDocumentBatchProcessing(session: string) : EventSource {
-            let eventSource = new EventSource(`/service/documents/document/${domain.id}/batch?session=${session}`);
+        function startDocumentBatchProcessing() : WebSocket {
+            let ws = new WebSocket(`ws://${info.host}/ws/document`)
 
-            eventSource.onmessage = (e) => {
+            ws.onopen = () => {
+                ws.send(domain.id);
+                setOpen(true)
+            }
 
-                if (e.data === "!Done!") {
-                    eventSource.close()
+            ws.onmessage = (e) => {
+                let text = e.data
+
+                if (text === "!Done!") {
+                    ws.close()
                     setOpen(false)
-                    navigate("/documents/search")
+                    navigate("/documents/search?index=0&limit=5")
                 } else {
                     setBuffer((prev) => {
-                        const next = prev + JSON.parse(e.data).text;
+                        const next = prev + text;
 
                         requestAnimationFrame(() => {
                             if (scrollRef.current) {
@@ -62,22 +71,26 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
                     });
                 }
             };
-            return eventSource;
+
+            ws.onclose = () => {
+                setOpen(true)
+                console.log("Disconnected");
+            }
+
+            return ws;
         }
 
         if (response.ok) {
             setOpen(true)
 
-            const session = v4()
-
-            let eventSource = startDocumentBatchProcessing(session);
+            let eventSource = startDocumentBatchProcessing();
 
             eventSource.onerror = (e) => {
                 console.error(e)
                 eventSource.close()
 
                 setTimeout(() => {
-                    eventSource = startDocumentBatchProcessing(session)
+                    eventSource = startDocumentBatchProcessing()
                 }, 3000);
             }
 
@@ -115,7 +128,7 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
             }
             <SchemaForm value={domain} onSubmit={onSubmit}
                         enctype={"multipart/form-data"}
-                        redirect={`/documents/document/${domain.id}`}
+                        redirect={`/documents/search?index=0&limit=5`}
                         style={{display: "flex", flexDirection: "column", width: "100%"}}>
                 <SchemaInput name={"id"} style={{maxWidth : "800px"}}/>
                 <SchemaInput name={"title"} style={{maxWidth : "800px"}}/>

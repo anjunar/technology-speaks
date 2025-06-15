@@ -20,6 +20,7 @@ class LoggingRequestFilter extends ClientRequestFilter {
 
     val mapper = ObjectMapperContextResolver.objectMapper
 
+    log.info(requestContext.getUri.toASCIIString)
     log.info(mapper.writeValueAsString(entity))
 
   }

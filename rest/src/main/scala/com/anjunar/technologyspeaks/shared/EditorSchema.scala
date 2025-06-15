@@ -25,7 +25,7 @@ object EditorSchema {
         )
       )
       .property("markdown", property => property
-        .withWidget("editor")
+        .withWidget("textarea")
         .withWriteable(true)
       )
       .property("json")

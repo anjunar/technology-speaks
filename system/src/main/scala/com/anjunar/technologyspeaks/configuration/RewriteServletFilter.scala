@@ -11,7 +11,7 @@ import java.util
 
 
 object RewriteServletFilter {
-  private val blacklist = Lists.newArrayList("/service")
+  private val blacklist = Lists.newArrayList("/service", "/ws")
 }
 
 @WebFilter(filterName = "rewriteFilter", urlPatterns = Array("*"), asyncSupported = true)

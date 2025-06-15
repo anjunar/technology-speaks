@@ -38,7 +38,7 @@ class DocumentAIService {
     val response = oLlamaService.chat(ChatRequest(messages = Seq(
       ChatMessage(content = "You are a language detection assistant. Only respond with the ISO 639-1 language code (e.g., 'en', 'de', 'fr') of the input text. Do not provide any explanations or additional content.", role = ChatRole.SYSTEM),
       ChatMessage(content = text)
-    )))
+    ), stream = false))
 
     Locale.forLanguageTag(response.message.content)
   }
@@ -70,7 +70,7 @@ class DocumentAIService {
          |
          |$renderedText""".stripMargin)
 
-    val request = ChatRequest(messages = Seq(message))
+    val request = ChatRequest(messages = Seq(message), stream = false)
 
     val response = oLlamaService.chat(request)
 
@@ -238,7 +238,7 @@ class DocumentAIService {
 
     document.description = createDescription(text, blockingQueue, cancelled)
 
-    blockingQueue.put("Done")
+    blockingQueue.put("!Done!")
   }
 
 }

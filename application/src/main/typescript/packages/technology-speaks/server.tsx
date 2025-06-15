@@ -1,4 +1,5 @@
 import express from 'express';
+import http from 'http';
 import React from 'react';
 import {renderToString} from 'react-dom/server';
 import {App} from './src/App';
@@ -31,6 +32,13 @@ const rawHtmlTemplate = fs.readFileSync(indexHtmlPath, 'utf8');
 
 const app = express();
 const PORT = 3000;
+
+
+let wsProxy = createProxyMiddleware({
+    target: 'ws://localhost:8080',
+    changeOrigin: true,
+    ws : true
+});
 
 app.use(cookieParser());
 
@@ -155,6 +163,14 @@ app.get('*', (req, res) => {
 
 });
 
-app.listen(PORT, () => {
+const server = http.createServer(app);
+
+server.on('upgrade', (req, socket, head) => {
+    console.log('[UPGRADE] Upgrade erhalten:', req.url);
+    // @ts-ignore
+    wsProxy.upgrade(req, socket, head)
+});
+
+server.listen(PORT, () => {
     console.log(`🚀 Server is listening on http://localhost:${PORT}`);
 });

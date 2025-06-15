@@ -55,7 +55,6 @@ class ChatResource {
     val cancelled = new AtomicBoolean(false)
 
     val broadcaster = broadcasters.computeIfAbsent(session, _ => sse.newBroadcaster())
-    broadcaster.register(sink)
 
     broadcaster.onClose((event) => {
       log.info("SSE sink closed, cleanup for session " + session)
@@ -66,6 +65,8 @@ class ChatResource {
         case e: Exception => log.warn("Error closing sink", e)
       }
     })
+
+    broadcaster.register(sink)
 
     var queue = batchSessions.get(session)
     if (queue == null) {

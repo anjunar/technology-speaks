@@ -2,7 +2,7 @@ import "./MarkDownEditor.css"
 import React, {CSSProperties, RefObject, useEffect, useLayoutEffect, useMemo, useRef, useState} from "react"
 import Toolbar from "./ui/Toolbar";
 import Footer from "./ui/Footer";
-import {encodeBase64, findNodesByRange, reMarkFactoryForHTML, reMarkFactoryForMarkDown} from "./parser/ReMarkFactory";
+import {encodeBase64, findNodesByRange, reMarkFactoryForHTML} from "./parser/ReMarkFactory";
 import {Node} from 'unist';
 import {useInput} from "../../../hooks";
 import {Model} from "../../shared";
@@ -24,6 +24,10 @@ function MarkDownEditor(properties: MarkDownEditor.Attributes) {
     const [model, state, setState] = useInput<EditorModel>(name, value, standalone, "editor")
 
     const [cursor, setCursor] = useState<Node[]>(null)
+
+    const reMarkForHTML = useMemo(() => {
+        return reMarkFactoryForHTML(state)
+    }, []);
 
     function onStoreClick(file: EditorFile) {
         let textArea = textAreaRef.current;
@@ -61,6 +65,20 @@ function MarkDownEditor(properties: MarkDownEditor.Attributes) {
             onModel(model)
         }
     }, []);
+
+    useEffect(() => {
+        state.ast = reMarkForHTML.parse(state.markdown);
+
+        if (onChange) {
+            onChange(state)
+        }
+
+        if (onModel) {
+            onModel(model)
+        }
+
+
+    }, [state.markdown]);
 
     useLayoutEffect(() => {
         if (onModel) {

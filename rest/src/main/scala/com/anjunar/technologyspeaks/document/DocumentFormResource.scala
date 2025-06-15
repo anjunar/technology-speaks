@@ -188,7 +188,7 @@ class DocumentFormResource extends SchemaBuilderContext {
         } catch {
           case e: Exception =>
             queue.offer(s"Error: ${e.getMessage}")
-            queue.offer("Done")
+            queue.offer("!Done!")
         }
       })
     }
@@ -204,7 +204,7 @@ class DocumentFormResource extends SchemaBuilderContext {
           val sseMsg = s"data: $json\n\n"
           output.write(sseMsg.getBytes(StandardCharsets.UTF_8))
           output.flush()
-          if (msg == "Done") done = true
+          if (msg == "!Done!") done = true
         }
       } catch {
         case e: InterruptedException =>

@@ -36,7 +36,7 @@ const info : RequestInformation = {
     path : window.location.pathname,
     search : window.location.search,
     cookie : parseCookieString(document.cookie) || {},
-    host : window.location.origin,
+    host : window.location.host,
     language : resolvePreferredLanguage(window.navigator.language)
 }
 

@@ -1,11 +1,12 @@
 import './ChatPage.css'
-import React, {useLayoutEffect, useRef, useState} from 'react';
+import React, {useContext, useLayoutEffect, useRef, useState} from 'react';
 import { remark } from 'remark'
 import rehypePrism from "rehype-prism-plus";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 import remarkGfm from "remark-gfm";
 import {v4} from "uuid";
+import {SystemContext} from "react-ui-simplicity/src/System";
 
 export function ChatPage(properties: ChatPage.Attributes) {
 
@@ -17,9 +18,11 @@ export function ChatPage(properties: ChatPage.Attributes) {
 
     const [open, setOpen] = useState(true)
 
+    const {info} = useContext(SystemContext)
+
     const scrollRef = useRef<HTMLDivElement>(null);
 
-    const eventSourceRef = useRef<EventSource>(null);
+    const eventSourceRef = useRef<WebSocket>(null);
 
     async function markdownToHtml(markdownText) {
         const file = await remark()
@@ -35,15 +38,19 @@ export function ChatPage(properties: ChatPage.Attributes) {
     function onKeyUp(event : React.KeyboardEvent<HTMLTextAreaElement>) {
         let value = event.currentTarget.value;
 
-        function startChatStream(session : string) : EventSource {
-            let eventSource = new EventSource(`/service/chat?text=${encodeURIComponent(value)}&session=${session}`);
-            setOpen(false)
+        function startChatStream() : WebSocket {
+            const ws = new WebSocket(`ws://${info.host}/ws/chat`);
 
-            eventSource.onmessage = (e) => {
-                let data = JSON.parse(e.data).text;
+            ws.onopen = () => {
+                ws.send(value);
+                setOpen(false)
+            }
+
+            ws.onmessage = event => {
+                let data = event.data as string;
 
                 if (data === "!Done!") {
-                    eventSource.close()
+                    ws.close()
                     setOpen(true)
                 } else {
                     setBuffer((prev) => {
@@ -59,15 +66,19 @@ export function ChatPage(properties: ChatPage.Attributes) {
                     });
                 }
             }
-            return eventSource;
+
+            ws.onclose = () => {
+                setOpen(true)
+                console.log("Disconnected");
+            }
+
+            return ws
         }
 
         if (event.key === "Enter") {
             event.preventDefault()
 
-            const session = v4()
-
-            let eventSource = startChatStream(session);
+            let eventSource = startChatStream();
             eventSourceRef.current = eventSource;
 
             eventSource.onerror = (e) => {
@@ -75,7 +86,7 @@ export function ChatPage(properties: ChatPage.Attributes) {
                 eventSource.close()
 
                 setTimeout(() => {
-                    eventSource = startChatStream(session)
+                    eventSource = startChatStream()
                     eventSourceRef.current = eventSource;
                 }, 3000);
             }

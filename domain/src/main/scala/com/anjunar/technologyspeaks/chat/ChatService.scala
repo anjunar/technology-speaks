@@ -57,7 +57,7 @@ class ChatService {
       log.info(s"Token size: $tokenSize")
     }
 
-    val request = ChatRequest(messages = messages, options = RequestOptions(num_ctx = 8192, temperature = 0.3))
+    val request = ChatRequest(messages = messages, options = RequestOptions(num_ctx = 8192, temperature = 0.3f))
 
     var buffer = ""
 
@@ -66,31 +66,32 @@ class ChatService {
       queue.offer(text)
     }, canceled)
 
+    if (! canceled.get()) {
+      val systemPrompt =
+        """You are responsible for creating memory memoryShortTerm. For every user interaction, summarize the user input and the
+          |assistant's response into a single memory entry.
+          |Preserve the original language of both the user input and the response.
+          |Focus on core meaning and long-term relevance.
+          |Respond only with the summary, no extra text or emojis.
+          |
+          |Format:
+          |Summary capturing the essence of the user input and the assistant's response in their original language.""".stripMargin
 
-    val systemPrompt =
-      """You are responsible for creating memory memoryShortTerm. For every user interaction, summarize the user input and the
-        |assistant's response into a single memory entry.
-        |Preserve the original language of both the user input and the response.
-        |Focus on core meaning and long-term relevance.
-        |Respond only with the summary, no extra text or emojis.
-        |
-        |Format:
-        |Summary capturing the essence of the user input and the assistant's response in their original language.""".stripMargin
 
+      val promptText =
+        s"""
+           |User input: $text
+           |Assistant response: $buffer
+           |
+           |Summary:""".stripMargin
 
-    val promptText =
-      s"""
-         |User input: $text
-         |Assistant response: $buffer
-         |
-         |Summary:""".stripMargin
+      val response = syncService.generate(GenerateRequest(prompt = promptText, system = systemPrompt))
 
-    val response = syncService.generate(GenerateRequest(prompt = promptText, system = systemPrompt))
+      val embeddingResponse = syncService.generateEmbeddings(EmbeddingRequest(input = response.response))
 
-    val embeddingResponse = syncService.generateEmbeddings(EmbeddingRequest(input = response.response))
-
-    MemoryEntry(response.response, text, buffer, embeddingResponse.embeddings.head)
-      .saveOrUpdate()
+      MemoryEntry(response.response, text, buffer, embeddingResponse.embeddings.head)
+        .saveOrUpdate()
+    }
 
     queue.offer("!Done!")
 
