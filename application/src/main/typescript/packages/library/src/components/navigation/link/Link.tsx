@@ -63,12 +63,18 @@ namespace Link {
         onClick? : React.MouseEventHandler<HTMLAnchorElement>
     }
 
-    export function onLink($links :LinkContainerObject, rel: string, callback: (link: RestLink) => React.ReactNode) {
+    export function onLink($links :LinkContainerObject, rel: string, callback: (link: RestLink) => React.ReactNode, callback2? : () => React.ReactNode) : React.ReactNode {
         if ($links) {
             let link = $links[rel];
 
             if (link) {
                 return callback(link)
+            } else {
+                if (callback2) {
+                    return callback2()
+                } else {
+                    return ""
+                }
             }
         }
         return ""

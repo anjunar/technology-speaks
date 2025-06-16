@@ -4,7 +4,6 @@ import com.anjunar.scala.schema.model.LinkType
 import com.anjunar.technologyspeaks.configuration.jaxrs.ObjectMapperContextResolver
 import com.anjunar.technologyspeaks.document.Document
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
-import com.anjunar.technologyspeaks.olama.AsyncOLlamaService
 import com.anjunar.technologyspeaks.security.Secured
 import com.typesafe.scalalogging.Logger
 import jakarta.annotation.Resource

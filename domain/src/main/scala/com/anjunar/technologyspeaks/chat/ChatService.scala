@@ -18,9 +18,6 @@ class ChatService {
   val log: Logger = Logger[ChatService]
 
   @Inject
-  var asyncService: AsyncOLlamaService = uninitialized
-
-  @Inject
   var syncService: OLlamaService = uninitialized
 
   @Transactional
@@ -61,7 +58,7 @@ class ChatService {
 
     var buffer = ""
 
-    asyncService.chat(request, text => {
+    syncService.chat(request, text => {
       buffer += text
       queue.offer(text)
     }, canceled)

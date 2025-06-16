@@ -21,6 +21,10 @@ import java.util.stream.Collectors
 import scala.beans.BeanProperty
 import scala.compiletime.uninitialized
 
+import scala.jdk.CollectionConverters.*
+
+
+
 @ApplicationScoped
 class DocumentAIService {
 
@@ -28,20 +32,63 @@ class DocumentAIService {
   var oLlamaService: OLlamaService = uninitialized
 
   @Inject
-  var asyncOLlamaService: AsyncOLlamaService = uninitialized
-
-  @Inject
   var entityManager: EntityManager = uninitialized
 
-  def createLanguageDetection(text: String): Locale = {
+  def create(text: String, blockingQueue: BlockingQueue[String], cancelled : AtomicBoolean) : DocumentAIService.Response = {
 
-    val system =
-      """You are a language detection assistant. Only respond with the ISO 639-1 language code
-        |(e.g., 'en', 'de', 'fr') of the input text. Do not provide any explanations or additional content.""".stripMargin
+    val system = """
+                |1.(language) Respond with the ISO 639-1 language code (e.g., 'en', 'de', 'fr') of the input text
+                |2.(summary) Please make a very short summary of the input text. Keep the summary in the original language.
+                |3.(hashtags) Generate hashtags for the following input text and a short description for each hashtag. Keep the hashtag and short description in the original language
+                |4.(chunks) Split the following input text into thematically sections.Each section should cover a separate topic. Keep the title and the content in the original language.
+                |
+                |{
+                |   "language" : "ISO 639-1 language code",
+                |   "summary" : "very short summary of the input text. Keep the summary in the original language",
+                |   "hashtags" : [
+                |       {
+                |           "value" : "#Hashtag in original language",
+                |           "description" : "A short description in original language"
+                |       }
+                |   ],
+                |   "chunks" : [
+                |       {
+                |           "title" : "Title in original language",
+                |           "content" : "A short summary of the section in original language"
+                |       }
+                |   ]
+                |}
+                |""".stripMargin
 
-    val response = oLlamaService.generate(GenerateRequest(system = system, prompt = text))
+    val jsonObject = JsonObject(properties = Map(
+      "language" -> JsonNode(NodeType.STRING, description = "Respond with the ISO 639-1 language code (e.g., 'en', 'de', 'fr') of the input text"),
+      "summary" -> JsonNode(NodeType.STRING, description = "Please make a very short summary of the input text. Keep the summary in the original language."),
+      "hashtags" -> JsonArray(
+        description = "Generate hashtags for the following input text and a short description for each hashtag. Keep the hashtag and short description in the original language",
+        items = JsonObject(properties = Map(
+          "value" -> JsonNode(NodeType.STRING, description = "#Hashtag in original language"),
+          "description" -> JsonNode(NodeType.STRING, description = "A short description in original language")
+      ))),
+      "chunks" -> JsonArray(
+        description = "Split the following input text into thematically sections.Each section should cover a separate topic. Keep the title and the content in the original language.",
+        items = JsonObject(
+          properties = Map(
+            "title" -> JsonNode(NodeType.STRING, description = "Title in original language"),
+            "content" -> JsonNode(NodeType.STRING, description = "A short summary of the section in original language")
+      )))
+    ))
 
-    Locale.forLanguageTag(response)
+    val request = GenerateRequest(format = jsonObject, system = system, prompt = text, stream = true)
+
+    var buffer = ""
+
+    oLlamaService.generate(request, line => {
+      buffer += line
+      blockingQueue.put(line)
+    }, cancelled)
+
+    val mapper = ObjectMapperContextResolver.objectMapper
+    mapper.readValue(buffer, classOf[DocumentAIService.Response])
   }
 
   def createSearch(text: String): String = {
@@ -69,92 +116,7 @@ class DocumentAIService {
     oLlamaService.generate(GenerateRequest(system = message, prompt = renderedText))
   }
 
-  def createHashTags(text: String, blockingQueue: BlockingQueue[String], cancelled : AtomicBoolean): util.Set[HashTag] = {
-    val system =
-      s"""Generate hashtags for the following text and a short description for each hashtag.
-         |Keep the text and short description in the original language.
-         |Return the hashtags as JSON Array in the following format:
-         |
-         |[{"value" : "#Hashtag in original language", "description" : "A short description in original language"}]
-         """.stripMargin
 
-    val valueNode = JsonNode(NodeType.STRING)
-    val descriptionNode = JsonNode(NodeType.STRING)
-
-    val jsonObject = JsonObject(properties = Map(("value" -> valueNode), ("description" -> descriptionNode)))
-
-    val jsonArray = JsonArray(items = jsonObject)
-
-    val request = GenerateRequest(format = jsonArray, system = system, prompt = text, stream = true)
-
-    var buffer = ""
-
-    asyncOLlamaService.generate(request, line => {
-      buffer += line
-      blockingQueue.put(line)
-    }, cancelled)
-
-    val mapper = ObjectMapperContextResolver.objectMapper
-    val collectionType = mapper.getTypeFactory.constructCollectionType(classOf[util.Set[HashTag]], classOf[HashTag])
-    mapper.readValue(buffer, collectionType)
-  }
-
-  def createDescription(text: String, blockingQueue: BlockingQueue[String], cancelled : AtomicBoolean): String = {
-    val system =
-      s"""Please make a very short summary with the following text.
-         |Keep the summary in the original language.
-         |Return the summary in JSON Object format.:
-         |
-         |{"summary": "Here is a very short summary in original language"}
-         """.stripMargin
-
-    val node = JsonNode(NodeType.STRING)
-
-    val jsonObject = JsonObject(properties = Map(("summary" -> node)))
-
-    val request = GenerateRequest(format = jsonObject, system = system, prompt = text, stream = true)
-
-    var buffer = ""
-
-    asyncOLlamaService.generate(request, line => {
-      buffer += line
-      blockingQueue.put(line)
-    }, cancelled)
-
-    val mapper = ObjectMapperContextResolver.objectMapper
-    mapper.readValue(buffer, classOf[DocumentAIService.Summary]).summary
-  }
-
-  def createChunks(text: String, blockingQueue: BlockingQueue[String], cancelled : AtomicBoolean): util.List[Chunk] = {
-    val system =
-      s"""Split the following text into thematically sections.
-         |Each section should cover a separate topic.
-         |Keep the title and the content in the original language.
-         |Return the sections as JSON Array in the following format:
-         |
-         |[{"title" : "Title in original language", "content" : "A short summary of the section in original language"}]
-         """.stripMargin
-
-    val titleNode = JsonNode(NodeType.STRING)
-    val contentNode = JsonNode(NodeType.STRING)
-
-    val jsonObject = JsonObject(properties = Map(("title" -> titleNode), ("content" -> contentNode)))
-
-    val jsonArray = JsonArray(items = jsonObject)
-
-    val request = GenerateRequest(format = jsonArray, system = system, prompt = text, stream = true)
-
-    var buffer = ""
-
-    asyncOLlamaService.generate(request, line => {
-      buffer += line
-      blockingQueue.put(line)
-    }, cancelled)
-
-    val mapper = ObjectMapperContextResolver.objectMapper
-    val collectionType = mapper.getTypeFactory.constructCollectionType(classOf[util.List[Chunk]], classOf[Chunk])
-    mapper.readValue(buffer, collectionType)
-  }
 
   def createEmbeddings(text: String): Array[Float] = {
     val request = EmbeddingRequest(input = text)
@@ -174,54 +136,55 @@ class DocumentAIService {
     
     val text = document.editor.toText()
 
-    blockingQueue.put("Start Processing\n")
+    val response = create(text, blockingQueue, cancelled)
 
-    document.language = createLanguageDetection(text)
+    if (! cancelled.get()) {
+      document.language = response.language
 
-    val chunks = createChunks(text, blockingQueue, cancelled)
-    chunks.forEach(chunk => {
-      chunk.embedding = createEmbeddings(chunk.title + "\n" + chunk.content)
-      chunk.document = document
-    })
-
-    blockingQueue.put("\n\nAll Chunks created\n")
-
-    val hashTags = createHashTags(text, blockingQueue, cancelled).stream
-      .map(hashTag => {
-        val vector = createEmbeddings(hashTag.description)
-
-        val hashTagsFromDB = entityManager.createQuery("select h from HashTag h where function('similarity', h.value, :value) > 0.8 order by function('similarity', h.value, :value)", classOf[HashTag])
-          .setParameter("value", hashTag.value)
-          .getResultList
-
-        if (hashTagsFromDB.isEmpty) {
-          hashTag.embedding = vector
-          hashTag.saveOrUpdate()
-          hashTag
-        } else {
-          hashTagsFromDB.get(0)
-        }
+      val chunks = response.chunks
+      chunks.foreach(chunk => {
+        chunk.embedding = createEmbeddings(chunk.title + "\n" + chunk.content)
+        chunk.document = document
       })
-      .toList
 
-    blockingQueue.put("\n\nAll Hashtags created\n")
+      val hashTags = response.hashtags
+        .map(hashTag => {
+          val vector = createEmbeddings(hashTag.description)
 
-    document.chunks.forEach(chunk => chunk.delete())
-    document.chunks.clear()
-    document.chunks.addAll(chunks)
+          val hashTagsFromDB = entityManager.createQuery("select h from HashTag h where function('similarity', h.value, :value) > 0.8 order by function('similarity', h.value, :value)", classOf[HashTag])
+            .setParameter("value", hashTag.value)
+            .getResultList
 
-    document.hashTags.clear()
-    document.hashTags.addAll(hashTags)
+          if (hashTagsFromDB.isEmpty) {
+            hashTag.embedding = vector
+            hashTag.saveOrUpdate()
+            hashTag
+          } else {
+            hashTagsFromDB.get(0)
+          }
+        })
+        .toList
 
-    document.description = createDescription(text, blockingQueue, cancelled)
+      blockingQueue.put("\n\nAll Hashtags created\n")
 
-    blockingQueue.put("!Done!")
+      document.chunks.forEach(chunk => chunk.delete())
+      document.chunks.clear()
+      document.chunks.addAll(chunks.asJava)
+
+      document.hashTags.clear()
+      document.hashTags.addAll(hashTags.asJava)
+
+      document.description = response.summary
+
+      blockingQueue.put("!Done!")
+    }
+
   }
 
 }
 
 object DocumentAIService {
-  class Summary {
-      var summary: String = uninitialized
-  }
+
+  case class Response(language : Locale, summary : String, chunks : Seq[Chunk], hashtags : Seq[HashTag])
+
 }

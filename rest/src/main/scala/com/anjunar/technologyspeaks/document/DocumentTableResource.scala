@@ -77,24 +77,6 @@ class DocumentTableResource extends SchemaBuilderContext {
       search2.text = search.text
       linkTo(methodOn(classOf[DocumentTableResource]).search(search2))
         .build(link.addLink)
-
-      if (search.index > 0) {
-        val prev = new DocumentSearch
-        prev.index = search.index - search.limit
-        prev.text = search.text
-        linkTo(methodOn(classOf[DocumentTableResource]).search(prev))
-          .withRel("prev")
-          .build(link.addLink)
-      }
-
-      if (search.index < (count - search.limit)) {
-        val next = new DocumentSearch
-        next.index = search.index + search.limit
-        next.text = search.text
-        linkTo(methodOn(classOf[DocumentTableResource]).search(next))
-          .withRel("next")
-          .build(link.addLink)
-      }
     })
 
     entities.forEach(tuple => {
