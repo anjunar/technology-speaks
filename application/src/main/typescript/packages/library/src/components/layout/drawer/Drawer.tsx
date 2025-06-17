@@ -66,7 +66,7 @@ namespace Drawer {
             children : React.ReactNode
             className? : string
             style? : React.CSSProperties
-            onClick : React.MouseEventHandler<HTMLDivElement>
+            onClick? : React.MouseEventHandler<HTMLDivElement>
         }
 
     }

@@ -42,6 +42,22 @@ let wsProxy = createProxyMiddleware({
 
 app.use(cookieParser());
 
+app.use((req, res, next) => {
+    const host = req.headers.host;
+    const subdomain = host?.split('.')[0];
+
+    if (subdomain && subdomain !== host && req.hostname.endsWith('localhost')) {
+        const targetPath = `/service/codemirror/files/user/${subdomain}`;
+        createProxyMiddleware({
+            target: 'http://localhost:3000' + targetPath,
+            changeOrigin: true,
+            cookieDomainRewrite: 'localhost:3000',
+        })(req, res, next);
+    } else {
+        next();
+    }
+});
+
 app.use(
     "/toggle-drawer",
     express.urlencoded({ extended: true })

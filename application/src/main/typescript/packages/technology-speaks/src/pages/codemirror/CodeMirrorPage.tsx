@@ -1,6 +1,6 @@
 import './CodeMirrorPage.css'
-import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {CodeMirror} from "react-ui-simplicity";
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {CodeMirror, SystemContext} from "react-ui-simplicity";
 
 export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
 
@@ -8,20 +8,7 @@ export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
 
     const iframeRef = useRef<HTMLIFrameElement>(null);
 
-    function send() {
-        iframeRef.current.srcdoc = `
-        <html>
-            <head>
-                <script type="module">
-                    import {} from "/service/codemirror/files/index";
-                </script>
-            </head>
-            <body>
-                <div id="root"></div>
-            </body>
-        </html>
-        `
-    }
+    const [editor, setEditor] = useState<CodeMirror.FileEntry>(null)
 
     async function loadAllFiles() {
         try {
@@ -38,11 +25,18 @@ export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
         }
     }
 
+    async function updateFile(name: string, content: string, transpiled : string, sourceMap : string) {
+        return await fetch("/service/codemirror/files", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, content, transpiled, sourceMap })
+        });
+    }
+
     return (
-        <div>
-            <CodeMirror loadAllFiles={loadAllFiles}/>
-            <button onClick={send}>send</button>
-            <iframe ref={iframeRef} style={{width: "100%", height: "100%"}}/>
+        <div className={"codemirror-page"}>
+            <CodeMirror style={{height : "50%"}} configuration={{loadAllFiles, updateFile}} value={editor} onChange={file => setEditor(file)}/>
+            <iframe sandbox="allow-scripts allow-same-origin" src={"http://anjunar.localhost:3000"} style={{width: "100%", height: "50%"}}/>
         </div>
 
 

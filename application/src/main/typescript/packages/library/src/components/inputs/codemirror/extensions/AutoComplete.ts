@@ -4,6 +4,7 @@ import {env} from "../typescript/Environment";
 import {EditorState} from "@codemirror/state";
 import {cssCompletionSource} from "@codemirror/lang-css";
 import {htmlCompletionSource} from "@codemirror/lang-html";
+import {localCompletionSource} from "@codemirror/lang-javascript";
 import {fileNameFacet} from "./FileName";
 
 export const typescriptCompletionSource = (filename: string) => {
@@ -49,12 +50,9 @@ function getLanguageAtPosition(context) {
 export const multiLanguageCompletion = async (context) => {
     const lang = getLanguageAtPosition(context);
     const filename = context.state.facet(fileNameFacet)
-    if (lang === "typescript") return await typescriptCompletionSource(filename)(context);
-    if (lang === "css") return cssCompletionSource(context);
-    if (lang === "html") return htmlCompletionSource(context);
 
-    if (filename.endsWith(".ts") || filename.endsWith(".tsx")) {
-        return await typescriptCompletionSource(filename)(context);
+    if (filename.endsWith(".js") || filename.endsWith(".jsx")) {
+        return localCompletionSource(context);
     }
     if (filename.endsWith(".css")) {
         return cssCompletionSource(context);
@@ -62,6 +60,10 @@ export const multiLanguageCompletion = async (context) => {
     if (filename.endsWith(".html")) {
         return htmlCompletionSource(context);
     }
+
+    if (lang === "typescript") return localCompletionSource(context);
+    if (lang === "css") return cssCompletionSource(context);
+    if (lang === "html") return htmlCompletionSource(context);
 
     return null;
 };

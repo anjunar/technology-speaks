@@ -380,6 +380,12 @@ html[data-theme="dark"] {
 html {
     font-family: Helvetica, serif;
     font-size: 16px;
+    background-color: var(--color-background-primary);
+    color: var(--color-text);
+}
+
+iframe {
+    border: none;
 }
 
 input {
@@ -417,8 +423,6 @@ button {
 }
 
 .system {
-    background-color: var(--color-background-primary);
-    color: var(--color-text);
     height: 100%;
     display: flex;
     flex-direction: column;

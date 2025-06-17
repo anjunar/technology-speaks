@@ -23,6 +23,11 @@ class CodeMirrorFile extends AbstractEntity {
   @Column(columnDefinition = "text")
   var transpiled : String = uninitialized
 
+  @Basic
+  @Lob
+  @Column(columnDefinition = "text")
+  var sourceMap : String = uninitialized
+
 }
 
 object CodeMirrorFile extends RepositoryContext[CodeMirrorFile](classOf[CodeMirrorFile]) {

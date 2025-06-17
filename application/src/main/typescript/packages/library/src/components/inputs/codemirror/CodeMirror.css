@@ -1,0 +1,25 @@
+.code-mirror {
+    display: flex;
+
+    .left-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        border: 1px solid var(--color-background-secondary);
+        height: 100%;
+    }
+
+    .editor {
+        height: 100%;
+
+        .cm-editor {
+            height: 100%;
+
+            .cm-line .ts-error {
+                text-decoration: wavy underline red;
+            }
+
+        }
+
+    }
+}

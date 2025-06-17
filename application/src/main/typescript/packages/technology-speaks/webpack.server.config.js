@@ -45,7 +45,6 @@ module.exports = {
             patterns: [
                 {from: 'public', to: 'public'},
             ],
-        }),
-        new CleanWebpackPlugin()
+        })
     ]
 };

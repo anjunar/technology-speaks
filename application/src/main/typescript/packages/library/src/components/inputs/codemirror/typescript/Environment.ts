@@ -1,7 +1,5 @@
 import lib from "./lib.json";
-import csstype from "./csstype/index.d"
 import react from "./react/index.d"
-import reactJsx from "./react/jsx-dev-runtime.d"
 import reactDom from "./react-dom/index.d"
 import reactDomClient from "./react-dom/client.d"
 import {createSystem, createVirtualTypeScriptEnvironment} from "@typescript/vfs";
@@ -14,27 +12,17 @@ for (const key in lib) {
 
 const system = createSystem(fsMap);
 
-/*
-fsMap.set('/node_modules/@types/csstype/index.d.ts', csstype);
-fsMap.set('/node_modules/@types/react/index.d.ts', react);
-fsMap.set('/node_modules/@types/react/jsx-dev-runtime.d.ts', reactJsx);
-fsMap.set('/node_modules/@types/react-dom/index.d.ts', reactDom);
-fsMap.set('/node_modules/@types/react-dom/client.d.ts', reactDomClient);
-*/
-
 system.writeFile("/index.tsx", "export const html = 1")
 system.writeFile("/global.d.ts", `
-declare module "csstype" {
-  ${csstype}
-}
-
 declare module "react" {
   ${react}
-  ${reactJsx}
+}
+
+declare module "react-dom" {
+  ${reactDom}
 }
 
 declare module "react-dom/client" {
-  ${reactDom}
   ${reactDomClient}
 }`)
 
@@ -46,7 +34,7 @@ const compilerOpts = {
     module: ts.ModuleKind.ESNext,
     jsx: ts.JsxEmit.React,
     moduleResolution: ts.ModuleResolutionKind.NodeJs,
-    typeRoots: ["/node_modules/@types"]
+    sourceMap: true,
 };
 
 export let env = createVirtualTypeScriptEnvironment(
@@ -56,8 +44,9 @@ export let env = createVirtualTypeScriptEnvironment(
     compilerOpts
 );
 
-export const transpile = (filename: string, js : (value : string) => void) => {
+export const transpile = (filename: string, js : (js : string, sourceMap : string) => void) => {
     const output = env.languageService.getEmitOutput(filename);
     const jsOutput = output.outputFiles.find(file => file.name.endsWith(".js"));
-    js(jsOutput.text);
+    const mapOutput = output.outputFiles.find(file => file.name.endsWith(".map"));
+    js(jsOutput.text, mapOutput.text);
 };
