@@ -21,12 +21,18 @@ module.exports = {
         rules: [
             {
                 test: /\.(ts|tsx)$/,
-                use: 'ts-loader',
-                exclude: /node_modules/,
+                use: {
+                    loader: 'ts-loader',
+                },
+                exclude: /node_modules|\.d\.ts$/,
             },
             {
                 test: /\.css$/i,
                 use: ["style-loader", "css-loader"]
+            },
+            {
+                test: /\.d\.ts$/i,
+                type: "asset/source"
             },
             {
                 test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/i,

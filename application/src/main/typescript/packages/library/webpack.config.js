@@ -30,7 +30,7 @@ export default {
                 use: ["style-loader", "css-loader"]
             },
             {
-                test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/i,
+                test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2|.d\.ts)$/i,
                 type: "asset",
             },
         ],

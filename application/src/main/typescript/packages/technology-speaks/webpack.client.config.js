@@ -2,6 +2,7 @@ const webpack = require('webpack');
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin')    ;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
     mode: 'development',
@@ -21,12 +22,15 @@ module.exports = {
         rules: [
             {
                 test: /\.(ts|tsx)$/,
-                use: 'ts-loader',
-                exclude: /node_modules/,
+                use: {
+                    loader: 'ts-loader',
+                },
+                exclude: /node_modules|\.d\.ts$/,
             },
             {
-                test: /\.(tsx|ts|js|jsx)$/,
-                use: ['source-map-loader']
+                test: /.(tsx|ts|js|jsx)$/,
+                use: ['source-map-loader'],
+                exclude: [/node_modules[\\/]typescript/, /\.d\.ts/]
             },
             {
                 test: /\.css$/i,
@@ -41,8 +45,12 @@ module.exports = {
                 ],
             },
             {
+                test: /\.d\.ts$/i,
+                type: "asset/source"
+            },
+            {
                 test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/i,
-                type: "asset",
+                type: "asset/resource"
             }
         ],
     },
@@ -72,5 +80,16 @@ module.exports = {
             filename: 'assets/style.css',
         }),
         new webpack.HotModuleReplacementPlugin(),
+        // new BundleAnalyzerPlugin()
+    ],
+    ignoreWarnings: [
+        {
+            module: /node_modules[\\/]@typescript[\\/]vfs/,
+            message: /Critical dependency: the request of a dependency is an expression/,
+        },
+        {
+            module: /node_modules[\\/]typescript/,
+            message: /Critical dependency: the request of a dependency is an expression/,
+        },
     ]
 };

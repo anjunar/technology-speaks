@@ -18,7 +18,5 @@
     "sourceMap": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": ["src",
-    "server.tsx"
-  ]
+  "include": ["src", "server.tsx"]
 }

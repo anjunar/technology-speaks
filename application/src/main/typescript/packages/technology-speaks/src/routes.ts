@@ -20,6 +20,7 @@ import QueryParams = Router.QueryParams;
 import PathParams = Router.PathParams;
 import {RequestInformation} from "./request";
 import ChatPage from "./pages/chat/ChatPage";
+import CodeMirrorPage from "./pages/codemirror/CodeMirrorPage";
 
 export function process(response: Response, redirect : string) {
     if (response.status === 403) {
@@ -81,6 +82,10 @@ export const routes: Router.Route[] = [
             {
                 path: "/chat",
                 component : ChatPage
+            },
+            {
+                path : "/codemirror",
+                component : CodeMirrorPage
             },
             {
                 path: "/documents",
