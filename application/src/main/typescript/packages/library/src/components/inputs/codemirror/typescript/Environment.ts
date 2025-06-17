@@ -48,5 +48,8 @@ export const transpile = (filename: string, js : (js : string, sourceMap : strin
     const output = env.languageService.getEmitOutput(filename);
     const jsOutput = output.outputFiles.find(file => file.name.endsWith(".js"));
     const mapOutput = output.outputFiles.find(file => file.name.endsWith(".map"));
-    js(jsOutput.text, mapOutput.text);
+    let replace = jsOutput.text
+        .replace("import React from \"react\"", "import React from \"./react\"")
+        .replace("import ReactDOM from \"react-dom/client\"", "import ReactDOM from \"./react-dom/client\"")
+    js(replace, mapOutput.text);
 };
