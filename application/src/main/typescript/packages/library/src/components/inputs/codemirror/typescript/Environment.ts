@@ -12,7 +12,7 @@ for (const key in lib) {
 
 const system = createSystem(fsMap);
 
-system.writeFile("/index.tsx", "export const html = 1")
+system.writeFile("/index.tsx", "export const html = 'Hello World!'")
 system.writeFile("/global.d.ts", `
 declare module "react" {
   ${react}
@@ -25,6 +25,20 @@ declare module "react-dom" {
 declare module "react-dom/client" {
   ${reactDomClient}
 }`)
+
+system.writeFile("/index.html", `
+<!DOCTYPE html> 
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <script type="module" src="./index"></script>
+    </head>
+    <body>
+        <div id="root"></div>    
+    </body>
+</html>`)
 
 const compilerOpts = {
     target: ts.ScriptTarget.ESNext,

@@ -15,11 +15,56 @@
       }
     </style>
     <script>
-      document.documentElement.classList.add("loading");
+      // document.documentElement.classList.add("loading");
+
+      async function loadMainJSWithProgress() {
+        const response = await fetch('/static/main.js'); // oder dein Pfad
+        const contentLength = +response.headers.get('Content-Length');
+        const reader = response.body.getReader();
+
+        let received = 0;
+        const chunks = [];
+
+        let progressElement = document.createElement('progress');
+        progressElement.setAttribute("id", "progress");
+        progressElement.style.width = "300px";
+        progressElement.style.height = "24px";
+        progressElement.style.position = "absolute";
+        progressElement.style.top = "50%";
+        progressElement.style.left = "50%";
+        progressElement.style.transform = "translate(-50%, -50%)";
+        progressElement.setAttribute("max", "100");
+        document.body.appendChild(progressElement)
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          chunks.push(value);
+          received += value.length;
+
+          const percent = ((received / contentLength) * 100).toFixed(2);
+
+          progressElement.setAttribute("value", percent);
+
+        }
+
+        const blob = new Blob(chunks, { type: 'application/javascript' });
+        const scriptUrl = URL.createObjectURL(blob);
+
+        const script = document.createElement('script');
+        script.src = scriptUrl;
+        script.onload = () => {
+          document.getElementById("progress").remove();
+        };
+        document.body.appendChild(script);
+
+      }
+
+      loadMainJSWithProgress();
+
     </script>
   </head>
   <body>
     <div id="root"></div>
-    <script src="/static/main.js"></script>
   </body>
 </html>

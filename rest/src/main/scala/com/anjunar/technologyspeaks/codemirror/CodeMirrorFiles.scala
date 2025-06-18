@@ -18,16 +18,20 @@ class CodeMirrorFiles extends SchemaBuilderContext {
   @Path("user/{user}/{file: .+}")
   def read(@PathParam("user") user : String, @PathParam("file") file : String) : Response = {
 
-    if (file.startsWith("react") || file.startsWith("scheduler")) {
+     if (file.startsWith("react") || file.startsWith("scheduler")) {
       val inputStream = getClass.getResourceAsStream("/javascript/" + file)
       return Response.ok(inputStream, "application/javascript").build()
     }
 
-    val loaded = if (file.endsWith(".html") || file.endsWith(".css") || file.endsWith(".js.map")) {
+    val loaded = if (file.endsWith(".html") || file.endsWith(".css") || file.endsWith(".js.map") || file.endsWith(".js")) {
       if (file.endsWith(".js.map")) {
         CodeMirrorFile.findByName("/" + file.replace(".js.map", ".ts"))
       } else {
-        CodeMirrorFile.findByName("/" + file)
+        if (file.endsWith(".js")) {
+          CodeMirrorFile.findByName("/" + file.replace(".js", ".ts"))
+        } else {
+          CodeMirrorFile.findByName("/" + file)
+        }
       }
     } else {
       if (file.endsWith(".ts") || file.endsWith(".tsx")) {
@@ -63,7 +67,7 @@ class CodeMirrorFiles extends SchemaBuilderContext {
   @GET
   @Produces(Array(MediaType.TEXT_HTML))
   @Path("user/{user}")
-  def index(@PathParam("user") file: String): Response = {
+  def index(@PathParam("user") user: String): Response = {
 
     val loaded = CodeMirrorFile.findByName("/index.html")
 

@@ -42,7 +42,8 @@ function LoginPage(properties: LoginPage.Attributes) {
 
         if (responseFinish.ok) {
             const params = new URLSearchParams(window.location.search)
-            navigate(decodeURIComponent(params.get("redirect")), true)
+            let redirect = params.get("redirect");
+            navigate(redirect ? decodeURIComponent(redirect) : "/", true)
         } else {
             alert("Something went wrong")
         }
