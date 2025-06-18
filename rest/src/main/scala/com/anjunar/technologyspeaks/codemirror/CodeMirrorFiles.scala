@@ -3,9 +3,9 @@ package com.anjunar.technologyspeaks.codemirror
 import com.anjunar.scala.schema.builder.SchemaBuilderContext
 import com.google.common.base.Strings
 import jakarta.enterprise.context.ApplicationScoped
-import jakarta.ws.rs.core.{MediaType, Response}
+import jakarta.ws.rs.core.{Cookie, MediaType, NewCookie, Response}
 import jakarta.ws.rs.{Consumes, GET, POST, Path, Produces}
-import org.jboss.resteasy.annotations.jaxrs.PathParam
+import org.jboss.resteasy.annotations.jaxrs.{MatrixParam, PathParam, QueryParam}
 
 import java.util
 
@@ -40,16 +40,13 @@ class CodeMirrorFiles extends SchemaBuilderContext {
     if (loaded.name.endsWith(".ts") || loaded.name.endsWith(".tsx")) {
       if (file.endsWith(".js.map")) {
         Response.ok(loaded.sourceMap, "application/javascript")
-          .header("Access-Control-Allow-Origin" , "*")
           .build()
       } else {
         if (file.endsWith(".ts") || file.endsWith(".tsx")) {
           Response.ok(loaded.content, "application/javascript")
-            .header("Access-Control-Allow-Origin" , "*")
             .build()
         } else {
           Response.ok(loaded.transpiled, "application/javascript")
-            .header("Access-Control-Allow-Origin" , "*")
             .build()
         }
       }
@@ -59,7 +56,6 @@ class CodeMirrorFiles extends SchemaBuilderContext {
 
       Response.ok(loaded.content, MediaType.TEXT_HTML)
         .header("Content-Security-Policy", s"frame-ancestors $protocol://$host")
-        .header("Access-Control-Allow-Origin" , "*")
         .build()
     }
   }

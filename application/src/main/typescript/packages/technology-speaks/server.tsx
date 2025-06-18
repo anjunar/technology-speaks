@@ -43,16 +43,22 @@ let wsProxy = createProxyMiddleware({
 app.use(cookieParser());
 
 app.use((req, res, next) => {
-    const host = req.headers.host;
-    const subdomain = host?.split('.')[0];
+    let path = req.path;
 
-    if (subdomain && subdomain !== host && req.hostname.endsWith('localhost')) {
-        const targetPath = `/service/codemirror/files/user/${subdomain}`;
+    if (path.startsWith('/home')) {
+
         createProxyMiddleware({
-            target: 'http://localhost:3000' + targetPath,
+            target: 'http://localhost:3000',
             changeOrigin: true,
-            cookieDomainRewrite: 'localhost:3000',
-        })(req, res, next);
+            pathRewrite: (path, req) => {
+                const match = path.match(/^\/home\/(.+)$/);
+                if (match) {
+                    return `/service/codemirror/files/user/${match[1]}`;
+                }
+                return path;
+            }
+        })(req, res, next)
+
     } else {
         next();
     }

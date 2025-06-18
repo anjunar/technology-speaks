@@ -1,6 +1,7 @@
 import './CodeMirrorPage.css'
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {CodeMirror, SystemContext} from "react-ui-simplicity";
+import Cookies from "js-cookie";
 
 export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
 
@@ -9,6 +10,8 @@ export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
     const iframeRef = useRef<HTMLIFrameElement>(null);
 
     const [editor, setEditor] = useState<CodeMirror.FileEntry>(null)
+
+    const {info} = useContext(SystemContext)
 
     async function loadAllFiles() {
         try {
@@ -36,7 +39,7 @@ export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
     return (
         <div className={"codemirror-page"}>
             <CodeMirror style={{height : "50%"}} configuration={{loadAllFiles, updateFile}} value={editor} onChange={file => setEditor(file)}/>
-            <iframe sandbox="allow-scripts allow-same-origin" src={"http://anjunar.localhost:3000"} style={{width: "100%", height: "50%"}}/>
+            <iframe sandbox={"allow-scripts allow-same-origin"} src={`/home/anjunar/`} style={{width: "100%", height: "50%"}}/>
         </div>
 
 
