@@ -9,7 +9,8 @@ function buildTree(files: FileManager.File[]): FileManager.TreeNode {
         path : "/",
         isFolder: true,
         isOpen: true,
-        children: []
+        children: [],
+        parent : null
     };
 
     for (const file of files) {
@@ -36,7 +37,8 @@ function buildTree(files: FileManager.File[]): FileManager.TreeNode {
                     path : isFolder ? "/" + fullPath + "/" : "/" + parts.slice(0, i).join("/") + (parts.length > 1 ? "/" : ""),
                     isFolder,
                     isOpen: false,
-                    children: isFolder ? [] : undefined
+                    children: isFolder ? [] : undefined,
+                    parent : currentNode
                 };
                 currentNode.children.push(existing);
             }
@@ -70,6 +72,13 @@ export function FileManager(properties : FileManager.Attributes) {
         setOpen(false)
     }
 
+    function onRemoveFileHandler() {
+        commands.onRemove(contextMenu.node.fullName)
+        let indexOf = contextMenu.node.parent.children.indexOf(contextMenu.node);
+        contextMenu.node.parent.children.splice(indexOf, 1)
+        setOpen(false)
+    }
+
     useEffect(() => {
         console.log("files changed", files);
         const sorted = [...files].sort((a, b) =>
@@ -95,7 +104,8 @@ export function FileManager(properties : FileManager.Attributes) {
             {
                 open && (
                     <div className={"overlay"} style={{top : contextMenu.y, left : contextMenu.x}} onClick={event => event.stopPropagation()}>
-                        <button onClick={() => onNewFileHandler()}>New File</button>
+                        <button className={"hover"} onClick={() => onNewFileHandler()}>New File</button>
+                        <button className={"hover"} onClick={() => onRemoveFileHandler()}>Remove File</button>
                     </div>
                 )
             }
@@ -111,7 +121,9 @@ export namespace FileManager {
     }
 
     export interface Commands {
+        onRead(file : TreeNode) : void
         onCreate(path : string) : void
+        onRemove(fileName : string) : void
     }
 
     export interface File {
@@ -125,6 +137,7 @@ export namespace FileManager {
         isFolder: boolean;
         isOpen: boolean;
         children?: TreeNode[];
+        parent : TreeNode
     }
 }
 

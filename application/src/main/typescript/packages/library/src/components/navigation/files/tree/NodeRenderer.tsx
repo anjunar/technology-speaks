@@ -9,6 +9,11 @@ export function NodeRenderer(properties: NodeRenderer.Attributes) {
 
     const [state, setState] = useState(node)
 
+    function onClick(event : React.MouseEvent, tree : FileManager.TreeNode) {
+        event.stopPropagation()
+        commands.onRead(tree)
+    }
+
     useEffect(() => {
         node.isOpen = state.isOpen
     }, [state]);
@@ -18,7 +23,7 @@ export function NodeRenderer(properties: NodeRenderer.Attributes) {
     }, [node]);
 
     return (
-        <div className={"node-renderer"} onContextMenu={event => onContextMenu(event, state)}>
+        <div className={"node-renderer"} onContextMenu={event => onContextMenu(event, state)} onClick={(event) => onClick(event, state)}>
             {
                 state.isFolder ? (
                     <button onClick={() => setState({...state, isOpen : ! state.isOpen})} style={{display : "flex", alignItems : "center", gap : "5px"}}>

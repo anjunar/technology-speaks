@@ -10,9 +10,9 @@ for (const key in lib) {
     fsMap.set(key, (lib as any)[key]);
 }
 
-const system = createSystem(fsMap);
+export const system = createSystem(fsMap);
 
-system.writeFile("/index.tsx", "export const html = 'Hello World!'")
+system.writeFile("/index.tsx", "import React from \"react\";")
 system.writeFile("/global.d.ts", `
 declare module "react" {
   ${react}
@@ -63,7 +63,7 @@ export const transpile = (filename: string, js : (js : string, sourceMap : strin
     const jsOutput = output.outputFiles.find(file => file.name.endsWith(".js"));
     const mapOutput = output.outputFiles.find(file => file.name.endsWith(".map"));
     let replace = jsOutput.text
-        .replace("import React from \"react\"", "import React from \"./react\"")
-        .replace("import ReactDOM from \"react-dom/client\"", "import ReactDOM from \"./react-dom/client\"")
+        .replace("from \"react\"", "from \"./react\"")
+        .replace("from \"react-dom/client\"", "from \"./react-dom/client\"")
     js(replace, mapOutput.text);
 };

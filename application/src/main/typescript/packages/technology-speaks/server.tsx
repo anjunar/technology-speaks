@@ -51,9 +51,9 @@ app.use((req, res, next) => {
             target: 'http://localhost:3000',
             changeOrigin: true,
             pathRewrite: (path, req) => {
-                const match = path.match(/^\/home\/(.+)$/);
+                const match = path.match(/^\/home\/(\w+)\/(.*)$/);
                 if (match) {
-                    return `/service/codemirror/files/user/${match[1]}`;
+                    return `/service/codemirror/${match[1]}/files/file${match[2] ? "/" + match[2] : ""}`;
                 }
                 return path;
             }
