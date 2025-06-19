@@ -46,7 +46,7 @@ export const routes: Router.Route[] = [
         component: Root,
         loader: {
             async application(info, pathParams, queryParams) {
-                let response = await fetch("http://localhost:3000/service", {
+                let response = await fetch(`${info.protocol}://${info.host}/service`, {
                     headers : getHeaders(info)
                 })
 
@@ -65,7 +65,7 @@ export const routes: Router.Route[] = [
                 component: HomePage,
                 loader: {
                     async search(info, pathParams, queryParams) {
-                        let response = await fetch("http://localhost:3000/service/documents/search", {
+                        let response = await fetch(`${info.protocol}://${info.host}/service/documents/search`, {
                             headers : getHeaders(info)
                         })
 
@@ -95,7 +95,7 @@ export const routes: Router.Route[] = [
                         component: DocumentSearchPage,
                         loader: {
                             async table(info, pathParams : PathParams, queryParams : QueryParams) {
-                                const urlBuilder = new URL("/service/documents", "http://localhost:3000")
+                                const urlBuilder = new URL("/service/documents", `${info.protocol}://${info.host}`)
                                 const searchParams = urlBuilder.searchParams;
 
                                 searchParams.set("index", queryParams["index"] as string || "0")
@@ -119,7 +119,7 @@ export const routes: Router.Route[] = [
                                 throw new Error(response.status.toString())
                             },
                             async search(info, pathParams, queryParams) {
-                                let response = await fetch(`http://localhost:3000/service/documents/search`, {
+                                let response = await fetch(`${info.protocol}://${info.host}/service/documents/search`, {
                                     headers : getHeaders(info)
                                 })
 
@@ -140,7 +140,7 @@ export const routes: Router.Route[] = [
                         component : DocumentFormPage,
                         loader: {
                             async form(info, pathParams, queryParams) {
-                                let response = await fetch(`http://localhost:3000/service/documents/document`, {
+                                let response = await fetch(`${info.protocol}://${info.host}/service/documents/document`, {
                                     headers : getHeaders(info)
                                 })
 
@@ -165,7 +165,7 @@ export const routes: Router.Route[] = [
                         },
                         loader: {
                             async form(info, pathParams, queryParams) {
-                                let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}?edit=${queryParams["edit"]}`, {
+                                let response = await fetch(`${info.protocol}://${info.host}/service/documents/document/${pathParams.id}?edit=${queryParams["edit"]}`, {
                                     headers : getHeaders(info)
                                 })
 
@@ -191,7 +191,7 @@ export const routes: Router.Route[] = [
                                         component: DocumentViewPage,
                                         loader: {
                                             async form(info, pathParams, queryParams) {
-                                                let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/view`, {
+                                                let response = await fetch(`${info.protocol}://${info.host}/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/view`, {
                                                     headers : getHeaders(info)
                                                 })
 
@@ -209,7 +209,7 @@ export const routes: Router.Route[] = [
                                         component: DocumentViewPage,
                                         loader: {
                                             async form(info, pathParams, queryParams) {
-                                                let response = await fetch(`http://localhost:3000/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/compare`, {
+                                                let response = await fetch(`${info.protocol}://${info.host}/service/documents/document/${pathParams.id}/revisions/revision/${pathParams.rev}/compare`, {
                                                     headers : getHeaders(info)
                                                 })
 
@@ -236,7 +236,7 @@ export const routes: Router.Route[] = [
                         component: LoginPage,
                         loader: {
                             async login(info, pathParams, queryParams) {
-                                let response = await fetch("http://localhost:3000/service/security/login", {
+                                let response = await fetch(`${info.protocol}://${info.host}/service/security/login`, {
                                     headers : getHeaders(info)
                                 })
 
@@ -255,7 +255,7 @@ export const routes: Router.Route[] = [
                         component: RegisterPage,
                         loader: {
                             async register(info, pathParams, queryParams) {
-                                let response = await fetch("http://localhost:3000/service/security/register", {
+                                let response = await fetch(`${info.protocol}://${info.host}/service/security/register`, {
                                     headers : getHeaders(info)
                                 })
 
@@ -280,7 +280,7 @@ export const routes: Router.Route[] = [
                         component: ConfirmationPage,
                         loader: {
                             async form(info, pathParams, queryParams) {
-                                let response = await fetch("http://localhost:3000/service/security/confirm", {
+                                let response = await fetch(`${info.protocol}://${info.host}/service/security/confirm`, {
                                     headers : getHeaders(info)
                                 })
 
@@ -299,7 +299,7 @@ export const routes: Router.Route[] = [
                         component: LogoutPage,
                         loader: {
                             async credential(info, pathParams, queryParams) {
-                                let response = await fetch("http://localhost:3000/service/security/logout", {
+                                let response = await fetch(`${info.protocol}://${info.host}/service/security/logout`, {
                                     headers : getHeaders(info)
                                 })
 
@@ -326,7 +326,7 @@ export const routes: Router.Route[] = [
                                 component : I18nTablePage,
                                 loader : {
                                     async table(info, pathParams : PathParams, queryParams : QueryParams) {
-                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns?index=${queryParams["index"] || 0}&limit=10`, {
+                                        let response = await fetch(`${info.protocol}://${info.host}/service/shared/i18ns?index=${queryParams["index"] || 0}&limit=10`, {
                                             headers : getHeaders(info)
                                         })
 
@@ -339,7 +339,7 @@ export const routes: Router.Route[] = [
                                         throw new Error(response.status.toString())
                                     },
                                     async search(info, pathParams : PathParams, queryParams : QueryParams) {
-                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns/search`, {
+                                        let response = await fetch(`${info.protocol}://${info.host}/service/shared/i18ns/search`, {
                                             headers : getHeaders(info)
                                         })
 
@@ -358,7 +358,7 @@ export const routes: Router.Route[] = [
                                 component : I18nFormPage,
                                 loader : {
                                     async form(info, pathParams : PathParams, queryParams : QueryParams) {
-                                        let response = await fetch(`http://localhost:3000/service/shared/i18ns/i18n/${pathParams["id"]}`, {
+                                        let response = await fetch(`${info.protocol}://${info.host}/service/shared/i18ns/i18n/${pathParams["id"]}`, {
                                             headers : getHeaders(info)
                                         })
 
@@ -394,7 +394,7 @@ export const routes: Router.Route[] = [
                                     link = ""
                                 }
 
-                                let response = await fetch("http://localhost:3000/service" + link, {
+                                let response = await fetch(`${info.protocol}://${info.host}/service` + link, {
                                     headers : getHeaders(info)
                                 })
 
@@ -423,7 +423,7 @@ export const routes: Router.Route[] = [
                                     link = ""
                                 }
 
-                                let response = await fetch("http://localhost:3000/service" + link, {
+                                let response = await fetch(`${info.protocol}://${info.host}/service` + link, {
                                     headers : getHeaders(info)
                                 })
 

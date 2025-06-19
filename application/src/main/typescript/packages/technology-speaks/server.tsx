@@ -12,6 +12,7 @@ import * as path from "node:path";
 import * as fs from "node:fs";
 import {Router} from "react-ui-simplicity";
 import {RequestInformation} from "./src/request";
+import cors from 'cors';
 
 function resolvePreferredLanguage(header: string): string {
     if (!header) return "en";
@@ -31,6 +32,7 @@ const indexHtmlPath = path.resolve(__dirname, 'public', 'index.html');
 const rawHtmlTemplate = fs.readFileSync(indexHtmlPath, 'utf8');
 
 const app = express();
+app.set('trust proxy', true);
 const PORT = 3000;
 
 
@@ -42,13 +44,18 @@ let wsProxy = createProxyMiddleware({
 
 app.use(cookieParser());
 
+app.use(cors({
+    origin: 'https://www.anjunar.com',
+    credentials: true // falls Cookies oder Auth Header gebraucht werden
+}));
+
 app.use((req, res, next) => {
     let path = req.path;
 
     if (path.startsWith('/home')) {
 
         createProxyMiddleware({
-            target: 'http://localhost:3000',
+            target: 'https://localhost:3000',
             changeOrigin: true,
             pathRewrite: (path, req) => {
                 const match = path.match(/^\/home\/(\w+)\/(.*)$/);
@@ -74,14 +81,6 @@ app.use(
     express.urlencoded({ extended: true })
 );
 
-app.use(
-    '/.well-known',
-    createProxyMiddleware({
-        target: 'http://localhost:3001/.well-known',
-        changeOrigin: true,
-    })
-);
-
 app.use("/static", express.static("dist/client"));
 
 app.use(
@@ -91,8 +90,8 @@ app.use(
         changeOrigin: true,
         on : {
             proxyReq: (proxyReq, req, res) => {
-                proxyReq.setHeader("x-forwarded-protocol", "http")
-                proxyReq.setHeader("x-forwarded-host", 'localhost:3000')
+                proxyReq.setHeader("x-forwarded-protocol", "https")
+                proxyReq.setHeader("x-forwarded-host", 'www.anjunar.com')
             }
         }
     })
@@ -179,5 +178,5 @@ server.on('upgrade', (req, socket, head) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`🚀 Server is listening on http://localhost:${PORT}`);
+    console.log(`🚀 Server is listening on https://localhost:${PORT}`);
 });

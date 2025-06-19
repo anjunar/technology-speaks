@@ -19,9 +19,7 @@ export const diagnosticsField = StateField.define<Tooltip[]>({
 });
 
 export const diagnosticsPlugin = ViewPlugin.fromClass(class {
-    constructor(public view: EditorView) {
-        console.log("init2")
-    }
+    constructor(public view: EditorView) {}
 
     update(update: ViewUpdate) {
         if (update.docChanged || update.viewportChanged) {
@@ -32,7 +30,6 @@ export const diagnosticsPlugin = ViewPlugin.fromClass(class {
 
 export const closeTooltipOnClick = ViewPlugin.fromClass(class {
     constructor(public view: EditorView) {
-        console.log("init")
         this.clickHandler = this.clickHandler.bind(this);
         view.dom.addEventListener("click", this.clickHandler);
     }

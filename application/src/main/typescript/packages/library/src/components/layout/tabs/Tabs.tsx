@@ -4,17 +4,18 @@ import {v4} from "uuid";
 
 function Tabs(properties: Tabs.Attributes) {
 
-    const {page, onPage, className, children, ...rest} = properties
+    const {page, onPage, className, children, centered = true, ...rest} = properties
 
     const tabs = useMemo(() => {
         const tabModel = children.map(
             child =>
-                new (class CustomTab extends Tab {
+                new (class CustomTab extends TabModel {
                     onSelect() {
                         for (const tab of tabModel) {
                             tab.fire(false)
                         }
                         this.selected = true
+                        this.page = tabModel.indexOf(this)
                         this.fire(this.selected)
                         onPage(tabModel.indexOf(this))
                     }
@@ -33,19 +34,22 @@ function Tabs(properties: Tabs.Attributes) {
 
     return (
         <div className={(className ? className + " " : "") + "tabs"} {...rest}>
-            <div className="placeholder"></div>
+            {
+                centered && <div className="placeholder"></div>
+            }
             {tabs}
             <div className="placeholder"></div>
         </div>
     )
 }
 
-export abstract class Tab {
+export abstract class TabModel {
 
     id = v4()
 
     listeners : any[] = []
     selected : boolean = false
+    page : number
 
     abstract onSelect() : void
 
@@ -67,6 +71,7 @@ namespace Tabs {
         className?: string
         children: React.ReactElement[]
         style? : CSSProperties
+        centered? : boolean
     }
 }
 

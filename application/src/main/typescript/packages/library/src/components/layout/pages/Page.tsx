@@ -4,7 +4,7 @@ function Page(properties : Page.Attributes) {
 
     const {children, ...rest} = properties
 
-    return <div {...rest}>{children}</div>
+    return <div className={"page"} {...rest}>{children}</div>
 }
 
 namespace Page {

@@ -10,6 +10,11 @@ class CodeMirrorTS extends AbstractCodeMirrorFile {
   @Basic
   @Lob
   @Column(columnDefinition = "text")
+  var content: String = uninitialized
+
+  @Basic
+  @Lob
+  @Column(columnDefinition = "text")
   var transpiled: String = uninitialized
 
   @Basic

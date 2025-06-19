@@ -39,7 +39,7 @@ class CodeMirrorFiles extends SchemaBuilderContext {
           .header("Content-Security-Policy", s"default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self';frame-ancestors $protocol://$host")
           .build()
       case image : CodeMirrorImage =>
-        Response.ok(image.content, image.contentType)
+        Response.ok(image.data, image.contentType)
           .build()
       case ts : CodeMirrorTS =>
         file match {
@@ -62,6 +62,7 @@ class CodeMirrorFiles extends SchemaBuilderContext {
   def index(@PathParam("user") user: String): Response = {
 
     val loaded = AbstractCodeMirrorFile.findByName("/index.html")
+      .asInstanceOf[CodeMirrorHTML]
 
     val protocol = httpHeaders.getHeaderString("x-forwarded-protocol")
     val host = httpHeaders.getHeaderString("x-forwarded-host")
@@ -81,12 +82,12 @@ class CodeMirrorFiles extends SchemaBuilderContext {
     } else {
 
       loaded match {
-        case css : CodeMirrorCSS => css.content = file.content
-        case html : CodeMirrorHTML => html.content = file.content
+        case css : CodeMirrorCSS => css.content = file.asInstanceOf[CodeMirrorCSS].content
+        case html : CodeMirrorHTML => html.content = file.asInstanceOf[CodeMirrorHTML].content
         case image : CodeMirrorImage =>
           file match {
             case newImage : CodeMirrorImage =>
-              image.content = newImage.content
+              image.data = newImage.data
               image.contentType = newImage.contentType
           }
         case ts : CodeMirrorTS =>

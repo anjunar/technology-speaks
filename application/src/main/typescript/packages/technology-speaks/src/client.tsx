@@ -32,7 +32,7 @@ function parseCookieString(cookieString) {
 }
 
 const info : RequestInformation = {
-    protocol : window.location.protocol,
+    protocol : window.location.protocol.replace(":", ""),
     path : window.location.pathname,
     search : window.location.search,
     cookie : parseCookieString(document.cookie) || {},

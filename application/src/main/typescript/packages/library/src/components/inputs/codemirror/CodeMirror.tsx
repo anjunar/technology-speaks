@@ -1,67 +1,38 @@
 import "./CodeMirror.css"
-import React, {CSSProperties, useContext, useEffect, useMemo, useRef, useState} from 'react';
-import {basicSetup, EditorView} from "codemirror"
-import {css} from "@codemirror/lang-css"
-import {html} from "@codemirror/lang-html"
-import {javascript} from "@codemirror/lang-javascript"
-import {EditorState, Extension} from "@codemirror/state"
-import {autocompletion} from "@codemirror/autocomplete";
-import {
-    closeTooltipOnClick,
-    diagnosticsField,
-    diagnosticsPlugin,
-    requestDiagnosticsUpdate,
-    tsErrorHighlighter
-} from "./extensions/Diagnostics";
-import {multiLanguageCompletion, typescriptCompletionSource} from "./extensions/AutoComplete";
+import React, {CSSProperties, useContext, useEffect, useState} from 'react';
 import {env, system, transpile} from "./typescript/Environment";
-import {fileNameFacet} from "./extensions/FileName";
 import {useInput} from "../../../hooks";
 import {Model} from "../../shared";
 import {FormContext} from "../form/Form";
-import {dracula} from "@uiw/codemirror-theme-dracula"
-import {material} from "@uiw/codemirror-theme-material"
-import {SystemContext} from "../../../System";
-import {RequestInformation} from "technology-speaks/src/request";
 import Drawer from "../../layout/drawer/Drawer";
 import {createPortal} from "react-dom";
 import Window from "../../modal/window/Window";
 import FileManager from "../../navigation/files/FileManager";
 import {FileService} from "./service/FileService";
+import Editor from "./ui/Editor";
+import Tabs from "../../layout/tabs/Tabs";
+import Tab from "../../layout/tabs/Tab";
+import Page from "../../layout/pages/Page";
+import Pages from "../../layout/pages/Pages";
 
-function getExtensionsForTypescript(htmlMixed: any, updateListener: Extension, newFileName: string, info: RequestInformation) {
-    return [
-        basicSetup,
-        htmlMixed,
-        autocompletion({override: [typescriptCompletionSource(newFileName)]}),
-        tsErrorHighlighter,
-        diagnosticsField,
-        diagnosticsPlugin,
-        updateListener,
-        fileNameFacet.of(newFileName),
-        closeTooltipOnClick,
-        info.cookie.theme === "dark" ? dracula : material
-    ];
-}
-
-function getExtensionsForHTML(htmlMixed: any, updateListener: Extension, newFileName: string, info: RequestInformation) {
-    return [
-        basicSetup,
-        htmlMixed,
-        autocompletion({override: [multiLanguageCompletion]}),
-        updateListener,
-        fileNameFacet.of(newFileName),
-        info.cookie.theme === "dark" ? dracula : material
-    ];
+function fileName(editor: CodeMirror.FileEntry) {
+    let lastIndexOf = editor.name.lastIndexOf("/");
+    return editor.name.substring(lastIndexOf + 1);
 }
 
 export function CodeMirror(properties: CodeMirror.Attributes) {
 
     const {name, standalone, value, onChange, onModel, configuration, style} = properties
 
-    const editorViewRef = useRef<HTMLDivElement>(null);
+    const [model, state, setState] = useInput<CodeMirror.FileEntry[]>(name, value, standalone, "codemirror")
 
-    const [files, setFiles] = useState<CodeMirror.FileEntry[]>([{name: "/index.tsx", content: "", $type : "CodeMirrorHTML"}])
+    const [files, setFiles] = useState<CodeMirror.FileEntry[]>([{
+        name: "/index.tsx",
+        content: "",
+        $type: "CodeMirrorHTML"
+    }])
+
+    const [page, setPage] = useState(0)
 
     const [newPathName, setNewPathName] = useState("/")
 
@@ -71,75 +42,37 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
 
     const [createFileOpen, setCreateFileOpen] = useState(false)
 
-    const [model, state, setState] = useInput<CodeMirror.FileEntry>(name, value, standalone, "codemirror")
-
     const formContext = useContext(FormContext)
-
-    const {info} = useContext(SystemContext)
 
     const fileService = new FileService(configuration, system, env)
 
-    const htmlMixed = html({
-        matchClosingTags: true,
-        autoCloseTags: true,
-        nestedLanguages: [
-            {
-                tag: "script",
-                parser: javascript().language.parser
-            },
-            {
-                tag: "style",
-                parser: css().language.parser
-            }
-        ]
-    })
+    function closeEditor(page : number) {
+        state.splice(page, 1)
+        let newState = [...state];
+        setState(newState)
 
-    const typescript = javascript({
-        typescript: true,
-        jsx: true
-    })
-
-    const updateListener = EditorView.updateListener.of(async update => {
-        if (update.docChanged) {
-            const content = update.state.doc.toString();
-
-            const response = fileService.updateFile({...state, content})
-
-            let fileEntry = files.find(file => file.name === state.name);
-
-            setState(fileEntry)
-
-            if (onChange) {
-                onChange(fileEntry)
-            }
-
-            if (fileEntry) {
-                fileEntry.content = content;
-            } else {
-                setFiles([...files, {name: state.name, content, $type : state.$type}])
-            }
+        if (onChange) {
+            onChange(newState)
         }
-    });
-
-
-    const editorView = useMemo(() => {
-        if (editorViewRef.current === null) {
-            return null;
-        }
-
-        return new EditorView({
-            parent: editorViewRef.current
-        });
-    }, [editorViewRef?.current]);
+    }
 
     const commands: FileManager.Commands = {
         onRead(file: FileManager.TreeNode) {
-            let entry = files.find(fileEntry => fileEntry.name === file.fullName);
-            setState(entry)
+            let entry = state.find(fileEntry => fileEntry.name === file.fullName);
 
-            if (onChange) {
-                onChange(entry)
+            if (entry) {
+                let indexOf = state.indexOf(entry);
+                setPage(indexOf)
+            } else {
+                let fromFiles = files.find(fileEntry => fileEntry.name === file.fullName);
+                let newState = [fromFiles, ...state];
+                setState(newState)
+
+                if (onChange) {
+                    onChange(newState)
+                }
             }
+
         },
         onCreate(path: string) {
             setCreateFileOpen(true)
@@ -152,12 +85,16 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
         }
     }
 
-    function fileTemplate(type : string) {
+    function fileTemplate(type: string) {
         switch (type) {
-            case "ts" : return "import React from \"react\";"
-            case "tsx" : return "import React from \"react\";\nimport ReactDom from \"react-dom/client\";"
-            case "css" : return ""
-            case "html" : return `<html lang="en">
+            case "ts" :
+                return "import React from \"react\";"
+            case "tsx" :
+                return "import React from \"react\";\nimport ReactDom from \"react-dom/client\";"
+            case "css" :
+                return ""
+            case "html" :
+                return `<html lang="en">
     <head>
         <script type="module" src="index"></script>    
     </head>
@@ -168,19 +105,20 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
         }
     }
 
-    function createNewFile(type : string) {
+    function createNewFile(type: string) {
         let content = fileTemplate(type)
         let name = newPathName + newFileName + "." + type;
-        const newFile = {name: name, content: content, $type : "CodeMirror" + type.toUpperCase()};
+        const newFile = {name: name, content: content, $type: "CodeMirror" + type.toUpperCase()};
 
         setFiles(prevFiles => [...prevFiles, newFile]);
 
         fileService.createFile(newFile)
 
-        setState(newFile)
+        let newState = [newFile, ...state];
+        setState(newState)
 
         if (onChange) {
-            onChange(newFile)
+            onChange(newState)
         }
 
         setCreateFileOpen(false)
@@ -191,27 +129,10 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
         files.filter(file => file.name.endsWith(".tsx") || file.name.endsWith(".ts"))
             .forEach(file => {
                 transpile(file.name, (js, sourceMap) => {
-                    configuration.updateFile({...file, transpiled : js, sourceMap})
+                    configuration.updateFile({...file, transpiled: js, sourceMap})
                 })
             })
     }
-
-    useEffect(() => {
-        if (state) {
-            if (state.name.endsWith("html")) {
-                editorView.setState(EditorState.create({
-                    doc: state.content,
-                    extensions: getExtensionsForHTML(htmlMixed, updateListener, state.name, info)
-                }))
-            } else {
-                editorView.setState(EditorState.create({
-                    doc: state.content,
-                    extensions: getExtensionsForTypescript(typescript, updateListener, state.name, info)
-                }))
-                requestDiagnosticsUpdate(editorView);
-            }
-        }
-    }, [state]);
 
     useEffect(() => {
 
@@ -231,12 +152,6 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
                 setFiles(files)
 
             })
-
-        return () => {
-            if (editorView) {
-                editorView.destroy()
-            }
-        }
 
     }, []);
 
@@ -270,11 +185,7 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
                 <button className={"material-icons"} title={"Show Folders"} style={{marginTop: "5px"}}
                         onClick={() => setDrawerOpen(!drawerOpen)}>folder_open
                 </button>
-                <button className={"material-icons"} title={"Create File"}
-                        onClick={() => setCreateFileOpen(true)}>docs_add_on
-                </button>
-                <button className={"material-icons"} title={"Transpile"} onClick={() => transpileHandler()}>modeling
-                </button>
+                <button className={"material-icons"} title={"Transpile"} onClick={() => transpileHandler()}>modeling</button>
             </div>
             <Drawer.Container>
                 <Drawer open={drawerOpen}>
@@ -284,7 +195,27 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
                 </Drawer>
                 <Drawer.Content>
                     <div style={{height: "100%"}}>
-                        <div className={"editor"} ref={editorViewRef}></div>
+                        <Tabs page={page} onPage={page => setPage(page)} centered={false}>
+                            {
+                                state.map((editor, index) => (
+                                    <Tab>
+                                        <div style={{display : "flex", alignItems : "center", gap : "12px"}}>
+                                            <span>{fileName(editor)}</span>
+                                            <button onClick={() => closeEditor(index)} className={"material-icons"} style={{fontSize : "16px"}}>close</button>
+                                        </div>
+                                    </Tab>
+                                ))
+                            }
+                        </Tabs>
+                        <Pages page={page} style={{height : "100%"}}>
+                            {
+                                state.map(editor => (
+                                    <Page style={{height : "100%"}}>
+                                        <Editor style={{height : "100%"}} configuration={configuration} value={editor}/>
+                                    </Page>
+                                ))
+                            }
+                        </Pages>
                     </div>
                 </Drawer.Content>
             </Drawer.Container>
@@ -295,9 +226,9 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
 export namespace CodeMirror {
     export interface Attributes {
         name?: string
-        value?: FileEntry
+        value?: FileEntry[]
         standalone?: boolean
-        onChange?: (value: FileEntry) => void
+        onChange?: (value: FileEntry[]) => void
         onModel?: (value: Model) => void
         configuration: Configuration
         style?: CSSProperties
@@ -314,12 +245,12 @@ export namespace CodeMirror {
     }
 
     export interface FileEntry {
-        $type : string
+        $type: string
         name: string;
         content: string;
         transpiled?: string;
         sourceMap?: string
-        contentType? : string
+        contentType?: string
     }
 }
 

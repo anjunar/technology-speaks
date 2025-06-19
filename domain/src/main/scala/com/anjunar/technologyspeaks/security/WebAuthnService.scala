@@ -15,14 +15,14 @@ class WebAuthnService {
   var credentialRepository : WebAuthnCredentialRepository = uninitialized
   
   private val relyingPartyIdentity: RelyingPartyIdentity = RelyingPartyIdentity.builder()
-    .id("localhost")
+    .id("anjunar.com")
     .name("Technology Speaks")
     .build()
 
   lazy val relyingParty: RelyingParty = RelyingParty.builder()
     .identity(relyingPartyIdentity)
     .credentialRepository(credentialRepository)
-    .origins(Sets.newHashSet("http://localhost:3000"))
+    .origins(Sets.newHashSet("https://www.anjunar.com", "https://anjunar.com"))
     .build()
 
 }

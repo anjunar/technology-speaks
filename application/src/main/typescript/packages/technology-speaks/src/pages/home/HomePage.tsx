@@ -66,7 +66,7 @@ function HomePage(properties: HomePage.Attributes) {
             <div className={"center"}>
                 <div style={{display : "flex", justifyContent : "stretch", flexDirection : "column"}}>
                     <div style={{display : "flex", alignItems : "center", gap : "12px", fontSize : "8vw"}}>
-                        <img src={"/assets/logo.png"} style={{width : "1em"}}/>
+                        <img src={"/static/assets/logo.png"} style={{width : "1em"}}/>
                         <h1 style={{fontSize : "1em", margin : 0, padding : 0, color : "white"}}>Technology Speaks</h1>
                     </div>
                     <SchemaForm onSubmit={onSubmit} value={search} style={{marginTop : "12px", display : "flex", justifyContent : "stretch", flexDirection : "column"}}>

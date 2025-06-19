@@ -110,7 +110,7 @@ export class Model {
             if (this.value instanceof ActiveObject) {
                 this.oldValue = JSON.stringify(JSONSerializer(this.value))
             } else {
-                if (this.value instanceof Node) {
+                if (typeof window !== "undefined" && this.value instanceof Node) {
                     this.oldValue = this.value.cloneNode(true)
                 } else {
                     this.oldValue = JSON.stringify(this.value)

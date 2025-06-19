@@ -26,7 +26,7 @@ function RegisterPage(properties: RegisterPage.Attributes) {
 
         const publicKeyCredential = await webauthnJson.create(credentialCreateOptions);
 
-        const registerRequest = await fetch("service/security/register-finish", {
+        const registerRequest = await fetch("/service/security/register-finish", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(publicKeyCredential)

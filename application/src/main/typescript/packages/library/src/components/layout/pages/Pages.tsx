@@ -5,9 +5,9 @@ function Pages(properties : Pages.Attributes) {
     const {children, page, rendered = true, ...rest} = properties
 
     if (rendered) {
-        return <div {...rest}>{children[page]}</div>
+        return <div className={"pages"} {...rest}>{children[page]}</div>
     } else {
-        return <div {...rest}>{
+        return <div className={"pages"} {...rest}>{
             children.map((child, index) => (
                 <div key={index} style={{height : "100%", display : index === page ? "block" : "none"}}>{child}</div>
             ))

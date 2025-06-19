@@ -29,12 +29,13 @@ export async function resolveComponentList(
             loaderEntries.map(([_, fn]) => {
                 return fn(info, pathParams, queryParams)
                     .catch(e => {
-                        if (e instanceof Router.RedirectError) {
-                            Router.navigate(e.url)
-                            return null;
-                        }
                         if (typeof window === "undefined") {
                             throw e;
+                        } else {
+                            if (e instanceof Router.RedirectError) {
+                                Router.navigate(e.url)
+                                return null;
+                            }
                         }
                     })
             })

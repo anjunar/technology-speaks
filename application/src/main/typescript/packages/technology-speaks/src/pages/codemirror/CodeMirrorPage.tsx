@@ -6,7 +6,7 @@ export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
 
     const {} = properties
 
-    const [editor, setEditor] = useState<CodeMirror.FileEntry>(null)
+    const [editor, setEditor] = useState<CodeMirror.FileEntry[]>([])
 
     async function loadAllFiles() {
         try {

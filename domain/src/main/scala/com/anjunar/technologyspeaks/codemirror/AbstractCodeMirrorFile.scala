@@ -25,11 +25,6 @@ abstract class AbstractCodeMirrorFile extends AbstractEntity {
   @Column(unique = true)
   var name : String = uninitialized
 
-  @Basic
-  @Lob
-  @Column(columnDefinition = "text")
-  var content : String = uninitialized
-
 }
 
 object AbstractCodeMirrorFile extends RepositoryContext[AbstractCodeMirrorFile](classOf[AbstractCodeMirrorFile]) {

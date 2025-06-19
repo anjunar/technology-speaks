@@ -80,7 +80,6 @@ export function FileManager(properties : FileManager.Attributes) {
     }
 
     useEffect(() => {
-        console.log("files changed", files);
         const sorted = [...files].sort((a, b) =>
             a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
         );

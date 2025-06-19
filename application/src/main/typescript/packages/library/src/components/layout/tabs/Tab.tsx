@@ -1,5 +1,6 @@
 import "./Tab.css"
 import React, {useEffect, useState} from "react"
+import {TabModel} from "./Tabs";
 
 function Tab(properties: Tab.Attributes) {
 
@@ -13,7 +14,7 @@ function Tab(properties: Tab.Attributes) {
         tab.onSelect()
 
         if (onClick) {
-            onClick()
+            onClick(tab.page)
         }
 
     }
@@ -45,9 +46,9 @@ namespace Tab {
     export interface Attributes {
         className? : string
         children : React.ReactNode
-        tab? : any
+        tab? : TabModel
         selected? : boolean
-        onClick? : () => void
+        onClick? : (page : number) => void
     }
 }
 
