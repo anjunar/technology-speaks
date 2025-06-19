@@ -43,7 +43,7 @@ function DocumentFormPage(properties: DocumentFormPage.Attributes) {
         })
 
         function startDocumentBatchProcessing() : WebSocket {
-            let ws = new WebSocket(`ws://${info.host}/ws/document`)
+            let ws = new WebSocket(`wss://${info.host}/ws/document`)
 
             ws.onopen = () => {
                 ws.send(domain.id);

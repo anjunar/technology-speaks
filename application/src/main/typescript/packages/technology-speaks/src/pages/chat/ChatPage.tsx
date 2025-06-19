@@ -39,7 +39,7 @@ export function ChatPage(properties: ChatPage.Attributes) {
         let value = event.currentTarget.value;
 
         function startChatStream() : WebSocket {
-            const ws = new WebSocket(`ws://${info.host}/ws/chat`);
+            const ws = new WebSocket(`wss://${info.host}/ws/chat`);
 
             ws.onopen = () => {
                 ws.send(value);
