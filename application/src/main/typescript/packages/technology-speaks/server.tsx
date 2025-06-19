@@ -33,7 +33,7 @@ const rawHtmlTemplate = fs.readFileSync(indexHtmlPath, 'utf8');
 
 const app = express();
 app.set('trust proxy', true);
-const PORT = 3000;
+const PORT = 80;
 
 
 let wsProxy = createProxyMiddleware({
@@ -45,30 +45,50 @@ let wsProxy = createProxyMiddleware({
 app.use(cookieParser());
 
 app.use(cors({
-    origin: 'https://www.anjunar.com',
+    origin: 'https://anjunar.com',
     credentials: true // falls Cookies oder Auth Header gebraucht werden
 }));
 
 app.use((req, res, next) => {
-    let path = req.path;
+    const host = req.headers.host || '';
 
-    if (path.startsWith('/home')) {
+    const subdomainMatch = host.match(/^([^.]+)\.anjunar\.com$/);
 
-        createProxyMiddleware({
-            target: 'https://localhost:3000',
-            changeOrigin: true,
-            pathRewrite: (path, req) => {
-                const match = path.match(/^\/home\/(\w+)\/(.*)$/);
-                if (match) {
-                    return `/service/codemirror/${match[1]}/files/file${match[2] ? "/" + match[2] : ""}`;
+    if (subdomainMatch) {
+        const subdomain = subdomainMatch ? subdomainMatch[1] : 'default';
+
+        const originalPath = req.path;
+
+        if (originalPath.startsWith("/service")) {
+            createProxyMiddleware({
+                target: 'http://localhost',
+                changeOrigin: true,
+                pathRewrite: () => originalPath,
+                on : {
+                    proxyReq: (proxyReq, req, res) => {
+                        proxyReq.setHeader('Host', 'localhost');
+                    }
                 }
-                return path;
-            }
-        })(req, res, next)
+            })(req, res, next);
 
+        } else {
+            const newPath = `/service/codemirror/${subdomain}/files/file${originalPath === '/' ? '' : originalPath}`;
+
+            createProxyMiddleware({
+                target: 'http://localhost',
+                changeOrigin: true,
+                pathRewrite: () => newPath,
+                on : {
+                    proxyReq: (proxyReq, req, res) => {
+                        proxyReq.setHeader('Host', 'localhost');
+                    }
+                }
+            })(req, res, next);
+        }
     } else {
-        next();
+        next()
     }
+
 });
 
 app.use(
@@ -90,8 +110,8 @@ app.use(
         changeOrigin: true,
         on : {
             proxyReq: (proxyReq, req, res) => {
-                proxyReq.setHeader("x-forwarded-protocol", "https")
-                proxyReq.setHeader("x-forwarded-host", 'www.anjunar.com')
+                proxyReq.setHeader("x-forwarded-protocol", "http")
+                proxyReq.setHeader("x-forwarded-host", 'anjunar.com')
             }
         }
     })
