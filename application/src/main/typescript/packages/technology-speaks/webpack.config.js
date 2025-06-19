@@ -3,6 +3,7 @@ const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin')    ;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const nodeExternals = require('webpack-node-externals');
+const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = [
     {
@@ -13,9 +14,24 @@ module.exports = [
         ],
         devtool: 'inline-source-map',
         output: {
-            path: path.resolve(__dirname, './dist/client'),
-            filename: 'main.js',
+            filename: '[name].[contenthash].js',
+            chunkFilename: '[name].[contenthash].js',
+            path: path.resolve(__dirname, 'dist', "client"),
+            clean: true,
             publicPath : '/static/'
+        },
+        optimization: {
+            splitChunks: {
+                chunks: 'all',
+                cacheGroups: {
+                    vendor: {
+                        test: /[\\/]node_modules[\\/]/,
+                        name: 'vendor',
+                        chunks: 'all',
+                        enforce: true,
+                    },
+                },
+            },
         },
         resolve: {
             extensions: ['.js', '.ts', '.tsx'],
@@ -73,6 +89,11 @@ module.exports = [
         },
         target: 'web',
         plugins: [
+            new HtmlWebpackPlugin({
+                template: './public/index.html',
+                filename: 'index.html',
+                inject: 'body',
+            }),
             new CopyWebpackPlugin({
                 patterns: [
                     {from: 'public/assets', to: 'assets'},
@@ -80,9 +101,7 @@ module.exports = [
             }),
             new MiniCssExtractPlugin({
                 filename: 'assets/style.css',
-            }),
-            new webpack.HotModuleReplacementPlugin(),
-            // new BundleAnalyzerPlugin()
+            })
         ],
         ignoreWarnings: [
             {

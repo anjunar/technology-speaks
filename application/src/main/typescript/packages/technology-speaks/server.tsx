@@ -28,7 +28,7 @@ function resolvePreferredLanguage(header: string): string {
     return languages[0]?.lang?.split("-")[0] || "en";
 }
 
-const indexHtmlPath = path.resolve(__dirname, 'public', 'index.html');
+const indexHtmlPath = path.resolve(__dirname, "../", "../", 'dist', "client", 'index.html');
 const rawHtmlTemplate = fs.readFileSync(indexHtmlPath, 'utf8');
 
 const app = express();

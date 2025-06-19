@@ -1,8 +1,10 @@
 import React, {CSSProperties, useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {SystemContext} from "../../../../System";
 import CodeMirror from "../CodeMirror";
-import {basicSetup, EditorView} from "codemirror";
+import {basicSetup, EditorView } from "codemirror";
 import {EditorState, Extension} from "@codemirror/state";
+import { defaultKeymap, indentWithTab } from "@codemirror/commands";
+import { keymap } from '@codemirror/view';
 import {
     closeTooltipOnClick,
     diagnosticsField,
@@ -33,7 +35,8 @@ function getExtensionsForTypescript(htmlMixed: any, updateListener: Extension, n
         updateListener,
         fileNameFacet.of(newFileName),
         closeTooltipOnClick,
-        info.cookie.theme === "dark" ? dracula : material
+        info.cookie.theme === "dark" ? dracula : material,
+        keymap.of([indentWithTab, ...defaultKeymap])
     ];
 }
 
@@ -88,10 +91,7 @@ export function Editor(properties: Editor.Attributes) {
 
             const response = fileService.updateFile({...state, content})
 
-            setState({
-                ...state,
-                content
-            })
+            state.content = content
         }
     });
 

@@ -38,7 +38,7 @@ export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
         <div className={"codemirror-page"}>
             <CodeMirror style={{height: "50%"}} configuration={{loadAllFiles, updateFile, deleteFile, renameFile}}
                         value={editor} onChange={file => setEditor(file)}/>
-            <iframe sandbox={"allow-scripts allow-same-origin"} src={`https://test.anjunar.com`}
+            <iframe sandbox={"allow-scripts allow-same-origin"} src={`https://patrick.anjunar.com`}
                     style={{width: "100%", height: "50%"}}/>
         </div>
     )
