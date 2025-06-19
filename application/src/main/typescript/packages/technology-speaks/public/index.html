@@ -14,8 +14,9 @@
         visibility: hidden;
       }
     </style>
+    <script src="/static/main.js" type="module"></script>
     <script>
-      // document.documentElement.classList.add("loading");
+      document.documentElement.classList.add("loading");
 
       async function loadMainJSWithProgress() {
         const response = await fetch('/static/main.js'); // oder dein Pfad
@@ -60,7 +61,7 @@
 
       }
 
-      loadMainJSWithProgress();
+      // loadMainJSWithProgress();
 
     </script>
   </head>

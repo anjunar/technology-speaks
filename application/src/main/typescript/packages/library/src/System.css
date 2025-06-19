@@ -405,11 +405,6 @@ button {
     background-color: inherit;
     color: var(--color-text);
 
-    &:not([disabled]):hover {
-        background-color: var(--color-selected);
-        color: var(--color-background-primary);
-    }
-
     &[disabled] {
         color: var(--color-background-secondary);
     }
@@ -419,6 +414,13 @@ button {
         align-items : center;
         justify-content : flex-start;
         gap : 5px
+    }
+
+    &.hover {
+        &:not([disabled]):hover {
+            background-color: var(--color-selected);
+            color: var(--color-background-primary);
+        }
     }
 }
 

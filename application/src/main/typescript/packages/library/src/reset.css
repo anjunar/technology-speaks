@@ -44,6 +44,14 @@ select, textarea {
   border: 0;
 }
 
+ul {
+  padding-left: 20px;
+}
+
+p {
+  margin: 8px 0;
+}
+
 pre {
   white-space: pre-wrap;
 }

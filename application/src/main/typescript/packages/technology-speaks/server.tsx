@@ -82,27 +82,12 @@ app.use(
     })
 );
 
-app.use(
-    '/static',
-    createProxyMiddleware({
-        target: 'http://localhost:3001/static',
-        changeOrigin: true,
-        ws: true,
-    })
-);
-
-app.use(
-    '/assets',
-    createProxyMiddleware({
-        target: 'http://localhost:3001/assets',
-        changeOrigin: true,
-    })
-);
+app.use("/static", express.static("dist/client"));
 
 app.use(
     '/service',
     createProxyMiddleware({
-        target: 'http://localhost:3001/service',
+        target: 'http://localhost:8080/service',
         changeOrigin: true,
         on : {
             proxyReq: (proxyReq, req, res) => {

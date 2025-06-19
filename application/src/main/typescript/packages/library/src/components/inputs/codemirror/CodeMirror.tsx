@@ -27,6 +27,7 @@ import FileEntry = CodeMirror.FileEntry;
 import Drawer from "../../layout/drawer/Drawer";
 import {createPortal} from "react-dom";
 import Window from "../../modal/window/Window";
+import FileManager from "../../navigation/files/FileManager";
 
 function getExtensionsForTypescript(htmlMixed: any, updateListener: Extension, newFileName: string, info: RequestInformation) {
     return [
@@ -62,7 +63,9 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
 
     const [files, setFiles] = useState<CodeMirror.FileEntry[]>([{ name: "/index.tsx", content: ""}])
 
-    const [newFileName, setNewFileName] = useState("/newfile.tsx")
+    const [newPathName, setNewPathName] = useState("/")
+
+    const [newFileName, setNewFileName] = useState("newfile.tsx")
 
     const [drawerOpen, setDrawerOpen] = useState(false)
 
@@ -127,6 +130,12 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
         });
     }, [editorViewRef?.current]);
 
+    const commands : FileManager.Commands = {
+        onCreate(path: string) {
+            setCreateFileOpen(true)
+            setNewPathName(path)
+        }
+    }
 
     function activeFileHandler(file: FileEntry) {
         setState(file);
@@ -145,14 +154,15 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
         <div id="root"></div>
     </body>
 </html>`;
-        let reactSnipped = "import React from \"https://esm.sh/react\";";
+        let reactSnipped = "import React from \"react\";";
 
         let content = newFileName.endsWith("html") ? htmlSnipped : reactSnipped
-        const newFile = { name: newFileName, content: content };
+        let name = newPathName + newFileName;
+        const newFile = { name: name, content: content };
 
         setFiles(prevFiles => [...prevFiles, newFile]);
 
-        env.createFile(newFileName, content);
+        env.createFile(name, content);
 
         setState(newFile)
 
@@ -241,11 +251,7 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
             <Drawer.Container>
                 <Drawer open={drawerOpen}>
                     <div style={{padding : "16px"}}>
-                        {
-                            files.map(file => (
-                                <p key={file.name}><a key={file.name} onClick={() => activeFileHandler(file)}>{file.name}</a></p>
-                            ))
-                        }
+                        <FileManager files={files} commands={commands}></FileManager>
                     </div>
                 </Drawer>
                 <Drawer.Content>
@@ -278,6 +284,7 @@ export namespace CodeMirror {
         name: string;
         content: string;
         transpiled?: string;
+        sourceMap? : string
     }
 }
 

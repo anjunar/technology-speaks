@@ -5,11 +5,10 @@
   "description": "",
   "main": "index.tsx",
   "scripts": {
-    "build:client": "webpack --config webpack.client.config.js",
-    "build:server": "webpack --config webpack.server.config.js --watch",
-    "start:dev-server": "pm2 start dist/server/server.js --watch --no-daemon --node-args=\"--inspect=9229\"",
-    "start:dev-client": "webpack serve --config webpack.client.config.js",
-    "dev": "concurrently --kill-others \"npm run build:server\" \"npm run start:dev-server\" \"npm run start:dev-client\""
+    "build": "webpack --config webpack.config.js",
+    "watch": "webpack --config webpack.config.js --watch",
+    "server": "pm2 start dist/server/server.js --watch --no-daemon --node-args=\"--inspect=9229\"",
+    "start": "concurrently --kill-others \"npm run watch\" \"npm run server\""
   },
   "keywords": [],
   "author": "",
