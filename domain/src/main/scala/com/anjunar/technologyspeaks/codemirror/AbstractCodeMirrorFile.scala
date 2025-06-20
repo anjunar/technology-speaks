@@ -6,6 +6,7 @@ import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import jakarta.persistence.{Basic, Column, Entity, Inheritance, InheritanceType, Lob, NoResultException, Table}
+import jakarta.validation.constraints.{NotBlank, Size}
 
 import scala.compiletime.uninitialized
 
@@ -23,6 +24,8 @@ abstract class AbstractCodeMirrorFile extends AbstractEntity {
 
   @Basic
   @Column(unique = true)
+  @NotBlank
+  @Size(min = 1)
   @PropertyDescriptor(title = "Name", writeable = true)
   var name : String = uninitialized
 

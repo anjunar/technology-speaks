@@ -23,7 +23,7 @@ export const diagnosticsPlugin = ViewPlugin.fromClass(class {
 
     update(update: ViewUpdate) {
         if (update.docChanged || update.viewportChanged) {
-            requestDiagnosticsUpdate(this.view);
+            setTimeout(() => requestDiagnosticsUpdate(this.view), 1000);
         }
     }
 });
@@ -71,11 +71,9 @@ export function requestDiagnosticsUpdate(view: EditorView) {
     const diagnostics = env.languageService.getSemanticDiagnostics(filename);
     const tooltips = createTooltipsFromDiagnostics(diagnostics);
 
-/*
     view.dispatch({
         effects: setDiagnostics.of(tooltips)
     });
-*/
 }
 
 export const tsErrorHighlighter = ViewPlugin.fromClass(class {

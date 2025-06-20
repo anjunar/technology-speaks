@@ -246,7 +246,7 @@ class JsonBeanConverter extends JsonAbstractConverter(TypeResolver.resolve(class
             val violations: util.Set[ConstraintViolation[Any]] = if (context.noValidation) {
               new util.HashSet[ConstraintViolation[Any]]()
             } else {
-              context.validator.validateValue(aType.raw.asInstanceOf[Class[Any]], property.name, propertyValue)
+              context.validator.validateValue(beanModel.underlying.raw.asInstanceOf[Class[Any]], property.name, propertyValue)
             }
 
             if (violations.isEmpty) {

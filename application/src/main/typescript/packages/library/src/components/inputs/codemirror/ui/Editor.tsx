@@ -46,7 +46,6 @@ export const draculaTheme = EditorView.theme({
 function getExtensions(typescript: any, updateListener: Extension, newFileName: string, info: RequestInformation) {
     return [
         basicSetup,
-        autocompletion({override: [typescriptCompletionSource(newFileName)]}),
         updateListener,
         fileNameFacet.of(newFileName),
         info.cookie.theme === "dark" ? draculaTheme : [],
@@ -60,6 +59,7 @@ function getExtensionsForTypescript(typescript: any, updateListener: Extension, 
         ...getExtensions(typescript, updateListener, newFileName, info),
 
         typescript,
+        autocompletion({override: [typescriptCompletionSource(newFileName)]}),
         tsErrorHighlighter,
         diagnosticsField,
         diagnosticsPlugin,

@@ -107,5 +107,5 @@ class CodeMirrorFilesResource extends SchemaBuilderContext {
     new Table[AbstractCodeMirrorFile](files, files.size)
   }
 
-  
+
 }

@@ -134,7 +134,8 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
         files.filter(file => file.name.endsWith(".tsx") || file.name.endsWith(".ts"))
             .forEach(file => {
                 transpile(file.name, (js, sourceMap) => {
-                    configuration.updateFile(JSONDeserializer({...file, transpiled: js, sourceMap}, false))
+                    let sourceFile = env.getSourceFile(file.name);
+                    configuration.updateFile(JSONDeserializer({ $type : file.$type, id : file.id, name : file.name, content : sourceFile.text, transpiled: js, sourceMap}, false))
                 })
             })
     }
