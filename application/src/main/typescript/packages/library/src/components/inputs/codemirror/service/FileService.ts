@@ -12,11 +12,15 @@ export class FileService {
                 private env: ReturnType<typeof createVirtualTypeScriptEnvironment>) {}
 
     async updateFile(file : AbstractCodeMirrorFile) {
-        if (file instanceof CodeMirrorHTML || file instanceof CodeMirrorTS || file instanceof CodeMirrorCSS) {
-            this.system.writeFile(file.name, file.content);
+        if (file instanceof CodeMirrorTS) {
+            this.env.updateFile(file.name, file.content);
         } else {
-            if (file instanceof CodeMirrorImage) {
-                this.system.writeFile(file.name, file.data);
+            if (file instanceof CodeMirrorHTML || file instanceof CodeMirrorCSS) {
+                this.system.writeFile(file.name, file.content);
+            } else {
+                if (file instanceof CodeMirrorImage) {
+                    this.system.writeFile(file.name, file.data);
+                }
             }
         }
 

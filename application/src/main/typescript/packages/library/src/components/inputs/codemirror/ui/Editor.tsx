@@ -95,7 +95,7 @@ const typescript = javascript({
     jsx: true
 })
 
-let saveTimeout;
+let saveTimeout : ReturnType<typeof setTimeout>
 
 export function Editor(properties: Editor.Attributes) {
 

@@ -18,12 +18,19 @@ export const diagnosticsField = StateField.define<Tooltip[]>({
     provide: f => showTooltip.from(f, tooltips => tooltips[0])
 });
 
+let timeout : ReturnType<typeof setTimeout>
+
 export const diagnosticsPlugin = ViewPlugin.fromClass(class {
     constructor(public view: EditorView) {}
 
     update(update: ViewUpdate) {
         if (update.docChanged || update.viewportChanged) {
-            setTimeout(() => requestDiagnosticsUpdate(this.view), 1000);
+
+            clearTimeout(timeout);
+
+            timeout = setTimeout(() => {
+                requestDiagnosticsUpdate(this.view)
+            }, 3000);
         }
     }
 });
