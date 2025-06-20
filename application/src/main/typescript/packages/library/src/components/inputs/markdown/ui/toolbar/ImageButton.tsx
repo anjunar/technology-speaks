@@ -1,6 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from "react"
 import {MarkDownContext} from "../../MarkDownEditor";
-import EditorFile from "../../model/EditorFile";
+import EditorFile from "../../domain/EditorFile";
 
 function decodeBase64(result: string) {
     let base64 = /data:(\w+);base64,((?:[A-Za-z0-9+\/]{4})*(?:[A-Za-z0-9+\/]{4}|[A-Za-z0-9+\/]{3}=|[A-Za-z0-9+\/]{2}={2}))/g

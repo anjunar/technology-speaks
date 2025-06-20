@@ -85,7 +85,22 @@ export const routes: Router.Route[] = [
             },
             {
                 path : "/codemirror",
-                component : CodeMirrorPage
+                component : CodeMirrorPage,
+                loader : {
+                    async workspace(info, pathParams : PathParams, queryParams : QueryParams) {
+                        let response = await fetch(`${info.protocol}://${info.host}/service/codemirror/workspace`, {
+                            headers : getHeaders(info)
+                        })
+
+                        process(response, getRedirect(info))
+
+                        if (response.ok) {
+                            return mapForm(await response.json(), true)
+                        }
+
+                        throw new Error(response.status.toString())
+                    }
+                }
             },
             {
                 path: "/documents",

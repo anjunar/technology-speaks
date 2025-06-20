@@ -6,8 +6,8 @@ import {encodeBase64, findNodesByRange, reMarkFactoryForHTML} from "./parser/ReM
 import {Node} from 'unist';
 import {useInput} from "../../../hooks";
 import {Model} from "../../shared";
-import EditorModel from "./model/EditorModel";
-import EditorFile from "./model/EditorFile";
+import EditorModel from "./domain/EditorModel";
+import EditorFile from "./domain/EditorFile";
 import JsFlag from "../../layout/jsFlag/JsFlag";
 
 

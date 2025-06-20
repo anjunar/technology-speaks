@@ -1,6 +1,8 @@
 package com.anjunar.technologyspeaks.codemirror
 
+import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.SchemaBuilderContext
+import com.anjunar.technologyspeaks.jaxrs.types.Table
 import com.google.common.base.Strings
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.ws.rs.core.{Cookie, MediaType, NewCookie, Response}
@@ -11,7 +13,7 @@ import java.util
 
 @ApplicationScoped
 @Path("codemirror/{user}/files")
-class CodeMirrorFiles extends SchemaBuilderContext {
+class CodeMirrorFilesResource extends SchemaBuilderContext {
 
   @GET
   @Produces(Array("application/javascript", MediaType.TEXT_HTML))
@@ -75,37 +77,8 @@ class CodeMirrorFiles extends SchemaBuilderContext {
   @POST
   @Consumes(Array(MediaType.APPLICATION_JSON))
   @Path("file")
-  def write(@PathParam("user") user : String, file : AbstractCodeMirrorFile) : Response = {
-    val loaded = AbstractCodeMirrorFile.query(("name", file.name))
-    if (loaded == null) {
-      file.saveOrUpdate()
-    } else {
-
-      loaded match {
-        case css : CodeMirrorCSS => css.content = file.asInstanceOf[CodeMirrorCSS].content
-        case html : CodeMirrorHTML => html.content = file.asInstanceOf[CodeMirrorHTML].content
-        case image : CodeMirrorImage =>
-          file match {
-            case newImage : CodeMirrorImage =>
-              image.data = newImage.data
-              image.contentType = newImage.contentType
-          }
-        case ts : CodeMirrorTS =>
-          file match {
-            case newTs : CodeMirrorTS =>
-              if (!Strings.isNullOrEmpty(newTs.content)) {
-                ts.content = newTs.content
-              }
-              if (! Strings.isNullOrEmpty(newTs.transpiled)) {
-                ts.transpiled = newTs.transpiled
-              }
-              if (!Strings.isNullOrEmpty(newTs.sourceMap)) {
-                ts.sourceMap = newTs.sourceMap
-              }
-          }
-      }
-
-    }
+  def write(@PathParam("user") user : String, @JsonSchema(classOf[CodeMirrorFileSchema]) file : AbstractCodeMirrorFile) : Response = {
+    file.saveOrUpdate()
     Response.ok().build()
   }
 
@@ -128,9 +101,11 @@ class CodeMirrorFiles extends SchemaBuilderContext {
 
   @GET
   @Produces(Array("application/json"))
-  def files(@PathParam("user") user : String) : util.List[AbstractCodeMirrorFile] = AbstractCodeMirrorFile.findAll()
+  @JsonSchema(classOf[CodeMirrorFilesSchema])
+  def files(@PathParam("user") user : String) : Table[AbstractCodeMirrorFile] = {
+    val files = AbstractCodeMirrorFile.findAll()
+    new Table[AbstractCodeMirrorFile](files, files.size)
+  }
 
-
-
-
+  
 }

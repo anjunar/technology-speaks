@@ -1,5 +1,6 @@
 package com.anjunar.technologyspeaks.codemirror
 
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id
@@ -14,8 +15,7 @@ import scala.compiletime.uninitialized
   new JsonSubTypes.Type(value = classOf[CodeMirrorCSS], name = "CodeMirrorCSS"),
   new JsonSubTypes.Type(value = classOf[CodeMirrorHTML], name = "CodeMirrorHTML"),
   new JsonSubTypes.Type(value = classOf[CodeMirrorImage], name = "CodeMirrorImage"),
-  new JsonSubTypes.Type(value = classOf[CodeMirrorTS], name = "CodeMirrorTS"),
-  new JsonSubTypes.Type(value = classOf[CodeMirrorTS], name = "CodeMirrorTSX")
+  new JsonSubTypes.Type(value = classOf[CodeMirrorTS], name = "CodeMirrorTS")
 ))
 @JsonTypeInfo(use = Id.NAME, property = "$type")
 @Table(name = "codemirror-file")
@@ -23,6 +23,7 @@ abstract class AbstractCodeMirrorFile extends AbstractEntity {
 
   @Basic
   @Column(unique = true)
+  @PropertyDescriptor(title = "Name", writeable = true)
   var name : String = uninitialized
 
 }

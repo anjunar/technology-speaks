@@ -30,6 +30,8 @@ export default function JSONDeserializer<T>(object: any, buildObjectGraph : bool
                         if (buildObjectGraph) {
                             element = object[name] = JSONSerializer(entity)
                         }
+                    } else {
+                        element = object[name] = entity
                     }
                 }
             }

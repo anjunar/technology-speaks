@@ -14,8 +14,36 @@ import Tabs from "../../layout/tabs/Tabs";
 import Tab from "../../layout/tabs/Tab";
 import Page from "../../layout/pages/Page";
 import Pages from "../../layout/pages/Pages";
+import {AbstractCodeMirrorFile} from "./domain/AbstractCodeMirrorFile";
+import {JSONDeserializer} from "../../../mapper";
+import {match} from "../../../pattern-match";
+import {CodeMirrorTS} from "./domain/CodeMirrorTS";
+import {CodeMirrorImage} from "./domain/CodeMirrorImage";
+import {CodeMirrorCSS} from "./domain/CodeMirrorCSS";
+import {CodeMirrorHTML} from "./domain/CodeMirrorHTML";
+import {CodeMirrorWorkspace} from "./domain/CodeMirrorWorkspace";
 
-function fileName(editor: CodeMirror.FileEntry) {
+function fileTemplate(type: string) {
+    switch (type) {
+        case "ts" :
+            return "import React from \"react\";"
+        case "tsx" :
+            return "import React from \"react\";\nimport ReactDom from \"react-dom/client\";"
+        case "css" :
+            return ""
+        case "html" :
+            return `<html lang="en">
+    <head>
+        <script type="module" src="index"></script>    
+    </head>
+    <body>
+        <div id="root"></div>
+    </body>
+</html>`
+    }
+}
+
+function fileName(editor: AbstractCodeMirrorFile) {
     let lastIndexOf = editor.name.lastIndexOf("/");
     return editor.name.substring(lastIndexOf + 1);
 }
@@ -24,13 +52,9 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
 
     const {name, standalone, value, onChange, onModel, configuration, style} = properties
 
-    const [model, state, setState] = useInput<CodeMirror.FileEntry[]>(name, value, standalone, "codemirror")
+    const [model, state, setState] = useInput<CodeMirrorWorkspace>(name, value, standalone, "codemirror")
 
-    const [files, setFiles] = useState<CodeMirror.FileEntry[]>([{
-        name: "/index.tsx",
-        content: "",
-        $type: "CodeMirrorHTML"
-    }])
+    const [files, setFiles] = useState<AbstractCodeMirrorFile[]>(null)
 
     const [page, setPage] = useState(0)
 
@@ -47,31 +71,33 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
     const fileService = new FileService(configuration, system, env)
 
     function closeEditor(page : number) {
-        state.splice(page, 1)
-        let newState = [...state];
-        setState(newState)
+        state.open.splice(page, 1)
+
+        configuration.saveWorkspace()
 
         if (onChange) {
-            onChange(newState)
+            onChange(state)
         }
     }
 
     const commands: FileManager.Commands = {
         onRead(file: FileManager.TreeNode) {
-            let entry = state.find(fileEntry => fileEntry.name === file.fullName);
+            let entry = state.open.find(fileEntry => fileEntry.name === file.fullName);
 
             if (entry) {
-                let indexOf = state.indexOf(entry);
+                let indexOf = state.open.indexOf(entry);
                 setPage(indexOf)
             } else {
                 let fromFiles = files.find(fileEntry => fileEntry.name === file.fullName);
-                let newState = [fromFiles, ...state];
-                setState(newState)
+
+                state.open.push(fromFiles)
 
                 if (onChange) {
-                    onChange(newState)
+                    onChange(state)
                 }
             }
+
+            configuration.saveWorkspace()
 
         },
         onCreate(path: string) {
@@ -85,40 +111,19 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
         }
     }
 
-    function fileTemplate(type: string) {
-        switch (type) {
-            case "ts" :
-                return "import React from \"react\";"
-            case "tsx" :
-                return "import React from \"react\";\nimport ReactDom from \"react-dom/client\";"
-            case "css" :
-                return ""
-            case "html" :
-                return `<html lang="en">
-    <head>
-        <script type="module" src="index"></script>    
-    </head>
-    <body>
-        <div id="root"></div>
-    </body>
-</html>`
-        }
-    }
-
     function createNewFile(type: string) {
         let content = fileTemplate(type)
         let name = newPathName + newFileName + "." + type;
-        const newFile = {name: name, content: content, $type: "CodeMirror" + type.toUpperCase()};
+        const newFile = JSONDeserializer<AbstractCodeMirrorFile>({name: name, content: content, $type: "CodeMirror" + type.toUpperCase()}, false);
 
         setFiles(prevFiles => [...prevFiles, newFile]);
 
         fileService.updateFile(newFile)
 
-        let newState = [newFile, ...state];
-        setState(newState)
+        state.open.push(newFile)
 
         if (onChange) {
-            onChange(newState)
+            onChange(state)
         }
 
         setCreateFileOpen(false)
@@ -129,7 +134,7 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
         files.filter(file => file.name.endsWith(".tsx") || file.name.endsWith(".ts"))
             .forEach(file => {
                 transpile(file.name, (js, sourceMap) => {
-                    configuration.updateFile({...file, transpiled: js, sourceMap})
+                    configuration.updateFile(JSONDeserializer({...file, transpiled: js, sourceMap}, false))
                 })
             })
     }
@@ -143,9 +148,20 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
         }
 
         configuration.loadAllFiles()
-            .then((files: CodeMirror.FileEntry[]) => {
+            .then((files: AbstractCodeMirrorFile[]) => {
                 let fileNames = files.map(file => {
-                    env.createFile(file.name, file.content)
+
+                    match(file)
+                        .withObject(CodeMirrorTS, ts => {
+                            env.createFile(ts.name, ts.content || "// Comment")
+                        })
+                        .withObject(CodeMirrorCSS, css => {
+                            env.createFile(css.name, css.content)
+                        })
+                        .withObject(CodeMirrorHTML, html => {
+                            env.createFile(html.name, html.content)
+                        })
+
                     return file.name
                 });
 
@@ -190,14 +206,14 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
             <Drawer.Container>
                 <Drawer open={drawerOpen}>
                     <div style={{padding: "16px"}}>
-                        <FileManager files={files} commands={commands}></FileManager>
+                        <FileManager files={files || []} commands={commands}></FileManager>
                     </div>
                 </Drawer>
                 <Drawer.Content>
                     <div style={{height: "100%"}}>
                         <Tabs page={page} onPage={page => setPage(page)} centered={false}>
                             {
-                                state.map((editor, index) => (
+                                files && state.open.map((editor, index) => (
                                     <Tab>
                                         <div style={{display : "flex", alignItems : "center", gap : "12px"}}>
                                             <span>{fileName(editor)}</span>
@@ -209,7 +225,8 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
                         </Tabs>
                         <Pages page={page} style={{height : "100%"}}>
                             {
-                                state.map(editor => (
+                                files && state.open.filter(editor => editor instanceof CodeMirrorTS || editor instanceof CodeMirrorHTML || editor instanceof CodeMirrorCSS)
+                                    .map(editor => (
                                     <Page style={{height : "100%"}}>
                                         <Editor style={{height : "100%"}} configuration={configuration} value={editor}/>
                                     </Page>
@@ -226,9 +243,9 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
 export namespace CodeMirror {
     export interface Attributes {
         name?: string
-        value?: FileEntry[]
+        value?: CodeMirrorWorkspace
         standalone?: boolean
-        onChange?: (value: FileEntry[]) => void
+        onChange?: (value: CodeMirrorWorkspace) => void
         onModel?: (value: Model) => void
         configuration: Configuration
         style?: CSSProperties
@@ -237,21 +254,15 @@ export namespace CodeMirror {
     export interface Configuration {
         loadAllFiles(): Promise<any>
 
-        updateFile(name: CodeMirror.FileEntry): Promise<Response>
+        updateFile(name: AbstractCodeMirrorFile): Promise<Response>
 
         deleteFile(name: string): Promise<Response>
 
         renameFile(oldName: string, newName: string): Promise<Response>
+
+        saveWorkspace(): Promise<Response>
     }
 
-    export interface FileEntry {
-        $type: string
-        name: string;
-        content: string;
-        transpiled?: string;
-        sourceMap?: string
-        contentType?: string
-    }
 }
 
 export default CodeMirror;

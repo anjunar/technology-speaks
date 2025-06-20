@@ -2,8 +2,8 @@ import "./MarkDownView.css"
 import React, {CSSProperties, useEffect, useMemo, useRef} from "react"
 import {reMarkFactoryForHTML} from "./parser/ReMarkFactory";
 import {useInput} from "../../../hooks";
-import EditorModel from "./model/EditorModel";
-import Change from "./model/Change";
+import EditorModel from "./domain/EditorModel";
+import Change from "./domain/Change";
 
 function MarkDownView(properties: MarkDownView.Attributes) {
 

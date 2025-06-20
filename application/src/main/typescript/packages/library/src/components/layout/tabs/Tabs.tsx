@@ -7,29 +7,32 @@ function Tabs(properties: Tabs.Attributes) {
     const {page, onPage, className, children, centered = true, ...rest} = properties
 
     const tabs = useMemo(() => {
-        const tabModel = children.map(
-            child =>
-                new (class CustomTab extends TabModel {
-                    onSelect() {
-                        for (const tab of tabModel) {
-                            tab.fire(false)
+        if (children) {
+            const tabModel = children.map(
+                child =>
+                    new (class CustomTab extends TabModel {
+                        onSelect() {
+                            for (const tab of tabModel) {
+                                tab.fire(false)
+                            }
+                            this.selected = true
+                            this.page = tabModel.indexOf(this)
+                            this.fire(this.selected)
+                            onPage(tabModel.indexOf(this))
                         }
-                        this.selected = true
-                        this.page = tabModel.indexOf(this)
-                        this.fire(this.selected)
-                        onPage(tabModel.indexOf(this))
-                    }
-                })()
-        )
+                    })()
+            )
 
-        return children.map((child, index) => {
-            return React.cloneElement(child, {
-                // @ts-ignore
-                selected: page === index,
-                tab: tabModel[index],
-                key: tabModel[index].id
+            return children.map((child, index) => {
+                return React.cloneElement(child, {
+                    // @ts-ignore
+                    selected: page === index,
+                    tab: tabModel[index],
+                    key: tabModel[index].id
+                })
             })
-        })
+        }
+        return []
     }, [children])
 
     return (

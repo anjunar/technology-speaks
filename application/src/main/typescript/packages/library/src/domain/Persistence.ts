@@ -22,11 +22,16 @@ import EnumDescriptor from "./descriptors/EnumDescriptor";
 import NodeDescriptor from "./descriptors/NodeDescriptor";
 import ObjectDescriptor from "./descriptors/ObjectDescriptor";
 import QueryTableObject from "./container/QueryTableObject";
-import EditorModel from "../components/inputs/markdown/model/EditorModel";
-import EditorFile from "../components/inputs/markdown/model/EditorFile";
+import EditorModel from "../components/inputs/markdown/domain/EditorModel";
+import EditorFile from "../components/inputs/markdown/domain/EditorFile";
 import SortObject from "./container/SortObject";
 import TupleTableObject from "./container/TupleTableObject";
-import Change from "../components/inputs/markdown/model/Change";
+import Change from "../components/inputs/markdown/domain/Change";
+import {CodeMirrorCSS} from "../components/inputs/codemirror/domain/CodeMirrorCSS";
+import {CodeMirrorTS} from "../components/inputs/codemirror/domain/CodeMirrorTS";
+import {CodeMirrorImage} from "../components/inputs/codemirror/domain/CodeMirrorImage";
+import {CodeMirrorHTML} from "../components/inputs/codemirror/domain/CodeMirrorHTML";
+import {CodeMirrorWorkspace} from "../components/inputs/codemirror/domain/CodeMirrorWorkspace";
 
 export function init() {
 
@@ -54,6 +59,12 @@ export function init() {
     registerEntity(EditorModel)
     registerEntity(EditorFile)
     registerEntity(Change)
+
+    registerEntity(CodeMirrorHTML)
+    registerEntity(CodeMirrorTS)
+    registerEntity(CodeMirrorCSS)
+    registerEntity(CodeMirrorImage)
+    registerEntity(CodeMirrorWorkspace)
 
     registerConverter(Date, new DateConverter())
     registerConverter(LocalDateTime, new LocalDateTimeConverter())

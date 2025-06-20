@@ -32,7 +32,7 @@ trait RepositoryContext[E](clazz: Class[E]) {
     entityManager.createQuery(query.select(root)).getResultList
   }
 
-  def query(parameters: (key : String, value : String)*): E = {
+  def query(parameters: (key : String, value : Any)*): E = {
     val entityAnnotation: Entity = clazz.getAnnotation(classOf[Entity])
     var entityName: String = entityAnnotation.name()
     if (entityName == null || entityName.isEmpty) {

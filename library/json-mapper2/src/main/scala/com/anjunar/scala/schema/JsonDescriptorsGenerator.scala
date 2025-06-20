@@ -123,13 +123,9 @@ object JsonDescriptorsGenerator {
 
         val backReference = context.findClass(aClass.raw)
 
-        if (backReference == null) {
-          jsonSubTypes
-            .value()
-            .foreach(subType => descriptor.oneOf.add(JsonDescriptorsGenerator.generateObject(TypeResolver.resolve(subType.value()), schema, new JsonDescriptorsContext(context))))
-        } else {
-
-        }
+        jsonSubTypes
+          .value()
+          .foreach(subType => descriptor.oneOf.add(JsonDescriptorsGenerator.generateObject(TypeResolver.resolve(subType.value()), schema, new JsonDescriptorsContext(context))))
       }
 
       descriptor

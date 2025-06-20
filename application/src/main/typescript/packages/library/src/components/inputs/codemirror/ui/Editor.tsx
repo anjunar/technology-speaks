@@ -23,6 +23,8 @@ import {env, system} from "../typescript/Environment";
 import {html} from "@codemirror/lang-html";
 import {javascript} from "@codemirror/lang-javascript";
 import {css} from "@codemirror/lang-css";
+import {AbstractCodeMirrorFile} from "../domain/AbstractCodeMirrorFile";
+import {CodeMirrorContent} from "../domain/CodeMirrorContent";
 
 function getExtensionsForTypescript(htmlMixed: any, updateListener: Extension, newFileName: string, info: RequestInformation) {
     return [
@@ -77,11 +79,13 @@ export function Editor(properties: Editor.Attributes) {
 
     const {configuration, value, style} = properties
 
-    const [state, setState] = useState<CodeMirror.FileEntry>(value)
+    const [state, setState] = useState<CodeMirrorContent>(value)
 
     const editorViewRef = useRef<HTMLDivElement>(null);
 
-    const [initializer, setInitializer] = useState(false)
+    const [editorInitializer, setEditorInitializer] = useState(false)
+
+    const [stateInitializer, setStateInitializer] = useState(false)
 
     const {info} = useContext(SystemContext)
 
@@ -95,8 +99,8 @@ export function Editor(properties: Editor.Attributes) {
 
             saveTimeout = setTimeout(async () => {
                 try {
-                    const response = await fileService.updateFile({ ...state, content });
                     state.content = content;
+                    const response = await fileService.updateFile(state as any);
                     console.log("✅ Datei gespeichert.");
                 } catch (err) {
                     console.error("❌ Fehler beim Speichern:", err);
@@ -113,7 +117,7 @@ export function Editor(properties: Editor.Attributes) {
         return new EditorView({
             parent: editorViewRef.current
         });
-    }, [initializer]);
+    }, [editorInitializer]);
 
     useEffect(() => {
         if (state && editorView) {
@@ -130,15 +134,17 @@ export function Editor(properties: Editor.Attributes) {
                 requestDiagnosticsUpdate(editorView);
             }
         }
-    }, [state, initializer]);
+    }, [state, editorInitializer]);
 
     useEffect(() => {
-        setState(value)
+        if (state.content !== value.content) {
+            setState(value)
+        }
     }, [value]);
 
     useEffect(() => {
 
-        setInitializer(true)
+        setEditorInitializer(true)
 
         return () => {
             if (editorView) {
@@ -154,7 +160,7 @@ export function Editor(properties: Editor.Attributes) {
 
 export namespace Editor {
     export interface Attributes {
-        value : CodeMirror.FileEntry
+        value : CodeMirrorContent
         configuration: CodeMirror.Configuration
         style? : CSSProperties
     }

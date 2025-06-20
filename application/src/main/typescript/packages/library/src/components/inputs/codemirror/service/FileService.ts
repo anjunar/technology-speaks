@@ -1,13 +1,24 @@
 import {createSystem, createVirtualTypeScriptEnvironment} from "@typescript/vfs";
 import CodeMirror from "../CodeMirror";
+import {AbstractCodeMirrorFile} from "../domain/AbstractCodeMirrorFile";
+import {CodeMirrorHTML} from "../domain/CodeMirrorHTML";
+import {CodeMirrorTS} from "../domain/CodeMirrorTS";
+import {CodeMirrorCSS} from "../domain/CodeMirrorCSS";
+import {CodeMirrorImage} from "../domain/CodeMirrorImage";
 
 export class FileService {
     constructor(private restApi : CodeMirror.Configuration,
                 private system: ReturnType<typeof createSystem>,
                 private env: ReturnType<typeof createVirtualTypeScriptEnvironment>) {}
 
-    async updateFile(file : CodeMirror.FileEntry) {
-        this.system.writeFile(file.name, file.content);
+    async updateFile(file : AbstractCodeMirrorFile) {
+        if (file instanceof CodeMirrorHTML || file instanceof CodeMirrorTS || file instanceof CodeMirrorCSS) {
+            this.system.writeFile(file.name, file.content);
+        } else {
+            if (file instanceof CodeMirrorImage) {
+                this.system.writeFile(file.name, file.data);
+            }
+        }
 
         let res = await this.restApi.updateFile(file);
 

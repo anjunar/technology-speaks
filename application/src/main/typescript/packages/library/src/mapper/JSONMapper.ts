@@ -30,7 +30,7 @@ export function traverseObjectGraph(object : any, schema : ObjectDescriptor, bui
     }
 
     Object.entries(object).filter(([key, value]) => value).forEach(([key, value]) => {
-        let node = schema.properties[key];
+        let node = schema.properties?.[key];
 
         if (! node) {
             let find = schema.oneOf?.find(one => one.type === object.$type);

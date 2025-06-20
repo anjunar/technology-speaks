@@ -8,7 +8,7 @@ import remarkGfm from 'remark-gfm'
 import {visit} from 'unist-util-visit';
 import type {Element} from 'hast';
 import {Node} from 'unist';
-import EditorModel from "../model/EditorModel";
+import EditorModel from "../domain/EditorModel";
 
 export const encodeBase64 = (type: string, data: string) => {
     if (data) {
