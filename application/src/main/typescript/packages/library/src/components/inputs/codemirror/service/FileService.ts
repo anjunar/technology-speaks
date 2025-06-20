@@ -6,16 +6,8 @@ export class FileService {
                 private system: ReturnType<typeof createSystem>,
                 private env: ReturnType<typeof createVirtualTypeScriptEnvironment>) {}
 
-    async createFile(file : CodeMirror.FileEntry) {
-        this.env.createFile(file.name, file.content);
-
-        let res = await this.restApi.updateFile(file);
-
-        if (!res.ok) throw new Error("Speichern fehlgeschlagen");
-    }
-
     async updateFile(file : CodeMirror.FileEntry) {
-        this.env.updateFile(file.name, file.content);
+        this.system.writeFile(file.name, file.content);
 
         let res = await this.restApi.updateFile(file);
 
@@ -23,7 +15,7 @@ export class FileService {
     }
 
     async deleteFile(path: string) {
-        this.env.deleteFile(path);
+        this.system.deleteFile(path);
 
         let res = await this.restApi.deleteFile(path.substring(1));
 
@@ -34,9 +26,9 @@ export class FileService {
         const content = this.system.readFile(oldPath);
         if (!content) throw new Error("Datei nicht gefunden");
 
-        this.env.deleteFile(oldPath);
+        this.system.deleteFile(oldPath);
 
-        this.env.updateFile(newPath, content);
+        this.system.writeFile(newPath, content);
 
         let res = await this.restApi.renameFile(oldPath.substring(1), newPath);
 

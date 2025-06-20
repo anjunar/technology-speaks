@@ -71,6 +71,8 @@ const typescript = javascript({
     jsx: true
 })
 
+let saveTimeout;
+
 export function Editor(properties: Editor.Attributes) {
 
     const {configuration, value, style} = properties
@@ -85,13 +87,21 @@ export function Editor(properties: Editor.Attributes) {
 
     const fileService = new FileService(configuration, system, env)
 
-    const updateListener = EditorView.updateListener.of(async update => {
+    const updateListener = EditorView.updateListener.of(update => {
         if (update.docChanged) {
             const content = update.state.doc.toString();
 
-            const response = fileService.updateFile({...state, content})
+            clearTimeout(saveTimeout);
 
-            state.content = content
+            saveTimeout = setTimeout(async () => {
+                try {
+                    const response = await fileService.updateFile({ ...state, content });
+                    state.content = content;
+                    console.log("✅ Datei gespeichert.");
+                } catch (err) {
+                    console.error("❌ Fehler beim Speichern:", err);
+                }
+            }, 1000);
         }
     });
 

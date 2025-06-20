@@ -112,7 +112,7 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
 
         setFiles(prevFiles => [...prevFiles, newFile]);
 
-        fileService.createFile(newFile)
+        fileService.updateFile(newFile)
 
         let newState = [newFile, ...state];
         setState(newState)
