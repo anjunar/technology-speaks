@@ -46,24 +46,3 @@ function getLanguageAtPosition(context) {
     }
     return "";
 }
-
-export const multiLanguageCompletion = async (context) => {
-    const lang = getLanguageAtPosition(context);
-    const filename = context.state.facet(fileNameFacet)
-
-    if (filename.endsWith(".js") || filename.endsWith(".jsx")) {
-        return localCompletionSource(context);
-    }
-    if (filename.endsWith(".css")) {
-        return cssCompletionSource(context);
-    }
-    if (filename.endsWith(".html")) {
-        return htmlCompletionSource(context);
-    }
-
-    if (lang === "typescript") return localCompletionSource(context);
-    if (lang === "css") return cssCompletionSource(context);
-    if (lang === "html") return htmlCompletionSource(context);
-
-    return null;
-};

@@ -14,42 +14,64 @@ import {
 } from "../extensions/Diagnostics";
 import {RequestInformation} from "technology-speaks/src/request";
 import {autocompletion} from "@codemirror/autocomplete";
-import {multiLanguageCompletion, typescriptCompletionSource} from "../extensions/AutoComplete";
-import {fileNameFacet} from "../extensions/FileName";
 import {dracula} from "@uiw/codemirror-theme-dracula";
-import {material} from "@uiw/codemirror-theme-material";
+import {typescriptCompletionSource} from "../extensions/AutoComplete";
+import {fileNameFacet} from "../extensions/FileName";
 import {FileService} from "../service/FileService";
 import {env, system} from "../typescript/Environment";
 import {html} from "@codemirror/lang-html";
 import {javascript} from "@codemirror/lang-javascript";
 import {css} from "@codemirror/lang-css";
-import {AbstractCodeMirrorFile} from "../domain/AbstractCodeMirrorFile";
 import {CodeMirrorContent} from "../domain/CodeMirrorContent";
 
-function getExtensionsForTypescript(htmlMixed: any, updateListener: Extension, newFileName: string, info: RequestInformation) {
+
+export const draculaTheme = EditorView.theme({
+    '&': {
+        backgroundColor: '#282a36',
+        color: '#f8f8f2',
+    },
+    '.cm-content': {
+        caretColor: '#f8f8f2',
+    },
+    '&.cm-focused .cm-selectionBackground, .cm-selectionBackground, .cm-content ::selection': {
+        backgroundColor: '#44475a',
+    },
+    '.cm-gutters': {
+        backgroundColor: '#282a36',
+        color: '#6272a4',
+        border: 'none',
+    },
+}, { dark: true });
+
+function getExtensions(typescript: any, updateListener: Extension, newFileName: string, info: RequestInformation) {
     return [
         basicSetup,
-        htmlMixed,
         autocompletion({override: [typescriptCompletionSource(newFileName)]}),
+        updateListener,
+        fileNameFacet.of(newFileName),
+        info.cookie.theme === "dark" ? draculaTheme : [],
+        info.cookie.theme === "dark" ? dracula : [],
+        keymap.of([indentWithTab, ...defaultKeymap]),
+    ]
+}
+
+function getExtensionsForTypescript(typescript: any, updateListener: Extension, newFileName: string, info: RequestInformation) {
+    return [
+        ...getExtensions(typescript, updateListener, newFileName, info),
+
+        typescript,
         tsErrorHighlighter,
         diagnosticsField,
         diagnosticsPlugin,
-        updateListener,
-        fileNameFacet.of(newFileName),
-        closeTooltipOnClick,
-        info.cookie.theme === "dark" ? dracula : material,
-        keymap.of([indentWithTab, ...defaultKeymap])
+        closeTooltipOnClick
     ];
 }
 
 function getExtensionsForHTML(htmlMixed: any, updateListener: Extension, newFileName: string, info: RequestInformation) {
     return [
-        basicSetup,
-        htmlMixed,
-        autocompletion({override: [multiLanguageCompletion]}),
-        updateListener,
-        fileNameFacet.of(newFileName),
-        info.cookie.theme === "dark" ? dracula : material
+        ...getExtensions(typescript, updateListener, newFileName, info),
+
+        htmlMixed
     ];
 }
 
@@ -84,8 +106,6 @@ export function Editor(properties: Editor.Attributes) {
     const editorViewRef = useRef<HTMLDivElement>(null);
 
     const [editorInitializer, setEditorInitializer] = useState(false)
-
-    const [stateInitializer, setStateInitializer] = useState(false)
 
     const {info} = useContext(SystemContext)
 
@@ -156,7 +176,7 @@ export function Editor(properties: Editor.Attributes) {
     return (
         <div className={"editor"} style={style} ref={editorViewRef}></div>
     )
-};
+}
 
 export namespace Editor {
     export interface Attributes {
@@ -166,4 +186,4 @@ export namespace Editor {
     }
 }
 
-export default Editor;
+export default Editor
