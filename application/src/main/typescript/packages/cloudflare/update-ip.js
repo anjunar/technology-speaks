@@ -7,7 +7,6 @@ const {
     CF_DOMAIN
 } = process.env;
 
-// Auth-Header
 const headers = {
     Authorization: `Bearer ${CF_API_TOKEN}`,
     "Content-Type": "application/json"
@@ -18,28 +17,22 @@ async function getPublicIp() {
     return res.data.ip;
 }
 
-async function getDnsRecord() {
-    const headers = {
-        Authorization: `Bearer ${CF_API_TOKEN}`
-    };
-
+async function getDnsRecord(domain) {
     const url = `https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/dns_records`;
 
     const params = {
         type: "A",
-        name: CF_DOMAIN
+        name: domain
     };
 
     try {
         const res = await axios.get(url, { headers, params });
-
         if (res.data.success && res.data.result.length > 0) {
-            return res.data.result[0]; // erstes passendes DNS Record-Objekt
+            return res.data.result[0];
         } else {
-            throw new Error("DNS-Record nicht gefunden.");
+            throw new Error(`DNS-Record nicht gefunden für ${domain}`);
         }
     } catch (error) {
-        // Fehler mit genauer Cloudflare-Antwort, falls vorhanden
         if (error.response) {
             throw new Error(
                 `Cloudflare API Fehler: ${error.response.status} - ${JSON.stringify(error.response.data)}`
@@ -49,19 +42,18 @@ async function getDnsRecord() {
     }
 }
 
-async function updateDnsRecord(recordId, ip) {
+async function updateDnsRecord(recordId, name, ip) {
     const url = `https://api.cloudflare.com/client/v4/zones/${CF_ZONE_ID}/dns_records/${recordId}`;
 
     const body = {
         type: "A",
-        name: CF_DOMAIN,
+        name,
         content: ip,
         ttl: 1,
         proxied: true
     };
 
     const res = await axios.put(url, body, { headers });
-
     return res.data;
 }
 
@@ -70,16 +62,22 @@ async function updateDnsRecord(recordId, ip) {
         const ip = await getPublicIp();
         console.log("🌐 Öffentliche IP:", ip);
 
-        const record = await getDnsRecord();
+        const record = await getDnsRecord(CF_DOMAIN);
         console.log("📄 Aktueller DNS-Record:", record.content);
 
-        if (record.content !== ip) {
+        const wildcardDomain = `*.${CF_DOMAIN}`;
+        const record2 = await getDnsRecord(wildcardDomain);
+        console.log("📄 Aktueller Wildcard-DNS-Record:", record2.content);
+
+        if (record.content !== ip || record2.content !== ip) {
             console.log("🔄 IP hat sich geändert. Aktualisiere...");
-            const result = await updateDnsRecord(record.id, ip);
-            if (result.success) {
-                console.log("✅ DNS-Eintrag aktualisiert.");
+            const result = await updateDnsRecord(record.id, CF_DOMAIN, ip);
+            const result2 = await updateDnsRecord(record2.id, wildcardDomain, ip);
+
+            if (result.success && result2.success) {
+                console.log("✅ DNS-Einträge aktualisiert.");
             } else {
-                console.error("❌ Fehler bei Update:", result.errors);
+                console.error("❌ Fehler bei Update:", result.errors || result2.errors);
             }
         } else {
             console.log("✅ IP ist aktuell. Kein Update nötig.");
