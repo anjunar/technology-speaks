@@ -1,52 +1,58 @@
-import {RangeSetBuilder, StateEffect, StateField} from "@codemirror/state";
-import {Decoration, DecorationSet, showTooltip, Tooltip, ViewPlugin, ViewUpdate} from "@codemirror/view";
+import {RangeSetBuilder, StateEffect} from "@codemirror/state";
+import {Decoration, DecorationSet, hoverTooltip, Tooltip, ViewPlugin, ViewUpdate} from "@codemirror/view";
 import {EditorView} from "codemirror";
 import {env} from "../typescript/Environment";
-import {syntaxTree} from "@codemirror/language";
-import {fileNameFacet, fileNameField} from "./FileName";
+import {fileNameFacet} from "./FileName";
 
 const setDiagnostics = StateEffect.define<Tooltip[]>();
 
-export const diagnosticsField = StateField.define<Tooltip[]>({
-    create() { return []; },
-    update(tooltips, tr) {
-        for (const e of tr.effects) {
-            if (e.is(setDiagnostics)) return e.value;
-        }
-        return tooltips;
-    },
-    provide: f => showTooltip.from(f, tooltips => tooltips[0])
+export const tsErrorTooltipHover = hoverTooltip((view, pos) => {
+    const filename = view.state.facet(fileNameFacet);
+    const diagnostics = env.languageService.getSemanticDiagnostics(filename);
+
+    const match = diagnostics.find(d =>
+        d.start !== undefined &&
+        d.length !== undefined &&
+        pos >= d.start &&
+        pos <= d.start + d.length
+    );
+
+    if (!match) return null;
+
+    const dom = document.createElement("div");
+    dom.textContent = typeof match.messageText === "string"
+        ? match.messageText
+        : (match.messageText as any).messageText || "Fehler";
+    dom.style.backgroundColor = "#ffdddd";
+    dom.style.color = "#a00";
+    dom.style.padding = "2px 6px";
+    dom.style.borderRadius = "4px";
+    dom.style.fontSize = "0.8em";
+    dom.style.maxWidth = "300px";
+    dom.style.whiteSpace = "pre-wrap";
+
+    return {
+        pos: match.start!,
+        above: true,
+        create: () => ({dom})
+    };
 });
 
-let timeout : ReturnType<typeof setTimeout>
-
 export const diagnosticsPlugin = ViewPlugin.fromClass(class {
-    constructor(public view: EditorView) {}
+    timeout: ReturnType<typeof setTimeout>
+
+    constructor(public view: EditorView) {
+    }
 
     update(update: ViewUpdate) {
         if (update.docChanged || update.viewportChanged) {
 
-            clearTimeout(timeout);
+            clearTimeout(this.timeout);
 
-            timeout = setTimeout(() => {
+            this.timeout = setTimeout(() => {
                 requestDiagnosticsUpdate(this.view)
             }, 3000);
         }
-    }
-});
-
-export const closeTooltipOnClick = ViewPlugin.fromClass(class {
-    constructor(public view: EditorView) {
-        this.clickHandler = this.clickHandler.bind(this);
-        view.dom.addEventListener("click", this.clickHandler);
-    }
-    clickHandler() {
-        this.view.dispatch({
-            effects: setDiagnostics.of([])
-        });
-    }
-    destroy() {
-        this.view.dom.removeEventListener("click", this.clickHandler);
     }
 });
 
@@ -68,7 +74,7 @@ function createTooltipsFromDiagnostics(diagnostics: readonly import("typescript"
                 dom.style.fontSize = "0.8em";
                 dom.style.maxWidth = "300px";
                 dom.style.whiteSpace = "pre-wrap";
-                return { dom };
+                return {dom};
             }
         }));
 }
@@ -85,6 +91,7 @@ export function requestDiagnosticsUpdate(view: EditorView) {
 
 export const tsErrorHighlighter = ViewPlugin.fromClass(class {
     decorations: DecorationSet;
+    timer: ReturnType<typeof setTimeout>
 
     constructor(view: EditorView) {
         this.decorations = this.buildDecorations(view);
@@ -92,7 +99,13 @@ export const tsErrorHighlighter = ViewPlugin.fromClass(class {
 
     update(update: ViewUpdate) {
         if (update.docChanged || update.viewportChanged) {
-            this.decorations = this.buildDecorations(update.view);
+
+            clearTimeout(this.timer);
+
+            this.timer = setTimeout(() => {
+                this.decorations = this.buildDecorations(update.view);
+            }, 3000)
+
         }
     }
 
@@ -105,9 +118,7 @@ export const tsErrorHighlighter = ViewPlugin.fromClass(class {
             if (diag.start !== undefined && diag.length !== undefined) {
                 const from = diag.start;
                 const to = diag.start + diag.length;
-                if (isTSRange(view, from, to)) {
-                    builder.add(from, to, Decoration.mark({class: "ts-error"}));
-                }
+                builder.add(from, to, Decoration.mark({class: "ts-error"}));
             }
         });
 
@@ -115,17 +126,4 @@ export const tsErrorHighlighter = ViewPlugin.fromClass(class {
     }
 }, {
     decorations: v => v.decorations
-});
-
-function isTSRange(view: EditorView, from: number, to: number) {
-    let tree = syntaxTree(view.state);
-    let syntaxNode = tree.resolveInner(from, -1);
-    let node = syntaxNode;
-    while (node && node.to <= to) {
-        if (node.name === "Script" || node.name === "ImportDeclaration" || node.name === "TSFile") {
-            return true;
-        }
-        node = node.parent;
-    }
-    return false;
-}
+})

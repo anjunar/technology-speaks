@@ -84,7 +84,7 @@ export const routes: Router.Route[] = [
                 component : ChatPage
             },
             {
-                path : "/codemirror",
+                path : "/codemirror/workspace",
                 component : CodeMirrorPage,
                 loader : {
                     async workspace(info, pathParams : PathParams, queryParams : QueryParams) {

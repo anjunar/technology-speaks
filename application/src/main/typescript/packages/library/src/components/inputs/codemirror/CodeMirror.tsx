@@ -157,10 +157,10 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
                             env.createFile(ts.name, ts.content || "// Comment")
                         })
                         .withObject(CodeMirrorCSS, css => {
-                            env.createFile(css.name, css.content)
+                            system.writeFile(css.name, css.content)
                         })
                         .withObject(CodeMirrorHTML, html => {
-                            env.createFile(html.name, html.content)
+                            system.writeFile(html.name, html.content)
                         })
 
                     return file.name

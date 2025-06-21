@@ -103,6 +103,15 @@ function Root(properties: AppContent.Attributes) {
                                 ))
                             }
                             {
+                                onLink(application.$links, "codeMirror", (link) => (
+                                    <li>
+                                        <Link key={link.url} value={link.url} icon={"code"}>
+                                            {link.title}
+                                        </Link>
+                                    </li>
+                                ))
+                            }
+                            {
                                 onLink(application.$links, "chat", (link) => (
                                     <li>
                                         <Link key={link.url} value={link.url} icon={"chat"}>

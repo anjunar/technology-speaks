@@ -6,11 +6,9 @@ import {EditorState, Extension} from "@codemirror/state";
 import { defaultKeymap, indentWithTab } from "@codemirror/commands";
 import { keymap } from '@codemirror/view';
 import {
-    closeTooltipOnClick,
-    diagnosticsField,
     diagnosticsPlugin,
     requestDiagnosticsUpdate,
-    tsErrorHighlighter
+    tsErrorHighlighter, tsErrorTooltipHover
 } from "../extensions/Diagnostics";
 import {RequestInformation} from "technology-speaks/src/request";
 import {autocompletion} from "@codemirror/autocomplete";
@@ -23,6 +21,10 @@ import {html} from "@codemirror/lang-html";
 import {javascript} from "@codemirror/lang-javascript";
 import {css} from "@codemirror/lang-css";
 import {CodeMirrorContent} from "../domain/CodeMirrorContent";
+import {contextMenuPlugin} from "../extensions/ContextMenu";
+import {CodeMirrorHTML} from "../domain/CodeMirrorHTML";
+import {CodeMirrorCSS} from "../domain/CodeMirrorCSS";
+import {CodeMirrorTS} from "../domain/CodeMirrorTS";
 
 
 export const draculaTheme = EditorView.theme({
@@ -61,9 +63,9 @@ function getExtensionsForTypescript(typescript: any, updateListener: Extension, 
         typescript,
         autocompletion({override: [typescriptCompletionSource(newFileName)]}),
         tsErrorHighlighter,
-        diagnosticsField,
-        diagnosticsPlugin,
-        closeTooltipOnClick
+        tsErrorTooltipHover,
+        contextMenuPlugin,
+        diagnosticsPlugin
     ];
 }
 
@@ -72,6 +74,14 @@ function getExtensionsForHTML(htmlMixed: any, updateListener: Extension, newFile
         ...getExtensions(typescript, updateListener, newFileName, info),
 
         htmlMixed
+    ];
+}
+
+function getExtensionsForCSS(css: any, updateListener: Extension, newFileName: string, info: RequestInformation) {
+    return [
+        ...getExtensions(typescript, updateListener, newFileName, info),
+
+        css
     ];
 }
 
@@ -141,17 +151,24 @@ export function Editor(properties: Editor.Attributes) {
 
     useEffect(() => {
         if (state && editorView) {
-            if (state.name.endsWith("html")) {
+            if (state instanceof CodeMirrorHTML) {
                 editorView.setState(EditorState.create({
                     doc: state.content,
                     extensions: getExtensionsForHTML(htmlMixed, updateListener, state.name, info)
                 }))
             } else {
-                editorView.setState(EditorState.create({
-                    doc: state.content,
-                    extensions: getExtensionsForTypescript(typescript, updateListener, state.name, info)
-                }))
-                requestDiagnosticsUpdate(editorView);
+                if (state instanceof CodeMirrorTS) {
+                    editorView.setState(EditorState.create({
+                        doc: state.content,
+                        extensions: getExtensionsForTypescript(typescript, updateListener, state.name, info)
+                    }))
+                    requestDiagnosticsUpdate(editorView);
+                } else {
+                    editorView.setState(EditorState.create({
+                        doc: state.content,
+                        extensions: getExtensionsForCSS(css(), updateListener, state.name, info)
+                    }))
+                }
             }
         }
     }, [state, editorInitializer]);

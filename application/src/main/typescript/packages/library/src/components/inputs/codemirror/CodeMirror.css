@@ -16,7 +16,7 @@
             height: 100%;
 
             .cm-line .ts-error {
-                text-decoration: wavy underline red;
+                color: var(--color-error);
             }
 
         }
