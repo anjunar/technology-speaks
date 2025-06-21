@@ -11,6 +11,14 @@ export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
 
     const editor = useForm<CodeMirrorWorkspace>(workspace)
 
+    async function bulk(files : AbstractCodeMirrorFile[]) {
+        return await fetch("/service/codemirror/anjunar/files", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(JSONSerializer(files))
+        });
+    }
+
     async function loadAllFiles() {
         try {
             const response = await fetch("/service/codemirror/anjunar/files");
@@ -48,7 +56,7 @@ export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
 
     return (
         <div className={"codemirror-page"}>
-            <CodeMirror style={{height: "50%"}} configuration={{loadAllFiles, updateFile, deleteFile, renameFile, saveWorkspace}}
+            <CodeMirror style={{height: "50%"}} configuration={{loadAllFiles, updateFile, deleteFile, renameFile, saveWorkspace, bulk}}
                         value={editor}/>
             <iframe sandbox={"allow-scripts allow-same-origin"} src={`https://patrick.anjunar.com`}
                     style={{width: "100%", height: "50%"}}/>

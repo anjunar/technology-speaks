@@ -11,6 +11,10 @@ export class FileService {
                 private system: ReturnType<typeof createSystem>,
                 private env: ReturnType<typeof createVirtualTypeScriptEnvironment>) {}
 
+    async bulk(files : AbstractCodeMirrorFile[]) {
+        return await this.restApi.bulk(files)
+    }
+
     async updateFile(file : AbstractCodeMirrorFile) {
         if (file instanceof CodeMirrorTS) {
             this.env.updateFile(file.name, file.content);

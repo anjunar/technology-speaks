@@ -18,7 +18,6 @@ import {AbstractCodeMirrorFile} from "./domain/AbstractCodeMirrorFile";
 import {JSONDeserializer} from "../../../mapper";
 import {match} from "../../../pattern-match";
 import {CodeMirrorTS} from "./domain/CodeMirrorTS";
-import {CodeMirrorImage} from "./domain/CodeMirrorImage";
 import {CodeMirrorCSS} from "./domain/CodeMirrorCSS";
 import {CodeMirrorHTML} from "./domain/CodeMirrorHTML";
 import {CodeMirrorWorkspace} from "./domain/CodeMirrorWorkspace";
@@ -70,7 +69,7 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
 
     const fileService = new FileService(configuration, system, env)
 
-    function closeEditor(page : number) {
+    function closeEditor(page: number) {
         state.open.splice(page, 1)
 
         configuration.saveWorkspace()
@@ -114,7 +113,11 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
     function createNewFile(type: string) {
         let content = fileTemplate(type)
         let name = newPathName + newFileName + "." + type;
-        const newFile = JSONDeserializer<AbstractCodeMirrorFile>({name: name, content: content, $type: "CodeMirror" + type.toUpperCase()}, false);
+        const newFile = JSONDeserializer<AbstractCodeMirrorFile>({
+            name: name,
+            content: content,
+            $type: "CodeMirror" + type.toUpperCase()
+        }, false);
 
         setFiles(prevFiles => [...prevFiles, newFile]);
 
@@ -131,13 +134,17 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
     }
 
     function transpileHandler() {
-        files.filter(file => file.name.endsWith(".tsx") || file.name.endsWith(".ts"))
-            .forEach(file => {
-                transpile(file.name, (js, sourceMap) => {
-                    let sourceFile = env.getSourceFile(file.name);
-                    configuration.updateFile(JSONDeserializer({ $type : file.$type, id : file.id, name : file.name, content : sourceFile.text, transpiled: js, sourceMap}, false))
-                })
+        const filtered = files.filter(file => file instanceof CodeMirrorTS)
+
+        filtered.forEach(file => {
+            transpile(file.name, (js, sourceMap) => {
+                file.transpiled = js
+                file.sourceMap = sourceMap
             })
+        })
+
+        fileService.bulk(filtered)
+
     }
 
     useEffect(() => {
@@ -202,7 +209,8 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
                 <button className={"material-icons"} title={"Show Folders"} style={{marginTop: "5px"}}
                         onClick={() => setDrawerOpen(!drawerOpen)}>folder_open
                 </button>
-                <button className={"material-icons"} title={"Transpile"} onClick={() => transpileHandler()}>modeling</button>
+                <button className={"material-icons"} title={"Transpile"} onClick={() => transpileHandler()}>modeling
+                </button>
             </div>
             <Drawer.Container>
                 <Drawer open={drawerOpen}>
@@ -216,22 +224,24 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
                             {
                                 files && state.open.map((editor, index) => (
                                     <Tab>
-                                        <div style={{display : "flex", alignItems : "center", gap : "12px"}}>
+                                        <div style={{display: "flex", alignItems: "center", gap: "12px"}}>
                                             <span>{fileName(editor)}</span>
-                                            <button onClick={() => closeEditor(index)} className={"material-icons"} style={{fontSize : "16px"}}>close</button>
+                                            <button onClick={() => closeEditor(index)} className={"material-icons"}
+                                                    style={{fontSize: "16px"}}>close
+                                            </button>
                                         </div>
                                     </Tab>
                                 ))
                             }
                         </Tabs>
-                        <Pages page={page} style={{height : "100%"}}>
+                        <Pages page={page} style={{height: "100%"}}>
                             {
                                 files && state.open.filter(editor => editor instanceof CodeMirrorTS || editor instanceof CodeMirrorHTML || editor instanceof CodeMirrorCSS)
                                     .map(editor => (
-                                    <Page style={{height : "100%"}}>
-                                        <Editor style={{height : "100%"}} configuration={configuration} value={editor}/>
-                                    </Page>
-                                ))
+                                        <Page style={{height: "100%"}}>
+                                            <Editor style={{height: "100%"}} configuration={configuration} value={editor}/>
+                                        </Page>
+                                    ))
                             }
                         </Pages>
                     </div>
@@ -253,6 +263,9 @@ export namespace CodeMirror {
     }
 
     export interface Configuration {
+
+        bulk(files: AbstractCodeMirrorFile[]): Promise<any>
+
         loadAllFiles(): Promise<any>
 
         updateFile(name: AbstractCodeMirrorFile): Promise<Response>

@@ -82,6 +82,12 @@ class CodeMirrorFilesResource extends SchemaBuilderContext {
     Response.ok().build()
   }
 
+  @POST
+  @Consumes(Array(MediaType.APPLICATION_JSON))
+  def bulk(@PathParam("user") user : String, @JsonSchema(classOf[CodeMirrorFileSchema]) file : util.List[AbstractCodeMirrorFile]) : Response = {
+    Response.ok().build()
+  }
+
   @DELETE
   @Produces(Array("application/javascript", MediaType.TEXT_HTML))
   @Path("file/{file: .+}")

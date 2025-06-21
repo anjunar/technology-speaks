@@ -72,7 +72,7 @@ class JsonProvider extends MessageBodyReader[AnyRef] with MessageBodyWriter[AnyR
 
     val schemaBuilder = jsonSchema.build(entity, javaTypeRaw)
 
-    val context = new JsonContext(null, null, noValidation, validatorFactory.getValidator, registry, schemaBuilder, new ListBuffer[Link],entityLoader)
+    val context = new JsonContext(null, null, noValidation, validatorFactory.getValidator, registry, schemaBuilder, new ListBuffer[Link], entityLoader)
 
     val value = jsonMapper.toJava(jsonObject, resolvedClass, context)
 
