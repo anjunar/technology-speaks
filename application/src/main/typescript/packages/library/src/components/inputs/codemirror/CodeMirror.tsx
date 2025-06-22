@@ -157,7 +157,7 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
 
         configuration.loadAllFiles()
             .then((files: AbstractCodeMirrorFile[]) => {
-                let fileNames = files.map(file => {
+                files.forEach(file => {
 
                     match(file)
                         .withObject(CodeMirrorTS, ts => {

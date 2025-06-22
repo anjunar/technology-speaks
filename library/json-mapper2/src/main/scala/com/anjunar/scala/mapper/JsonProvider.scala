@@ -2,7 +2,7 @@ package com.anjunar.scala.mapper
 
 import com.anjunar.scala.mapper.annotations.{JsonSchema, NoValidation}
 import com.anjunar.scala.mapper.exceptions.{ValidationException, ValidationViolation}
-import com.anjunar.scala.mapper.intermediate.model.{JsonNode, JsonObject}
+import com.anjunar.scala.mapper.intermediate.model.{JsonArray, JsonNode, JsonObject}
 import com.anjunar.scala.mapper.loader.JsonEntityLoader
 import com.anjunar.scala.mapper.{JsonContext, JsonConverterRegistry, JsonMapper}
 import com.anjunar.scala.schema.{JsonDescriptorsContext, JsonDescriptorsGenerator}
@@ -66,17 +66,26 @@ class JsonProvider extends MessageBodyReader[AnyRef] with MessageBodyWriter[AnyR
 
     val jsonSchema : EntityJSONSchema[Any] = jsonSchemaAnnotation.value().getConstructor().newInstance().asInstanceOf[EntityJSONSchema[Any]]
 
-    val jsonObject = jsonMapper.toJsonObjectForJava(jsonString)
+    val jsonNode = jsonMapper.toJsonObjectForJava(jsonString)
 
-    val entity = entityLoader.load(jsonObject, TypeResolver.resolve(javaTypeRaw), annotations)
+    def processJsonObject(jsonObject: JsonObject, aType : ResolvedClass) = {
+      val entity = entityLoader.load(jsonObject, aType, annotations)
 
-    val schemaBuilder = jsonSchema.build(entity, javaTypeRaw)
+      val schemaBuilder = jsonSchema.build(entity, aType.underlying)
 
-    val context = new JsonContext(null, null, noValidation, validatorFactory.getValidator, registry, schemaBuilder, new ListBuffer[Link], entityLoader)
+      val context = new JsonContext(null, null, noValidation, validatorFactory.getValidator, registry, schemaBuilder, new ListBuffer[Link], entityLoader)
 
-    val value = jsonMapper.toJava(jsonObject, resolvedClass, context)
+      val value = jsonMapper.toJava(jsonObject, aType, context)
 
-    checkRestrictionAndViolations(annotations, context, value)
+      checkRestrictionAndViolations(annotations, context, value)
+    }
+
+    jsonNode match {
+      case jsonObject: JsonObject =>
+        processJsonObject(jsonObject, TypeResolver.resolve(javaTypeRaw))
+      case jsonArray : JsonArray =>
+        jsonArray.value.map(node => processJsonObject(node.asInstanceOf[JsonObject], TypeResolver.resolve(javaTypeRaw).typeArguments(0))).toList.asJava
+    }
   }
 
   override def isWriteable(aClass: Class[?], javaType: Type, annotations: Array[Annotation], mediaType: MediaType): Boolean = {

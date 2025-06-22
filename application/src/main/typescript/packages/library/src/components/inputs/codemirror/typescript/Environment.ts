@@ -58,12 +58,60 @@ export let env = createVirtualTypeScriptEnvironment(
     compilerOpts
 );
 
+function importRewriteTransformer(context: ts.TransformationContext): ts.Transformer<ts.SourceFile> {
+    const visitor: ts.Visitor = (node): ts.VisitResult<ts.Node> => {
+        if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
+            const rewrites: Record<string, string> = {
+                "react": "./react",
+                "react-dom/client": "./react-dom/client",
+            };
+            const spec = node.moduleSpecifier.text;
+            if (spec in rewrites) {
+                return ts.factory.updateImportDeclaration(
+                    node,
+                    node.modifiers,
+                    node.importClause,
+                    ts.factory.createStringLiteral(rewrites[spec]),
+                    node.assertClause
+                );
+            }
+        }
+        return ts.visitEachChild(node, visitor, context);
+    };
+
+    return (sourceFile: ts.SourceFile): ts.SourceFile => {
+        return ts.visitNode(sourceFile, visitor) as ts.SourceFile;
+    };
+}
+
 export const transpile = (filename: string, js : (js : string, sourceMap : string) => void) => {
-    const output = env.languageService.getEmitOutput(filename);
-    const jsOutput = output.outputFiles.find(file => file.name.endsWith(".js"));
-    const mapOutput = output.outputFiles.find(file => file.name.endsWith(".map"));
-    let replace = jsOutput.text
-        .replace("from \"react\"", "from \"./react\"")
-        .replace("from \"react-dom/client\"", "from \"./react-dom/client\"")
-    js(replace, mapOutput.text);
+    const program = env.languageService.getProgram();
+    if (!program) throw new Error("Kein Programm vorhanden");
+
+    const sourceFile = program.getSourceFile(filename);
+    if (!sourceFile) throw new Error("SourceFile nicht gefunden");
+
+    const transformers: ts.CustomTransformers = {
+        before: [importRewriteTransformer],
+    };
+
+    let jsOutput = "";
+    let mapOutput = "";
+
+    const emitResult = program.emit(
+        sourceFile,
+        (fileName, data) => {
+            if (fileName.endsWith(".js")) jsOutput = data;
+            else if (fileName.endsWith(".js.map")) mapOutput = data;
+        },
+        undefined,
+        false,
+        transformers
+    );
+
+    if (emitResult.emitSkipped) {
+        throw new Error("Emit wurde übersprungen");
+    }
+
+    js(jsOutput, mapOutput);
 };
