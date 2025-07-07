@@ -33,9 +33,10 @@ abstract class AbstractCodeMirrorFile extends AbstractEntity {
 
 object AbstractCodeMirrorFile extends RepositoryContext[AbstractCodeMirrorFile](classOf[AbstractCodeMirrorFile]) {
 
-  def findByName(name: String) : AbstractCodeMirrorFile = {
+  def findByName(name: String, tag : CodeMirrorTag) : AbstractCodeMirrorFile = {
     try {
-      entityManager.createQuery("SELECT e FROM AbstractCodeMirrorFile e WHERE e.name like :name", classOf[AbstractCodeMirrorFile])
+      entityManager.createQuery("SELECT e.files FROM CodeMirrorTag e join e.files f WHERE f.name like :name and e.id = :tag", classOf[AbstractCodeMirrorFile])
+        .setParameter("tag", tag.id)
         .setParameter("name", name + "%")
         .getSingleResult
     } catch {

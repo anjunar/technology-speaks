@@ -15,6 +15,24 @@ export class FileService {
         return await this.restApi.bulk(files)
     }
 
+    async createFile(file : AbstractCodeMirrorFile) {
+        if (file instanceof CodeMirrorTS) {
+            this.env.createFile(file.name, file.content);
+        } else {
+            if (file instanceof CodeMirrorHTML || file instanceof CodeMirrorCSS) {
+                this.system.writeFile(file.name, file.content);
+            } else {
+                if (file instanceof CodeMirrorImage) {
+                    this.system.writeFile(file.name, file.data);
+                }
+            }
+        }
+
+        let res = await this.restApi.updateFile(file);
+
+        if (!res.ok) throw new Error("Speichern fehlgeschlagen");
+    }
+
     async updateFile(file : AbstractCodeMirrorFile) {
         if (file instanceof CodeMirrorTS) {
             this.env.updateFile(file.name, file.content);

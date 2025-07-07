@@ -61,7 +61,7 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
 
     const [newFileName, setNewFileName] = useState("newfile")
 
-    const [drawerOpen, setDrawerOpen] = useState(false)
+    const [drawerOpen, setDrawerOpen] = useState("close")
 
     const [createFileOpen, setCreateFileOpen] = useState(false)
 
@@ -116,12 +116,12 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
         const newFile = JSONDeserializer<AbstractCodeMirrorFile>({
             name: name,
             content: content,
-            $type: "CodeMirror" + type.toUpperCase()
+            $type: "CodeMirror" + type.toUpperCase().replace("TSX", "TS")
         }, false);
 
         setFiles(prevFiles => [...prevFiles, newFile]);
 
-        fileService.updateFile(newFile)
+        fileService.createFile(newFile)
 
         state.open.push(newFile)
 
@@ -207,15 +207,18 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
             }
             <div className={"left-panel"}>
                 <button className={"material-icons"} title={"Show Folders"} style={{marginTop: "5px"}}
-                        onClick={() => setDrawerOpen(!drawerOpen)}>folder_open
-                </button>
+                        onClick={() => setDrawerOpen(drawerOpen === "fileManager" ? "close" : "fileManager")}>folder_open</button>
+                <button className={"material-icons"} title={"Version Control"}
+                        onClick={() => setDrawerOpen(drawerOpen === "versionControl" ? "close" : "versionControl")}>deployed_code_history</button>
                 <button className={"material-icons"} title={"Transpile"} onClick={() => transpileHandler()}>modeling
                 </button>
             </div>
             <Drawer.Container>
-                <Drawer open={drawerOpen}>
+                <Drawer open={drawerOpen !== "close"}>
                     <div style={{padding: "16px"}}>
-                        <FileManager files={files || []} commands={commands}></FileManager>
+                        {
+                            drawerOpen === "fileManager" && (<FileManager files={files || []} commands={commands}></FileManager>)
+                        }
                     </div>
                 </Drawer>
                 <Drawer.Content>

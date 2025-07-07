@@ -12,7 +12,7 @@ export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
     const editor = useForm<CodeMirrorWorkspace>(workspace)
 
     async function bulk(files : AbstractCodeMirrorFile[]) {
-        return await fetch("/service/codemirror/anjunar/files", {
+        return await fetch("/service/codemirror/anjunar/head/files", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(JSONSerializer(files))
@@ -21,7 +21,7 @@ export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
 
     async function loadAllFiles() {
         try {
-            const response = await fetch("/service/codemirror/anjunar/files");
+            const response = await fetch("/service/codemirror/anjunar/head/files");
             if (!response.ok) throw new Error("Fehler beim Laden der Dateien");
             const [rows] = mapTable(await response.json())
             return rows
@@ -31,7 +31,7 @@ export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
     }
 
     async function updateFile(file : AbstractCodeMirrorFile) {
-        return await fetch("/service/codemirror/anjunar/files/file", {
+        return await fetch("/service/codemirror/anjunar/head/files/file", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(JSONSerializer(file))
@@ -39,11 +39,11 @@ export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
     }
 
     async function deleteFile(name: string) {
-        return await fetch(`/service/codemirror/anjunar/files/file/${name}`, {method: "DELETE"});
+        return await fetch(`/service/codemirror/anjunar/head/files/file/${name}`, {method: "DELETE"});
     }
 
     async function renameFile(oldName: string, newName: string) {
-        return await fetch(`/service/codemirror/anjunar/files/file/${oldName}?newName=${newName}`, {method: "PATCH"});
+        return await fetch(`/service/codemirror/anjunar/head/files/file/${oldName}?newName=${newName}`, {method: "PATCH"});
     }
 
     async function saveWorkspace() {

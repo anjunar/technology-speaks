@@ -72,7 +72,7 @@ app.use((req, res, next) => {
             })(req, res, next);
 
         } else {
-            const newPath = `/service/codemirror/${subdomain}/files/file${originalPath === '/' ? '' : originalPath}`;
+            const newPath = `/service/codemirror/${subdomain}/head/files/file${originalPath === '/' ? '' : originalPath}`;
 
             createProxyMiddleware({
                 target: 'http://localhost',
