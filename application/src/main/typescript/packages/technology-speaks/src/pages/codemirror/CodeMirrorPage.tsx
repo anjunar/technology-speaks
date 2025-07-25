@@ -11,6 +11,17 @@ export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
 
     const editor = useForm<CodeMirrorWorkspace>(workspace)
 
+    async function loadVCR() {
+        try {
+            const response = await fetch("/service/codemirror/anjunar");
+            if (!response.ok) throw new Error("Fehler beim Laden der Dateien");
+            const [rows] = mapTable(await response.json())
+            return rows
+        } catch (err) {
+            console.error("Fehler beim Laden:", err);
+        }
+    }
+
     async function bulk(files : AbstractCodeMirrorFile[]) {
         return await fetch("/service/codemirror/anjunar/head/files", {
             method: "POST",
@@ -56,7 +67,7 @@ export function CodeMirrorPage(properties: CodeMirrorPage.Attributes) {
 
     return (
         <div className={"codemirror-page"}>
-            <CodeMirror style={{height: "50%"}} configuration={{loadAllFiles, updateFile, deleteFile, renameFile, saveWorkspace, bulk}}
+            <CodeMirror style={{height: "50%"}} vcr={{loadVCR}} configuration={{loadAllFiles, updateFile, deleteFile, renameFile, saveWorkspace, bulk}}
                         value={editor}/>
             <iframe sandbox={"allow-scripts allow-same-origin"} src={`https://patrick.anjunar.com`}
                     style={{width: "100%", height: "50%"}}/>

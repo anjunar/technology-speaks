@@ -37,8 +37,8 @@ class RegistrationResource extends Serializable with SchemaBuilderContext {
   @Inject
   var webAuthnService: WebAuthnService = uninitialized
 
-  @Resource
-  var transaction : TransactionSynchronizationRegistry = uninitialized
+  @Inject
+  var transaction : TransactionManager = uninitialized
 
   @Inject
   var mailService : MailService = uninitialized
@@ -182,18 +182,14 @@ class RegistrationResource extends Serializable with SchemaBuilderContext {
       token.transports = result.getKeyId.getTransports.get().asScala.mkString(",")
 
 
-      transaction.registerInterposedSynchronization(new Synchronization {
-        override def beforeCompletion(): Unit = {}
+      try {
+        val variables = util.HashMap[String, AnyRef]()
+        variables.put("token", token)
 
-        override def afterCompletion(status: Int): Unit = {
-
-          val variables = util.HashMap[String, AnyRef]()
-          variables.put("token", token)
-
-          mailService.send(request.getUser.getName, variables, "/templates/RegisterTemplate.html", "Technology Speaks - Registration")
-
-        }
-      })
+        mailService.send(request.getUser.getName, variables, "/templates/RegisterTemplate.html", "Technology Speaks - Registration")
+      } catch {
+        case e : Exception => {}
+      }
 
       Map("success" -> true).asJava
 

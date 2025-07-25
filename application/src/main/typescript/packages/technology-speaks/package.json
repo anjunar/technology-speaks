@@ -7,7 +7,7 @@
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "watch": "webpack --config webpack.config.js --watch",
-    "server": "pm2 start dist/server/server.js --watch --no-daemon --node-args=\"--inspect=9229\"",
+    "server": "nodemon dist/server/server.js",
     "start": "concurrently --kill-others \"npm run watch\" \"npm run server\""
   },
   "keywords": [],

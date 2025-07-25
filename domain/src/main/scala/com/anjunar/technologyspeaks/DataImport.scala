@@ -5,7 +5,7 @@ import com.anjunar.scala.universe.ClassPathResolver
 import com.anjunar.technologyspeaks.control.*
 import com.anjunar.technologyspeaks.jaxrs.link.LinkDescription
 import com.anjunar.technologyspeaks.jpa.Pair
-import com.anjunar.technologyspeaks.olama.{ChatMessage, ChatRequest, OLlamaService}
+import com.anjunar.technologyspeaks.olama.{ChatMessage, ChatRequest, GenerateRequest, OLlamaService}
 import com.anjunar.technologyspeaks.shared.i18n.{I18n, Translation}
 import com.typesafe.scalalogging.Logger
 import jakarta.annotation.Resource
@@ -158,12 +158,9 @@ class DataImport {
          |- Preserve all placeholders and formatting symbols exactly as they are.
          |- These include: `{variable}`, `%d`, `%s`, `\n`, `\t`, `:`, `"..."`, etc.
          |- Do not translate anything inside curly braces `{}`, percent signs `%`, or other code-like tokens.
-         |- Keep the overall tone and meaning accurate and natural.
-         |
-         |Text:
-         |${i18n.text}""".stripMargin
+         |""".stripMargin
 
-    val response = oLlamaService.chat(ChatRequest(messages = Seq(ChatMessage(content = prompt)), stream = false))
+    val response = oLlamaService.generate(GenerateRequest(system = prompt, prompt = i18n.text))
 
     val translation = new Translation
     translation.locale = locale

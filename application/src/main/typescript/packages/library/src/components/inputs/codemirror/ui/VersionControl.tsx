@@ -1,16 +1,25 @@
 import React from 'react';
+import CodeMirrorTag from "../domain/CodeMirrorTag";
 
 export function VersionControl(properties: VersionControl.Attributes) {
 
-    const {} = properties
+    const {tags} = properties
 
     return (
-        <div></div>
+        <div className={"version-control"}>
+            {
+                tags.map(tag => (
+                    <div key={tag.id} className={"tag"}>{tag.name}</div>
+                ))
+            }
+        </div>
     )
 };
 
 export namespace VersionControl {
     export interface Attributes {
+        tags : CodeMirrorTag[]
+
     }
 }
 

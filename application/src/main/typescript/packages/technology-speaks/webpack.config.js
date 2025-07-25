@@ -124,7 +124,10 @@ module.exports = [
             filename: 'server.js',
         },
         target: 'node',
-        externals: [nodeExternals()],
+        externals: [nodeExternals({
+            modulesDir: path.resolve(__dirname, '../../node_modules'),
+            allowlist: [/^react-ui-simplicity/]
+        })],
         resolve: {
             extensions: ['.js', '.ts', '.tsx'],
         },
@@ -139,7 +142,15 @@ module.exports = [
                 },
                 {
                     test: /\.css$/i,
-                    use: ["style-loader", "css-loader"]
+                    use: [
+                        {
+                            loader: MiniCssExtractPlugin.loader,
+                            options: {
+                                emit: true,
+                            },
+                        },
+                        "css-loader"
+                    ],
                 },
                 {
                     test: /\.d\.ts$/i,
@@ -156,6 +167,9 @@ module.exports = [
                 patterns: [
                     {from: 'public', to: 'public'},
                 ],
+            }),
+            new MiniCssExtractPlugin({
+                filename: 'assets/style.css',
             })
         ]
     }

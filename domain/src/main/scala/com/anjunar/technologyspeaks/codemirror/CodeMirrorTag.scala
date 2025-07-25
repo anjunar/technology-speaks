@@ -1,16 +1,23 @@
 package com.anjunar.technologyspeaks.codemirror
 
+import com.anjunar.scala.mapper.annotations.PropertyDescriptor
 import com.anjunar.technologyspeaks.jpa.RepositoryContext
 import com.anjunar.technologyspeaks.shared.AbstractEntity
-import jakarta.persistence.{Entity, NoResultException, OneToMany, Table}
+import jakarta.persistence.{Basic, Entity, NoResultException, OneToMany, Table}
 
 import java.util
 import java.util.UUID
+import scala.compiletime.uninitialized
 
 @Entity
 @Table(name = "codemirror-tag")
 class CodeMirrorTag extends AbstractEntity {
 
+  @Basic
+  @PropertyDescriptor(title = "Name", writeable = true)
+  var name : String = uninitialized
+
+  @PropertyDescriptor(title = "Files", writeable = true)
   @OneToMany(targetEntity = classOf[AbstractCodeMirrorFile])
   val files : util.Set[AbstractCodeMirrorFile] = new util.HashSet[AbstractCodeMirrorFile]()
 

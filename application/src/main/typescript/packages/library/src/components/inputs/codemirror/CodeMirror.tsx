@@ -21,6 +21,8 @@ import {CodeMirrorTS} from "./domain/CodeMirrorTS";
 import {CodeMirrorCSS} from "./domain/CodeMirrorCSS";
 import {CodeMirrorHTML} from "./domain/CodeMirrorHTML";
 import {CodeMirrorWorkspace} from "./domain/CodeMirrorWorkspace";
+import VersionControl from "./ui/VersionControl";
+import CodeMirrorTag from "./domain/CodeMirrorTag";
 
 function fileTemplate(type: string) {
     switch (type) {
@@ -49,11 +51,13 @@ function fileName(editor: AbstractCodeMirrorFile) {
 
 export function CodeMirror(properties: CodeMirror.Attributes) {
 
-    const {name, standalone, value, onChange, onModel, configuration, style} = properties
+    const {name, standalone, value, onChange, onModel, configuration, style, vcr} = properties
 
     const [model, state, setState] = useInput<CodeMirrorWorkspace>(name, value, standalone, "codemirror")
 
     const [files, setFiles] = useState<AbstractCodeMirrorFile[]>(null)
+
+    const [tags, setTags] = useState<CodeMirrorTag[]>([])
 
     const [page, setPage] = useState(0)
 
@@ -174,7 +178,11 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
                 });
 
                 setFiles(files)
+            })
 
+        vcr.loadAll()
+            .then(tags => {
+                setTags(tags)
             })
 
     }, []);
@@ -219,6 +227,9 @@ export function CodeMirror(properties: CodeMirror.Attributes) {
                         {
                             drawerOpen === "fileManager" && (<FileManager files={files || []} commands={commands}></FileManager>)
                         }
+                        {
+                            drawerOpen === "versionControl" && (<VersionControl tags={tags}/>)
+                        }
                     </div>
                 </Drawer>
                 <Drawer.Content>
@@ -262,7 +273,16 @@ export namespace CodeMirror {
         onChange?: (value: CodeMirrorWorkspace) => void
         onModel?: (value: Model) => void
         configuration: Configuration
+        vcr : VCR
         style?: CSSProperties
+    }
+
+    export interface VCR {
+        loadAll() : Promise<any>
+
+        save(name : string) : Promise<any>
+        
+        load(name : string) : Promise<any>
     }
 
     export interface Configuration {

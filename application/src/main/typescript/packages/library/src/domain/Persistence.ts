@@ -32,6 +32,7 @@ import {CodeMirrorTS} from "../components/inputs/codemirror/domain/CodeMirrorTS"
 import {CodeMirrorImage} from "../components/inputs/codemirror/domain/CodeMirrorImage";
 import {CodeMirrorHTML} from "../components/inputs/codemirror/domain/CodeMirrorHTML";
 import {CodeMirrorWorkspace} from "../components/inputs/codemirror/domain/CodeMirrorWorkspace";
+import CodeMirrorTag from "../components/inputs/codemirror/domain/CodeMirrorTag";
 
 export function init() {
 
@@ -65,6 +66,7 @@ export function init() {
     registerEntity(CodeMirrorCSS)
     registerEntity(CodeMirrorImage)
     registerEntity(CodeMirrorWorkspace)
+    registerEntity(CodeMirrorTag)
 
     registerConverter(Date, new DateConverter())
     registerConverter(LocalDateTime, new LocalDateTimeConverter())

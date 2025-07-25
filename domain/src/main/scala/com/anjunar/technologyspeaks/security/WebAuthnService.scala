@@ -22,7 +22,7 @@ class WebAuthnService {
   lazy val relyingParty: RelyingParty = RelyingParty.builder()
     .identity(relyingPartyIdentity)
     .credentialRepository(credentialRepository)
-    .origins(Sets.newHashSet("https://www.anjunar.com", "https://anjunar.com"))
+    .origins(Sets.newHashSet("https://anjunar.com"))
     .build()
 
 }
