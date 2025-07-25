@@ -85,10 +85,11 @@ function HomePage(properties: HomePage.Attributes) {
                                 )
                             }
                         </AutoSuggest>
+                        <br/>
                         <div style={{display : "flex", justifyContent : "flex-end"}}>
                             {
                                 onLink(search.$links, "list", link => (
-                                    <Button type={"submit"}>{link.title}</Button>
+                                    <Button style={{backgroundColor : "var(--color-background-primary)"}} type={"submit"} className={"large hover"}>{link.title}</Button>
                                 ))
                             }
                         </div>

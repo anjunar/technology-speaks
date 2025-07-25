@@ -403,6 +403,7 @@ textarea {
 
 button {
     background-color: inherit;
+
     color: var(--color-text);
 
     &[disabled] {

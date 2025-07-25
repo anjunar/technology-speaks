@@ -1,6 +1,5 @@
 export * from "./src/components/indicators/progress"
 export * from "./src/components/inputs/button"
-export * from "./src/components/inputs/codemirror"
 export * from "./src/components/inputs/container"
 export * from "./src/components/inputs/form"
 export * from "./src/components/inputs/input"

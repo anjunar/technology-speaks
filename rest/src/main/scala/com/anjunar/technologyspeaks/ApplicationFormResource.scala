@@ -2,8 +2,6 @@ package com.anjunar.technologyspeaks
 
 import com.anjunar.scala.mapper.annotations.JsonSchema
 import com.anjunar.scala.schema.builder.SchemaBuilderContext
-import com.anjunar.technologyspeaks.chat.ChatResource
-import com.anjunar.technologyspeaks.codemirror.{CodeMirrorWorkspace, CodeMirrorWorkspaceResource}
 import com.anjunar.technologyspeaks.control.*
 import com.anjunar.technologyspeaks.document.{DocumentSearch, DocumentTableResource}
 import com.anjunar.technologyspeaks.jaxrs.link.WebURLBuilderFactory.{linkTo, methodOn}
@@ -61,10 +59,6 @@ class ApplicationFormResource extends SchemaBuilderContext {
             .withRel("chat")
             .build(link.addLink)
 */
-
-          linkTo(methodOn(classOf[CodeMirrorWorkspaceResource]).read())
-            .withRel("codeMirror")
-            .build(link.addLink)
 
           linkTo(methodOn(classOf[UserTableResource]).search(new UserSearch))
             .withRel("users")

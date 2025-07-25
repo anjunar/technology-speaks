@@ -48,7 +48,7 @@ function Root(properties: AppContent.Attributes) {
                 <div slot="left">
                     <form action="/toggle-drawer" method="POST" onSubmit={onDrawerClick}>
                         <input type="hidden" name="drawer" value={info.cookie["drawer"] === "open" ? "close" : "open"}/>
-                        <button type="submit" className={"material-icons"}>menu</button>
+                        <button type="submit" className={"material-icons hover"}>menu</button>
                     </form>
                 </div>
                 <div slot={"right"}>
@@ -97,15 +97,6 @@ function Root(properties: AppContent.Attributes) {
                                 onLink(application.$links, "register", (link) => (
                                     <li>
                                         <Link key={link.url} value={link.url} icon={"app_registration"}>
-                                            {link.title}
-                                        </Link>
-                                    </li>
-                                ))
-                            }
-                            {
-                                onLink(application.$links, "codeMirror", (link) => (
-                                    <li>
-                                        <Link key={link.url} value={link.url} icon={"code"}>
                                             {link.title}
                                         </Link>
                                     </li>

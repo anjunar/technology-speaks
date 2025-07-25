@@ -27,12 +27,6 @@ import EditorFile from "../components/inputs/markdown/domain/EditorFile";
 import SortObject from "./container/SortObject";
 import TupleTableObject from "./container/TupleTableObject";
 import Change from "../components/inputs/markdown/domain/Change";
-import {CodeMirrorCSS} from "../components/inputs/codemirror/domain/CodeMirrorCSS";
-import {CodeMirrorTS} from "../components/inputs/codemirror/domain/CodeMirrorTS";
-import {CodeMirrorImage} from "../components/inputs/codemirror/domain/CodeMirrorImage";
-import {CodeMirrorHTML} from "../components/inputs/codemirror/domain/CodeMirrorHTML";
-import {CodeMirrorWorkspace} from "../components/inputs/codemirror/domain/CodeMirrorWorkspace";
-import CodeMirrorTag from "../components/inputs/codemirror/domain/CodeMirrorTag";
 
 export function init() {
 
@@ -60,13 +54,6 @@ export function init() {
     registerEntity(EditorModel)
     registerEntity(EditorFile)
     registerEntity(Change)
-
-    registerEntity(CodeMirrorHTML)
-    registerEntity(CodeMirrorTS)
-    registerEntity(CodeMirrorCSS)
-    registerEntity(CodeMirrorImage)
-    registerEntity(CodeMirrorWorkspace)
-    registerEntity(CodeMirrorTag)
 
     registerConverter(Date, new DateConverter())
     registerConverter(LocalDateTime, new LocalDateTimeConverter())

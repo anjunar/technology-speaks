@@ -20,7 +20,6 @@ import QueryParams = Router.QueryParams;
 import PathParams = Router.PathParams;
 import {RequestInformation} from "./request";
 import ChatPage from "./pages/chat/ChatPage";
-import CodeMirrorPage from "./pages/codemirror/CodeMirrorPage";
 
 export function process(response: Response, redirect : string) {
     if (response.status === 403) {
@@ -82,25 +81,6 @@ export const routes: Router.Route[] = [
             {
                 path: "/chat",
                 component : ChatPage
-            },
-            {
-                path : "/codemirror/workspace",
-                component : CodeMirrorPage,
-                loader : {
-                    async workspace(info, pathParams : PathParams, queryParams : QueryParams) {
-                        let response = await fetch(`${info.protocol}://${info.host}/service/codemirror/workspace`, {
-                            headers : getHeaders(info)
-                        })
-
-                        process(response, getRedirect(info))
-
-                        if (response.ok) {
-                            return mapForm(await response.json(), true)
-                        }
-
-                        throw new Error(response.status.toString())
-                    }
-                }
             },
             {
                 path: "/documents",

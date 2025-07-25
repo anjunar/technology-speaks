@@ -43,12 +43,12 @@ module.exports = [
                     use: {
                         loader: 'ts-loader',
                     },
-                    exclude: /node_modules|\.d\.ts$/,
+                    exclude: /node_modules/,
                 },
                 {
                     test: /.(tsx|ts|js|jsx)$/,
                     use: ['source-map-loader'],
-                    exclude: [/node_modules[\\/]typescript/, /\.d\.ts/]
+                    exclude: /node_modules/
                 },
                 {
                     test: /\.css$/i,
@@ -102,16 +102,6 @@ module.exports = [
             new MiniCssExtractPlugin({
                 filename: 'assets/style.css',
             })
-        ],
-        ignoreWarnings: [
-            {
-                module: /node_modules[\\/]@typescript[\\/]vfs/,
-                message: /Critical dependency: the request of a dependency is an expression/,
-            },
-            {
-                module: /node_modules[\\/]typescript/,
-                message: /Critical dependency: the request of a dependency is an expression/,
-            },
         ]
     },
     {
