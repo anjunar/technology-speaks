@@ -25,7 +25,7 @@ function Toolbar(properties: Toolbar.Attributes) {
 
     return (
         <div style={{display: "flex", justifyContent: "space-between"}}>
-            <button className={"material-icons"} onClick={() => onPageClick(page - 1 === -1 ? 1 : page - 1)}>arrow_left</button>
+            <button type={"button"} className={"material-icons"} onClick={() => onPageClick(page - 1 === -1 ? 1 : page - 1)}>arrow_left</button>
             <Pages page={page}>
                 <Page>
                     <div className={"editor-toolbar"}>
@@ -55,7 +55,7 @@ function Toolbar(properties: Toolbar.Attributes) {
                     </div>
                 </Page>
             </Pages>
-            <button className={"material-icons"} onClick={() => onPageClick(page + 1 === 2 ? 0 : page + 1)}>arrow_right</button>
+            <button type={"button"} className={"material-icons"} onClick={() => onPageClick(page + 1 === 2 ? 0 : page + 1)}>arrow_right</button>
         </div>
     )
 }

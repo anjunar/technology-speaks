@@ -7,32 +7,17 @@
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "watch": "webpack --config webpack.config.js --watch",
-    "server": "nodemon dist/server/server.js",
-    "start": "concurrently --kill-others \"npm run watch\" \"npm run server\""
+    "server": "nodemon dist/server/server.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "overrides": {
-    "@codemirror/state": "^6.2.2"
-  },
   "dependencies": {
-    "@codemirror/autocomplete": "^6.18.6",
-    "@codemirror/commands": "^6.8.1",
-    "@codemirror/lang-css": "^6.3.1",
-    "@codemirror/lang-html": "^6.4.9",
-    "@codemirror/lang-javascript": "^6.2.4",
-    "@codemirror/search": "^6.5.11",
-    "@codemirror/state": "^6.5.1",
     "@github/webauthn-json": "^2.1.1",
     "@js-joda/core": "^5.6.5",
     "@js-joda/locale_de": "^4.15.1",
     "@mapbox/search-js-web": "^1.0.0",
-    "@typescript/vfs": "^1.6.1",
-    "cheerio": "^1.0.0",
-    "codemirror": "^6.0.1",
     "cookie-parser": "^1.4.7",
-    "highlight.js": "^11.11.1",
     "js-cookie": "^3.0.5",
     "mapbox-gl": "^3.11.0",
     "prismjs": "^1.30.0",
@@ -47,7 +32,6 @@
     "remark-parse": "^11.0.0",
     "remark-rehype": "^11.1.2",
     "remark-stringify": "^11.0.0",
-    "typescript": "^5.8.3",
     "ua-parser-js": "^2.0.3",
     "uuid": "^11.1.0"
   },
@@ -58,6 +42,7 @@
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "@types/uuid": "^10.0.0",
+    "cheerio": "^1.0.0",
     "clean-webpack-plugin": "^4.0.0",
     "concurrently": "^9.1.2",
     "copy-webpack-plugin": "^13.0.0",
@@ -73,6 +58,7 @@
     "source-map-loader": "^5.0.0",
     "style-loader": "^4.0.0",
     "ts-loader": "^9.5.2",
+    "typescript": "^5.8.3",
     "webpack": "^5.99.9",
     "webpack-bundle-analyzer": "^4.10.2",
     "webpack-cli": "^6.0.1",

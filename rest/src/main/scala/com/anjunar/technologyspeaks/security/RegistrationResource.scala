@@ -37,8 +37,8 @@ class RegistrationResource extends Serializable with SchemaBuilderContext {
   @Inject
   var webAuthnService: WebAuthnService = uninitialized
 
-  @Inject
-  var transaction : TransactionManager = uninitialized
+  @Resource
+  var transaction : TransactionSynchronizationRegistry = uninitialized
 
   @Inject
   var mailService : MailService = uninitialized
@@ -112,6 +112,7 @@ class RegistrationResource extends Serializable with SchemaBuilderContext {
   @POST
   @Path("/register-finish")
   def finishRegistration(pkc: PublicKeyCredential[AuthenticatorAttestationResponse, ClientRegistrationExtensionOutputs]): util.Map[String, Boolean] = {
+
     try
       val result: RegistrationResult = webAuthnService.relyingParty.finishRegistration(
         FinishRegistrationOptions.builder()
@@ -181,15 +182,24 @@ class RegistrationResource extends Serializable with SchemaBuilderContext {
       token.signCount = result.getSignatureCount
       token.transports = result.getKeyId.getTransports.get().asScala.mkString(",")
 
+      val name = request.getUser.getName
 
-      try {
-        val variables = util.HashMap[String, AnyRef]()
-        variables.put("token", token)
+      transaction.registerInterposedSynchronization(new Synchronization {
+        override def beforeCompletion(): Unit = {}
 
-        mailService.send(request.getUser.getName, variables, "/templates/RegisterTemplate.html", "Technology Speaks - Registration")
-      } catch {
-        case e : Exception => {}
-      }
+        override def afterCompletion(status: Int): Unit = {
+
+          try {
+            val variables = util.HashMap[String, AnyRef]()
+            variables.put("token", token)
+
+            mailService.send(name, variables, "/templates/RegisterTemplate.html", "Technology Speaks - Registration")
+          } catch {
+            case e: Exception => logger.error(e.getMessage, e)
+          }
+
+        }
+      })
 
       Map("success" -> true).asJava
 

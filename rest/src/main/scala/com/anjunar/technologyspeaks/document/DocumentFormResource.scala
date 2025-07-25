@@ -145,7 +145,7 @@ class DocumentFormResource extends SchemaBuilderContext {
   def save(@JsonSchema(classOf[DocumentFormSchema]) entity: Document): Response = {
     entity.user = User.current()
 
-    service.saveOrUpdate(entity)
+    entity.saveOrUpdate()
     
     createRedirectResponse
   }

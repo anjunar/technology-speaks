@@ -27,7 +27,7 @@ class AbstractProperty(val name : String,
     setter.invoke(instance, value)
   }
 
-  val propertyType : ResolvedClass = {
+  def propertyType : ResolvedClass = {
     if (getter == null) {
       TypeResolver.resolve(TypeToken.of(field.fieldType.underlying).wrap().getType)
     } else {

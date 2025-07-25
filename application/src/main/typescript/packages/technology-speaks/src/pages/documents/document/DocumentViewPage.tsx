@@ -1,7 +1,7 @@
 import "./DocumentViewPage.css"
 import React from "react"
 import Document from "../../../domain/document/Document";
-import {Link, MarkDownView, Router} from "react-ui-simplicity";
+import {Form, Link, MarkDownView, Router} from "react-ui-simplicity";
 import navigate = Router.navigate;
 import onLink = Link.onLink;
 import link from "react-ui-simplicity/src/components/navigation/link/Link";
@@ -37,7 +37,6 @@ function DocumentViewPage(properties: DocumentViewPage.Attributes) {
                             form.hashTags?.map(hashTag => (<small key={hashTag.value}>{hashTag.value}</small>))
                         }
                     </div>
-
 
                     <MarkDownView value={form.editor}/>
                 </div>

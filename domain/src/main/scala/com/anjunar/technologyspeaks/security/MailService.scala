@@ -6,6 +6,8 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.inject.Inject
 import jakarta.mail.internet.{InternetAddress, MimeMessage}
 import jakarta.mail.{Address, Message, Session}
+import jakarta.transaction.Transactional
+import jakarta.transaction.Transactional.TxType
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 
@@ -19,6 +21,7 @@ class MailService {
 
   @Inject var session: Session = uninitialized
 
+  @Transactional(TxType.REQUIRES_NEW)
   def send(email: String, variables : util.HashMap[String, AnyRef], templateRef: String, subject : String): Unit = {
     val message = new MimeMessage(session)
     message.setFrom(new InternetAddress("anjunar@gmx.de"))

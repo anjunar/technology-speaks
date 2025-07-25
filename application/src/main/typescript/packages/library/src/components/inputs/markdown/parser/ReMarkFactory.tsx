@@ -5,6 +5,7 @@ import rehypeStringify from "rehype-stringify";
 import remarkStringify from 'remark-stringify';
 import rehypePrism from 'rehype-prism-plus'
 import remarkGfm from 'remark-gfm'
+import html from 'remark-html'
 import {visit} from 'unist-util-visit';
 import type {Element} from 'hast';
 import {Node} from 'unist';

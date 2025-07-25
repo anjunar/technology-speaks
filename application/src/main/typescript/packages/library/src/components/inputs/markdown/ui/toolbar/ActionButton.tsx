@@ -22,7 +22,7 @@ function ActionButton(properties: ActionButton.Attributes) {
     }, [textAreaRef.current?.selectionStart]);
 
     return (
-        <button title={title} disabled={disabled} className={"material-icons"} onClick={executeCommand}>{children}</button>
+        <button type={"button"}  title={title} disabled={disabled} className={"material-icons"} onClick={executeCommand}>{children}</button>
     )
 }
 

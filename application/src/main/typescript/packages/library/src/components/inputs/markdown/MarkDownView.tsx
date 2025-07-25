@@ -129,7 +129,6 @@ function MarkDownView(properties: MarkDownView.Attributes) {
     }
 
     const html = useMemo(() => {
-        if (!state?.ast) return "";
         const tree = reMarkForHTML.runSync(state.ast);
         return reMarkForHTML.stringify(tree);
     }, [state]);
