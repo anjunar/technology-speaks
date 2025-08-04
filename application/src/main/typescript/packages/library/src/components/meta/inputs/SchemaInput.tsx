@@ -75,6 +75,10 @@ function SchemaInput(properties: SchemaInput.Attributes) {
         return disabled || contextSchema.readOnly;
     }
 
+    if (! contextSchema) {
+        return <div>No Context found for {name}</div>
+    }
+
     return (
         <InputContainer name={name} placeholder={contextSchema.title} style={{display : contextSchema.hidden ? "none" : "block",...style}}>
             <Input

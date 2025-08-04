@@ -11,9 +11,6 @@ export default class User extends Identity {
     $type = "User"
 
     @Basic()
-    name : string
-
-    @Basic()
     nickName : string
 
     @Basic()
@@ -26,10 +23,6 @@ export default class User extends Identity {
     address : Address
 
     @Basic()
-    roles : Role[] = []
-
-    @Basic()
     score : number
-
 
 }

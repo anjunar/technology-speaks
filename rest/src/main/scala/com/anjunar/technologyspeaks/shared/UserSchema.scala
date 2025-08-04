@@ -24,7 +24,6 @@ object UserSchema {
   def static(builder: EntitySchemaBuilder[User]): Unit = {
     builder
       .property("id")
-      .property("score")
       .property("nickName")
       .property("deleted")
       .property("emails", property => property
@@ -71,7 +70,6 @@ object UserSchema {
 
     builder
         .property("id")
-        .property("score")
         .property("nickName", property => property
           .withWriteable(isOwnedOrAdmin)
         )

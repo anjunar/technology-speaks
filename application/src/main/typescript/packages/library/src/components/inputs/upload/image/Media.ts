@@ -12,10 +12,7 @@ export default class Media extends AbstractEntity {
     name : string
 
     @Basic()
-    type : string
-
-    @Basic()
-    subType : string
+    contentType : string
 
     @Basic()
     data : string

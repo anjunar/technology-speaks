@@ -1,16 +1,14 @@
-import React, {MouseEventHandler, useEffect, useLayoutEffect, useState} from "react"
+import React, {MouseEventHandler, useLayoutEffect, useState} from "react"
 
 function withPageable(Component : any, parameters : withPageable.Attributes)  {
 
-    const {autoload = true, value, children, limit = 5, onRowClick, onChange, loader, initialData, ...rest} = parameters
+    const {autoload = true, value, children, limit = 5, onRowClick, onChange, loader, ...rest} = parameters
 
     return function Pageable() {
 
-        const [rows, count] = initialData ? initialData() : [[], 0]
-
-        const [window, setWindow] = useState(rows)
+        const [window, setWindow] = useState([])
         const [index, setIndex] = useState(0)
-        const [size, setSize] = useState(count)
+        const [size, setSize] = useState(0)
 
         const [loading, setLoading] = useState(autoload)
 
@@ -62,15 +60,6 @@ function withPageable(Component : any, parameters : withPageable.Attributes)  {
             }
         }, [])
 
-        if (loading) {
-            return <div className={"center"}><h2>Loading...</h2></div>
-        }
-
-        useLayoutEffect(() => {
-            setSize(count)
-            setWindow(rows)
-        }, [rows, count]);
-
         return (
             <Component
                 onRowClick={onRowClick}
@@ -80,7 +69,6 @@ function withPageable(Component : any, parameters : withPageable.Attributes)  {
                 window={window}
                 load={load}
                 loader={loader}
-                initialData={initialData}
                 skipPrevious={skipPrevious}
                 arrowLeft={arrowLeft}
                 arrowRight={arrowRight}
@@ -100,7 +88,6 @@ namespace withPageable {
         autoload? : boolean
         onRowClick? : MouseEventHandler<HTMLDivElement>
         loader : Loader
-        initialData? : () => [any[], number]
         limit? : number
         children : React.ReactNode
         value? : any[]

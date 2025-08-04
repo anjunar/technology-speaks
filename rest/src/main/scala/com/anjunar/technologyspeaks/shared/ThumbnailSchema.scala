@@ -11,13 +11,7 @@ object ThumbnailSchema {
       .property("name", property => property
         .withWriteable(isOwnedOrAdmin)
       )
-      .property("name", property => property
-        .withWriteable(isOwnedOrAdmin)
-      )
-      .property("type", property => property
-        .withWriteable(isOwnedOrAdmin)
-      )
-      .property("subType", property => property
+      .property("contentType", property => property
         .withWriteable(isOwnedOrAdmin)
       )
       .property("data", property => property

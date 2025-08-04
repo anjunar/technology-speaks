@@ -129,6 +129,15 @@ function Root(properties: AppContent.Attributes) {
                                     </li>
                                 ))
                             }
+                            {
+                                onLink(application.$links, "users", (link) => (
+                                    <li>
+                                        <Link key={link.url} value={link.url} icon={"groups"}>
+                                            {link.title}
+                                        </Link>
+                                    </li>
+                                ))
+                            }
                         </ul>
                     </div>
                 </Drawer>

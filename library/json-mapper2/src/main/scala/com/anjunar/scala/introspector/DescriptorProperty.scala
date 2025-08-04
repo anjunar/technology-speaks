@@ -15,11 +15,11 @@ class DescriptorProperty(val owner: DescriptorsModel,
 
   override def propertyType: ResolvedClass = {
     val oneToMany = findAnnotation(classOf[OneToMany])
-    if (oneToMany != null && oneToMany.targetEntity() != null) {
+    if (oneToMany != null && oneToMany.targetEntity().getSimpleName != "void") {
       TypeResolver.resolve(TypeTokenBuilder.parameterizedType(super.propertyType.raw, TypeToken.of(oneToMany.targetEntity())).getType)
     } else {
       val manyToMany = findAnnotation(classOf[ManyToMany])
-      if (manyToMany != null && manyToMany.targetEntity() != null) {
+      if (manyToMany != null && manyToMany.targetEntity().getSimpleName != "void") {
         TypeResolver.resolve(TypeTokenBuilder.parameterizedType(super.propertyType.raw, TypeToken.of(manyToMany.targetEntity())).getType)
       } else {
         super.propertyType

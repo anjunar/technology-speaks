@@ -20,6 +20,9 @@ import QueryParams = Router.QueryParams;
 import PathParams = Router.PathParams;
 import {RequestInformation} from "./request";
 import ChatPage from "./pages/chat/ChatPage";
+import UserSearchPage from "./pages/control/users/search/UserSearchPage";
+import UserFormPage from "./pages/control/users/user/UserFormPage";
+import SecuredPropertyForm from "./components/security/SecuredPropertyForm";
 
 export function process(response: Response, redirect : string) {
     if (response.status === 403) {
@@ -77,6 +80,54 @@ export const routes: Router.Route[] = [
                         throw new Error(response.status.toString())
                     }
                 }
+            },
+            {
+                path : "/control",
+                children : [
+                    {
+                        path : "/users",
+                        children: [
+                            {
+                                path : "/search",
+                                component : UserSearchPage,
+                                loader: {
+                                    async users(info, pathParams, queryParams) {
+                                        let response = await fetch(`${info.protocol}://${info.host}/service/control/users?index=0&limit=5`, {
+                                            headers : getHeaders(info)
+                                        })
+
+                                        process(response, getRedirect(info))
+
+                                        if (response.ok) {
+                                            return mapTable(await response.json())
+                                        }
+
+                                        throw new Error(response.status.toString())
+                                    }
+                                }
+                            },
+                            {
+                                path : "/user/:id",
+                                component : UserFormPage,
+                                loader: {
+                                    async form(info, pathParams, queryParams) {
+                                        let response = await fetch(`${info.protocol}://${info.host}/service/control/users/user/${pathParams["id"]}`, {
+                                            headers : getHeaders(info)
+                                        })
+
+                                        process(response, getRedirect(info))
+
+                                        if (response.ok) {
+                                            return mapForm(await response.json())
+                                        }
+
+                                        throw new Error(response.status.toString())
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
             },
             {
                 path: "/chat",
@@ -226,6 +277,25 @@ export const routes: Router.Route[] = [
             {
                 path: "/security",
                 children: [
+                    {
+                        path: "/properties/property/:id",
+                        component : SecuredPropertyForm,
+                        loader: {
+                            async form(info, pathParams, queryParams) {
+                                let response = await fetch(`${info.protocol}://${info.host}/service/security/properties/property/${pathParams["id"]}`, {
+                                    headers : getHeaders(info)
+                                })
+
+                                process(response, getRedirect(info))
+
+                                if (response.ok) {
+                                    return mapForm(await response.json(), true)
+                                }
+
+                                throw new Error(response.status.toString())
+                            }
+                        }
+                    },
                     {
                         path: "/login",
                         component: LoginPage,

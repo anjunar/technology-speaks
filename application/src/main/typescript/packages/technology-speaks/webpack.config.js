@@ -4,6 +4,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin')    ;
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const nodeExternals = require('webpack-node-externals');
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { defineReactCompilerLoaderOption, reactCompilerLoader } = require('react-compiler-webpack');
 
 module.exports = [
     {
@@ -38,6 +39,18 @@ module.exports = [
         },
         module: {
             rules: [
+/*
+                {
+                    test: /\.[mc]?[jt]sx?$/i,
+                    exclude: /node_modules/,
+                    use: [
+                        {
+                            loader: reactCompilerLoader,
+                            options: defineReactCompilerLoaderOption({})
+                        }
+                    ]
+                },
+*/
                 {
                     test: /\.(ts|tsx)$/,
                     use: {
@@ -100,7 +113,7 @@ module.exports = [
                 ],
             }),
             new MiniCssExtractPlugin({
-                filename: 'assets/style.css',
+                filename: 'assets/style.[contenthash].css',
             })
         ]
     },
@@ -159,7 +172,7 @@ module.exports = [
                 ],
             }),
             new MiniCssExtractPlugin({
-                filename: 'assets/style.css',
+                filename: 'assets/style.[contenthash].css',
             })
         ]
     }

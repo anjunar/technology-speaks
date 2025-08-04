@@ -14,9 +14,11 @@ function Link(properties : Link.Attributes) {
     const [activeState, setActiveState] = useState(false)
 
     const onClickHandler: React.MouseEventHandler<HTMLAnchorElement> = event => {
-        event.preventDefault()
-        Router.navigate(href)
         onClick && onClick(event)
+        if (! event.defaultPrevented) {
+            event.preventDefault()
+            Router.navigate(href)
+        }
     }
 
     useLayoutEffect(() => {

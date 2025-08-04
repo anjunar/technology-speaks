@@ -47,9 +47,9 @@ function ImageUpload(properties: ImageUpload.Attributes) {
         inputRef.current.click()
     }
 
-    const encodeBase64 = (type: string, subType: string, data: string) => {
+    const encodeBase64 = (type: string, data: string) => {
         if (data) {
-            return `data:${type}/${subType};base64,${data}`
+            return `data:${type};base64,${data}`
         }
         return null
     }
@@ -83,13 +83,11 @@ function ImageUpload(properties: ImageUpload.Attributes) {
                         let image = new Media()
                         image.data = data
                         image.name = file.name
-                        image.type = type
-                        image.subType = subType
+                        image.contentType = type + "/" + subType
                         let thumbnail = new Thumbnail();
                         thumbnail.data = data
                         thumbnail.name = file.name
-                        thumbnail.type = type
-                        thumbnail.subType = subType
+                        thumbnail.contentType = type + "/" + subType
 
                         setState(image)
 
@@ -142,13 +140,11 @@ function ImageUpload(properties: ImageUpload.Attributes) {
                 let image = new Media()
                 image.data = state.data
                 image.name = state.name
-                image.type = state.type
-                image.subType = state.subType
+                image.contentType = state.contentType
                 let thumbnail = new Thumbnail();
                 thumbnail.data = data
                 thumbnail.name = state.name
-                thumbnail.type = type
-                thumbnail.subType = subType
+                thumbnail.contentType = type + "/" + subType
                 image.thumbnail = thumbnail
 
                 setState(image)
@@ -203,7 +199,7 @@ function ImageUpload(properties: ImageUpload.Attributes) {
                 state && (
                     <img
                         ref={imgRef}
-                        src={encodeBase64(state.type, state.subType, state.data)}
+                        src={encodeBase64(state.contentType, state.data)}
                         onLoadedData={() => doCropping()}
                     />
                 )

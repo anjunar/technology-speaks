@@ -23,9 +23,9 @@ function Image(properties: Image.Attributes) {
         }
     }
 
-    const encodeBase64 = (type: string, subType: string, data: string) => {
+    const encodeBase64 = (type: string, data: string) => {
         if (data) {
-            return `data:${type}/${subType};base64,${data}`
+            return `data:${type};base64,${data}`
         }
         return ""
     }
@@ -62,7 +62,7 @@ function Image(properties: Image.Attributes) {
                 {
                     state?.thumbnail?.data ? (
                         <img style={{width: "100%", height: "100%"}}
-                             src={encodeBase64(state.thumbnail.type, state.thumbnail.subType, state.thumbnail.data)}/>
+                             src={encodeBase64(state.thumbnail.contentType, state.thumbnail.data)}/>
                     ) : (
                         <div className={"image-placeholder"}>
                             <div>{placeholder}</div>

@@ -1,8 +1,9 @@
 import React, {useState} from "react"
-import {mapForm, NodeDescriptor, useForm, Window} from "react-ui-simplicity";
+import {Link, mapForm, NodeDescriptor, useForm, useServer, Window} from "react-ui-simplicity";
 import {createPortal} from "react-dom";
 import ManagedProperty from "../../domain/shared/ManagedProperty";
 import SecuredPropertyForm from "./SecuredPropertyForm";
+import onLink = Link.onLink;
 
 function SecuredProperty(properties: SecuredProperty.Attributes) {
 
@@ -10,7 +11,9 @@ function SecuredProperty(properties: SecuredProperty.Attributes) {
 
     const [form, setForm] = useState(null)
 
-    async function openWindow() {
+    async function openWindow(event : React.MouseEvent) {
+        event.preventDefault()
+        event.stopPropagation()
         let link = descriptor.links["secured"];
         let response = await fetch(`/service${link.url}`)
         let json = await response.json()
@@ -39,12 +42,16 @@ function SecuredProperty(properties: SecuredProperty.Attributes) {
                     </Window>,
                 document.getElementById("viewport"))
             }
-            <button className={"material-icons"} onClick={() => openWindow()}>settings</button>
+            {
+                onLink(descriptor.links, "secured", (link) => {
+                    return <Link key={link.rel} value={link.url} onClick={(event) => openWindow(event)} icon={"settings"}/>
+                })
+            }
         </div>
     )
 }
 
-namespace SecuredProperty {
+export namespace SecuredProperty {
     export interface Attributes {
         descriptor : NodeDescriptor
     }

@@ -7,7 +7,7 @@
   "scripts": {
     "build": "webpack --config webpack.config.js",
     "watch": "webpack --config webpack.config.js --watch",
-    "server": "nodemon dist/server/server.js"
+    "server": "nodemon --inspect dist/server/server.js"
   },
   "keywords": [],
   "author": "",
@@ -53,6 +53,7 @@
     "http-proxy-middleware": "^3.0.5",
     "mini-css-extract-plugin": "^2.9.2",
     "pm2": "^6.0.8",
+    "react-compiler-webpack": "^0.2.0",
     "react-refresh": "^0.17.0",
     "reflect-metadata": "^0.2.2",
     "source-map-loader": "^5.0.0",

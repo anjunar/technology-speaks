@@ -216,7 +216,7 @@ function LazySelectRenderer(properties: LazySelectRenderer.Attributes) {
     }
 
     return (
-        <div className={(className ? className + " " : "") + `lazy-select ${model.dirty ? "dirty" : ""} ${model.valid ? "valid" : "error"} ${document.activeElement === input.current ? "focus" : "blur"}`} {...rest}>
+        <div className={(className ? className + " " : "") + `lazy-select ${model.dirty ? "dirty" : ""} ${model.valid ? "valid" : "error"} ${typeof document === "object" ? (document.activeElement === input.current ? "focus" : "blur") : "blur"}`} {...rest}>
             <div tabIndex={0}
                  ref={input}
                  onClick={onInputClickListener}
