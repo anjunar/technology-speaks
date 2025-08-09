@@ -26,7 +26,7 @@ function Root(properties: AppContent.Attributes) {
     const [open, setOpen] = useState(info.cookie["drawer"] === "open")
 
     const onLinkClick = () => {
-        if (mediaQuery) {
+        if (! mediaQuery) {
             setOpen(false)
         } else {
             setOpen(true)

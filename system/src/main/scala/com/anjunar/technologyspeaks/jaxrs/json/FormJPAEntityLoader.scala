@@ -22,12 +22,17 @@ class FormJPAEntityLoader extends FormEntityLoader {
   override def load(fields: Map[String, List[String]], aType: ResolvedClass, annotations: Array[Annotation]): AnyRef = {
     val doNotLoad = annotations.find(annotation => annotation.annotationType() == classOf[DoNotLoad])
 
-    val option = fields("id").headOption
+    val idValue = fields.get("id")
 
-    var entity: AnyRef = if (option.isDefined && doNotLoad.isEmpty) {
-      val entityClass = aType.raw.asInstanceOf[Class[AnyRef]]
-      val uuid = UUID.fromString(option.get)
-      entityManager.find(entityClass, uuid)
+    var entity: AnyRef = if (idValue.isDefined) {
+      val option = idValue.get.headOption
+      if (option.isDefined && doNotLoad.isEmpty) {
+        val entityClass = aType.raw.asInstanceOf[Class[AnyRef]]
+        val uuid = UUID.fromString(option.get)
+        entityManager.find(entityClass, uuid)
+      } else {
+        null
+      }
     } else {
       null
     }

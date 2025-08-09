@@ -34,16 +34,24 @@ class DataImport {
     if (Objects.isNull(user)) {
       user = new Role
       user.name = "User"
-      user.description = "Benutzer"
+      user.description = "User"
       user.saveOrUpdate()
     }
     var guest = Role.query(("name", "Guest"))
     if (Objects.isNull(guest)) {
       guest = new Role
       guest.name = "Guest"
-      guest.description = "Gast"
+      guest.description = "Guest"
       guest.saveOrUpdate()
     }
+    var confirmed = Role.query(("name", "Confirmed"))
+    if (Objects.isNull(confirmed)) {
+      confirmed = new Role
+      confirmed.name = "Confirmed"
+      confirmed.description = "Confirmed"
+      confirmed.saveOrUpdate()
+    }
+
 
     var patrick = User.findByEmail("anjunar@gmx.de")
 

@@ -7,6 +7,7 @@ class MultipartFormConverterRegistry {
   
   val converters: Array[MultipartFormAbstractConverter] = Array(
     new MultipartFormBooleanConverter,
+    new MultipartFormByteConverter,
     new MultipartFormCollectionConverter,
     new MultipartFormEnumConverter,
     new MultipartFormLocaleConverter,

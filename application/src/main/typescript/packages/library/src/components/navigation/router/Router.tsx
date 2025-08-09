@@ -144,12 +144,14 @@ function Router(properties: Router.Attributes) {
             const [route, queryParams, pathParams, component] = resolveRoute(info, routes);
 
             const key = JSON.stringify([route, queryParams, pathParams])
+            /*
 
-            if (routeCache.has(key)) {
-                setState(routeCache.get(key));
-                setChildRoutes(route.children);
-                return;
-            }
+                        if (routeCache.has(key)) {
+                            setState(routeCache.get(key));
+                            setChildRoutes(route.children);
+                            return;
+                        }
+            */
 
             const [components] = await resolveComponentList([route, queryParams, pathParams, component], info, true);
             const [_, element] = components

@@ -22,32 +22,6 @@ export function I18nTablePage(properties: I18nTablePage.Attributes) {
 
     const domain = useForm(search);
 
-    const loader = new class extends SchemaTable.Loader {
-        async onLoad(query: SchemaTable.Query, callback: SchemaTable.Callback) {
-            const urlBuilder = new URL("/service/shared/i18ns", window.location.origin)
-            let searchParams = urlBuilder.searchParams;
-
-            let index = queryParams["index"] as string || query.index.toString();
-            searchParams.set("index", index)
-            searchParams.set("limit", query.limit.toString())
-            window.history.pushState({}, "", `/shared/i18ns/search?index=${query.index}`)
-
-            for (const sort of query.sort || []) {
-                if (sort.value !== "none") {
-                    searchParams.append("sort", `${sort.property}:${sort.value}`)
-                }
-            }
-
-            const response = await fetch(urlBuilder.toString(),)
-            if (response.ok) {
-                const [rows, size, links, schema] = mapTable(await response.json())
-                callback(rows, Number.parseInt(index), size, schema)
-            } else {
-                process(response)
-            }
-        }
-    }
-
     function onRowClick(i18n: I18n) {
         let link = i18n.$links?.["read"]
         if (link) {
@@ -55,15 +29,11 @@ export function I18nTablePage(properties: I18nTablePage.Attributes) {
         }
     }
 
-    function onSubmit(name: string, form: any) {
-        loader.fire()
-    }
-
     return (
         <div className={"i18n-table-page"}>
             <div className={"center-horizontal"}>
                 <div className={"responsive-column"}>
-                    <SchemaForm value={domain} onSubmit={onSubmit}>
+                    <SchemaForm value={domain} onSubmit={null}>
                         <SchemaInput name={"text"}/>
                         <div style={{display : "flex", justifyContent : "flex-end"}}>
                             {
@@ -73,24 +43,18 @@ export function I18nTablePage(properties: I18nTablePage.Attributes) {
                             }
                         </div>
                     </SchemaForm>
-                    <SchemaTable loader={loader}
-                                 onRowClick={onRowClick}
-                                 limit={10}
-                                 initialData={() => [rows, count, schema]}
-                                 style={{width : "100%"}}>
-                        <SchemaTable.Head>
-                            <SchemaTable.Head.Cell property={"text"}/>
-                            <SchemaTable.Head.Cell property={"translations"}/>
-                        </SchemaTable.Head>
-                        <SchemaTable.Body>
-                            <SchemaTable.Body.Cell>
-                                {({row, index}: { row: I18n, index: number }) => <div key={row.id}>{row.text}</div>}
-                            </SchemaTable.Body.Cell>
-                            <SchemaTable.Body.Cell>
-                                {({row, index}: { row: I18n, index: number }) => <div key={row.id}>{row.translations.map(translation => translation.locale + ":" + translation.text ).join("\n")}</div>}
-                            </SchemaTable.Body.Cell>
-                        </SchemaTable.Body>
-                    </SchemaTable>
+                    <table className={"table"} style={{width : "100%"}}>
+                        <tbody>
+                            {
+                                rows.map((row, index) => (
+                                    <tr key={row.id} onClick={() => onRowClick(row)}>
+                                        <td style={{width : "50%"}}>{row.text}</td>
+                                        <td style={{width : "50%"}}>{row.translations.map(translation => <p>{translation.locale + ": " + translation.text}</p>)}</td>
+                                    </tr>
+                                ))
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

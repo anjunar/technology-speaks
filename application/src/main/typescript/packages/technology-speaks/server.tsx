@@ -45,14 +45,14 @@ let wsProxy = createProxyMiddleware({
 app.use(cookieParser());
 
 app.use(cors({
-    origin: 'https://anjunar.com',
-    credentials: true // falls Cookies oder Auth Header gebraucht werden
+    origin: 'https://technologyspeaks.com',
+    credentials: true
 }));
 
 app.use((req, res, next) => {
     const host = req.headers.host || '';
 
-    const subdomainMatch = host.match(/^([^.]+)\.anjunar\.com$/);
+    const subdomainMatch = host.match(/^([^.]+)\.technologyspeaks\.com$/);
 
     if (subdomainMatch) {
         const subdomain = subdomainMatch ? subdomainMatch[1] : 'default';
@@ -110,8 +110,8 @@ app.use(
         changeOrigin: true,
         on : {
             proxyReq: (proxyReq, req, res) => {
-                proxyReq.setHeader("x-forwarded-protocol", "http")
-                proxyReq.setHeader("x-forwarded-host", 'anjunar.com')
+                proxyReq.setHeader("x-forwarded-protocol", "https")
+                proxyReq.setHeader("x-forwarded-host", 'technologyspeaks.com')
             }
         }
     })

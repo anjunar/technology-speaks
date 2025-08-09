@@ -68,7 +68,7 @@ class ConfirmationFormResource extends SchemaBuilderContext {
       .findFirst()
     
     if (value.isPresent)
-      val userRole = Role.query(("name", "User"))
+      val userRole = Role.query(("name", "Confirmed"))
       val user = value.get()
       user.roles.clear()
       user.roles.add(userRole)

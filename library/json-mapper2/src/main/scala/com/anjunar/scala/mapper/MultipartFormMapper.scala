@@ -5,7 +5,7 @@ import com.anjunar.scala.mapper.file.{File, FileContext}
 import com.anjunar.scala.mapper.helper.JPAHelper
 import com.anjunar.scala.universe.{ResolvedClass, TypeResolver}
 import com.anjunar.scala.universe.introspector.{BeanIntrospector, ScalaIntrospector}
-import jakarta.persistence.OneToMany
+import jakarta.persistence.{ManyToOne, OneToMany}
 import jakarta.ws.rs.FormParam
 
 import java.util.UUID
@@ -31,7 +31,7 @@ class MultipartFormMapper {
         if (propertyBuilder.get.writeable) {
           val converter = registry.find(property.propertyType)
 
-          if (converter == null) {
+          if (converter == null && ! classOf[File].isAssignableFrom(property.propertyType.raw)) {
 
             var value = property.get(entity).asInstanceOf[AnyRef]
 
@@ -70,27 +70,39 @@ class MultipartFormMapper {
 
                 }
               }
-              
+
               val fileOption = files.get(formParam.value())
-              
+
               if (fileOption.isDefined) {
 
-                val fileCollection = property.get(entity).asInstanceOf[util.Collection[File]]
-                
-                files.foreach((filename, uploaded) => {
-                  val newFile = fileCollection.stream().filter(file => file.name == filename)
-                    .findFirst()
-                    .orElseGet(() => {
-                      val property = model.findProperty("files")
-                      val oneToMany = property.findAnnotation(classOf[OneToMany])
-                      val newFile = oneToMany.targetEntity().getConstructor().newInstance().asInstanceOf[File]
-                      fileCollection.add(newFile)
-                      newFile
-                    })
-                  newFile.name = uploaded.filename
-                  newFile.contentType = uploaded.contentType
-                  newFile.data = uploaded.data
-                })
+                val fileCollection = property.get(entity)
+
+                if (classOf[util.Collection[?]].isAssignableFrom(property.propertyType.raw)) {
+                  files.foreach((filename, uploaded) => {
+                    val newFile = fileCollection.asInstanceOf[util.Collection[File]].stream().filter(file => file.name == filename)
+                      .findFirst()
+                      .orElseGet(() => {
+                        val property = model.findProperty("files")
+                        val oneToMany = property.findAnnotation(classOf[OneToMany])
+                        val newFile = oneToMany.targetEntity().getConstructor().newInstance().asInstanceOf[File]
+                        fileCollection.asInstanceOf[util.Collection[File]].add(newFile)
+                        newFile
+                      })
+                    newFile.name = uploaded.filename
+                    newFile.contentType = uploaded.contentType
+                    newFile.data = uploaded.data
+                  })
+                } else {
+                  files.foreach((filename, uploaded) => {
+                    val manyToOne = property.findAnnotation(classOf[ManyToOne])
+                    val newFile = manyToOne.targetEntity().getConstructor().newInstance().asInstanceOf[File]
+                    newFile.name = uploaded.filename
+                    newFile.contentType = uploaded.contentType
+                    newFile.data = uploaded.data
+                    property.set(entity, newFile)
+                  })
+                }
+
               }
 
               val deleteOption = fields.get(formParam.value() + ":delete")

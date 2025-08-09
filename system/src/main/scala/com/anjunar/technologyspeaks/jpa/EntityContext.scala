@@ -12,9 +12,9 @@ import java.util
 trait EntityContext[E <: EntityContext[E]] extends IdProvider { self: E =>
 
   def saveOrUpdate(): E = {
-    val managed = if (version == null) {
+    val managed = if (version == null || version == 0) {
       entityManager.persist(this)
-      this
+      return this
     } else {
       if (entityManager.contains(this)) {
         this

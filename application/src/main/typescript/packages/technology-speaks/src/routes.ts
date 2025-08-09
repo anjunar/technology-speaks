@@ -118,7 +118,7 @@ export const routes: Router.Route[] = [
                                         process(response, getRedirect(info))
 
                                         if (response.ok) {
-                                            return mapForm(await response.json())
+                                            return mapForm(await response.json(), true)
                                         }
 
                                         throw new Error(response.status.toString())

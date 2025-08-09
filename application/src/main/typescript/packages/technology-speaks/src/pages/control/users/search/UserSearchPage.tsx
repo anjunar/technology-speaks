@@ -19,20 +19,20 @@ export function UserSearchPage(properties: Users.Attributes) {
             <div className={"grid-container"}>
                 {
                     rows.map(user => (
-                        <a key={user.id} className={"user"} href={"/control/users/user/" + user.id}>
+                        <a key={user.id} className={"user"} href={"/control/users/user/" + user.id} style={{display : "flex", flexDirection : "column", alignItems : "center"}}>
                             <div>
                                 {
-                                    user.info.image ?
+                                    user.info?.image ?
                                         (<img src={encodeBase64(user.info.image.contentType, user.info.image.data)} style={{width : "100px", height : "100px"}}/>) :
                                         (<div style={{fontSize : "100px"}} className={"material-icons"}>account_circle</div>)
                                 }
                             </div>
                             <div>
-                                <h2>{user.nickName}</h2>
-                                {
-                                    user.info.firstName + " " + user.info.lastName
-                                }
+                                <h2>{user.nickName? user.nickName : "Nickname"}</h2>
                             </div>
+                            {
+                                user.info ? user.info.firstName + " " + user.info.lastName : "No information"
+                            }
                         </a>
                     ))
                 }

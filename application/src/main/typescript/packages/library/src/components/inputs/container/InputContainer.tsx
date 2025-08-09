@@ -43,7 +43,7 @@ function InputContainer(properties: InputContainer.Attributes) {
             if (model.value instanceof Array) {
                 setEmpty(model.value.length === 0)
             } else {
-                let types = ["date", "time", "datetime-local", "checkbox"]
+                let types = ["date", "time", "datetime-local", "checkbox", "file"]
 
                 if (types.indexOf(model.type) > -1) {
                     setEmpty(false)

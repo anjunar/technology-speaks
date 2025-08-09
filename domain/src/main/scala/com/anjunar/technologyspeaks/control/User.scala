@@ -8,6 +8,7 @@ import com.anjunar.technologyspeaks.security.SecurityUser
 import com.anjunar.technologyspeaks.shared.property.EntityView
 import jakarta.persistence.*
 import jakarta.validation.constraints.*
+import jakarta.ws.rs.FormParam
 
 import java.util
 import java.util.Objects
@@ -21,10 +22,10 @@ import scala.compiletime.uninitialized
 class User extends Identity with OwnerProvider with SecurityUser {
 
   @Size(min = 3, max = 80)
-  @NotBlank
   @PropertyDescriptor(title = "Nickname", naming = true)
   @Column(unique = true)
   @Basic
+  @FormParam("nickName")
   var nickName: String = uninitialized
 
   @OneToMany(cascade = Array(CascadeType.ALL), mappedBy = "user")

@@ -141,27 +141,21 @@ module.exports = [
                     use: {
                         loader: 'ts-loader',
                     },
-                    exclude: /node_modules|\.d\.ts$/,
+                    exclude: /node_modules/,
                 },
                 {
                     test: /\.css$/i,
-                    use: [
-                        {
-                            loader: MiniCssExtractPlugin.loader,
-                            options: {
-                                emit: true,
-                            },
-                        },
-                        "css-loader"
-                    ],
+                    use: "null-loader",
                 },
                 {
                     test: /\.d\.ts$/i,
-                    type: "asset/source"
+                    type: "asset/source",
+                    use: "null-loader",
                 },
                 {
                     test: /\.(png|jpe?g|gif|svg|eot|ttf|woff|woff2)$/i,
                     type: "asset",
+                    use: "null-loader",
                 }
             ],
         },
@@ -170,9 +164,6 @@ module.exports = [
                 patterns: [
                     {from: 'public', to: 'public'},
                 ],
-            }),
-            new MiniCssExtractPlugin({
-                filename: 'assets/style.[contenthash].css',
             })
         ]
     }

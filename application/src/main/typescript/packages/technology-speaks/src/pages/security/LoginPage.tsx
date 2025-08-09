@@ -41,9 +41,16 @@ function LoginPage(properties: LoginPage.Attributes) {
         });
 
         if (responseFinish.ok) {
-            const params = new URLSearchParams(window.location.search)
-            let redirect = params.get("redirect");
-            navigate(redirect ? decodeURIComponent(redirect) : "/", true)
+            let link = responseFinish.headers.get("Link");
+            if (link) {
+                let regex = /<([^>]+)>; rel="(.+)"/g
+                let exec = regex.exec(link);
+                navigate(exec[1], true)
+            } else {
+                const params = new URLSearchParams(window.location.search)
+                let redirect = params.get("redirect");
+                navigate(redirect ? decodeURIComponent(redirect) : "/", true)
+            }
         } else {
             alert("Something went wrong")
         }
@@ -54,7 +61,7 @@ function LoginPage(properties: LoginPage.Attributes) {
         <div className={"login-page"} style={{display : "flex", justifyContent : "center", alignItems : "center", height : "100%"}}>
             <div>
                 <h1>Login</h1>
-                <SchemaForm value={domain} onSubmit={loginAction} style={{width : "300px"}}>
+                <SchemaForm value={domain} onSubmit={loginAction} style={{width : "300px"}} redirect={"/"}>
                     <SchemaInput name={"username"}/>
                     <JsFlag showWhenJs={false}>
                         <SchemaInput name={"password"}/>

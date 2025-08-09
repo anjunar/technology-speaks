@@ -28,7 +28,7 @@ class LoginResource extends Serializable with SchemaBuilderContext {
 
   @Inject
   var authenticator: Authenticator = uninitialized
-
+  
   var assertionRequest: AssertionRequest = uninitialized
 
   @GET
@@ -87,7 +87,7 @@ class LoginResource extends Serializable with SchemaBuilderContext {
 
   @POST
   @Path("/finish")
-  def finishLogin(loginFinish: PublicKeyCredential[AuthenticatorAssertionResponse, ClientAssertionExtensionOutputs]): Response = {
+  def finishLogin(loginFinish: PublicKeyCredential[AuthenticatorAssertionResponse, ClientAssertionExtensionOutputs], @Context context : SecurityContext): Response = {
     val rp = webAuthnService.relyingParty
 
     val options = assertionRequest
@@ -109,7 +109,14 @@ class LoginResource extends Serializable with SchemaBuilderContext {
 
     status match {
       case AuthenticationStatus.SUCCESS =>
-        Response.ok().build()
+
+        val isGuest = context.isUserInRole("Guest")
+        
+        if (isGuest) {
+          Response.ok().link("/security/confirm", "confirm").build()
+        } else {
+          Response.ok().build()  
+        }
       case _ =>
         Response.status(Response.Status.UNAUTHORIZED).build()
     }

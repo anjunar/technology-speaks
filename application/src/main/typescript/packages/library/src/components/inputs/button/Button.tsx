@@ -14,8 +14,6 @@ function Button(properties: Button.Attributes) {
 
     const isServer = useServer();
 
-    const isHydrated = useHydrated();
-
     const button = useRef(null);
 
     function isDisabled() {
@@ -50,10 +48,8 @@ function Button(properties: Button.Attributes) {
         }
     }, []);
 
-    const disabled = !isHydrated ? true : isDisabled()
-
     return (
-        <button ref={button} className={"large"} disabled={disabled} type={type} {...rest}>
+        <button ref={button} className={"large"} disabled={isDisabled()} type={type} {...rest}>
             {children}
         </button>
     )

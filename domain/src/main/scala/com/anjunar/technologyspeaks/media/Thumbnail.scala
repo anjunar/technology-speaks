@@ -1,6 +1,7 @@
 package com.anjunar.technologyspeaks.media
 
 import com.anjunar.scala.mapper.annotations.PropertyDescriptor
+import com.anjunar.scala.mapper.file.File
 import com.anjunar.technologyspeaks.shared.AbstractEntity
 import jakarta.persistence.*
 import org.apache.commons.io.{FileUtils, IOUtils}
@@ -11,7 +12,7 @@ import scala.compiletime.uninitialized
 @Entity
 @Table(name = "media")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-class Thumbnail extends AbstractEntity {
+class Thumbnail extends AbstractEntity with File {
 
   @PropertyDescriptor(title = "Name", naming = true)
   @Basic

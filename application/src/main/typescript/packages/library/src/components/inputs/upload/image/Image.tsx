@@ -60,9 +60,9 @@ function Image(properties: Image.Attributes) {
             }
             <div onClick={() => setOpen(!open && !disabled)} style={{height : "100%"}}>
                 {
-                    state?.thumbnail?.data ? (
+                    state?.data ? (
                         <img style={{width: "100%", height: "100%"}}
-                             src={encodeBase64(state.thumbnail.contentType, state.thumbnail.data)}/>
+                             src={encodeBase64(state.contentType, state.data)}/>
                     ) : (
                         <div className={"image-placeholder"}>
                             <div>{placeholder}</div>
